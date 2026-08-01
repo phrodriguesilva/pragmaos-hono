@@ -68,6 +68,7 @@
 
   /* Layout */
   --width-sidebar: 200px;
+  --spacing-sidebar: 200px;
 
   /* Radius -- none, sharp corners */
   --radius-sm: 2px;

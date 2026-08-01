@@ -29,17 +29,17 @@ app.route("/", authRoutes);
 
 // Protected routes -- requireAuth is applied per-route group.
 app.route("/", dashboardRoutes);
-app.route("/", clientsRoutes);
-app.route("/", casesRoutes);
-app.route("/", proceedingsRoutes);
-app.route("/", deadlinesRoutes);
-app.route("/", hearingsRoutes);
-app.route("/", communicationsRoutes);
-app.route("/", financeRoutes);
-app.route("/", documentsRoutes);
-app.route("/", reportsRoutes);
-app.route("/", usersRoutes);
-app.route("/", auditRoutes);
+app.route("/clients", clientsRoutes);
+app.route("/cases", casesRoutes);
+app.route("/proceedings", proceedingsRoutes);
+app.route("/deadlines", deadlinesRoutes);
+app.route("/hearings", hearingsRoutes);
+app.route("/communications", communicationsRoutes);
+app.route("/finance", financeRoutes);
+app.route("/documents", documentsRoutes);
+app.route("/reports", reportsRoutes);
+app.route("/users", usersRoutes);
+app.route("/audit", auditRoutes);
 
 // 404 fallback.
 app.notFound((c) => c.html("Pagina nao encontrada.", 404));
