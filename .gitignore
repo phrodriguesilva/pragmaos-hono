@@ -35,3 +35,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # built CSS (regenerated on build)
 public/css/app.css
+.vercel
+!.vercel/project.json

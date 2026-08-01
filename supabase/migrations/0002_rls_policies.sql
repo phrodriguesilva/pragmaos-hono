@@ -4,8 +4,8 @@
 -- from the session user. RLS is a defense-in-depth layer.
 
 -- Helper: a function returning the tenant_id of the current authenticated user.
--- Reads from the profiles table keyed by auth.uid().
-create or replace function auth.tenant_id()
+-- Placed in public schema (no permission to create in auth schema via MCP).
+create or replace function public.current_tenant_id()
 returns uuid
 language sql
 stable
@@ -33,9 +33,9 @@ alter table documents enable row level security;
 
 -- profiles: a user can see only profiles in their own tenant.
 create policy "profiles_tenant_isolation_select" on profiles
-  for select using (tenant_id = auth.tenant_id());
+  for select using (tenant_id = public.current_tenant_id());
 create policy "profiles_tenant_isolation_modify" on profiles
-  for all using (tenant_id = auth.tenant_id()) with check (tenant_id = auth.tenant_id());
+  for all using (tenant_id = public.current_tenant_id()) with check (tenant_id = public.current_tenant_id());
 
 -- Generic policy template applied to every tenant-scoped table:
 -- select/insert/update/delete only where tenant_id matches the user's tenant.
@@ -50,9 +50,9 @@ begin
       'case_assignments','audit_log','invoices','documents'
     ])
   loop
-    execute format('create policy "%1$s_tenant_select" on %1$I for select using (tenant_id = auth.tenant_id());', tbl);
-    execute format('create policy "%1$s_tenant_insert" on %1$I for insert with check (tenant_id = auth.tenant_id());', tbl);
-    execute format('create policy "%1$s_tenant_update" on %1$I for update using (tenant_id = auth.tenant_id()) with check (tenant_id = auth.tenant_id());', tbl);
-    execute format('create policy "%1$s_tenant_delete" on %1$I for delete using (tenant_id = auth.tenant_id());', tbl);
+    execute format('create policy "%1$s_tenant_select" on %1$I for select using (tenant_id = public.current_tenant_id());', tbl);
+    execute format('create policy "%1$s_tenant_insert" on %1$I for insert with check (tenant_id = public.current_tenant_id());', tbl);
+    execute format('create policy "%1$s_tenant_update" on %1$I for update using (tenant_id = public.current_tenant_id()) with check (tenant_id = public.current_tenant_id());', tbl);
+    execute format('create policy "%1$s_tenant_delete" on %1$I for delete using (tenant_id = public.current_tenant_id());', tbl);
   end loop;
 end$$;
