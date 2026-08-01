@@ -21,6 +21,11 @@ import { tasksRoutes } from "./routes/tasks";
 import { templatesRoutes } from "./routes/templates";
 import { honorariosRoutes } from "./routes/honorarios";
 import { profileRoutes } from "./routes/profile";
+import { timesheetRoutes } from "./routes/timesheet";
+import { workflowsRoutes } from "./routes/workflows";
+import { portalRoutes } from "./routes/portal";
+import { cashflowRoutes } from "./routes/cashflow";
+import { aiChatRoutes } from "./routes/ai-chat";
 import { stubRoute } from "./routes/stub";
 
 const app = new Hono<AppEnv>();
@@ -32,6 +37,16 @@ app.use("/static/*", serveStatic({ root: "./public" }));
 
 // Auth (public).
 app.route("/", authRoutes);
+
+// Client portal (public login + protected client/staff views).
+// Must be registered before dashboardRoutes since dashboard uses use("*", requireAuth)
+// which would otherwise catch /portal/login.
+app.route("/portal", portalRoutes);
+
+// Redirect legacy AI stub paths to the unified AI chat module.
+// Must be before dashboardRoutes for the same reason as portal.
+app.get("/ai-jurisprudence", (c) => c.redirect("/ai-assistant/jurisprudence"));
+app.get("/ai-petitions", (c) => c.redirect("/ai-assistant/petitions"));
 
 // Protected routes -- requireAuth is applied per-route group.
 app.route("/", dashboardRoutes);
@@ -53,6 +68,10 @@ app.route("/tasks", tasksRoutes);
 app.route("/templates", templatesRoutes);
 app.route("/honorarios", honorariosRoutes);
 app.route("/profile", profileRoutes);
+app.route("/timesheet", timesheetRoutes);
+app.route("/workflows", workflowsRoutes);
+app.route("/cashflow", cashflowRoutes);
+app.route("/ai-assistant", aiChatRoutes);
 
 // Phase 2 -- stubs for modules not yet fully implemented.
 app.route("/companies", stubRoute("companies", "Empresas", "ph-building",
@@ -73,27 +92,12 @@ app.route("/messages", stubRoute("messages", "Mensagens", "ph-chat-circle",
 app.route("/billing", stubRoute("billing", "Cobrancas", "ph-receipt",
   "Cobranca via PIX, boleto e cartao com recursao e conciliacao.",
   ["Geracao de boletos", "PIX dinamico", "Cartao de credito", "Cobranca recorrente", "Conciliacao bancaria", "Open Finance"]));
-app.route("/cashflow", stubRoute("cashflow", "Fluxo de Caixa", "ph-chart-line-up",
-  "Fluxo de caixa com contas a receber, contas a pagar e centros de custo.",
-  ["Contas a receber e pagar", "Centro de custos", "Plano de contas", "Rateios", "Conciliacao OFX/CSV", "Forecast"]));
 app.route("/finance-reports", stubRoute("finance-reports", "Relatorios Financeiros", "ph-chart-pie",
   "Relatorios financeiros com lucro, receita, custos, margem e impostos.",
   ["DRE simplificado", "Relatorio de lucro", "Relatorio de custos", "Margem por processo", "Impostos"]));
-app.route("/ai-assistant", stubRoute("ai-assistant", "Assistente Juridico", "ph-chats-teardrop",
-  "Chat juridico com IA para tirar duvidas, pesquisar e analisar processos.",
-  ["Chat com contexto do processo", "Busca semantica", "Analise de documentos", "Sugestao de estrategia"]));
 app.route("/ai-summaries", stubRoute("ai-summaries", "Resumos com IA", "ph-sparkle",
   "Resumos automaticos de processos, peticoes e decisoes.",
   ["Resumo de processo", "Resumo de peticao", "Explicacao de decisao", "Resumo de audiencia"]));
-app.route("/ai-jurisprudence", stubRoute("ai-jurisprudence", "Jurisprudencia", "ph-books",
-  "Pesquisa jurisprudencial com IA e comparacao entre decisoes.",
-  ["Busca por termos", "Filtros por tribunal/relator", "Comparacao de decisoes", "Citacoes relevantes"]));
-app.route("/ai-petitions", stubRoute("ai-petitions", "Gerar Peticoes", "ph-file-arrow-up",
-  "Geracao automatica de peticoes com IA a partir de dados do processo.",
-  ["Template inteligente", "Preenchimento automatico", "Revisao com IA", "Exportacao PDF/DOCX"]));
-app.route("/portal", stubRoute("portal", "Portal do Cliente", "ph-globe",
-  "Portal self-service para clientes consultarem processos e documentos.",
-  ["Consulta de processos", "Download de documentos", "Assinatura de contratos", "Envio de arquivos", "Pagamento de boletos"]));
 app.route("/teams", stubRoute("teams", "Equipes", "ph-users-four",
   "Gestao de equipes com lideres, membros e distribuicao de processos.",
   ["Criacao de equipes", "Atribuicao de lider", "Distribuicao de processos", "Relatorio de produtividade"]));

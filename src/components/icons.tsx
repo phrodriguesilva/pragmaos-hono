@@ -96,6 +96,7 @@ export const MENU: MenuItem[] = [
       { key: "honorarios", label: "Honorarios", href: "/honorarios", icon: "ph-hand-coins" },
       { key: "billing", label: "Cobrancas", href: "/billing", icon: "ph-receipt" },
       { key: "cashflow", label: "Fluxo de Caixa", href: "/cashflow", icon: "ph-chart-line-up" },
+      { key: "timesheet", label: "Timesheet", href: "/timesheet", icon: "ph-timer" },
       { key: "finance-reports", label: "Relatorios", href: "/finance-reports", icon: "ph-chart-pie" },
     ],
   },
@@ -111,7 +112,7 @@ export const MENU: MenuItem[] = [
     ],
   },
   { key: "reports", label: "BI e Relatorios", href: "/reports", icon: "ph-chart-bar" },
-  { key: "portal", label: "Portal do Cliente", href: "/portal", icon: "ph-globe" },
+  { key: "portal", label: "Portal do Cliente", href: "/portal/staff", icon: "ph-globe" },
   {
     key: "admin",
     label: "Administracao",
@@ -119,6 +120,7 @@ export const MENU: MenuItem[] = [
     children: [
       { key: "users", label: "Usuarios", href: "/users", icon: "ph-user-circle-gear" },
       { key: "teams", label: "Equipes", href: "/teams", icon: "ph-users-four" },
+      { key: "workflows", label: "Workflows", href: "/workflows", icon: "ph-gear-six" },
       { key: "permissions", label: "Permissoes", href: "/permissions", icon: "ph-key" },
       { key: "integrations", label: "Integracoes", href: "/integrations", icon: "ph-plugs-connected" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
