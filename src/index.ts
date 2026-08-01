@@ -20,6 +20,7 @@ import { leadsRoutes } from "./routes/leads";
 import { tasksRoutes } from "./routes/tasks";
 import { templatesRoutes } from "./routes/templates";
 import { honorariosRoutes } from "./routes/honorarios";
+import { profileRoutes } from "./routes/profile";
 import { stubRoute } from "./routes/stub";
 
 const app = new Hono<AppEnv>();
@@ -51,6 +52,7 @@ app.route("/leads", leadsRoutes);
 app.route("/tasks", tasksRoutes);
 app.route("/templates", templatesRoutes);
 app.route("/honorarios", honorariosRoutes);
+app.route("/profile", profileRoutes);
 
 // Phase 2 -- stubs for modules not yet fully implemented.
 app.route("/companies", stubRoute("companies", "Empresas", "ph-building",

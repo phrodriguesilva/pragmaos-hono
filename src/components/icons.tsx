@@ -240,7 +240,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
           role="menu"
           class="absolute right-0 top-full mt-1 border border-border-strong bg-white text-body-sm text-gray-800 min-w-32"
         >
-          <a href="/perfil" role="menuitem" class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+          <a href="/profile" role="menuitem" class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
             <i class="ph ph-user" aria-hidden="true" />Perfil
           </a>
           <a href="/logout" role="menuitem" class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
