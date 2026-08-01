@@ -84,7 +84,7 @@ honorariosRoutes.get("/", async (c) => {
   const rows = (honorarios ?? []).map((h) => {
     const clientName = (h.clients as unknown as { name: string } | null)?.name ?? "-";
     return [
-      <a href={`/honorarios/${h.id}`} class="text-navy-700 hover:underline">{h.description}</a> as unknown as string,
+      <a href={`/honorarios/${h.id}`} class="text-terracota-600 hover:underline">{h.description}</a> as unknown as string,
       clientName,
       TYPE_LABELS[h.type] ?? h.type,
       formatCurrency(h.amount_cents),
@@ -280,8 +280,8 @@ honorariosRoutes.get("/:id", async (c) => {
         <Panel title="Dados do honorario" icon="ph-hand-coins">
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Descricao: </dt><dd class="inline">{h.description}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${h.client_id}`} class="text-navy-700 hover:underline">{client?.name ?? "-"}</a></dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{h.case_id ? <a href={`/cases/${h.case_id}`} class="text-navy-700 hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${h.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{h.case_id ? <a href={`/cases/${h.case_id}`} class="text-terracota-600 hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{TYPE_LABELS[h.type] ?? h.type}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Valor: </dt><dd class="inline">{formatCurrency(h.amount_cents)}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Status: </dt><dd class="inline">

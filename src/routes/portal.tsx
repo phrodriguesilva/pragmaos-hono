@@ -59,22 +59,22 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-gray-50 text-body font-sans min-h-screen">
-        <header class="bg-navy-600 text-white px-4 py-3 flex items-center justify-between">
+        <header class="bg-carvao-600 text-white px-4 py-3 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <i class="ph-bold ph-scales text-h2" aria-hidden="true" />
             <span class="text-h3 font-semibold">PragmaOS - Portal do Cliente</span>
           </div>
           <div class="flex items-center gap-4 text-body-sm">
             <span class="flex items-center gap-1"><i class="ph ph-user-circle" aria-hidden="true" />{clientName}</span>
-            <a href="/portal/logout" class="flex items-center gap-1 hover:text-navy-200"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
+            <a href="/portal/logout" class="flex items-center gap-1 hover:text-carvao-200"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
           </div>
         </header>
-        <nav class="bg-navy-700 px-4 py-2 flex gap-4 text-body-sm text-white">
-          <a href="/portal/home" class="hover:text-navy-200 flex items-center gap-1"><i class="ph ph-house" aria-hidden="true" />Inicio</a>
-          <a href="/portal/cases" class="hover:text-navy-200 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</a>
-          <a href="/portal/documents" class="hover:text-navy-200 flex items-center gap-1"><i class="ph ph-file-text" aria-hidden="true" />Documentos</a>
-          <a href="/portal/messages" class="hover:text-navy-200 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</a>
-          <a href="/portal/invoices" class="hover:text-navy-200 flex items-center gap-1"><i class="ph ph-receipt" aria-hidden="true" />Faturas</a>
+        <nav class="bg-carvao-700 px-4 py-2 flex gap-4 text-body-sm text-white">
+          <a href="/portal/home" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-house" aria-hidden="true" />Inicio</a>
+          <a href="/portal/cases" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</a>
+          <a href="/portal/documents" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-file-text" aria-hidden="true" />Documentos</a>
+          <a href="/portal/messages" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</a>
+          <a href="/portal/invoices" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-receipt" aria-hidden="true" />Faturas</a>
         </nav>
         <main class="max-w-4xl mx-auto p-4">{children}</main>
       </body>
@@ -292,10 +292,10 @@ portalRoutes.get("/login", (c) => {
         <script src="https://unpkg.com/alpinejs@3.14.8" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
-      <body class="bg-navy-800 text-body font-sans min-h-screen flex items-center justify-center">
-        <div class="w-full max-w-sm border border-navy-700 bg-white p-8">
+      <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">
+        <div class="w-full max-w-sm border border-carvao-700 bg-white p-8">
           <div class="flex items-center gap-2 mb-1">
-            <i class="ph-bold ph-scales text-h2 text-navy-700" aria-hidden="true" />
+            <i class="ph-bold ph-scales text-h2 text-carvao-700" aria-hidden="true" />
             <h1 class="text-h2 font-bold text-gray-900">Portal do Cliente</h1>
           </div>
           <p class="text-body-sm text-gray-500 mb-6">Acesse seus processos e documentos.</p>
@@ -389,8 +389,8 @@ portalRoutes.get("/home", async (c) => {
       <h1 class="text-h1 font-bold text-gray-900 mb-4">Ola, {client.name}</h1>
 
       <div class="grid grid-cols-3 gap-4 mb-6">
-        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</div><div class="text-h1 font-bold text-navy-700">{casesRes.data?.length ?? 0}</div></Panel>
-        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</div><div class="text-h1 font-bold text-navy-700">{messagesRes.data?.length ?? 0}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</div><div class="text-h1 font-bold text-carvao-700">{casesRes.data?.length ?? 0}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</div><div class="text-h1 font-bold text-carvao-700">{messagesRes.data?.length ?? 0}</div></Panel>
         <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-receipt" aria-hidden="true" />Faturas pendentes</div><div class="text-h1 font-bold text-status-yellow">{invoicesRes.data?.length ?? 0}</div></Panel>
       </div>
 
@@ -398,7 +398,7 @@ portalRoutes.get("/home", async (c) => {
         <Table
           columns={[{ label: "Titulo", icon: "ph-text-aa" }, { label: "Numero", icon: "ph-hash" }, { label: "Tipo", icon: "ph-tag" }, { label: "Status", icon: "ph-circle-half" }]}
           rows={(casesRes.data ?? []).map((cs) => [
-            <a href={`/portal/cases/${cs.id}`} class="text-navy-700 hover:underline">{cs.title}</a> as unknown as string,
+            <a href={`/portal/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
             cs.case_number ?? "-",
             cs.case_type,
             <Badge color={cs.status === "active" ? "green" : cs.status === "suspended" ? "yellow" : "gray"}>{cs.status === "active" ? "Ativo" : cs.status === "suspended" ? "Suspenso" : "Arquivado"}</Badge> as unknown as string,
@@ -446,7 +446,7 @@ portalRoutes.get("/cases", async (c) => {
         <Table
           columns={[{ label: "Titulo", icon: "ph-text-aa" }, { label: "Numero", icon: "ph-hash" }, { label: "Tipo", icon: "ph-tag" }, { label: "Tribunal", icon: "ph-building" }, { label: "Status", icon: "ph-circle-half" }]}
           rows={(cases ?? []).map((cs) => [
-            <a href={`/portal/cases/${cs.id}`} class="text-navy-700 hover:underline">{cs.title}</a> as unknown as string,
+            <a href={`/portal/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
             cs.case_number ?? "-",
             cs.case_type,
             cs.tribunal ?? "-",

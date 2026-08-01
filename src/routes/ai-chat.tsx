@@ -86,7 +86,7 @@ aiChatRoutes.get("/", async (c) => {
   const rows = (conversations ?? []).map((cv) => {
     const caseTitle = (cv.cases as unknown as { title: string } | null)?.title;
     return [
-      <a href={`/ai-chat/${cv.id}`} class="text-navy-700 hover:underline">{cv.title}</a> as unknown as string,
+      <a href={`/ai-chat/${cv.id}`} class="text-terracota-600 hover:underline">{cv.title}</a> as unknown as string,
       cv.model ?? AI_MODEL,
       (lastByConv.get(cv.id) ?? "-").slice(0, 80),
       caseTitle ? <Badge color="blue" icon="ph-folder">{caseTitle}</Badge> as unknown as string : "-",
@@ -251,7 +251,7 @@ aiChatRoutes.get("/:id", async (c) => {
             (messages ?? []).map((m) => (
               <div class={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  class={`max-w-[75%] px-3 py-2 ${m.role === "user" ? "bg-navy-700 text-white" : "bg-gray-100 text-gray-800"}`}
+                  class={`max-w-[75%] px-3 py-2 ${m.role === "user" ? "bg-carvao-700 text-white" : "bg-gray-100 text-gray-800"}`}
                   style="white-space: pre-wrap; word-break: break-word;"
                 >
                   <div class="text-body-sm font-semibold mb-1">
@@ -385,7 +385,7 @@ aiChatRoutes.get("/jurisprudence", async (c) => {
     r.query,
     r.tribunal ?? "-",
     formatDate(r.created_at),
-    <a href={`/ai-chat/jurisprudence/result/${r.id}`} class="text-navy-700 hover:underline">Ver resultado</a> as unknown as string,
+    <a href={`/ai-chat/jurisprudence/result/${r.id}`} class="text-terracota-600 hover:underline">Ver resultado</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -553,7 +553,7 @@ aiChatRoutes.get("/petitions", async (c) => {
       typeLabels[p.petition_type] ?? p.petition_type,
       caseTitle,
       formatDate(p.created_at),
-      <a href={`/ai-chat/petitions/result/${p.id}`} class="text-navy-700 hover:underline">Ver peticao</a> as unknown as string,
+      <a href={`/ai-chat/petitions/result/${p.id}`} class="text-terracota-600 hover:underline">Ver peticao</a> as unknown as string,
     ];
   });
 

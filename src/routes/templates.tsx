@@ -41,7 +41,7 @@ templatesRoutes.get("/", async (c) => {
     .order("created_at", { ascending: false });
 
   const rows = (templates ?? []).map((tpl) => [
-    <a href={`/templates/${tpl.id}`} class="text-navy-700 hover:underline">{tpl.name}</a> as unknown as string,
+    <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline">{tpl.name}</a> as unknown as string,
     tpl.doc_type,
     new Date(tpl.created_at).toLocaleDateString("pt-BR"),
     "",

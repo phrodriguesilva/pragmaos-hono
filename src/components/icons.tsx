@@ -142,9 +142,9 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   );
 
   return (
-    <aside class="fixed inset-y-0 left-0 w-sidebar bg-navy-600 flex flex-col z-20 overflow-y-auto">
-      <div class="h-12 flex items-center gap-2 border-b border-navy-700 px-4 shrink-0">
-        <i class="ph-bold ph-scales text-h2 text-white" aria-hidden="true" />
+    <aside class="fixed inset-y-0 left-0 w-sidebar bg-carvao-600 flex flex-col z-20 overflow-y-auto">
+      <div class="h-12 flex items-center gap-2 border-b border-carvao-700 px-4 shrink-0">
+        <i class="ph-bold ph-scales text-h2 text-terracota-400" aria-hidden="true" />
         <span class="text-h3 font-semibold text-white">PragmaOS</span>
       </div>
       <nav class="flex-1 flex flex-col py-1">
@@ -155,8 +155,8 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
             return (
               <a
                 href={item.href}
-                class={`flex items-center gap-2 px-4 py-2 text-body-sm text-white hover:bg-navy-700${
-                  isActive ? " bg-navy-700 font-semibold border-l-2 border-white" : ""
+                class={`flex items-center gap-2 px-4 py-2 text-body-sm text-white hover:bg-carvao-700${
+                  isActive ? " bg-carvao-700 font-semibold border-l-2 border-terracota-400" : ""
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -173,8 +173,8 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
             <div {...{ "x-data": `{ open: ${isExpanded ? "true" : "false"} }` }} class="flex flex-col">
               <button
                 {...{ "@click": "open = !open" }}
-                class={`flex items-center justify-between px-4 py-2 text-body-sm text-white hover:bg-navy-700 w-full${
-                  isExpanded ? " bg-navy-700/50" : ""
+                class={`flex items-center justify-between px-4 py-2 text-body-sm text-white hover:bg-carvao-700 w-full${
+                  isExpanded ? " bg-carvao-700/50" : ""
                 }`}
               >
                 <span class="flex items-center gap-2">
@@ -189,8 +189,8 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
                   return (
                     <a
                       href={child.href}
-                      class={`flex items-center gap-2 pl-8 pr-4 py-1.5 text-body-sm text-navy-200 hover:text-white hover:bg-navy-700${
-                        isActive ? " bg-navy-700 text-white font-semibold border-l-2 border-white" : ""
+                      class={`flex items-center gap-2 pl-8 pr-4 py-1.5 text-body-sm text-carvao-200 hover:text-white hover:bg-carvao-700${
+                        isActive ? " bg-carvao-700 text-white font-semibold border-l-2 border-terracota-400" : ""
                       }`}
                       aria-current={isActive ? "page" : undefined}
                     >
@@ -204,7 +204,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
           );
         })}
       </nav>
-      <div class="border-t border-navy-700 px-4 py-2 text-body-sm text-navy-300 shrink-0">v0.2.0</div>
+      <div class="border-t border-carvao-700 px-4 py-2 text-body-sm text-carvao-300 shrink-0">v0.2.0</div>
     </aside>
   );
 };
@@ -214,16 +214,16 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   userName,
   userRole,
 }) => (
-  <header class="w-full bg-navy-600 flex items-center justify-between px-4 py-2 sticky top-0 z-30">
+  <header class="w-full bg-carvao-600 flex items-center justify-between px-4 py-2 sticky top-0 z-30">
     <span class="text-h3 text-white font-semibold">{firmName ?? "PragmaOS"}</span>
     <div class="flex items-center gap-4">
       <div class="relative">
-        <i class="ph ph-magnifying-glass absolute left-2 top-1/2 -translate-y-1/2 text-body-sm text-navy-300" aria-hidden="true" />
+        <i class="ph ph-magnifying-glass absolute left-2 top-1/2 -translate-y-1/2 text-body-sm text-carvao-300" aria-hidden="true" />
         <input
           type="search"
           placeholder="Buscar..."
           aria-label="Buscar"
-          class="border border-navy-700 bg-navy-800 text-body-sm text-white pl-7 pr-2 py-1 focus:shadow-focus w-48"
+          class="border border-carvao-700 bg-carvao-800 text-body-sm text-white pl-7 pr-2 py-1 focus:shadow-focus w-48"
         />
       </div>
       <div {...{ "x-data": "{ open: false }" }} class="relative">
@@ -231,7 +231,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
           {...{ "@click": "open = !open" }}
           aria-label="Menu do usuario"
           aria-haspopup="menu"
-          class="flex items-center gap-1 text-body-sm text-white hover:text-navy-200"
+          class="flex items-center gap-1 text-body-sm text-white hover:text-carvao-200"
         >
           <i class="ph ph-user-circle text-h3" aria-hidden="true" />
           {userName}

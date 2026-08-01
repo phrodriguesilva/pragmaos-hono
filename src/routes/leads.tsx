@@ -49,7 +49,7 @@ leadsRoutes.get("/", async (c) => {
       const stage = PIPELINE_STAGES.find((s) => s.key === l.status);
       const assigned = (l.profiles as unknown as { full_name: string } | null)?.full_name ?? "-";
       return [
-        <a href={`/leads/${l.id}`} class="text-navy-700 hover:underline">{l.name}</a> as unknown as string,
+        <a href={`/leads/${l.id}`} class="text-terracota-600 hover:underline">{l.name}</a> as unknown as string,
         l.email ?? "-",
         l.phone ?? "-",
         l.origin,
@@ -135,7 +135,7 @@ leadsRoutes.get("/", async (c) => {
               </div>
               <div class="flex flex-col gap-2">
                 {stageLeads.map((l) => (
-                  <a href={`/leads/${l.id}`} class="block border border-border bg-white p-2 hover:border-navy-400 hover:shadow-sm">
+                  <a href={`/leads/${l.id}`} class="block border border-border bg-white p-2 hover:border-carvao-400 hover:shadow-sm">
                     <div class="text-body-sm font-semibold text-gray-800">{l.name}</div>
                     {l.area_of_interest ? (
                       <div class="text-body-sm text-gray-500">{l.area_of_interest}</div>

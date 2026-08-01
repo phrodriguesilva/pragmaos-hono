@@ -43,7 +43,7 @@ clientsRoutes.get("/", async (c) => {
   const { data: clients, count } = await query;
 
   const rows = (clients ?? []).slice(0, 25).map((cl) => [
-    <a href={`/clients/${cl.id}`} class="text-navy-700 hover:underline">{cl.name}</a> as unknown as string,
+    <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline">{cl.name}</a> as unknown as string,
     cl.email ?? "-",
     cl.phone ?? "-",
     cl.client_type,
@@ -272,7 +272,7 @@ clientsRoutes.get("/:id", async (c) => {
             { label: "Status" },
           ]}
           rows={(cases ?? []).map((cs) => [
-            <a href={`/cases/${cs.id}`} class="text-navy-700 hover:underline">{cs.title}</a> as unknown as string,
+            <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
             cs.case_number ?? "-",
             cs.case_type,
             <Badge color={cs.status === "active" ? "green" : cs.status === "suspended" ? "yellow" : "gray"}>

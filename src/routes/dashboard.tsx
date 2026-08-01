@@ -118,10 +118,10 @@ dashboardRoutes.get("/", async (c) => {
 
       {/* Row 1: KPIs principais */}
       <div class="grid grid-cols-5 gap-3 mb-4">
-        <KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="text-navy-700" />
+        <KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="text-carvao-700" />
         <KpiCard icon="ph-folder-plus" label="Novos no mes" value={casesNewThisMonth.count ?? 0} color="text-status-green" trend="este mes" />
         <KpiCard icon="ph-folder-dashed" label="Encerrados" value={casesArchived.count ?? 0} color="text-gray-500" />
-        <KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="text-navy-700" />
+        <KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="text-carvao-700" />
         <KpiCard icon="ph-clock-countdown" label="Prazos criticos" value={deadlinesCritical.count ?? 0} color="text-status-red" trend="3 dias" />
       </div>
 
@@ -129,7 +129,7 @@ dashboardRoutes.get("/", async (c) => {
       <div class="grid grid-cols-5 gap-3 mb-6">
         <KpiCard icon="ph-hand-coins" label="A receber" value={fmt(toReceiveCents)} color="text-status-yellow" />
         <KpiCard icon="ph-check-circle" label="Recebido" value={fmt(receivedCents)} color="text-status-green" />
-        <KpiCard icon="ph-users" label="Clientes ativos" value={clientsCount.count ?? 0} color="text-navy-700" />
+        <KpiCard icon="ph-users" label="Clientes ativos" value={clientsCount.count ?? 0} color="text-carvao-700" />
         <KpiCard icon="ph-user-plus" label="Leads em aberto" value={leadsOpen.count ?? 0} color="text-blue-600" />
         <KpiCard icon="ph-check-square" label="Tarefas pendentes" value={tasksPending.count ?? 0} color="text-status-yellow" />
       </div>
@@ -138,7 +138,7 @@ dashboardRoutes.get("/", async (c) => {
       <div class="grid grid-cols-2 gap-4 mb-6">
         <Panel title="Processos por area" icon="ph-tag">
           {typeChart.length > 0 ? (
-            <BarChart data={typeChart} color="bg-navy-500" />
+            <BarChart data={typeChart} color="bg-carvao-500" />
           ) : (
             <div class="text-body-sm text-gray-400 py-8 text-center">
               <i class="ph ph-chart-bar text-h2 block mb-1 text-gray-300" aria-hidden="true" />
@@ -147,7 +147,7 @@ dashboardRoutes.get("/", async (c) => {
           )}
         </Panel>
         <Panel title="Processos por status" icon="ph-circle-half">
-          <BarChart data={statusChart} color="bg-navy-600" />
+          <BarChart data={statusChart} color="bg-carvao-600" />
         </Panel>
       </div>
 
@@ -168,7 +168,7 @@ dashboardRoutes.get("/", async (c) => {
                     <li class="text-body-sm text-gray-700 flex items-center gap-2">
                       <i class="ph ph-clock text-xs text-gray-400" aria-hidden="true" />
                       {new Date(h.date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                      <a href={`/cases/${h.case_id}`} class="text-navy-700 hover:underline">
+                      <a href={`/cases/${h.case_id}`} class="text-terracota-600 hover:underline">
                         {(h.cases as unknown as { title: string } | null)?.title ?? "-"}
                       </a>
                       {h.location ? <span class="text-gray-400">- {h.location}</span> : null}
@@ -189,7 +189,7 @@ dashboardRoutes.get("/", async (c) => {
                     <li class="text-body-sm text-gray-700 flex items-center gap-2">
                       <i class="ph ph-calendar text-xs text-gray-400" aria-hidden="true" />
                       {new Date(d.due_date).toLocaleDateString("pt-BR")}
-                      <a href={`/cases/${d.case_id}`} class="text-navy-700 hover:underline">{d.title}</a>
+                      <a href={`/cases/${d.case_id}`} class="text-terracota-600 hover:underline">{d.title}</a>
                     </li>
                   ))}
                 </ul>
@@ -212,7 +212,7 @@ dashboardRoutes.get("/", async (c) => {
                   <div class="flex items-center gap-2 text-gray-400 mb-1">
                     <i class="ph ph-calendar text-xs" aria-hidden="true" />
                     {new Date(m.movement_date).toLocaleDateString("pt-BR")}
-                    <span class="text-navy-600 font-semibold">
+                    <span class="text-carvao-600 font-semibold">
                       {(m.proceedings as unknown as { cnj_number: string } | null)?.cnj_number ?? ""}
                     </span>
                   </div>
@@ -257,7 +257,7 @@ dashboardRoutes.get("/", async (c) => {
               {(recentClients.data ?? []).map((cl) => (
                 <li class="text-body-sm flex items-center gap-2 border-b border-border pb-1 last:border-0">
                   <i class="ph ph-user-circle text-gray-400" aria-hidden="true" />
-                  <a href={`/clients/${cl.id}`} class="text-navy-700 hover:underline font-semibold">{cl.name}</a>
+                  <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline font-semibold">{cl.name}</a>
                   <span class="text-gray-400 ml-auto">{new Date(cl.created_at).toLocaleDateString("pt-BR")}</span>
                 </li>
               ))}

@@ -29,7 +29,7 @@ hearingsRoutes.get("/", async (c) => {
     .order("date", { ascending: true });
 
   const rows = (hearings ?? []).map((h) => [
-    <a href={`/cases/${h.case_id}`} class="text-navy-700 hover:underline">{(h.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
+    <a href={`/cases/${h.case_id}`} class="text-terracota-600 hover:underline">{(h.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
     new Date(h.date).toLocaleString("pt-BR"),
     h.location ?? "-",
   ]);

@@ -51,8 +51,8 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
       <script src="https://unpkg.com/alpinejs@3.14.8" defer />
     </head>
-    <body class="bg-navy-800 text-body font-sans min-h-screen flex items-center justify-center">
-      <div class="w-full max-w-sm border border-navy-700 bg-white p-8">{children}</div>
+    <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">
+      <div class="w-full max-w-sm border border-carvao-700 bg-white p-8">{children}</div>
     </body>
   </html>
 );

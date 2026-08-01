@@ -131,7 +131,7 @@ workflowsRoutes.get("/", async (c) => {
     const steps = stepCounts.get(w.id) ?? 0;
     const last = lastExec.get(w.id);
     return [
-      <a href={`/workflows/${w.id}`} class="text-navy-700 hover:underline">{w.name}</a> as unknown as string,
+      <a href={`/workflows/${w.id}`} class="text-terracota-600 hover:underline">{w.name}</a> as unknown as string,
       <span class="inline-flex items-center gap-1">
         <i class={`ph ${triggerIcon(w.trigger_type)}`} aria-hidden="true" />
         {triggerLabel(w.trigger_type)}
@@ -365,7 +365,7 @@ workflowsRoutes.get("/:id", async (c) => {
           <ol class="flex flex-col gap-2 mb-4">
             {stepsList.map((s, i) => (
               <li class="border border-border bg-gray-50 p-3 flex items-center gap-3">
-                <span class="text-body font-bold text-navy-700 w-6 text-center">{i + 1}</span>
+                <span class="text-body font-bold text-carvao-700 w-6 text-center">{i + 1}</span>
                 <div class="flex-1">
                   <div class="text-body font-semibold text-gray-800 flex items-center gap-1">
                     <i class={`ph ${actionIcon(s.action_type)}`} aria-hidden="true" />

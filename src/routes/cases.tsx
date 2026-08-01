@@ -80,7 +80,7 @@ casesRoutes.get("/", async (c) => {
       cs.status === "suspended" ? <Badge color="yellow">Suspenso</Badge> :
       <Badge color="gray">Arquivado</Badge>;
     return [
-      <a href={`/cases/${cs.id}`} class="text-navy-700 hover:underline">{cs.title}</a> as unknown as string,
+      <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
       cs.case_number ?? "-",
       clientName,
       cs.case_type,
@@ -287,7 +287,7 @@ casesRoutes.get("/:id", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-6">
         <Panel title="Dados do processo" icon="ph-folder">
           <dl class="flex flex-col gap-1 text-body-sm">
-            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${caseRow.client_id}`} class="text-navy-700 hover:underline">{client?.name ?? "-"}</a></dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${caseRow.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Numero: </dt><dd class="inline">{caseRow.case_number ?? "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{caseRow.case_type}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tribunal: </dt><dd class="inline">{caseRow.tribunal ?? "-"}</dd></div>
@@ -431,7 +431,7 @@ casesRoutes.get("/:id", async (c) => {
           <Table
             columns={[{ label: "CNJ" }, { label: "Tribunal" }]}
             rows={(proceedings.data ?? []).map((p) => [
-              <a href={`/proceedings/${p.id}`} class="text-navy-700 hover:underline">{p.cnj_number}</a> as unknown as string,
+              <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
               p.tribunal ?? "-",
             ])}
             emptyMsg="Nenhum processo CNJ vinculado."

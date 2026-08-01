@@ -39,7 +39,7 @@ deadlinesRoutes.get("/", async (c) => {
     const due = new Date(d.due_date);
     const overdue = due < now && !d.completed_at;
     return [
-      <a href={`/cases/${d.case_id}`} class="text-navy-700 hover:underline">{(d.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
+      <a href={`/cases/${d.case_id}`} class="text-terracota-600 hover:underline">{(d.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
       d.title,
       new Date(d.due_date).toLocaleDateString("pt-BR"),
       `P${d.priority}`,

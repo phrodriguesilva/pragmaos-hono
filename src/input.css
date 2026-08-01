@@ -2,53 +2,66 @@
 
 /* PragmaOS sober theme -- "corporate 2003" / enterprise legacy.
    Dense tables, 1px borders, no animations, no emojis, no gradients.
-   Adapted from the Go original's tailwind.config.js tokens. */
+   Palette: Carvao (charcoal) + Terracota (terracotta/copper).
+   Warm institutional feel for legal practice. */
 @theme {
-  /* Gray scale (neutral) */
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d8;
-  --color-gray-400: #a1a1aa;
-  --color-gray-500: #71717a;
-  --color-gray-600: #52525b;
-  --color-gray-700: #3f3f46;
-  --color-gray-800: #27272a;
-  --color-gray-900: #18181b;
+  /* Gray scale -- warm neutrals (slight brown undertone, not cold blue-gray) */
+  --color-gray-50: #faf9f7;
+  --color-gray-100: #f4f2ef;
+  --color-gray-200: #e8e4df;
+  --color-gray-300: #d6d0c8;
+  --color-gray-400: #a8a096;
+  --color-gray-500: #787066;
+  --color-gray-600: #52504a;
+  --color-gray-700: #3a3835;
+  --color-gray-800: #262422;
+  --color-gray-900: #1a1816;
 
-  /* Navy scale (azul-marinho) */
-  --color-navy-50: #eef2f6;
-  --color-navy-100: #d9e2ec;
-  --color-navy-200: #bcccdc;
-  --color-navy-300: #9fb3c8;
-  --color-navy-400: #627d98;
-  --color-navy-500: #486581;
-  --color-navy-600: #334e68;
-  --color-navy-700: #243b53;
-  --color-navy-800: #102a43;
-  --color-navy-900: #0a1c2f;
+  /* Carvao scale (charcoal -- primary brand color, replaces navy) */
+  --color-carvao-50: #f5f4f3;
+  --color-carvao-100: #e8e6e3;
+  --color-carvao-200: #d1cec9;
+  --color-carvao-300: #a8a39c;
+  --color-carvao-400: #6e6a64;
+  --color-carvao-500: #4a463f;
+  --color-carvao-600: #36332e;
+  --color-carvao-700: #2b2925;
+  --color-carvao-800: #1f1d1a;
+  --color-carvao-900: #141310;
 
-  /* Border tokens */
-  --color-border: #cccccc;
-  --color-border-strong: #d4d4d8;
-  --color-border-subtle: #e5e5e5;
+  /* Terracota scale (accent / copper -- for highlights, links, active states) */
+  --color-terracota-50: #fbf3ef;
+  --color-terracota-100: #f5e2d8;
+  --color-terracota-200: #e8c4b0;
+  --color-terracota-300: #d99e78;
+  --color-terracota-400: #c4764a;
+  --color-terracota-500: #a85a33;
+  --color-terracota-600: #8f4a2a;
+  --color-terracota-700: #733b22;
+  --color-terracota-800: #5a2e1a;
+  --color-terracota-900: #3d1f12;
+
+  /* Border tokens -- warm */
+  --color-border: #c9c3ba;
+  --color-border-strong: #b5aea3;
+  --color-border-subtle: #e0ddd7;
 
   /* Status colors -- sober, no neon */
-  --color-status-green: #2e7d32;
-  --color-status-green-bg: #e8f5e9;
-  --color-status-green-border: #c8e6c9;
-  --color-status-red: #b71c1c;
-  --color-status-red-bg: #ffebee;
-  --color-status-red-border: #ffcdd2;
-  --color-status-yellow: #f57f17;
-  --color-status-yellow-bg: #fff8e1;
-  --color-status-yellow-border: #ffe082;
-  --color-status-blue: #1565c0;
-  --color-status-blue-bg: #e3f2fd;
-  --color-status-blue-border: #bbdefb;
-  --color-status-gray: #616161;
-  --color-status-gray-bg: #f5f5f5;
-  --color-status-gray-border: #e0e0e0;
+  --color-status-green: #2e6b3e;
+  --color-status-green-bg: #ecf4ee;
+  --color-status-green-border: #c3d8c9;
+  --color-status-red: #9b2222;
+  --color-status-red-bg: #fceeee;
+  --color-status-red-border: #e6caca;
+  --color-status-yellow: #94640c;
+  --color-status-yellow-bg: #faf3e0;
+  --color-status-yellow-border: #e8d5a0;
+  --color-status-blue: #3a5a7a;
+  --color-status-blue-bg: #eef2f6;
+  --color-status-blue-border: #c8d4e0;
+  --color-status-gray: #52504a;
+  --color-status-gray-bg: #f4f2ef;
+  --color-status-gray-border: #e0ddd7;
 
   /* Font sizes -- dense (Tailwind v4 uses --text-* namespace) */
   --text-table: 12px;
@@ -73,8 +86,8 @@
   /* Radius -- none, sharp corners */
   --radius-sm: 2px;
 
-  /* Focus ring */
-  --shadow-focus: 0 0 0 2px #ffffff, 0 0 0 4px #243b53;
+  /* Focus ring -- terracota accent */
+  --shadow-focus: 0 0 0 2px #faf9f7, 0 0 0 4px #8f4a2a;
 
   /* Animations */
   --animate-spin: spin 1s linear infinite;
@@ -130,7 +143,7 @@
     @apply bg-gray-50;
   }
   .data-table tbody tr:hover {
-    @apply bg-navy-50;
+    @apply bg-terracota-50;
   }
   /* Form inputs */
   .input {
@@ -145,11 +158,11 @@
     border-color: var(--color-border);
   }
   .btn-primary {
-    @apply bg-navy-600 text-white;
-    border-color: var(--color-navy-700);
+    @apply bg-carvao-600 text-white;
+    border-color: var(--color-carvao-700);
   }
   .btn-primary:hover {
-    @apply bg-navy-700;
+    @apply bg-carvao-700;
   }
   .btn-secondary {
     @apply bg-gray-100 text-gray-800;

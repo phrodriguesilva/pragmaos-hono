@@ -158,9 +158,9 @@ cashflowRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scale text-h3 text-navy-700" aria-hidden="true"></i>Saldo Projetado
+            <i class="ph ph-scale text-h3 text-carvao-700" aria-hidden="true"></i>Saldo Projetado
           </div>
-          <div class="text-h2 font-bold text-navy-700">{formatCurrency(saldoProjetado)}</div>
+          <div class="text-h2 font-bold text-carvao-700">{formatCurrency(saldoProjetado)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
@@ -607,9 +607,9 @@ cashflowRoutes.get("/dre", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-percent text-h3 text-navy-700" aria-hidden="true"></i>Margem
+            <i class="ph ph-percent text-h3 text-carvao-700" aria-hidden="true"></i>Margem
           </div>
-          <div class="text-h2 font-bold text-navy-700">{margin.toFixed(1)}%</div>
+          <div class="text-h2 font-bold text-carvao-700">{margin.toFixed(1)}%</div>
         </Panel>
       </div>
 
@@ -717,9 +717,9 @@ cashflowRoutes.get("/dfc", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-storefront text-h3 text-navy-700" aria-hidden="true"></i>Operacional
+            <i class="ph ph-storefront text-h3 text-carvao-700" aria-hidden="true"></i>Operacional
           </div>
-          <div class="text-h2 font-bold text-navy-700">{formatCurrency(operating)}</div>
+          <div class="text-h2 font-bold text-carvao-700">{formatCurrency(operating)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">

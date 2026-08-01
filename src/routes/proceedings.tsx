@@ -35,7 +35,7 @@ proceedingsRoutes.get("/", async (c) => {
     .order("created_at", { ascending: false });
 
   const rows = (proceedings ?? []).map((p) => [
-    <a href={`/proceedings/${p.id}`} class="text-navy-700 hover:underline">{p.cnj_number}</a> as unknown as string,
+    <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
     (p.cases as unknown as { title: string } | null)?.title ?? "-",
     p.tribunal ?? "-",
   ]);
@@ -152,7 +152,7 @@ proceedingsRoutes.get("/:id", async (c) => {
       />
       <Panel title="Dados do processo CNJ" icon="ph-scales">
         <dl class="flex flex-col gap-1 text-body-sm">
-          <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${proceeding.case_id}`} class="text-navy-700 hover:underline">{caseData?.title ?? "-"}</a></dd></div>
+          <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${proceeding.case_id}`} class="text-terracota-600 hover:underline">{caseData?.title ?? "-"}</a></dd></div>
           <div><dt class="font-semibold text-gray-700 inline">Tribunal: </dt><dd class="inline">{proceeding.tribunal ?? "-"}</dd></div>
           <div><dt class="font-semibold text-gray-700 inline">Comarca: </dt><dd class="inline">{proceeding.district ?? "-"}</dd></div>
         </dl>

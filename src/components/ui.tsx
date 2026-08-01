@@ -78,7 +78,7 @@ export const PageHeader: FC<PropsWithChildren<{ title: string; icon?: string; ac
 }) => (
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-2">
-      {icon ? <i class={`ph-bold ${icon} text-h1 text-navy-700`} aria-hidden="true" /> : null}
+      {icon ? <i class={`ph-bold ${icon} text-h1 text-carvao-700`} aria-hidden="true" /> : null}
       <div>
         <h1 class="text-h1 font-bold text-gray-900">{title}</h1>
         {children}
@@ -92,7 +92,7 @@ export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string }>> = (
   <div class="border border-border bg-white">
     {title ? (
       <div class="border-b border-border-strong px-4 py-2 bg-gray-50 flex items-center gap-2">
-        {icon ? <i class={`ph ${icon} text-body text-navy-600`} aria-hidden="true" /> : null}
+        {icon ? <i class={`ph ${icon} text-body text-carvao-600`} aria-hidden="true" /> : null}
         <h2 class="text-h3 font-semibold text-gray-800">{title}</h2>
       </div>
     ) : null}

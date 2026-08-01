@@ -23,7 +23,7 @@ export function stubRoute(
         <PageHeader title={title} icon={icon} />
         <Panel>
           <div class="flex items-start gap-3 mb-4">
-            <i class={`ph-bold ${icon} text-h1 text-navy-600`} aria-hidden="true" />
+            <i class={`ph-bold ${icon} text-h1 text-carvao-600`} aria-hidden="true" />
             <div>
               <p class="text-body text-gray-700 mb-2">{description}</p>
               <p class="text-body-sm text-gray-500">

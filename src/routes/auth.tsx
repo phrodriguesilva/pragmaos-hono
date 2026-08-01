@@ -29,8 +29,8 @@ function authShell(title: string, children: unknown, opts?: { wide?: boolean }) 
         <script src="https://unpkg.com/alpinejs@3.14.8" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
-      <body class="bg-navy-800 text-body font-sans min-h-screen flex items-center justify-center p-4">
-        <div class={`w-full ${maxW} border border-navy-700 bg-white p-8`}>
+      <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4">
+        <div class={`w-full ${maxW} border border-carvao-700 bg-white p-8`}>
           {children}
         </div>
       </body>
@@ -43,7 +43,7 @@ function AuthBrand(subtitle?: string) {
   return (
     <div class="mb-6">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-scales text-h2 text-navy-700" aria-hidden="true" />
+        <i class="ph-bold ph-scales text-h2 text-terracota-600" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">PragmaOS</h1>
       </div>
       {subtitle ? <p class="text-body-sm text-gray-500">{subtitle}</p> : null}
@@ -130,7 +130,7 @@ function loginForm(errorMsg?: string, emailValue?: string) {
   return (
     <AuthLayout title="Entrar">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-scales text-h2 text-navy-700" aria-hidden="true" />
+        <i class="ph-bold ph-scales text-h2 text-terracota-600" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">PragmaOS</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">Gestao juridica para escritorios.</p>
@@ -166,7 +166,7 @@ function loginForm(errorMsg?: string, emailValue?: string) {
         </div>
         <AuthButton icon="ph-sign-in" label="Entrar" />
         <div class="text-center">
-          <a href="/forgot-password" class="text-body-sm text-navy-600 hover:underline">
+          <a href="/forgot-password" class="text-body-sm text-carvao-600 hover:underline">
             Esqueceu sua senha?
           </a>
         </div>
@@ -265,7 +265,7 @@ function twoFAVerifyForm(errorMsg?: string) {
   return (
     <AuthLayout title="Verificacao 2FA">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-shield-check text-h2 text-navy-700" aria-hidden="true" />
+        <i class="ph-bold ph-shield-check text-h2 text-carvao-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Verificacao 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -371,7 +371,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
   return (
     <AuthLayout title="Configurar 2FA">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-shield-star text-h2 text-navy-700" aria-hidden="true" />
+        <i class="ph-bold ph-shield-star text-h2 text-carvao-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Configurar 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -601,7 +601,7 @@ function forgotPasswordForm(errorMsg?: string, success?: boolean) {
   return (
     <AuthLayout title="Recuperar Senha">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-envelope-simple-open text-h2 text-navy-700" aria-hidden="true" />
+        <i class="ph-bold ph-envelope-simple-open text-h2 text-carvao-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Recuperar Senha</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -685,7 +685,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
   return (
     <AuthLayout title="Redefinir Senha">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-key text-h2 text-navy-700" aria-hidden="true" />
+        <i class="ph-bold ph-key text-h2 text-carvao-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Redefinir Senha</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">Digite sua nova senha.</p>
