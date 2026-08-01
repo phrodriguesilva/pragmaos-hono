@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Modal } from "../components/ui";
 
 export const documentsRoutes = new Hono<AppEnv>();
 
@@ -64,10 +64,10 @@ documentsRoutes.get("/", async (c) => {
             large
           >
             <TextField label="Titulo" id="title" name="title" required placeholder="Nome do documento" />
-            <Select label="Processo (opcional)" id="case_id" name="case_id"
+            <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
               options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
             />
-            <Select label="Cliente (opcional)" id="client_id" name="client_id"
+            <ComboBox label="Cliente (opcional)" id="client_id" name="client_id"
               options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
             />
             <Textarea label="Descricao" id="description" name="description" rows={4} />
@@ -132,11 +132,11 @@ documentsRoutes.get("/:id", async (c) => {
               large
             >
               <TextField label="Titulo" id="title" name="title" required value={doc.title} />
-              <Select label="Processo (opcional)" id="case_id" name="case_id"
+              <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
                 options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
                 selected={doc.case_id ?? ""}
               />
-              <Select label="Cliente (opcional)" id="client_id" name="client_id"
+              <ComboBox label="Cliente (opcional)" id="client_id" name="client_id"
                 options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
                 selected={doc.client_id ?? ""}
               />

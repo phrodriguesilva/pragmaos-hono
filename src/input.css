@@ -157,6 +157,8 @@
   .input {
     @apply border bg-white px-2 py-1 text-body focus:outline-none;
     border-color: var(--color-border);
+    min-width: 200px;
+    width: 100%;
   }
   .input:focus {
     box-shadow: var(--shadow-focus);
@@ -234,5 +236,33 @@
   }
   .wizard-step-number-pending {
     @apply border-gray-300 text-gray-400;
+  }
+  /* ComboBox (searchable dropdown) */
+  .combobox {
+    @apply relative;
+  }
+  .combobox-trigger {
+    @apply border bg-white px-2 py-1 text-body flex items-center justify-between gap-2 cursor-pointer focus:outline-none;
+    border-color: var(--color-border);
+    min-width: 200px;
+    width: 100%;
+  }
+  .combobox-trigger:focus {
+    box-shadow: var(--shadow-focus);
+  }
+  .combobox-dropdown {
+    @apply absolute left-0 right-0 z-50 bg-white border border-border-strong max-h-60 overflow-y-auto;
+  }
+  .combobox-search {
+    @apply w-full px-2 py-1 text-body border-b border-border-subtle focus:outline-none;
+  }
+  .combobox-option {
+    @apply px-3 py-1 text-body cursor-pointer hover:bg-terracota-50;
+  }
+  .combobox-option-selected {
+    @apply bg-carvao-50 text-carvao-700 font-semibold;
+  }
+  .combobox-empty {
+    @apply px-3 py-2 text-body-sm text-gray-400 text-center;
   }
 }

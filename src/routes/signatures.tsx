@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Panel, Badge, Modal } from "../components/ui";
 
 export const signatureRoutes = new Hono<AppEnv>();
 
@@ -114,13 +114,13 @@ signatureRoutes.get("/", async (c) => {
               <TextField label="Expira em" id="expires_at" name="expires_at" type="date" value={defaultExpires} />
             </div>
             <div class="grid grid-cols-3 gap-4">
-              <Select label="Cliente (opcional)" id="client_id" name="client_id"
+              <ComboBox label="Cliente (opcional)" id="client_id" name="client_id"
                 options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
               />
-              <Select label="Processo (opcional)" id="case_id" name="case_id"
+              <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
                 options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
               />
-              <Select label="Documento (opcional)" id="document_id" name="document_id"
+              <ComboBox label="Documento (opcional)" id="document_id" name="document_id"
                 options={[{ value: "", label: "Nenhum" }, ...docs.map((d) => ({ value: d.id, label: d.title }))]}
               />
             </div>

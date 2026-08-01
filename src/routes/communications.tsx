@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const communicationsRoutes = new Hono<AppEnv>();
 
@@ -67,10 +67,10 @@ communicationsRoutes.get("/", async (c) => {
             submitLabel="Salvar"
             large
           >
-            <Select label="Processo (opcional)" id="case_id" name="case_id"
+            <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
               options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
             />
-            <Select label="Cliente (opcional)" id="client_id" name="client_id"
+            <ComboBox label="Cliente (opcional)" id="client_id" name="client_id"
               options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
             />
             <div class="grid grid-cols-2 gap-4">
@@ -158,11 +158,11 @@ communicationsRoutes.get("/:id", async (c) => {
               submitLabel="Salvar"
               large
             >
-              <Select label="Processo (opcional)" id="case_id" name="case_id"
+              <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
                 options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
                 selected={log.case_id ?? ""}
               />
-              <Select label="Cliente (opcional)" id="client_id" name="client_id"
+              <ComboBox label="Cliente (opcional)" id="client_id" name="client_id"
                 options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
                 selected={log.client_id ?? ""}
               />

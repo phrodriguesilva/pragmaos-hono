@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const honorariosRoutes = new Hono<AppEnv>();
 
@@ -107,10 +107,10 @@ honorariosRoutes.get("/", async (c) => {
         icon="ph-hand-coins"
         actions={() => (
           <Modal id="new-honorario" title="Novo Honorario" icon="ph-hand-coins" triggerText="Novo Honorario" triggerIcon="ph-plus" action="/honorarios" submitLabel="Salvar" large>
-            <Select label="Cliente" id="client_id" name="client_id" required
+            <ComboBox label="Cliente" id="client_id" name="client_id" required
               options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
             />
-            <Select label="Processo (opcional)" id="case_id" name="case_id"
+            <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
               options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
             />
             <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" placeholder="Descricao do honorario" />
@@ -252,10 +252,10 @@ honorariosRoutes.get("/:id", async (c) => {
         actions={() => (
           <div class="flex gap-2">
             <Modal id="edit-honorario" title="Editar" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/honorarios/${id}`} submitLabel="Salvar" large>
-              <Select label="Cliente" id="client_id" name="client_id" required selected={h.client_id}
+              <ComboBox label="Cliente" id="client_id" name="client_id" required selected={h.client_id}
                 options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
               />
-              <Select label="Processo (opcional)" id="case_id" name="case_id" selected={h.case_id ?? ""}
+              <ComboBox label="Processo (opcional)" id="case_id" name="case_id" selected={h.case_id ?? ""}
                 options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
               />
               <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" value={h.description} />

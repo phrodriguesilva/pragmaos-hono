@@ -6,7 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { AI_API_KEY, AI_BASE_URL, AI_MODEL } from "../lib/env";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiChatRoutes = new Hono<AppEnv>();
 
@@ -549,7 +549,7 @@ aiChatRoutes.get("/petitions", async (c) => {
       <div class="mb-6">
         <Panel title="Gerar Peticao" icon="ph-file-arrow-up">
           <form method="post" action="/ai-chat/petitions" class="flex flex-col gap-4">
-            <Select label="Processo" id="case_id" name="case_id" required
+            <ComboBox label="Processo" id="case_id" name="case_id" required
               options={(cases ?? []).map((cs) => ({
                 value: cs.id,
                 label: `${cs.title}${cs.case_number ? ` (${cs.case_number})` : ""}`,

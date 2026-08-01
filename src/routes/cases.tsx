@@ -6,7 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const casesRoutes = new Hono<AppEnv>();
 
@@ -116,7 +116,7 @@ casesRoutes.get("/", async (c) => {
                 icon: "ph-folder",
                 fields: (
                   <>
-                    <Select label="Cliente" id="client_id" name="client_id" required
+                    <ComboBox label="Cliente" id="client_id" name="client_id" required
                       options={clientOptions}
                     />
                     <TextField label="Titulo" id="title" name="title" required placeholder="Titulo do processo" />
@@ -307,7 +307,7 @@ casesRoutes.get("/:id", async (c) => {
                   icon: "ph-folder",
                   fields: (
                     <>
-                      <Select label="Cliente" id="client_id" name="client_id" required selected={caseRow.client_id}
+                      <ComboBox label="Cliente" id="client_id" name="client_id" required selected={caseRow.client_id}
                         options={clientOptions}
                       />
                       <TextField label="Titulo" id="title" name="title" required value={caseRow.title} />

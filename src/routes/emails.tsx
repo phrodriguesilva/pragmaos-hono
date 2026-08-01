@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const emailRoutes = new Hono<AppEnv>();
 
@@ -82,10 +82,10 @@ emailRoutes.get("/", async (c) => {
               <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto do e-mail" />
               <Textarea label="Mensagem" id="body" name="body" rows={8} />
               <div class="grid grid-cols-2 gap-4">
-                <Select label="Processo (opcional)" id="case_id" name="case_id"
+                <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
                   options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
                 />
-                <Select label="Cliente (opcional)" id="client_id" name="client_id"
+                <ComboBox label="Cliente (opcional)" id="client_id" name="client_id"
                   options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
                 />
               </div>

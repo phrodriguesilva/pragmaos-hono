@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const teamsRoutes = new Hono<AppEnv>();
 
@@ -75,7 +75,7 @@ teamsRoutes.get("/", async (c) => {
           >
             <TextField label="Nome" id="name" name="name" required placeholder="Nome da equipe" />
             <Textarea label="Descricao" id="description" name="description" rows={3} />
-            <Select
+            <ComboBox
               label="Lider"
               id="leader_id"
               name="leader_id"
@@ -197,7 +197,7 @@ teamsRoutes.get("/:id", async (c) => {
             <Textarea label="Descricao" id="description" name="description" rows={3}>
               {team.description ?? ""}
             </Textarea>
-            <Select
+            <ComboBox
               label="Lider"
               id="leader_id"
               name="leader_id"
@@ -222,7 +222,7 @@ teamsRoutes.get("/:id", async (c) => {
       <Panel title="Membros" icon="ph-users">
         <div class="mb-4">
           <form method="post" action={`/teams/${id}/members`} class="flex gap-2 items-end">
-            <Select
+            <ComboBox
               label="Adicionar Membro"
               id="user_id"
               name="user_id"

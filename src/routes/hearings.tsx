@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Modal } from "../components/ui";
 
 export const hearingsRoutes = new Hono<AppEnv>();
 
@@ -54,7 +54,7 @@ hearingsRoutes.get("/", async (c) => {
           action="/hearings"
           large
         >
-          <Select label="Processo" id="case_id" name="case_id" required
+          <ComboBox label="Processo" id="case_id" name="case_id" required
             options={caseOptions}
           />
           <TextField label="Data e hora" id="date" name="date" type="datetime-local" required />

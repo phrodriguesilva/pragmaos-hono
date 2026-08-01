@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiSummariesRoutes = new Hono<AppEnv>();
 
@@ -129,7 +129,7 @@ aiSummariesRoutes.get("/", async (c) => {
                   <option value="proceeding">Resumo de Andamento</option>
                 </select>
               </div>
-              <Select
+              <ComboBox
                 label="Processo"
                 id="case_id"
                 name="case_id"

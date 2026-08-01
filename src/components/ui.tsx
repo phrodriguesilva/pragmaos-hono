@@ -165,6 +165,108 @@ export const Select: FC<{
   </div>
 );
 
+// ============================================================
+// ComboBox -- searchable dropdown for long dynamic lists
+// Uses Alpine.js for search/filter. Hidden input submits value.
+// ============================================================
+
+export const ComboBox: FC<{
+  label: string;
+  id: string;
+  name: string;
+  options: { value: string; label: string }[];
+  selected?: string;
+  required?: boolean;
+  icon?: string;
+  placeholder?: string;
+}> = ({ label, id, name, options, selected, required, icon, placeholder = "Buscar..." }) => {
+  const selectedOption = options.find((o) => o.value === selected);
+  const selectedLabel = selectedOption?.label ?? "";
+  const optionsJson = JSON.stringify(options.map((o) => ({ v: o.value, l: o.label })));
+
+  return (
+    <div class="flex flex-col gap-1">
+      <label for={id} class="text-body-sm font-semibold text-gray-700">
+        {label}
+        {required ? <span class="text-status-red"> *</span> : null}
+      </label>
+      <div
+        class="combobox"
+        {...{
+          "x-data": `{ 
+            open: false,
+            query: '',
+            selectedValue: ${selected ? `'${selected.replace(/'/g, "\\'")}'` : "''"},
+            selectedLabel: ${selectedLabel ? `'${selectedLabel.replace(/'/g, "\\'")}'` : "''"},
+            options: ${optionsJson},
+            get filtered() {
+              if (!this.query) return this.options;
+              const q = this.query.toLowerCase();
+              return this.options.filter(o => o.l.toLowerCase().includes(q));
+            },
+            select(opt) {
+              this.selectedValue = opt.v;
+              this.selectedLabel = opt.l;
+              this.open = false;
+              this.query = '';
+            }
+          }`,
+        }}
+      >
+        {/* Hidden input that submits the actual value */}
+        <input type="hidden" name={name} value={selected ?? ""} {...{ ":value": "selectedValue" }} />
+
+        {/* Trigger button */}
+        <div
+          class="combobox-trigger"
+          {...{ "@click": "open = !open; if (open) $nextTick(() => $refs.search.focus())" }}
+          {...{ "@click.away": "open = false" }}
+        >
+          {icon ? <i class={`ph ${icon} text-body text-gray-400`} aria-hidden="true" /> : null}
+          <span
+            class="flex-1 truncate text-left"
+            {...{ "x-show": "selectedLabel" }}
+          >
+            {selectedLabel}
+          </span>
+          <span
+            class="flex-1 truncate text-left text-gray-400"
+            {...{ "x-show": "!selectedLabel" }}
+            x-cloak
+          >
+            {placeholder}
+          </span>
+          <i class="ph ph-caret-down text-body text-gray-400" aria-hidden="true" {...{ ":class": "open ? 'rotate-180' : ''" }} />
+        </div>
+
+        {/* Dropdown */}
+        <div class="combobox-dropdown" {...{ "x-show": "open" }} x-cloak>
+          <input
+            type="text"
+            x-ref="search"
+            class="combobox-search"
+            placeholder={placeholder}
+            {...{ "x-model": "query" }}
+          />
+          <template {...{ "x-for": "opt in filtered", ":key": "opt.v" }}>
+            <div
+              class="combobox-option"
+              {...{ ":class": "selectedValue === opt.v ? 'combobox-option-selected' : ''" }}
+              {...{ "@click": "select(opt)" }}
+            >
+              <span {...{ "x-text": "opt.l" }} />
+            </div>
+          </template>
+          <div class="combobox-empty" {...{ "x-show": "filtered.length === 0" }} x-cloak>
+            Nenhum resultado encontrado
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export const Textarea: FC<PropsWithChildren<{
   label: string;
   id: string;

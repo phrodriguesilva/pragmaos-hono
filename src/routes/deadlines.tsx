@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Badge, Modal } from "../components/ui";
 
 export const deadlinesRoutes = new Hono<AppEnv>();
 
@@ -79,7 +79,7 @@ deadlinesRoutes.get("/", async (c) => {
             action="/deadlines"
             large
           >
-            <Select label="Processo" id="case_id" name="case_id" required
+            <ComboBox label="Processo" id="case_id" name="case_id" required
               options={caseOptions}
             />
             <TextField label="Titulo" id="title" name="title" required placeholder="Descricao do prazo" />

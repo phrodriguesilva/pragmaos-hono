@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const tasksRoutes = new Hono<AppEnv>();
 
@@ -70,15 +70,15 @@ tasksRoutes.get("/", async (c) => {
       <TextField label="Titulo" id="title" name="title" required placeholder="Descricao da tarefa" icon="ph-text-aa" />
       <Textarea label="Descricao" id="description" name="description" rows={3} />
       <div class="grid grid-cols-2 gap-4">
-        <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
+        <ComboBox label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
           options={caseOptions}
         />
-        <Select label="Cliente (opcional)" id="client_id" name="client_id" icon="ph-users"
+        <ComboBox label="Cliente (opcional)" id="client_id" name="client_id" icon="ph-users"
           options={clientOptions}
         />
       </div>
       <div class="grid grid-cols-2 gap-4">
-        <Select label="Responsavel" id="assigned_to" name="assigned_to" icon="ph-user-circle"
+        <ComboBox label="Responsavel" id="assigned_to" name="assigned_to" icon="ph-user-circle"
           options={userOptions}
         />
         <Select label="Prioridade" id="priority" name="priority" required selected="3" icon="ph-flag"

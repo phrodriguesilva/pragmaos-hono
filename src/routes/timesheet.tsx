@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const timesheetRoutes = new Hono<AppEnv>();
 
@@ -124,10 +124,10 @@ timesheetRoutes.get("/", async (c) => {
               <i class="ph ph-chart-bar" aria-hidden="true" />Resumo
             </a>
             <Modal id="new-timesheet" title="Registrar Tempo" icon="ph-timer" triggerText="Registrar Tempo" triggerIcon="ph-plus" action="/timesheet" submitLabel="Salvar" large>
-              <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
+              <ComboBox label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
                 options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
               />
-              <Select label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square"
+              <ComboBox label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square"
                 options={[{ value: "", label: "Nenhuma" }, ...(tasksRes.data ?? []).map((t) => ({ value: t.id, label: t.title }))]}
               />
               <TextField label="Descricao" id="description" name="description" required placeholder="O que foi feito..." icon="ph-text-aa" />
@@ -262,10 +262,10 @@ timesheetRoutes.get("/:id", async (c) => {
         actions={() => (
           <div class="flex gap-2">
             <Modal id="edit-timesheet" title="Editar" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/timesheet/${id}`} submitLabel="Salvar" large>
-              <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder" selected={entry.case_id ?? ""}
+              <ComboBox label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder" selected={entry.case_id ?? ""}
                 options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
               />
-              <Select label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square" selected={entry.task_id ?? ""}
+              <ComboBox label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square" selected={entry.task_id ?? ""}
                 options={[{ value: "", label: "Nenhuma" }, ...(tasksRes.data ?? []).map((t) => ({ value: t.id, label: t.title }))]}
               />
               <TextField label="Descricao" id="description" name="description" required value={entry.description} icon="ph-text-aa" />

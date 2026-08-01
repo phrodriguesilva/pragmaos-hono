@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge } from "../components/ui";
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import { APP_URL } from "../lib/env";
 import { appCss } from "../generated/css";
@@ -154,7 +154,7 @@ portalRoutes.get("/staff", async (c) => {
       <Panel title="Gerenciar acesso" icon="ph-key">
         <p class="text-body-sm text-gray-600 mb-3">Para habilitar o acesso ao portal para um cliente, selecione o cliente abaixo. O sistema criara credenciais de acesso.</p>
         <form method="get" action="/portal/staff/enable" class="flex gap-2 items-end">
-          <Select label="Cliente" id="client_id" name="client_id" required icon="ph-users"
+          <ComboBox label="Cliente" id="client_id" name="client_id" required icon="ph-users"
             options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
           />
           <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
@@ -187,7 +187,7 @@ portalRoutes.get("/staff/enable", async (c) => {
       <PageHeader title="Habilitar Acesso ao Portal" icon="ph-key" />
       <Panel>
         <form method="post" action="/portal/staff/enable" class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required selected={clientId} icon="ph-users"
+          <ComboBox label="Cliente" id="client_id" name="client_id" required selected={clientId} icon="ph-users"
             options={(clients ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
           />
           <TextField label="Email de acesso" id="email" name="email" type="email" required icon="ph-envelope"

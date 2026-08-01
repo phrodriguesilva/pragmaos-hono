@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const whatsappRoutes = new Hono<AppEnv>();
 
@@ -93,7 +93,7 @@ whatsappRoutes.get("/", async (c) => {
               submitIcon="ph-paper-plane-tilt"
             >
               <Textarea label="Mensagem" id="bulk_message" name="message" rows={5} required />
-              <Select label="Filtrar por cliente (opcional)" id="bulk_client_id" name="client_id" options={bulkClientOptions} />
+              <ComboBox label="Filtrar por cliente (opcional)" id="bulk_client_id" name="client_id" options={bulkClientOptions} />
             </Modal>
             <Modal
               id="send-whatsapp"
@@ -105,7 +105,7 @@ whatsappRoutes.get("/", async (c) => {
               submitLabel="Enviar"
               submitIcon="ph-paper-plane-tilt"
             >
-              <Select label="Cliente" id="client_id" name="client_id" options={clientOptions} />
+              <ComboBox label="Cliente" id="client_id" name="client_id" options={clientOptions} />
               <TextField label="Telefone" id="phone" name="phone" required placeholder="5511999999999" icon="ph-phone" />
               <Textarea label="Mensagem" id="message" name="message" rows={5} required />
               <TextField label="Template (opcional)" id="template_name" name="template_name" placeholder="Nome do template" icon="ph-files" />

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const billingRoutes = new Hono<AppEnv>();
 
@@ -136,13 +136,13 @@ billingRoutes.get("/", async (c) => {
                 icon: "ph-user",
                 fields: (
                   <>
-                    <Select label="Cliente" id="client_id" name="client_id" required
+                    <ComboBox label="Cliente" id="client_id" name="client_id" required
                       options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
                     />
-                    <Select label="Processo (opcional)" id="case_id" name="case_id"
+                    <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
                       options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
                     />
-                    <Select label="Honorario (opcional)" id="honorario_id" name="honorario_id"
+                    <ComboBox label="Honorario (opcional)" id="honorario_id" name="honorario_id"
                       options={[{ value: "", label: "Nenhum" }, ...(honorariosRes.data ?? []).map((h) => ({ value: h.id, label: h.description }))]}
                     />
                     <TextField label="Numero" id="number" name="number" required value={suggested} icon="ph-hash" />

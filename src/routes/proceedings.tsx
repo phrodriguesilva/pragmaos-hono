@@ -6,7 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { translateMovement } from "../lib/ai";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const proceedingsRoutes = new Hono<AppEnv>();
 
@@ -60,7 +60,7 @@ proceedingsRoutes.get("/", async (c) => {
           action="/proceedings"
           large
         >
-          <Select label="Processo" id="case_id" name="case_id" required
+          <ComboBox label="Processo" id="case_id" name="case_id" required
             options={caseOptions}
           />
           <TextField label="Numero CNJ" id="cnj_number" name="cnj_number" required placeholder="0000000-00.0000.0.00.0000" />

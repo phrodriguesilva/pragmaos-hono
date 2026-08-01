@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const cashflowRoutes = new Hono<AppEnv>();
 
@@ -275,7 +275,7 @@ cashflowRoutes.get("/expenses", async (c) => {
               />
               <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
             </div>
-            <Select label="Processo (opcional)" id="case_id" name="case_id"
+            <ComboBox label="Processo (opcional)" id="case_id" name="case_id"
               options={[{ value: "", label: "Nenhum" }, ...(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
             />
             <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
