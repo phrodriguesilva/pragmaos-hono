@@ -1,0 +1,14 @@
+{
+  "bunVersion": "1.x",
+  "builds": [
+    {
+      "src": "src/index.tsx",
+      "use": "vercel-bun",
+      "config": { "includeFiles": "public/**" }
+    }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/(.*)", "dest": "/src/index.tsx" }
+  ]
+}

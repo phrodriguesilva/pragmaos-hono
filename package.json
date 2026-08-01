@@ -1,0 +1,28 @@
+{
+  "name": "pragmaos-2",
+  "module": "src/index.tsx",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot src/index.tsx",
+    "build:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --minify",
+    "watch:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --watch",
+    "start": "bun src/index.tsx",
+    "seed": "bun scripts/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "@types/bun": "latest",
+    "tailwindcss": "^4.3.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.111.0",
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.33",
+    "zod": "^4.4.3"
+  }
+}

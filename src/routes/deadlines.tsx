@@ -1,0 +1,156 @@
+import { Hono } from "hono";
+import type { AppEnv } from "../lib/types";
+
+import { z } from "zod";
+import { requireAuth } from "../lib/session";
+import { renderPage } from "../lib/render";
+import { supabase } from "../lib/supabase";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+
+export const deadlinesRoutes = new Hono<AppEnv>();
+
+deadlinesRoutes.use("*", requireAuth);
+
+const deadlineSchema = z.object({
+  case_id: z.string().uuid("Processo invalido"),
+  title: z.string().min(1, "Titulo e obrigatorio"),
+  due_date: z.string().min(1, "Data e obrigatoria"),
+  priority: z.coerce.number().int().min(1).max(5),
+});
+
+// GET /deadlines -- list all open deadlines, sorted by due_date.
+deadlinesRoutes.get("/", async (c) => {
+  const user = c.get("user");
+  const showAll = c.req.query("all") === "1";
+
+  let query = supabase
+    .from("deadlines")
+    .select("id, title, due_date, priority, completed_at, case_id, cases(title)")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("due_date", { ascending: true });
+
+  if (!showAll) query = query.is("completed_at", null);
+
+  const { data: deadlines } = await query;
+  const now = new Date();
+
+  const rows = (deadlines ?? []).map((d) => {
+    const due = new Date(d.due_date);
+    const overdue = due < now && !d.completed_at;
+    return [
+      <a href={`/cases/${d.case_id}`} class="text-navy-700 hover:underline">{(d.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
+      d.title,
+      new Date(d.due_date).toLocaleDateString("pt-BR"),
+      `P${d.priority}`,
+      d.completed_at
+        ? <Badge color="gray">Concluido</Badge>
+        : overdue
+          ? <Badge color="red">Atrasado</Badge>
+          : <Badge color="yellow">Pendente</Badge> as unknown as string,
+      d.completed_at ? null : (
+        <form method="post" action={`/deadlines/${d.id}/complete`}>
+          <button type="submit" class="btn btn-secondary">Concluir</button>
+        </form>
+      ) as unknown as string,
+    ];
+  });
+
+  return renderPage(
+    c,
+    { title: "Prazos", active: "deadlines" },
+    <>
+      <PageHeader
+        title="Prazos"
+        actions={() => <a href="/deadlines/new" class="btn btn-primary">Novo Prazo</a>}
+      />
+      <div class="mb-4 flex gap-2">
+        <a href="/deadlines" class="btn btn-secondary">Pendentes</a>
+        <a href="/deadlines?all=1" class="btn btn-secondary">Todos</a>
+      </div>
+      <Table
+        columns={[{ label: "Processo" }, { label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }, { label: "" }]}
+        rows={rows}
+        emptyMsg="Nenhum prazo."
+        ariaLabel="Lista de prazos"
+      />
+    </>,
+  );
+});
+
+// GET /deadlines/new -- create form.
+deadlinesRoutes.get("/new", async (c) => {
+  const user = c.get("user");
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("title");
+
+  return renderPage(
+    c,
+    { title: "Novo Prazo", active: "deadlines" },
+    <>
+      <PageHeader title="Novo Prazo" />
+      <Panel>
+        <form method="post" action="/deadlines" class="flex flex-col gap-4">
+          <Select label="Processo" id="case_id" name="case_id" required
+            options={(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))}
+          />
+          <TextField label="Titulo" id="title" name="title" required placeholder="Descricao do prazo" />
+          <TextField label="Data limite" id="due_date" name="due_date" type="date" required />
+          <Select label="Prioridade" id="priority" name="priority" required selected="3"
+            options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
+          />
+          <div class="flex gap-2">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="/deadlines" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </Panel>
+    </>,
+  );
+});
+
+// POST /deadlines -- create.
+deadlinesRoutes.post("/", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  const parsed = deadlineSchema.safeParse(body);
+  if (!parsed.success) return c.redirect("/deadlines/new");
+
+  await supabase.from("deadlines").insert({
+    tenant_id: user.tenantId,
+    case_id: parsed.data.case_id,
+    title: parsed.data.title,
+    due_date: new Date(parsed.data.due_date).toISOString(),
+    priority: parsed.data.priority,
+  });
+
+  return c.redirect("/deadlines");
+});
+
+// POST /deadlines/:id/complete -- mark as completed.
+deadlinesRoutes.post("/:id/complete", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  await supabase.from("deadlines").update({ completed_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
+  return c.redirect("/deadlines");
+});
+
+// POST /deadlines/:id/reopen -- reopen.
+deadlinesRoutes.post("/:id/reopen", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  await supabase.from("deadlines").update({ completed_at: null }).eq("id", id).eq("tenant_id", user.tenantId);
+  return c.redirect("/deadlines");
+});
+
+// POST /deadlines/:id/delete -- soft delete.
+deadlinesRoutes.post("/:id/delete", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  await supabase.from("deadlines").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
+  return c.redirect("/deadlines");
+});
