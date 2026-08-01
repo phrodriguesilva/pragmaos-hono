@@ -38,11 +38,12 @@ hearingsRoutes.get("/", async (c) => {
     c,
     { title: "Audiencias", active: "hearings" },
     <>
-      <PageHeader title="Audiencias" actions={() => <a href="/hearings/new" class="btn btn-primary">Nova Audiencia</a>} />
+      <PageHeader title="Audiencias" icon="ph-gavel" actions={() => <a href="/hearings/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Nova Audiencia</a>} />
       <Table
         columns={[{ label: "Processo" }, { label: "Data" }, { label: "Local" }]}
         rows={rows}
         emptyMsg="Nenhuma audiencia agendada."
+        emptyIcon="ph-gavel"
         ariaLabel="Lista de audiencias"
       />
     </>,
@@ -62,7 +63,7 @@ hearingsRoutes.get("/new", async (c) => {
     c,
     { title: "Nova Audiencia", active: "hearings" },
     <>
-      <PageHeader title="Nova Audiencia" />
+      <PageHeader title="Nova Audiencia" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/hearings" class="flex flex-col gap-4">
           <Select label="Processo" id="case_id" name="case_id" required
@@ -72,8 +73,8 @@ hearingsRoutes.get("/new", async (c) => {
           <TextField label="Local" id="location" name="location" placeholder="Sala, vara, endereco..." />
           <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/hearings" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/hearings" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

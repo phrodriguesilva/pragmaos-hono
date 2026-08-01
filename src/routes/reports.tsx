@@ -62,9 +62,9 @@ reportsRoutes.get("/", async (c) => {
     c,
     { title: "Relatorios", active: "reports" },
     <>
-      <PageHeader title="Relatorios" />
+      <PageHeader title="Relatorios" icon="ph-chart-bar" />
       <div class="grid grid-cols-2 gap-4">
-        <Panel title="Processos por status">
+        <Panel title="Processos por status" icon="ph-folder-open">
           <Table
             columns={[{ label: "Status" }, { label: "Quantidade" }]}
             rows={Object.entries(statusCount).map(([s, n]) => [
@@ -72,22 +72,25 @@ reportsRoutes.get("/", async (c) => {
               n,
             ])}
             emptyMsg="Sem dados."
+            emptyIcon="ph-chart-bar"
           />
         </Panel>
-        <Panel title="Processos por tipo">
+        <Panel title="Processos por tipo" icon="ph-tag">
           <Table
             columns={[{ label: "Tipo" }, { label: "Quantidade" }]}
             rows={Object.entries(typeCount).map(([t, n]) => [t, n])}
             emptyMsg="Sem dados."
+            emptyIcon="ph-chart-bar"
           />
         </Panel>
       </div>
       <div class="mt-6">
-        <Panel title="Top clientes por numero de processos">
+        <Panel title="Top clientes por numero de processos" icon="ph-users">
           <Table
             columns={[{ label: "Cliente" }, { label: "Processos", align: "center" }]}
             rows={clientRows}
             emptyMsg="Sem dados."
+            emptyIcon="ph-chart-bar"
           />
         </Panel>
       </div>

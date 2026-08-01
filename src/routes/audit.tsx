@@ -31,11 +31,12 @@ auditRoutes.get("/", async (c) => {
     c,
     { title: "Auditoria", active: "audit" },
     <>
-      <PageHeader title="Auditoria" />
+      <PageHeader title="Auditoria" icon="ph-shield-check" />
       <Table
         columns={[{ label: "Data" }, { label: "Usuario" }, { label: "Acao" }, { label: "Entidade" }, { label: "ID" }]}
         rows={rows}
         emptyMsg="Nenhum registro de auditoria."
+        emptyIcon="ph-shield-check"
         ariaLabel="Log de auditoria"
       />
     </>,

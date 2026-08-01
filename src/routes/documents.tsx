@@ -39,11 +39,12 @@ documentsRoutes.get("/", async (c) => {
     c,
     { title: "Documentos", active: "documents" },
     <>
-      <PageHeader title="Documentos" actions={() => <a href="/documents/new" class="btn btn-primary">Novo Documento</a>} />
+      <PageHeader title="Documentos" icon="ph-file-text" actions={() => <a href="/documents/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Documento</a>} />
       <Table
         columns={[{ label: "Titulo" }, { label: "Tipo" }, { label: "Processo" }, { label: "Cliente" }, { label: "Criado em" }]}
         rows={rows}
         emptyMsg="Nenhum documento."
+        emptyIcon="ph-file-text"
         ariaLabel="Lista de documentos"
       />
     </>,
@@ -61,7 +62,7 @@ documentsRoutes.get("/new", async (c) => {
     c,
     { title: "Novo Documento", active: "documents" },
     <>
-      <PageHeader title="Novo Documento" />
+      <PageHeader title="Novo Documento" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/documents" class="flex flex-col gap-4" enctype="multipart/form-data">
           <TextField label="Titulo" id="title" name="title" required placeholder="Nome do documento" />
@@ -82,12 +83,12 @@ documentsRoutes.get("/new", async (c) => {
             options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
           />
           <div class="flex flex-col gap-1">
-            <label for="file" class="text-body-sm font-semibold text-gray-700">Arquivo *</label>
+            <label for="file" class="text-body-sm font-semibold text-gray-700"><i class="ph ph-upload-simple" aria-hidden="true"></i>Arquivo *</label>
             <input id="file" name="file" type="file" required class="text-body-sm" />
           </div>
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/documents" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/documents" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

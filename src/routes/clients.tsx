@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, BtnLink } from "../components/ui";
 
 export const clientsRoutes = new Hono<AppEnv>();
 
@@ -58,9 +58,10 @@ clientsRoutes.get("/", async (c) => {
     <>
       <PageHeader
         title="Clientes"
+        icon="ph-users"
         actions={() => (
-          <a href="/clients/new" class="btn btn-primary">
-            Novo Cliente
+          <a href="/clients/new" class="btn btn-primary inline-flex items-center gap-1">
+            <i class="ph ph-plus" aria-hidden="true"></i>Novo Cliente
           </a>
         )}
       />
@@ -72,8 +73,9 @@ clientsRoutes.get("/", async (c) => {
           type="text"
           value={search}
           placeholder="Nome do cliente..."
+          icon="ph-magnifying-glass"
         />
-        <button type="submit" class="btn btn-secondary">Filtrar</button>
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
       </form>
       <div id="client-table">
         <Table
@@ -86,6 +88,7 @@ clientsRoutes.get("/", async (c) => {
           ]}
           rows={rows}
           emptyMsg="Nenhum cliente encontrado."
+          emptyIcon="ph-users"
           ariaLabel="Lista de clientes"
         />
       </div>
@@ -112,7 +115,7 @@ clientsRoutes.get("/new", (c) => {
     c,
     { title: "Novo Cliente", active: "clients" },
     <>
-      <PageHeader title="Novo Cliente" />
+      <PageHeader title="Novo Cliente" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/clients" class="flex flex-col gap-4">
           <Select
@@ -138,8 +141,8 @@ clientsRoutes.get("/new", (c) => {
           <TextField label="Endereco" id="address" name="address" />
           <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/clients" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/clients" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>
@@ -159,9 +162,10 @@ clientsRoutes.post("/", async (c) => {
       c,
       { title: "Novo Cliente", active: "clients" },
       <>
-        <PageHeader title="Novo Cliente" />
+        <PageHeader title="Novo Cliente" icon="ph-plus-circle" />
         <Panel>
           <div class="mb-4 text-status-red">
+            <i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>
             {Object.values(errors).flat().join(", ")}
           </div>
           <a href="/clients/new" class="btn btn-secondary">Voltar</a>
@@ -187,9 +191,9 @@ clientsRoutes.post("/", async (c) => {
       c,
       { title: "Novo Cliente", active: "clients" },
       <>
-        <PageHeader title="Novo Cliente" />
+        <PageHeader title="Novo Cliente" icon="ph-plus-circle" />
         <Panel>
-          <div class="mb-4 text-status-red">Erro ao salvar: {error.message}</div>
+          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
           <a href="/clients/new" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,
@@ -230,19 +234,20 @@ clientsRoutes.get("/:id", async (c) => {
     <>
       <PageHeader
         title={client.name}
+        icon="ph-user"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/clients/${id}/edit`} class="btn btn-secondary">Editar</a>
+            <a href={`/clients/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
             <form method="post" action={`/clients/${id}/delete`}>
-              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este cliente?')">
-                Excluir
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este cliente?')">
+                <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>
           </div>
         )}
       />
       <div class="grid grid-cols-2 gap-4 mb-6">
-        <Panel title="Dados do cliente">
+        <Panel title="Dados do cliente" icon="ph-user">
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{client.client_type === "PF" ? "Pessoa Fisica" : "Pessoa Juridica"}</dd></div>
             {client.cpf ? <div><dt class="font-semibold text-gray-700 inline">CPF: </dt><dd class="inline">{client.cpf}</dd></div> : null}
@@ -253,12 +258,12 @@ clientsRoutes.get("/:id", async (c) => {
           </dl>
         </Panel>
         {client.notes ? (
-          <Panel title="Observacoes">
+          <Panel title="Observacoes" icon="ph-note">
             <p class="text-body-sm text-gray-700 whitespace-pre-wrap">{client.notes}</p>
           </Panel>
         ) : null}
       </div>
-      <Panel title="Processos">
+      <Panel title="Processos" icon="ph-folder-open">
         <Table
           columns={[
             { label: "Titulo" },
@@ -302,7 +307,7 @@ clientsRoutes.get("/:id/edit", async (c) => {
     c,
     { title: `Editar ${client.name}`, active: "clients" },
     <>
-      <PageHeader title={`Editar ${client.name}`} />
+      <PageHeader title={`Editar ${client.name}`} icon="ph-pencil" />
       <Panel>
         <form method="post" action={`/clients/${id}`} class="flex flex-col gap-4">
           <Select
@@ -330,8 +335,8 @@ clientsRoutes.get("/:id/edit", async (c) => {
             {client.notes ?? ""}
           </Textarea>
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href={`/clients/${id}`} class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href={`/clients/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

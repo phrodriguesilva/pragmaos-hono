@@ -50,7 +50,7 @@ deadlinesRoutes.get("/", async (c) => {
           : <Badge color="yellow">Pendente</Badge> as unknown as string,
       d.completed_at ? null : (
         <form method="post" action={`/deadlines/${d.id}/complete`}>
-          <button type="submit" class="btn btn-secondary">Concluir</button>
+          <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-check" aria-hidden="true"></i>Concluir</button>
         </form>
       ) as unknown as string,
     ];
@@ -62,16 +62,18 @@ deadlinesRoutes.get("/", async (c) => {
     <>
       <PageHeader
         title="Prazos"
-        actions={() => <a href="/deadlines/new" class="btn btn-primary">Novo Prazo</a>}
+        icon="ph-clock-countdown"
+        actions={() => <a href="/deadlines/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Prazo</a>}
       />
       <div class="mb-4 flex gap-2">
-        <a href="/deadlines" class="btn btn-secondary">Pendentes</a>
-        <a href="/deadlines?all=1" class="btn btn-secondary">Todos</a>
+        <a href="/deadlines" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-clock" aria-hidden="true"></i>Pendentes</a>
+        <a href="/deadlines?all=1" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-list" aria-hidden="true"></i>Todos</a>
       </div>
       <Table
         columns={[{ label: "Processo" }, { label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }, { label: "" }]}
         rows={rows}
         emptyMsg="Nenhum prazo."
+        emptyIcon="ph-check-circle"
         ariaLabel="Lista de prazos"
       />
     </>,
@@ -92,7 +94,7 @@ deadlinesRoutes.get("/new", async (c) => {
     c,
     { title: "Novo Prazo", active: "deadlines" },
     <>
-      <PageHeader title="Novo Prazo" />
+      <PageHeader title="Novo Prazo" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/deadlines" class="flex flex-col gap-4">
           <Select label="Processo" id="case_id" name="case_id" required
@@ -104,8 +106,8 @@ deadlinesRoutes.get("/new", async (c) => {
             options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
           />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/deadlines" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/deadlines" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

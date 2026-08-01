@@ -66,17 +66,18 @@ financeRoutes.get("/", async (c) => {
     c,
     { title: "Financeiro", active: "finance" },
     <>
-      <PageHeader title="Financeiro" actions={() => <a href="/finance/new" class="btn btn-primary">Nova Fatura</a>} />
+      <PageHeader title="Financeiro" icon="ph-currency-dollar" actions={() => <a href="/finance/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Nova Fatura</a>} />
       <div class="grid grid-cols-4 gap-4 mb-6">
-        <Panel><div class="text-body-sm text-gray-500">Pendente</div><div class="text-h2 font-bold text-status-yellow">{formatCurrency(sumByStatus.pending ?? 0)}</div></Panel>
-        <Panel><div class="text-body-sm text-gray-500">Pago</div><div class="text-h2 font-bold text-status-green">{formatCurrency(sumByStatus.paid ?? 0)}</div></Panel>
-        <Panel><div class="text-body-sm text-gray-500">Atrasado</div><div class="text-h2 font-bold text-status-red">{formatCurrency(sumByStatus.overdue ?? 0)}</div></Panel>
-        <Panel><div class="text-body-sm text-gray-500">Cancelado</div><div class="text-h2 font-bold text-gray-500">{formatCurrency(sumByStatus.cancelled ?? 0)}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-2"><i class="ph ph-clock text-h3 text-status-yellow" aria-hidden="true"></i>Pendente</div><div class="text-h2 font-bold text-status-yellow">{formatCurrency(sumByStatus.pending ?? 0)}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-2"><i class="ph ph-check-circle text-h3 text-status-green" aria-hidden="true"></i>Pago</div><div class="text-h2 font-bold text-status-green">{formatCurrency(sumByStatus.paid ?? 0)}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-2"><i class="ph ph-warning text-h3 text-status-red" aria-hidden="true"></i>Atrasado</div><div class="text-h2 font-bold text-status-red">{formatCurrency(sumByStatus.overdue ?? 0)}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-2"><i class="ph ph-x-circle text-h3 text-gray-500" aria-hidden="true"></i>Cancelado</div><div class="text-h2 font-bold text-gray-500">{formatCurrency(sumByStatus.cancelled ?? 0)}</div></Panel>
       </div>
       <Table
         columns={[{ label: "Numero" }, { label: "Cliente" }, { label: "Valor" }, { label: "Emissao" }, { label: "Vencimento" }, { label: "Status" }]}
         rows={rows}
         emptyMsg="Nenhuma fatura."
+        emptyIcon="ph-currency-dollar"
         ariaLabel="Lista de faturas"
       />
     </>,
@@ -94,7 +95,7 @@ financeRoutes.get("/new", async (c) => {
     c,
     { title: "Nova Fatura", active: "finance" },
     <>
-      <PageHeader title="Nova Fatura" />
+      <PageHeader title="Nova Fatura" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/finance" class="flex flex-col gap-4">
           <Select label="Cliente" id="client_id" name="client_id" required
@@ -120,8 +121,8 @@ financeRoutes.get("/new", async (c) => {
           </div>
           <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/finance" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/finance" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

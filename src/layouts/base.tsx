@@ -24,6 +24,8 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>{title} - PragmaOS</title>
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
+      <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+      <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
       <script src="https://unpkg.com/htmx.org@2.0.4" defer />
       <script src="https://unpkg.com/alpinejs@3.14.8" defer />
     </head>
@@ -45,6 +47,9 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>{title} - PragmaOS</title>
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
+      <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+      <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
+      <script src="https://unpkg.com/alpinejs@3.14.8" defer />
     </head>
     <body class="bg-navy-800 text-body font-sans min-h-screen flex items-center justify-center">
       <div class="w-full max-w-sm border border-navy-700 bg-white p-8">{children}</div>

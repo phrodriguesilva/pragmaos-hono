@@ -44,11 +44,12 @@ proceedingsRoutes.get("/", async (c) => {
     c,
     { title: "Andamentos", active: "proceedings" },
     <>
-      <PageHeader title="Andamentos" actions={() => <a href="/proceedings/new" class="btn btn-primary">Novo Processo CNJ</a>} />
+      <PageHeader title="Andamentos" icon="ph-scales" actions={() => <a href="/proceedings/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Processo CNJ</a>} />
       <Table
         columns={[{ label: "CNJ" }, { label: "Processo" }, { label: "Tribunal" }]}
         rows={rows}
         emptyMsg="Nenhum processo CNJ cadastrado."
+        emptyIcon="ph-scales"
         ariaLabel="Lista de processos CNJ"
       />
     </>,
@@ -69,7 +70,7 @@ proceedingsRoutes.get("/new", async (c) => {
     c,
     { title: "Novo Processo CNJ", active: "proceedings" },
     <>
-      <PageHeader title="Novo Processo CNJ" />
+      <PageHeader title="Novo Processo CNJ" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/proceedings" class="flex flex-col gap-4">
           <Select label="Processo" id="case_id" name="case_id" required
@@ -81,8 +82,8 @@ proceedingsRoutes.get("/new", async (c) => {
             <TextField label="Comarca" id="district" name="district" />
           </div>
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/proceedings" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/proceedings" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>
@@ -139,16 +140,17 @@ proceedingsRoutes.get("/:id", async (c) => {
     <>
       <PageHeader
         title={proceeding.cnj_number}
+        icon="ph-scales"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/proceedings/${id}/movements/new`} class="btn btn-primary">Novo Andamento</a>
+            <a href={`/proceedings/${id}/movements/new`} class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Andamento</a>
             <form method="post" action={`/proceedings/${id}/delete`}>
-              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo CNJ?')">Excluir</button>
+              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo CNJ?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
             </form>
           </div>
         )}
       />
-      <Panel title="Dados do processo CNJ">
+      <Panel title="Dados do processo CNJ" icon="ph-scales">
         <dl class="flex flex-col gap-1 text-body-sm">
           <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${proceeding.case_id}`} class="text-navy-700 hover:underline">{caseData?.title ?? "-"}</a></dd></div>
           <div><dt class="font-semibold text-gray-700 inline">Tribunal: </dt><dd class="inline">{proceeding.tribunal ?? "-"}</dd></div>
@@ -157,7 +159,7 @@ proceedingsRoutes.get("/:id", async (c) => {
       </Panel>
 
       <div class="mt-6">
-        <Panel title="Andamentos">
+        <Panel title="Andamentos" icon="ph-list-dashes">
           <Table
             columns={[{ label: "Data" }, { label: "Movimento" }, { label: "Traducao IA" }, { label: "" }]}
             rows={(movements ?? []).map((m) => [
@@ -166,7 +168,7 @@ proceedingsRoutes.get("/:id", async (c) => {
               m.ai_translation ? <span class="text-body-sm text-gray-600">{m.ai_translation}</span> : <span class="text-gray-400">-</span> as unknown as string,
               m.ai_translation ? null : (
                 <form method="post" action={`/proceedings/${id}/movements/${m.id}/translate`}>
-                  <button type="submit" class="btn btn-secondary">Traduzir IA</button>
+                  <button type="submit" class="btn btn-secondary"><i class="ph ph-translate" aria-hidden="true"></i>Traduzir IA</button>
                 </form>
               ) as unknown as string,
             ])}
@@ -194,14 +196,14 @@ proceedingsRoutes.get("/:id/movements/new", async (c) => {
     c,
     { title: "Novo Andamento", active: "proceedings" },
     <>
-      <PageHeader title={`Novo Andamento - ${proceeding.cnj_number}`} />
+      <PageHeader title={`Novo Andamento - ${proceeding.cnj_number}`} icon="ph-plus-circle" />
       <Panel>
         <form method="post" action={`/proceedings/${id}/movements`} class="flex flex-col gap-4">
           <TextField label="Data do movimento" id="movement_date" name="movement_date" type="date" required />
           <Textarea label="Texto do movimento" id="movement_text" name="movement_text" rows={6} required />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href={`/proceedings/${id}`} class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href={`/proceedings/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

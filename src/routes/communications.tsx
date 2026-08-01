@@ -42,11 +42,12 @@ communicationsRoutes.get("/", async (c) => {
     c,
     { title: "Comunicacao", active: "communications" },
     <>
-      <PageHeader title="Comunicacao" actions={() => <a href="/communications/new" class="btn btn-primary">Registrar Comunicacao</a>} />
+      <PageHeader title="Comunicacao" icon="ph-chats-circle" actions={() => <a href="/communications/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Registrar Comunicacao</a>} />
       <Table
         columns={[{ label: "Data" }, { label: "Canal" }, { label: "Direcao" }, { label: "Processo" }, { label: "Cliente" }, { label: "Mensagem" }]}
         rows={rows}
         emptyMsg="Nenhuma comunicacao registrada."
+        emptyIcon="ph-chats-circle"
         ariaLabel="Log de comunicacao"
       />
     </>,
@@ -64,7 +65,7 @@ communicationsRoutes.get("/new", async (c) => {
     c,
     { title: "Registrar Comunicacao", active: "communications" },
     <>
-      <PageHeader title="Registrar Comunicacao" />
+      <PageHeader title="Registrar Comunicacao" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/communications" class="flex flex-col gap-4">
           <Select label="Cliente" id="client_id" name="client_id"
@@ -92,8 +93,8 @@ communicationsRoutes.get("/new", async (c) => {
           </div>
           <Textarea label="Mensagem" id="message_body" name="message_body" rows={5} required />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Registrar</button>
-            <a href="/communications" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Registrar</button>
+            <a href="/communications" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>

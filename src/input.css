@@ -76,6 +76,12 @@
   /* Focus ring */
   --shadow-focus: 0 0 0 2px #ffffff, 0 0 0 4px #243b53;
 
+  /* Animations */
+  --animate-spin: spin 1s linear infinite;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
   /* Font family */
   --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -87,7 +93,6 @@
   ::before,
   ::after {
     transition: none !important;
-    animation: none !important;
   }
 }
 

@@ -69,10 +69,11 @@ casesRoutes.get("/", async (c) => {
     <>
       <PageHeader
         title="Processos"
-        actions={() => <a href="/cases/new" class="btn btn-primary">Novo Processo</a>}
+        icon="ph-folder-open"
+        actions={() => <a href="/cases/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Processo</a>}
       />
       <form method="get" action="/cases" class="mb-4 flex gap-4 items-end">
-        <TextField label="Buscar" id="search" name="search" value={search} placeholder="Titulo do processo..." />
+        <TextField label="Buscar" id="search" name="search" value={search} placeholder="Titulo do processo..." icon="ph-magnifying-glass" />
         <Select label="Status" id="status" name="status" selected={status}
           options={[
             { value: "", label: "Todos" },
@@ -84,7 +85,7 @@ casesRoutes.get("/", async (c) => {
         <Select label="Tipo" id="type" name="type" selected={type}
           options={[{ value: "", label: "Todos" }, ...CASE_TYPES.map((t) => ({ value: t, label: t }))]}
         />
-        <button type="submit" class="btn btn-secondary">Filtrar</button>
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
       </form>
       <Table
         columns={[
@@ -93,6 +94,7 @@ casesRoutes.get("/", async (c) => {
         ]}
         rows={rows}
         emptyMsg="Nenhum processo encontrado."
+        emptyIcon="ph-folder-open"
         ariaLabel="Lista de processos"
       />
     </>,
@@ -113,7 +115,7 @@ casesRoutes.get("/new", async (c) => {
     c,
     { title: "Novo Processo", active: "cases" },
     <>
-      <PageHeader title="Novo Processo" />
+      <PageHeader title="Novo Processo" icon="ph-plus-circle" />
       <Panel>
         <form method="post" action="/cases" class="flex flex-col gap-4">
           <Select label="Cliente" id="client_id" name="client_id" required
@@ -138,8 +140,8 @@ casesRoutes.get("/new", async (c) => {
           </div>
           <Textarea label="Descricao" id="description" name="description" rows={4} />
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="/cases" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href="/cases" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>
@@ -213,18 +215,19 @@ casesRoutes.get("/:id", async (c) => {
     <>
       <PageHeader
         title={caseRow.title}
+        icon="ph-folder-open"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/cases/${id}/edit`} class="btn btn-secondary">Editar</a>
+            <a href={`/cases/${id}/edit`} class="btn btn-secondary"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
             <form method="post" action={`/cases/${id}/delete`}>
-              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo?')">Excluir</button>
+              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
             </form>
           </div>
         )}
       />
 
       <div class="grid grid-cols-3 gap-4 mb-6">
-        <Panel title="Dados do processo">
+        <Panel title="Dados do processo" icon="ph-folder">
           <dl class="flex flex-col gap-1 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${caseRow.client_id}`} class="text-navy-700 hover:underline">{client?.name ?? "-"}</a></dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Numero: </dt><dd class="inline">{caseRow.case_number ?? "-"}</dd></div>
@@ -238,7 +241,7 @@ casesRoutes.get("/:id", async (c) => {
           </dl>
         </Panel>
 
-        <Panel title="Resumo IA">
+        <Panel title="Resumo IA" icon="ph-sparkle">
           {summary.data ? (
             <>
               <p class="text-body-sm text-gray-700 whitespace-pre-wrap mb-2">{summary.data.summary_text}</p>
@@ -248,25 +251,25 @@ casesRoutes.get("/:id", async (c) => {
             <p class="text-body-sm text-gray-500 mb-2">Nenhum resumo gerado.</p>
           )}
           <form method="post" action={`/cases/${id}/summary`}>
-            <button type="submit" class="btn btn-primary">Gerar resumo IA</button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-sparkle" aria-hidden="true"></i>Gerar resumo IA</button>
           </form>
         </Panel>
 
-        <Panel title="Proximos passos IA">
+        <Panel title="Proximos passos IA" icon="ph-list-checks">
           <form method="post" action={`/cases/${id}/nextsteps`}>
-            <button type="submit" class="btn btn-primary">Sugerir proximos passos</button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-list-checks" aria-hidden="true"></i>Sugerir proximos passos</button>
           </form>
         </Panel>
       </div>
 
       {caseRow.description ? (
-        <Panel title="Descricao">
+        <Panel title="Descricao" icon="ph-text-aa">
           <p class="text-body-sm text-gray-700 whitespace-pre-wrap">{caseRow.description}</p>
         </Panel>
       ) : null}
 
       <div class="grid grid-cols-2 gap-4 mt-6">
-        <Panel title="Prazos">
+        <Panel title="Prazos" icon="ph-clock-countdown">
           <Table
             columns={[{ label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }]}
             rows={(deadlines.data ?? []).map((d) => [
@@ -278,7 +281,7 @@ casesRoutes.get("/:id", async (c) => {
             emptyMsg="Nenhum prazo."
           />
         </Panel>
-        <Panel title="Audiencias">
+        <Panel title="Audiencias" icon="ph-gavel">
           <Table
             columns={[{ label: "Data" }, { label: "Local" }]}
             rows={(hearings.data ?? []).map((h) => [
@@ -291,7 +294,7 @@ casesRoutes.get("/:id", async (c) => {
       </div>
 
       <div class="grid grid-cols-2 gap-4 mt-6">
-        <Panel title="Processos (CNJ)">
+        <Panel title="Processos (CNJ)" icon="ph-scales">
           <Table
             columns={[{ label: "CNJ" }, { label: "Tribunal" }]}
             rows={(proceedings.data ?? []).map((p) => [
@@ -301,7 +304,7 @@ casesRoutes.get("/:id", async (c) => {
             emptyMsg="Nenhum processo CNJ vinculado."
           />
         </Panel>
-        <Panel title="Linha do tempo">
+        <Panel title="Linha do tempo" icon="ph-timeline">
           <Table
             columns={[{ label: "Data" }, { label: "Evento" }, { label: "Descricao" }]}
             rows={(events.data ?? []).map((e: { created_at: string; event_type: string; description: string }) => [
@@ -439,7 +442,7 @@ casesRoutes.get("/:id/edit", async (c) => {
     c,
     { title: `Editar ${caseRes.data.title}`, active: "cases" },
     <>
-      <PageHeader title={`Editar ${caseRes.data.title}`} />
+      <PageHeader title={`Editar ${caseRes.data.title}`} icon="ph-pencil" />
       <Panel>
         <form method="post" action={`/cases/${id}`} class="flex flex-col gap-4">
           <Select label="Cliente" id="client_id" name="client_id" required selected={caseRes.data.client_id}
@@ -464,8 +467,8 @@ casesRoutes.get("/:id/edit", async (c) => {
           </div>
           <Textarea label="Descricao" id="description" name="description" rows={4}>{caseRes.data.description ?? ""}</Textarea>
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href={`/cases/${id}`} class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
+            <a href={`/cases/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
           </div>
         </form>
       </Panel>
