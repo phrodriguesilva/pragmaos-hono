@@ -20,6 +20,31 @@ const caseSchema = z.object({
   tribunal: z.string().optional(),
   status: z.enum(["active", "suspended", "archived"]),
   description: z.string().optional(),
+  cause_value_cents: z.coerce.number().optional(),
+  judge: z.string().optional(),
+  district: z.string().optional(),
+  court_branch: z.string().optional(),
+  instance: z.string().optional(),
+  phase: z.string().optional(),
+  opposing_party: z.string().optional(),
+  case_class: z.string().optional(),
+  subject: z.string().optional(),
+});
+
+const partySchema = z.object({
+  party_type: z.enum(["autor", "reu", "advogado", "perito", "testemunha", "terceiro"]),
+  name: z.string().min(1, "Nome e obrigatorio"),
+  document: z.string().optional(),
+  role: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const riskSchema = z.object({
+  win_probability: z.coerce.number().int().min(0).max(100).optional(),
+  loss_probability: z.coerce.number().int().min(0).max(100).optional(),
+  probable_value_cents: z.coerce.number().optional(),
+  provision_cents: z.coerce.number().optional(),
+  risk_notes: z.string().optional(),
 });
 
 const CASE_TYPES = [
@@ -138,6 +163,28 @@ casesRoutes.get("/new", async (c) => {
               ]}
             />
           </div>
+          <div class="grid grid-cols-3 gap-4">
+            <TextField label="Valor da causa (R$)" id="cause_value_cents" name="cause_value_cents" type="number" step="0.01" placeholder="0,00" />
+            <TextField label="Juiz" id="judge" name="judge" placeholder="Juiz responsavel" />
+            <TextField label="Parte contraria" id="opposing_party" name="opposing_party" placeholder="Nome da parte contraria" />
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <TextField label="Comarca" id="district" name="district" />
+            <TextField label="Vara" id="court_branch" name="court_branch" />
+            <Select label="Instancia" id="instance" name="instance" selected="1"
+              options={[
+                { value: "1", label: "1 Grau" },
+                { value: "2", label: "2 Grau" },
+                { value: "STJ", label: "STJ" },
+                { value: "STF", label: "STF" },
+              ]}
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <TextField label="Classe" id="case_class" name="case_class" placeholder="Classe processual" />
+            <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto" />
+          </div>
+          <TextField label="Fase" id="phase" name="phase" placeholder="Fase atual do processo" />
           <Textarea label="Descricao" id="description" name="description" rows={4} />
           <div class="flex gap-2">
             <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
@@ -168,6 +215,15 @@ casesRoutes.post("/", async (c) => {
     tribunal: parsed.data.tribunal || null,
     status: parsed.data.status,
     description: parsed.data.description || null,
+    cause_value_cents: parsed.data.cause_value_cents ? Math.round(parsed.data.cause_value_cents * 100) : 0,
+    judge: parsed.data.judge || null,
+    district: parsed.data.district || null,
+    court_branch: parsed.data.court_branch || null,
+    instance: parsed.data.instance || "1",
+    phase: parsed.data.phase || null,
+    opposing_party: parsed.data.opposing_party || null,
+    case_class: parsed.data.case_class || null,
+    subject: parsed.data.subject || null,
   }).select("id").single();
 
   if (newCase) {
@@ -199,12 +255,14 @@ casesRoutes.get("/:id", async (c) => {
 
   if (!caseRow) return c.html("Processo nao encontrado.", 404);
 
-  const [events, summary, deadlines, hearings, proceedings] = await Promise.all([
+  const [events, summary, deadlines, hearings, proceedings, parties, risk] = await Promise.all([
     supabase.from("case_events").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).order("created_at", { ascending: false }),
     supabase.from("case_summaries").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).single(),
     supabase.from("deadlines").select("id, title, due_date, completed_at, priority").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("due_date", { ascending: true }),
     supabase.from("hearings").select("id, date, location, notes").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("date", { ascending: true }),
     supabase.from("proceedings").select("id, cnj_number, tribunal").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null),
+    supabase.from("case_parties").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("party_type"),
+    supabase.from("case_risk").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).single(),
   ]);
 
   const client = caseRow.clients as { name: string; email?: string; cpf?: string; cnpj?: string; phone?: string; address?: string } | null;
@@ -233,6 +291,15 @@ casesRoutes.get("/:id", async (c) => {
             <div><dt class="font-semibold text-gray-700 inline">Numero: </dt><dd class="inline">{caseRow.case_number ?? "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{caseRow.case_type}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tribunal: </dt><dd class="inline">{caseRow.tribunal ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Comarca: </dt><dd class="inline">{caseRow.district ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Vara: </dt><dd class="inline">{caseRow.court_branch ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Instancia: </dt><dd class="inline">{caseRow.instance ?? "1"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Juiz: </dt><dd class="inline">{caseRow.judge ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Parte contraria: </dt><dd class="inline">{caseRow.opposing_party ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Classe: </dt><dd class="inline">{caseRow.case_class ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Assunto: </dt><dd class="inline">{caseRow.subject ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Fase: </dt><dd class="inline">{caseRow.phase ?? "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Valor da causa: </dt><dd class="inline">{caseRow.cause_value_cents ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(caseRow.cause_value_cents / 100) : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Status: </dt><dd class="inline">
               <Badge color={caseRow.status === "active" ? "green" : caseRow.status === "suspended" ? "yellow" : "gray"}>
                 {caseRow.status === "active" ? "Ativo" : caseRow.status === "suspended" ? "Suspenso" : "Arquivado"}
@@ -258,6 +325,72 @@ casesRoutes.get("/:id", async (c) => {
         <Panel title="Proximos passos IA" icon="ph-list-checks">
           <form method="post" action={`/cases/${id}/nextsteps`}>
             <button type="submit" class="btn btn-primary"><i class="ph ph-list-checks" aria-hidden="true"></i>Sugerir proximos passos</button>
+          </form>
+        </Panel>
+      </div>
+
+      {/* Partes e Risco */}
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <Panel title="Partes do processo" icon="ph-users-three">
+          <Table
+            columns={[{ label: "Tipo", icon: "ph-tag" }, { label: "Nome", icon: "ph-user" }, { label: "Documento", icon: "ph-id-card" }, { label: "" }]}
+            rows={(parties.data ?? []).map((p) => [
+              <Badge color={p.party_type === "autor" ? "green" : p.party_type === "reu" ? "red" : "blue"}>{p.party_type}</Badge> as unknown as string,
+              p.name,
+              p.document ?? "-",
+              <form method="post" action={`/cases/${id}/parties/${p.id}/delete`}>
+                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Remover esta parte?')">
+                  <i class="ph ph-trash" aria-hidden="true"></i>
+                </button>
+              </form> as unknown as string,
+            ])}
+            emptyMsg="Nenhuma parte cadastrada."
+            emptyIcon="ph-users-three"
+          />
+          <form method="post" action={`/cases/${id}/parties`} class="mt-3 flex flex-wrap gap-2 items-end">
+            <Select label="Tipo" id="party_type" name="party_type" required
+              options={[
+                { value: "autor", label: "Autor" },
+                { value: "reu", label: "Reu" },
+                { value: "advogado", label: "Advogado" },
+                { value: "perito", label: "Perito" },
+                { value: "testemunha", label: "Testemunha" },
+                { value: "terceiro", label: "Terceiro" },
+              ]}
+            />
+            <TextField label="Nome" id="party_name" name="name" required placeholder="Nome da parte" />
+            <TextField label="Documento" id="party_document" name="document" placeholder="CPF/CNPJ/OAB" />
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
+              <i class="ph ph-plus" aria-hidden="true"></i>Adicionar
+            </button>
+          </form>
+        </Panel>
+
+        <Panel title="Controle de risco" icon="ph-gauge">
+          {risk.data ? (
+            <dl class="flex flex-col gap-2 text-body-sm mb-3">
+              <div><dt class="font-semibold text-gray-700 inline">Prob. de ganho: </dt><dd class="inline"><Badge color={risk.data.win_probability >= 60 ? "green" : risk.data.win_probability >= 40 ? "yellow" : "red"}>{risk.data.win_probability ?? 0}%</Badge></dd></div>
+              <div><dt class="font-semibold text-gray-700 inline">Prob. de perda: </dt><dd class="inline"><Badge color={risk.data.loss_probability >= 60 ? "red" : risk.data.loss_probability >= 40 ? "yellow" : "green"}>{risk.data.loss_probability ?? 0}%</Badge></dd></div>
+              <div><dt class="font-semibold text-gray-700 inline">Valor provavel: </dt><dd class="inline">{risk.data.probable_value_cents ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(risk.data.probable_value_cents / 100) : "-"}</dd></div>
+              <div><dt class="font-semibold text-gray-700 inline">Provisionamento: </dt><dd class="inline">{risk.data.provision_cents ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(risk.data.provision_cents / 100) : "-"}</dd></div>
+              {risk.data.risk_notes ? <div class="mt-1 text-gray-600 whitespace-pre-wrap">{risk.data.risk_notes}</div> : null}
+            </dl>
+          ) : (
+            <p class="text-body-sm text-gray-500 mb-3">Nenhuma analise de risco cadastrada.</p>
+          )}
+          <form method="post" action={`/cases/${id}/risk`} class="flex flex-col gap-2">
+            <div class="grid grid-cols-2 gap-2">
+              <TextField label="Prob. ganho (%)" id="win_probability" name="win_probability" type="number" min="0" max="100" value={risk.data?.win_probability ? String(risk.data.win_probability) : ""} />
+              <TextField label="Prob. perda (%)" id="loss_probability" name="loss_probability" type="number" min="0" max="100" value={risk.data?.loss_probability ? String(risk.data.loss_probability) : ""} />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <TextField label="Valor provavel (R$)" id="probable_value_cents" name="probable_value_cents" type="number" step="0.01" value={risk.data?.probable_value_cents ? String(risk.data.probable_value_cents / 100) : ""} />
+              <TextField label="Provisionamento (R$)" id="provision_cents" name="provision_cents" type="number" step="0.01" value={risk.data?.provision_cents ? String(risk.data.provision_cents / 100) : ""} />
+            </div>
+            <TextField label="Observacoes de risco" id="risk_notes" name="risk_notes" value={risk.data?.risk_notes ?? ""} />
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1 self-start">
+              <i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar risco
+            </button>
           </form>
         </Panel>
       </div>
@@ -318,6 +451,58 @@ casesRoutes.get("/:id", async (c) => {
       </div>
     </>,
   );
+});
+
+// POST /cases/:id/parties -- add a party.
+casesRoutes.post("/:id/parties", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+  const parsed = partySchema.safeParse(body);
+  if (!parsed.success) return c.redirect(`/cases/${id}`);
+
+  await supabase.from("case_parties").insert({
+    tenant_id: user.tenantId,
+    case_id: id,
+    party_type: parsed.data.party_type,
+    name: parsed.data.name,
+    document: parsed.data.document || null,
+    role: parsed.data.role || null,
+    notes: parsed.data.notes || null,
+  });
+
+  return c.redirect(`/cases/${id}`);
+});
+
+// POST /cases/:id/parties/:pid/delete -- remove a party.
+casesRoutes.post("/:id/parties/:pid/delete", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const pid = c.req.param("pid");
+  await supabase.from("case_parties").update({ deleted_at: new Date().toISOString() }).eq("id", pid).eq("tenant_id", user.tenantId);
+  return c.redirect(`/cases/${id}`);
+});
+
+// POST /cases/:id/risk -- upsert risk assessment.
+casesRoutes.post("/:id/risk", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+  const parsed = riskSchema.safeParse(body);
+  if (!parsed.success) return c.redirect(`/cases/${id}`);
+
+  await supabase.from("case_risk").upsert({
+    tenant_id: user.tenantId,
+    case_id: id,
+    win_probability: parsed.data.win_probability ?? null,
+    loss_probability: parsed.data.loss_probability ?? null,
+    probable_value_cents: parsed.data.probable_value_cents ? Math.round(parsed.data.probable_value_cents * 100) : 0,
+    provision_cents: parsed.data.provision_cents ? Math.round(parsed.data.provision_cents * 100) : 0,
+    risk_notes: parsed.data.risk_notes || null,
+    updated_by: user.id,
+  }, { onConflict: "tenant_id,case_id" });
+
+  return c.redirect(`/cases/${id}`);
 });
 
 // POST /cases/:id/summary -- generate AI summary.
@@ -465,6 +650,28 @@ casesRoutes.get("/:id/edit", async (c) => {
               ]}
             />
           </div>
+          <div class="grid grid-cols-3 gap-4">
+            <TextField label="Valor da causa (R$)" id="cause_value_cents" name="cause_value_cents" type="number" step="0.01" value={caseRes.data.cause_value_cents ? String(caseRes.data.cause_value_cents / 100) : ""} />
+            <TextField label="Juiz" id="judge" name="judge" value={caseRes.data.judge ?? ""} />
+            <TextField label="Parte contraria" id="opposing_party" name="opposing_party" value={caseRes.data.opposing_party ?? ""} />
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <TextField label="Comarca" id="district" name="district" value={caseRes.data.district ?? ""} />
+            <TextField label="Vara" id="court_branch" name="court_branch" value={caseRes.data.court_branch ?? ""} />
+            <Select label="Instancia" id="instance" name="instance" selected={caseRes.data.instance ?? "1"}
+              options={[
+                { value: "1", label: "1 Grau" },
+                { value: "2", label: "2 Grau" },
+                { value: "STJ", label: "STJ" },
+                { value: "STF", label: "STF" },
+              ]}
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <TextField label="Classe" id="case_class" name="case_class" value={caseRes.data.case_class ?? ""} />
+            <TextField label="Assunto" id="subject" name="subject" value={caseRes.data.subject ?? ""} />
+          </div>
+          <TextField label="Fase" id="phase" name="phase" value={caseRes.data.phase ?? ""} />
           <Textarea label="Descricao" id="description" name="description" rows={4}>{caseRes.data.description ?? ""}</Textarea>
           <div class="flex gap-2">
             <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
@@ -492,6 +699,15 @@ casesRoutes.post("/:id", async (c) => {
     tribunal: parsed.data.tribunal || null,
     status: parsed.data.status,
     description: parsed.data.description || null,
+    cause_value_cents: parsed.data.cause_value_cents ? Math.round(parsed.data.cause_value_cents * 100) : 0,
+    judge: parsed.data.judge || null,
+    district: parsed.data.district || null,
+    court_branch: parsed.data.court_branch || null,
+    instance: parsed.data.instance || "1",
+    phase: parsed.data.phase || null,
+    opposing_party: parsed.data.opposing_party || null,
+    case_class: parsed.data.case_class || null,
+    subject: parsed.data.subject || null,
   }).eq("id", id).eq("tenant_id", user.tenantId);
 
   return c.redirect(`/cases/${id}`);

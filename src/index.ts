@@ -18,6 +18,8 @@ import { usersRoutes } from "./routes/users";
 import { auditRoutes } from "./routes/audit";
 import { leadsRoutes } from "./routes/leads";
 import { tasksRoutes } from "./routes/tasks";
+import { templatesRoutes } from "./routes/templates";
+import { honorariosRoutes } from "./routes/honorarios";
 import { stubRoute } from "./routes/stub";
 
 const app = new Hono<AppEnv>();
@@ -47,14 +49,13 @@ app.route("/audit", auditRoutes);
 // Phase 2 -- new modules.
 app.route("/leads", leadsRoutes);
 app.route("/tasks", tasksRoutes);
+app.route("/templates", templatesRoutes);
+app.route("/honorarios", honorariosRoutes);
 
 // Phase 2 -- stubs for modules not yet fully implemented.
 app.route("/companies", stubRoute("companies", "Empresas", "ph-building",
   "Gestao de pessoas juridicas com representantes, contratos e dados bancarios.",
   ["Cadastro completo de PJ", "Representantes e socios", "Vinculacao com processos", "Historico financeiro"]));
-app.route("/templates", stubRoute("templates", "Modelos de Documentos", "ph-files",
-  "Modelos reutilizaveis de peticoes, contratos, procuracoes e declaracoes.",
-  ["Editor de templates com variaveis", "Merge de dados do processo/cliente", "Geracao de PDF/DOCX", "Categorias e tags"]));
 app.route("/signatures", stubRoute("signatures", "Assinaturas Digitais", "ph-pen-nib",
   "Assinatura digital com certificado ICP-Brasil e integracoes externas.",
   ["Assinatura ICP-Brasil", "Integracao Clicksign", "Integracao DocuSign", "Integracao Gov.br", "Controle de status"]));
@@ -67,9 +68,6 @@ app.route("/emails", stubRoute("emails", "E-mails", "ph-envelope",
 app.route("/messages", stubRoute("messages", "Mensagens", "ph-chat-circle",
   "Chat interno entre membros da equipe, vinculado a processos e clientes.",
   ["Chat em tempo real", "Conversas por processo", "Mencoes (@usuario)", "Anexos", "Notificacoes push"]));
-app.route("/honorarios", stubRoute("honorarios", "Honorarios", "ph-hand-coins",
-  "Gestao de honorarios contratuais, sucumbenciais, de exito e mensalidades.",
-  ["Honorarios contratuais", "Honorarios sucumbenciais", "Honorarios de exito", "Mensalidades", "Parcelamentos", "Provisionamento"]));
 app.route("/billing", stubRoute("billing", "Cobrancas", "ph-receipt",
   "Cobranca via PIX, boleto e cartao com recursao e conciliacao.",
   ["Geracao de boletos", "PIX dinamico", "Cartao de credito", "Cobranca recorrente", "Conciliacao bancaria", "Open Finance"]));

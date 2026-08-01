@@ -110,8 +110,10 @@ export const TextField: FC<{
   required?: boolean;
   error?: string;
   step?: string;
+  min?: string;
+  max?: string;
   icon?: string;
-}> = ({ label, id, name, type = "text", value, placeholder, required, error, step, icon }) => (
+}> = ({ label, id, name, type = "text", value, placeholder, required, error, step, min, max, icon }) => (
   <div class="flex flex-col gap-1">
     <label for={id} class="text-body-sm font-semibold text-gray-700">
       {label}
@@ -127,6 +129,8 @@ export const TextField: FC<{
         placeholder={placeholder}
         required={required}
         step={step}
+        min={min}
+        max={max}
         class={`input${icon ? " pl-7" : ""}`}
       />
     </div>
