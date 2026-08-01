@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const workflowsRoutes = new Hono<AppEnv>();
 
@@ -152,10 +152,72 @@ workflowsRoutes.get("/", async (c) => {
         title="Workflows"
         icon="ph-gear-six"
         actions={() => (
-          <a href="/workflows/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true" />
-            Novo Workflow
-          </a>
+          <WizardModal
+            id="new-workflow"
+            title="Novo Workflow"
+            icon="ph-gear-six"
+            triggerText="Novo Workflow"
+            triggerIcon="ph-plus"
+            action="/workflows"
+            submitLabel="Salvar"
+            large
+            steps={[
+              {
+                label: "Dados Basicos",
+                icon: "ph-info",
+                fields: (
+                  <>
+                    <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" placeholder="Ex.: Onboarding de novo cliente" />
+                    <Textarea label="Descricao" id="description" name="description" rows={3}>
+                      {"Para que serve este workflow..."}
+                    </Textarea>
+                    <label class="flex items-center gap-2 text-body-sm font-semibold text-gray-700">
+                      <input type="checkbox" name="active" value="1" checked />
+                      Ativo
+                    </label>
+                  </>
+                ),
+              },
+              {
+                label: "Gatilho",
+                icon: "ph-lightning",
+                fields: (
+                  <>
+                    <Select
+                      label="Gatilho"
+                      id="trigger_type"
+                      name="trigger_type"
+                      required
+                      icon="ph-lightning"
+                      selected="manual"
+                      options={TRIGGER_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+                    />
+                    <Textarea label="Configuracao do Gatilho (JSON)" id="trigger_config" name="trigger_config" rows={4}>
+                      {"{\n  \n}"}
+                    </Textarea>
+                  </>
+                ),
+              },
+              {
+                label: "Acoes",
+                icon: "ph-gear",
+                fields: (
+                  <>
+                    <Select
+                      label="Acao"
+                      id="action_type"
+                      name="action_type"
+                      icon="ph-gear"
+                      options={ACTION_TYPES.map((a) => ({ value: a.value, label: a.label }))}
+                    />
+                    <Textarea label="Configuracao da Acao (JSON)" id="action_config" name="action_config" rows={4}>
+                      {"{\n  \n}"}
+                    </Textarea>
+                  </>
+                ),
+              },
+            ]}
+          />
         )}
       />
       <Table
@@ -175,55 +237,13 @@ workflowsRoutes.get("/", async (c) => {
   );
 });
 
-// GET /workflows/new -- create form.
-workflowsRoutes.get("/new", async (c) => {
-  return renderPage(
-    c,
-    { title: "Novo Workflow", active: "workflows" },
-    <>
-      <PageHeader title="Novo Workflow" icon="ph-gear-six" />
-      <Panel title="Dados do Workflow" icon="ph-gear-six">
-        <form method="post" action="/workflows" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" placeholder="Ex.: Onboarding de novo cliente" />
-          <Textarea label="Descricao" id="description" name="description" rows={3}>
-            {"Para que serve este workflow..."}
-          </Textarea>
-          <Select
-            label="Gatilho"
-            id="trigger_type"
-            name="trigger_type"
-            required
-            icon="ph-lightning"
-            selected="manual"
-            options={TRIGGER_TYPES.map((t) => ({ value: t.value, label: t.label }))}
-          />
-          <label class="flex items-center gap-2 text-body-sm font-semibold text-gray-700">
-            <input type="checkbox" name="active" value="1" checked />
-            Ativo
-          </label>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />
-              Salvar
-            </button>
-            <a href="/workflows" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />
-              Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /workflows -- create workflow.
 workflowsRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = workflowSchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect("/workflows/new");
+  if (!parsed.success) return c.redirect("/workflows");
 
   const { data, error } = await supabase
     .from("workflows")
@@ -239,7 +259,7 @@ workflowsRoutes.post("/", async (c) => {
     .select("id")
     .single();
 
-  if (error || !data) return c.redirect("/workflows/new");
+  if (error || !data) return c.redirect("/workflows");
 
   return c.redirect(`/workflows/${data.id}`);
 });
@@ -299,10 +319,73 @@ workflowsRoutes.get("/:id", async (c) => {
         icon="ph-gear-six"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/workflows/${wf.id}/edit`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-pencil-simple" aria-hidden="true" />
-              Editar
-            </a>
+            <WizardModal
+              id="edit-workflow"
+              title={`Editar - ${wf.name}`}
+              icon="ph-gear-six"
+              triggerText="Editar"
+              triggerIcon="ph-pencil-simple"
+              triggerVariant="secondary"
+              action={`/workflows/${wf.id}`}
+              submitLabel="Salvar"
+              large
+              steps={[
+                {
+                  label: "Dados Basicos",
+                  icon: "ph-info",
+                  fields: (
+                    <>
+                      <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" value={wf.name} />
+                      <Textarea label="Descricao" id="description" name="description" rows={3}>
+                        {wf.description ?? ""}
+                      </Textarea>
+                      <label class="flex items-center gap-2 text-body-sm font-semibold text-gray-700">
+                        <input type="checkbox" name="active" value="1" checked={wf.active} />
+                        Ativo
+                      </label>
+                    </>
+                  ),
+                },
+                {
+                  label: "Gatilho",
+                  icon: "ph-lightning",
+                  fields: (
+                    <>
+                      <Select
+                        label="Gatilho"
+                        id="trigger_type"
+                        name="trigger_type"
+                        required
+                        icon="ph-lightning"
+                        selected={wf.trigger_type}
+                        options={TRIGGER_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+                      />
+                      <Textarea label="Configuracao do Gatilho (JSON)" id="trigger_config" name="trigger_config" rows={4}>
+                        {wf.trigger_config ? JSON.stringify(wf.trigger_config, null, 2) : "{\n  \n}"}
+                      </Textarea>
+                    </>
+                  ),
+                },
+                {
+                  label: "Acoes",
+                  icon: "ph-gear",
+                  fields: (
+                    <>
+                      <Select
+                        label="Acao"
+                        id="action_type"
+                        name="action_type"
+                        icon="ph-gear"
+                        options={ACTION_TYPES.map((a) => ({ value: a.value, label: a.label }))}
+                      />
+                      <Textarea label="Configuracao da Acao (JSON)" id="action_config" name="action_config" rows={4}>
+                        {"{\n  \n}"}
+                      </Textarea>
+                    </>
+                  ),
+                },
+              ]}
+            />
             {wf.trigger_type === "manual" ? (
               <form method="post" action={`/workflows/${wf.id}/execute`} class="inline">
                 <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
@@ -673,61 +756,6 @@ workflowsRoutes.post("/:id/toggle", async (c) => {
   return c.redirect(`/workflows/${id}`);
 });
 
-// GET /workflows/:id/edit -- edit workflow.
-workflowsRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: wf } = await supabase
-    .from("workflows")
-    .select("id, name, description, trigger_type, active")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!wf) return c.redirect("/workflows");
-
-  return renderPage(
-    c,
-    { title: `Editar - ${wf.name}`, active: "workflows" },
-    <>
-      <PageHeader title={`Editar - ${wf.name}`} icon="ph-gear-six" />
-      <Panel title="Dados do Workflow" icon="ph-gear-six">
-        <form method="post" action={`/workflows/${wf.id}`} class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" value={wf.name} />
-          <Textarea label="Descricao" id="description" name="description" rows={3}>
-            {wf.description ?? ""}
-          </Textarea>
-          <Select
-            label="Gatilho"
-            id="trigger_type"
-            name="trigger_type"
-            required
-            icon="ph-lightning"
-            selected={wf.trigger_type}
-            options={TRIGGER_TYPES.map((t) => ({ value: t.value, label: t.label }))}
-          />
-          <label class="flex items-center gap-2 text-body-sm font-semibold text-gray-700">
-            <input type="checkbox" name="active" value="1" checked={wf.active} />
-            Ativo
-          </label>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />
-              Salvar
-            </button>
-            <a href={`/workflows/${wf.id}`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />
-              Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /workflows/:id -- update workflow.
 workflowsRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -735,7 +763,7 @@ workflowsRoutes.post("/:id", async (c) => {
   const body = await c.req.parseBody();
   const parsed = workflowSchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect(`/workflows/${id}/edit`);
+  if (!parsed.success) return c.redirect(`/workflows/${id}`);
 
   await supabase
     .from("workflows")

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const tasksRoutes = new Hono<AppEnv>();
 
@@ -45,7 +45,58 @@ tasksRoutes.get("/", async (c) => {
 
   if (mine) query = query.eq("assigned_to", user.id);
 
-  const { data: tasks } = await query;
+  const [tasksRes, casesRes, clientsRes, usersRes] = await Promise.all([
+    query,
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+    supabase.from("profiles").select("id, full_name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("full_name"),
+  ]);
+
+  const tasks = tasksRes.data;
+  const caseOptions = [{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))];
+  const clientOptions = [{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))];
+  const userOptions = [{ value: "", label: "Sem responsavel" }, ...(usersRes.data ?? []).map((u) => ({ value: u.id, label: u.full_name }))];
+
+  const newTaskModal = (
+    <Modal
+      id="new-task"
+      title="Nova Tarefa"
+      icon="ph-check-square"
+      triggerText="Nova Tarefa"
+      triggerIcon="ph-plus"
+      action="/tasks"
+      large
+    >
+      <TextField label="Titulo" id="title" name="title" required placeholder="Descricao da tarefa" icon="ph-text-aa" />
+      <Textarea label="Descricao" id="description" name="description" rows={3} />
+      <div class="grid grid-cols-2 gap-4">
+        <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
+          options={caseOptions}
+        />
+        <Select label="Cliente (opcional)" id="client_id" name="client_id" icon="ph-users"
+          options={clientOptions}
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <Select label="Responsavel" id="assigned_to" name="assigned_to" icon="ph-user-circle"
+          options={userOptions}
+        />
+        <Select label="Prioridade" id="priority" name="priority" required selected="3" icon="ph-flag"
+          options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <Select label="Status" id="status" name="status" required selected="todo" icon="ph-circle-half"
+          options={COLUMNS.map((c2) => ({ value: c2.key, label: c2.label }))}
+        />
+        <TextField label="Prazo" id="due_date" name="due_date" type="date" icon="ph-calendar" />
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" />
+        <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
+      </div>
+    </Modal>
+  );
 
   if (view === "list") {
     const rows = (tasks ?? []).map((t) => {
@@ -79,9 +130,7 @@ tasksRoutes.get("/", async (c) => {
               <a href="/tasks?mine=1" class="btn btn-secondary inline-flex items-center gap-1">
                 <i class="ph ph-user" aria-hidden="true" />Minhas
               </a>
-              <a href="/tasks/new" class="btn btn-primary inline-flex items-center gap-1">
-                <i class="ph ph-plus" aria-hidden="true" />Nova Tarefa
-              </a>
+              {newTaskModal}
             </div>
           )}
         />
@@ -124,9 +173,7 @@ tasksRoutes.get("/", async (c) => {
             <a href="/tasks?mine=1" class="btn btn-secondary inline-flex items-center gap-1">
               <i class="ph ph-user" aria-hidden="true" />Minhas
             </a>
-            <a href="/tasks/new" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-plus" aria-hidden="true" />Nova Tarefa
-            </a>
+            {newTaskModal}
           </div>
         )}
       />
@@ -182,71 +229,13 @@ tasksRoutes.get("/", async (c) => {
   );
 });
 
-// GET /tasks/new -- create form.
-tasksRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const [casesRes, clientsRes, usersRes] = await Promise.all([
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("profiles").select("id, full_name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("full_name"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Nova Tarefa", active: "tasks" },
-    <>
-      <PageHeader title="Nova Tarefa" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/tasks" class="flex flex-col gap-4">
-          <TextField label="Titulo" id="title" name="title" required placeholder="Descricao da tarefa" icon="ph-text-aa" />
-          <Textarea label="Descricao" id="description" name="description" rows={3} />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
-              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-            />
-            <Select label="Cliente (opcional)" id="client_id" name="client_id" icon="ph-users"
-              options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Responsavel" id="assigned_to" name="assigned_to" icon="ph-user-circle"
-              options={[{ value: "", label: "Sem responsavel" }, ...(usersRes.data ?? []).map((u) => ({ value: u.id, label: u.full_name }))]}
-            />
-            <Select label="Prioridade" id="priority" name="priority" required selected="3" icon="ph-flag"
-              options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Status" id="status" name="status" required selected="todo" icon="ph-circle-half"
-              options={COLUMNS.map((c2) => ({ value: c2.key, label: c2.label }))}
-            />
-            <TextField label="Prazo" id="due_date" name="due_date" type="date" icon="ph-calendar" />
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" />
-            <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar
-            </button>
-            <a href="/tasks" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /tasks -- create.
 tasksRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = taskSchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect("/tasks/new");
+  if (!parsed.success) return c.redirect("/tasks");
 
   await supabase.from("tasks").insert({
     tenant_id: user.tenantId,
@@ -280,10 +269,20 @@ tasksRoutes.get("/:id", async (c) => {
 
   if (!task) return c.html("Tarefa nao encontrada.", 404);
 
+  const [casesRes, clientsRes, usersRes] = await Promise.all([
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+    supabase.from("profiles").select("id, full_name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("full_name"),
+  ]);
+
   const col = COLUMNS.find((c2) => c2.key === task.status);
   const caseTitle = (task.cases as unknown as { title: string } | null)?.title;
   const clientName = (task.clients as unknown as { name: string } | null)?.name;
   const assignedName = (task.profiles as unknown as { full_name: string } | null)?.full_name;
+
+  const caseOptions = [{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))];
+  const clientOptions = [{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))];
+  const userOptions = [{ value: "", label: "Sem responsavel" }, ...(usersRes.data ?? []).map((u) => ({ value: u.id, label: u.full_name }))];
 
   return renderPage(
     c,
@@ -294,9 +293,47 @@ tasksRoutes.get("/:id", async (c) => {
         icon="ph-check-square"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/tasks/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-pencil" aria-hidden="true" />Editar
-            </a>
+            <Modal
+              id="edit-task"
+              title={`Editar ${task.title}`}
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/tasks/${id}`}
+              large
+            >
+              <TextField label="Titulo" id="title" name="title" required value={task.title} icon="ph-text-aa" />
+              <Textarea label="Descricao" id="description" name="description" rows={3}>{task.description ?? ""}</Textarea>
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder" selected={task.case_id ?? ""}
+                  options={caseOptions}
+                />
+                <Select label="Cliente (opcional)" id="client_id" name="client_id" icon="ph-users" selected={task.client_id ?? ""}
+                  options={clientOptions}
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Responsavel" id="assigned_to" name="assigned_to" icon="ph-user-circle" selected={task.assigned_to ?? ""}
+                  options={userOptions}
+                />
+                <Select label="Prioridade" id="priority" name="priority" required selected={String(task.priority)} icon="ph-flag"
+                  options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Status" id="status" name="status" required selected={task.status} icon="ph-circle-half"
+                  options={COLUMNS.map((c2) => ({ value: c2.key, label: c2.label }))}
+                />
+                <TextField label="Prazo" id="due_date" name="due_date" type="date" icon="ph-calendar"
+                  value={task.due_date ? new Date(task.due_date).toISOString().split("T")[0] : ""}
+                />
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" checked={task.billable} />
+                <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
+              </div>
+            </Modal>
             <form method="post" action={`/tasks/${id}/delete`}>
               <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta tarefa?')">
                 <i class="ph ph-trash" aria-hidden="true" />Excluir
@@ -354,78 +391,6 @@ tasksRoutes.post("/:id/status", async (c) => {
   return c.redirect(`/tasks/${id}`);
 });
 
-// GET /tasks/:id/edit -- edit form.
-tasksRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: task } = await supabase
-    .from("tasks")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!task) return c.html("Tarefa nao encontrada.", 404);
-
-  const [casesRes, clientsRes, usersRes] = await Promise.all([
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("profiles").select("id, full_name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("full_name"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: `Editar ${task.title}`, active: "tasks" },
-    <>
-      <PageHeader title={`Editar ${task.title}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/tasks/${id}`} class="flex flex-col gap-4">
-          <TextField label="Titulo" id="title" name="title" required value={task.title} icon="ph-text-aa" />
-          <Textarea label="Descricao" id="description" name="description" rows={3}>{task.description ?? ""}</Textarea>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder" selected={task.case_id ?? ""}
-              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-            />
-            <Select label="Cliente (opcional)" id="client_id" name="client_id" icon="ph-users" selected={task.client_id ?? ""}
-              options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Responsavel" id="assigned_to" name="assigned_to" icon="ph-user-circle" selected={task.assigned_to ?? ""}
-              options={[{ value: "", label: "Sem responsavel" }, ...(usersRes.data ?? []).map((u) => ({ value: u.id, label: u.full_name }))]}
-            />
-            <Select label="Prioridade" id="priority" name="priority" required selected={String(task.priority)} icon="ph-flag"
-              options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Status" id="status" name="status" required selected={task.status} icon="ph-circle-half"
-              options={COLUMNS.map((c2) => ({ value: c2.key, label: c2.label }))}
-            />
-            <TextField label="Prazo" id="due_date" name="due_date" type="date" icon="ph-calendar"
-              value={task.due_date ? new Date(task.due_date).toISOString().split("T")[0] : ""}
-            />
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" checked={task.billable} />
-            <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar
-            </button>
-            <a href={`/tasks/${id}`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /tasks/:id -- update.
 tasksRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -433,7 +398,7 @@ tasksRoutes.post("/:id", async (c) => {
   const body = await c.req.parseBody();
   const parsed = taskSchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect(`/tasks/${id}/edit`);
+  if (!parsed.success) return c.redirect(`/tasks/${id}`);
 
   await supabase.from("tasks").update({
     title: parsed.data.title,

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiSummariesRoutes = new Hono<AppEnv>();
 
@@ -66,12 +66,23 @@ async function callOpenAI(messages: { role: string; content: string }[]): Promis
 aiSummariesRoutes.get("/", async (c) => {
   const user = c.get("user");
 
-  const { data: summaries } = await supabase
-    .from("ai_summaries")
-    .select("id, summary_type, summary_text, model, created_at, cases(title)")
-    .eq("tenant_id", user.tenantId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [summariesRes, casesRes] = await Promise.all([
+    supabase
+      .from("ai_summaries")
+      .select("id, summary_type, summary_text, model, created_at, cases(title)")
+      .eq("tenant_id", user.tenantId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("cases")
+      .select("id, title")
+      .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null)
+      .order("title"),
+  ]);
+
+  const { data: summaries } = summariesRes;
+  const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
 
   const rows = (summaries ?? []).map((s) => {
     const caseTitle = (s.cases as unknown as { title: string } | null)?.title ?? "-";
@@ -94,9 +105,48 @@ aiSummariesRoutes.get("/", async (c) => {
         title="Resumos com IA"
         icon="ph-sparkle"
         actions={() => (
-          <a href="/ai-summaries/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Gerar Novo Resumo
-          </a>
+          <Modal
+            id="new-summary"
+            title="Gerar Resumo"
+            icon="ph-sparkle"
+            triggerText="Gerar Novo Resumo"
+            triggerIcon="ph-plus"
+            action="/ai-summaries"
+            submitLabel="Gerar Resumo"
+            submitIcon="ph-sparkle"
+            large
+          >
+            <div {...{ "x-data": `{ summary_type: 'case' }` }}>
+              <div class="flex flex-col gap-1">
+                <label for="summary_type" class="text-body-sm font-semibold text-gray-700">
+                  Tipo de Resumo<span class="text-status-red"> *</span>
+                </label>
+                <select id="summary_type" name="summary_type" required class="input" {...{ "x-model": "summary_type" }}>
+                  <option value="case" selected>Resumo de Processo</option>
+                  <option value="petition">Resumo de Peticao</option>
+                  <option value="decision">Explicacao de Decisao</option>
+                  <option value="hearing">Resumo de Audiencia</option>
+                  <option value="proceeding">Resumo de Andamento</option>
+                </select>
+              </div>
+              <Select
+                label="Processo"
+                id="case_id"
+                name="case_id"
+                required
+                icon="ph-folder"
+                options={caseOptions}
+              />
+              <div {...{ "x-show": "summary_type !== 'case'" }} x-cloak>
+                <Textarea
+                  label="Contexto adicional"
+                  id="additional_context"
+                  name="additional_context"
+                  rows={6}
+                >Cole aqui o texto da peticao, decisao, ata de audiencia ou andamento a ser resumido...</Textarea>
+              </div>
+            </div>
+          </Modal>
         )}
       />
       <Table
@@ -116,85 +166,6 @@ aiSummariesRoutes.get("/", async (c) => {
   );
 });
 
-// --- GET /new -- form to generate a new summary ---
-
-aiSummariesRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const summaryType = c.req.query("type") ?? "case";
-
-  const { data: cases } = await supabase
-    .from("cases")
-    .select("id, title")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("title");
-
-  const isCaseType = summaryType === "case";
-
-  return renderPage(
-    c,
-    { title: "Gerar Resumo", active: "ai-summaries" },
-    <>
-      <PageHeader
-        title="Gerar Resumo"
-        icon="ph-sparkle"
-        actions={() => (
-          <a href="/ai-summaries" class="btn btn-secondary inline-flex items-center gap-1">
-            <i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar
-          </a>
-        )}
-      />
-      <Panel>
-        <form method="post" action="/ai-summaries" class="flex flex-col gap-4">
-          <Select
-            label="Tipo de Resumo"
-            id="summary_type"
-            name="summary_type"
-            required
-            selected={summaryType}
-            options={[
-              { value: "case", label: "Resumo de Processo" },
-              { value: "petition", label: "Resumo de Peticao" },
-              { value: "decision", label: "Explicacao de Decisao" },
-              { value: "hearing", label: "Resumo de Audiencia" },
-              { value: "proceeding", label: "Resumo de Andamento" },
-            ]}
-          />
-          <Select
-            label="Processo"
-            id="case_id"
-            name="case_id"
-            required
-            icon="ph-folder"
-            options={(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))}
-          />
-          {isCaseType ? (
-            <div class="text-body-sm text-gray-500 flex items-center gap-2">
-              <i class="ph ph-info" aria-hidden="true"></i>
-              O resumo sera gerado a partir dos dados do processo selecionado.
-            </div>
-          ) : (
-            <Textarea
-              label="Contexto adicional"
-              id="additional_context"
-              name="additional_context"
-              rows={6}
-            >Cole aqui o texto da peticao, decisao, ata de audiencia ou andamento a ser resumido...</Textarea>
-          )}
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-sparkle" aria-hidden="true"></i>Gerar Resumo
-            </button>
-            <a href="/ai-summaries" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true"></i>Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // --- POST / -- generate summary using OpenAI ---
 
 const summarySchema = z.object({
@@ -207,7 +178,7 @@ aiSummariesRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = summarySchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/ai-summaries/new");
+  if (!parsed.success) return c.redirect("/ai-summaries");
 
   const { summary_type, case_id, additional_context } = parsed.data;
 
@@ -219,7 +190,7 @@ aiSummariesRoutes.post("/", async (c) => {
     .eq("tenant_id", user.tenantId)
     .single();
 
-  if (!caseRow) return c.redirect("/ai-summaries/new");
+  if (!caseRow) return c.redirect("/ai-summaries");
 
   const causeValue = caseRow.cause_value_cents
     ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(caseRow.cause_value_cents / 100)
@@ -273,7 +244,7 @@ aiSummariesRoutes.post("/", async (c) => {
     .select("id")
     .single();
 
-  if (error || !data) return c.redirect("/ai-summaries/new");
+  if (error || !data) return c.redirect("/ai-summaries");
   return c.redirect(`/ai-summaries/${data.id}`);
 });
 
@@ -303,7 +274,7 @@ aiSummariesRoutes.get("/:id", async (c) => {
         icon="ph-sparkle"
         actions={() => (
           <div class="flex gap-2">
-            <a href="/ai-summaries/new" class="btn btn-primary inline-flex items-center gap-1">
+            <a href="/ai-summaries" class="btn btn-primary inline-flex items-center gap-1">
               <i class="ph ph-sparkle" aria-hidden="true"></i>Gerar Novo
             </a>
             <a href="/ai-summaries" class="btn btn-secondary inline-flex items-center gap-1">

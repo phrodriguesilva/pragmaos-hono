@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const timesheetRoutes = new Hono<AppEnv>();
 
@@ -79,6 +79,12 @@ timesheetRoutes.get("/", async (c) => {
 
   const { data: entries } = await query;
 
+  // Fetch cases and tasks for the modal selects.
+  const [casesRes, tasksRes] = await Promise.all([
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("tasks").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+  ]);
+
   const rows = (entries ?? []).map((e) => {
     const caseTitle = (e.cases as unknown as { title: string } | null)?.title;
     const taskTitle = (e.tasks as unknown as { title: string } | null)?.title;
@@ -117,9 +123,24 @@ timesheetRoutes.get("/", async (c) => {
             <a href="/timesheet/summary" class="btn btn-secondary inline-flex items-center gap-1">
               <i class="ph ph-chart-bar" aria-hidden="true" />Resumo
             </a>
-            <a href="/timesheet/new" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-plus" aria-hidden="true" />Novo Registro
-            </a>
+            <Modal id="new-timesheet" title="Registrar Tempo" icon="ph-timer" triggerText="Registrar Tempo" triggerIcon="ph-plus" action="/timesheet" submitLabel="Salvar" large>
+              <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
+                options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+              />
+              <Select label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square"
+                options={[{ value: "", label: "Nenhuma" }, ...(tasksRes.data ?? []).map((t) => ({ value: t.id, label: t.title }))]}
+              />
+              <TextField label="Descricao" id="description" name="description" required placeholder="O que foi feito..." icon="ph-text-aa" />
+              <TextField label="Inicio" id="start_time" name="start_time" type="datetime-local" icon="ph-play" />
+              <TextField label="Duracao (minutos)" id="duration_minutes" name="duration_minutes" type="number" placeholder="0" icon="ph-timer" />
+              <div class="grid grid-cols-2 gap-4 items-end">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" />
+                  <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
+                </div>
+                <TextField label="Valor/hora" id="hourly_rate_cents" name="hourly_rate_cents" type="number" step="0.01" placeholder="R$/hora" icon="ph-currency-dollar" />
+              </div>
+            </Modal>
           </div>
         )}
       />
@@ -139,55 +160,6 @@ timesheetRoutes.get("/", async (c) => {
         emptyIcon="ph-timer"
         ariaLabel="Lista de registros de tempo"
       />
-    </>,
-  );
-});
-
-// GET /timesheet/new -- create form.
-timesheetRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const [casesRes, tasksRes] = await Promise.all([
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("tasks").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Novo Registro", active: "timesheet" },
-    <>
-      <PageHeader title="Novo Registro" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/timesheet" class="flex flex-col gap-4">
-          <TextField label="Descricao" id="description" name="description" required placeholder="O que foi feito..." icon="ph-text-aa" />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder"
-              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-            />
-            <Select label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square"
-              options={[{ value: "", label: "Nenhuma" }, ...(tasksRes.data ?? []).map((t) => ({ value: t.id, label: t.title }))]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Inicio" id="start_time" name="start_time" type="datetime-local" icon="ph-play" />
-            <TextField label="Fim" id="end_time" name="end_time" type="datetime-local" icon="ph-stop" />
-          </div>
-          <div class="grid grid-cols-2 gap-4 items-end">
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" />
-              <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
-            </div>
-            <TextField label="Valor/hora" id="hourly_rate_cents" name="hourly_rate_cents" type="number" step="0.01" placeholder="R$/hora" icon="ph-currency-dollar" />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar
-            </button>
-            <a href="/timesheet" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });
@@ -269,9 +241,16 @@ timesheetRoutes.get("/:id", async (c) => {
 
   if (!entry) return c.html("Registro nao encontrado.", 404);
 
+  const [casesRes, tasksRes] = await Promise.all([
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("tasks").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+  ]);
+
   const caseTitle = (entry.cases as unknown as { title: string } | null)?.title;
   const taskTitle = (entry.tasks as unknown as { title: string } | null)?.title;
   const userName = (entry.profiles as unknown as { full_name: string } | null)?.full_name ?? "-";
+
+  const rateValue = entry.hourly_rate_cents ? (entry.hourly_rate_cents / 100).toFixed(2) : "";
 
   return renderPage(
     c,
@@ -282,9 +261,28 @@ timesheetRoutes.get("/:id", async (c) => {
         icon="ph-timer"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/timesheet/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-pencil" aria-hidden="true" />Editar
-            </a>
+            <Modal id="edit-timesheet" title="Editar" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/timesheet/${id}`} submitLabel="Salvar" large>
+              <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder" selected={entry.case_id ?? ""}
+                options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+              />
+              <Select label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square" selected={entry.task_id ?? ""}
+                options={[{ value: "", label: "Nenhuma" }, ...(tasksRes.data ?? []).map((t) => ({ value: t.id, label: t.title }))]}
+              />
+              <TextField label="Descricao" id="description" name="description" required value={entry.description} icon="ph-text-aa" />
+              <TextField label="Inicio" id="start_time" name="start_time" type="datetime-local" icon="ph-play"
+                value={toLocalInput(entry.start_time)}
+              />
+              <TextField label="Duracao (minutos)" id="duration_minutes" name="duration_minutes" type="number" placeholder="0" icon="ph-timer"
+                value={entry.duration_minutes ? String(entry.duration_minutes) : ""}
+              />
+              <div class="grid grid-cols-2 gap-4 items-end">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" checked={entry.billable} />
+                  <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
+                </div>
+                <TextField label="Valor/hora" id="hourly_rate_cents" name="hourly_rate_cents" type="number" step="0.01" placeholder="R$/hora" icon="ph-currency-dollar" value={rateValue} />
+              </div>
+            </Modal>
             <form method="post" action={`/timesheet/${id}/delete`}>
               <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este registro?')">
                 <i class="ph ph-trash" aria-hidden="true" />Excluir
@@ -310,73 +308,6 @@ timesheetRoutes.get("/:id", async (c) => {
           </dl>
         </Panel>
       </div>
-    </>,
-  );
-});
-
-// GET /timesheet/:id/edit -- edit form.
-timesheetRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: entry } = await supabase
-    .from("time_entries")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!entry) return c.html("Registro nao encontrado.", 404);
-
-  const [casesRes, tasksRes] = await Promise.all([
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("tasks").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-  ]);
-
-  const rateValue = entry.hourly_rate_cents ? (entry.hourly_rate_cents / 100).toFixed(2) : "";
-
-  return renderPage(
-    c,
-    { title: `Editar ${entry.description}`, active: "timesheet" },
-    <>
-      <PageHeader title={`Editar ${entry.description}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/timesheet/${id}`} class="flex flex-col gap-4">
-          <TextField label="Descricao" id="description" name="description" required value={entry.description} icon="ph-text-aa" />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Processo (opcional)" id="case_id" name="case_id" icon="ph-folder" selected={entry.case_id ?? ""}
-              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-            />
-            <Select label="Tarefa (opcional)" id="task_id" name="task_id" icon="ph-check-square" selected={entry.task_id ?? ""}
-              options={[{ value: "", label: "Nenhuma" }, ...(tasksRes.data ?? []).map((t) => ({ value: t.id, label: t.title }))]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Inicio" id="start_time" name="start_time" type="datetime-local" icon="ph-play"
-              value={toLocalInput(entry.start_time)}
-            />
-            <TextField label="Fim" id="end_time" name="end_time" type="datetime-local" icon="ph-stop"
-              value={toLocalInput(entry.end_time)}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4 items-end">
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="billable" name="billable" value="1" class="w-4 h-4" checked={entry.billable} />
-              <label for="billable" class="text-body-sm text-gray-700">Hora faturavel</label>
-            </div>
-            <TextField label="Valor/hora" id="hourly_rate_cents" name="hourly_rate_cents" type="number" step="0.01" placeholder="R$/hora" icon="ph-currency-dollar" value={rateValue} />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar
-            </button>
-            <a href={`/timesheet/${id}`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });

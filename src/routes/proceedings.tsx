@@ -6,7 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { translateMovement } from "../lib/ai";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const proceedingsRoutes = new Hono<AppEnv>();
 
@@ -27,12 +27,18 @@ const movementSchema = z.object({
 // GET /proceedings -- list all proceedings for the tenant (with case title).
 proceedingsRoutes.get("/", async (c) => {
   const user = c.get("user");
-  const { data: proceedings } = await supabase
-    .from("proceedings")
-    .select("id, cnj_number, tribunal, cases(title)")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+  const [proceedingsRes, casesRes] = await Promise.all([
+    supabase
+      .from("proceedings")
+      .select("id, cnj_number, tribunal, cases(title)")
+      .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false }),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+  ]);
+
+  const proceedings = proceedingsRes.data;
+  const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
 
   const rows = (proceedings ?? []).map((p) => [
     <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
@@ -44,7 +50,26 @@ proceedingsRoutes.get("/", async (c) => {
     c,
     { title: "Andamentos", active: "proceedings" },
     <>
-      <PageHeader title="Andamentos" icon="ph-scales" actions={() => <a href="/proceedings/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Processo CNJ</a>} />
+      <PageHeader title="Andamentos" icon="ph-scales" actions={() => (
+        <Modal
+          id="new-proceeding"
+          title="Novo Processo CNJ"
+          icon="ph-scales"
+          triggerText="Novo Processo CNJ"
+          triggerIcon="ph-plus"
+          action="/proceedings"
+          large
+        >
+          <Select label="Processo" id="case_id" name="case_id" required
+            options={caseOptions}
+          />
+          <TextField label="Numero CNJ" id="cnj_number" name="cnj_number" required placeholder="0000000-00.0000.0.00.0000" />
+          <div class="grid grid-cols-2 gap-4">
+            <TextField label="Tribunal" id="tribunal" name="tribunal" />
+            <TextField label="Comarca" id="district" name="district" />
+          </div>
+        </Modal>
+      )} />
       <Table
         columns={[{ label: "CNJ" }, { label: "Processo" }, { label: "Tribunal" }]}
         rows={rows}
@@ -56,47 +81,12 @@ proceedingsRoutes.get("/", async (c) => {
   );
 });
 
-// GET /proceedings/new -- create form.
-proceedingsRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const { data: cases } = await supabase
-    .from("cases")
-    .select("id, title")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("title");
-
-  return renderPage(
-    c,
-    { title: "Novo Processo CNJ", active: "proceedings" },
-    <>
-      <PageHeader title="Novo Processo CNJ" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/proceedings" class="flex flex-col gap-4">
-          <Select label="Processo" id="case_id" name="case_id" required
-            options={(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))}
-          />
-          <TextField label="Numero CNJ" id="cnj_number" name="cnj_number" required placeholder="0000000-00.0000.0.00.0000" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Tribunal" id="tribunal" name="tribunal" />
-            <TextField label="Comarca" id="district" name="district" />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/proceedings" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /proceedings -- create.
 proceedingsRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = proceedingSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/proceedings/new");
+  if (!parsed.success) return c.redirect("/proceedings");
 
   await supabase.from("proceedings").insert({
     tenant_id: user.tenantId,
@@ -143,7 +133,17 @@ proceedingsRoutes.get("/:id", async (c) => {
         icon="ph-scales"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/proceedings/${id}/movements/new`} class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Andamento</a>
+            <Modal
+              id="new-movement"
+              title={`Novo Andamento - ${proceeding.cnj_number}`}
+              icon="ph-list-dashes"
+              triggerText="Novo Andamento"
+              triggerIcon="ph-plus"
+              action={`/proceedings/${id}/movements`}
+            >
+              <TextField label="Data do movimento" id="movement_date" name="movement_date" type="date" required />
+              <Textarea label="Texto do movimento" id="movement_text" name="movement_text" rows={6} required />
+            </Modal>
             <form method="post" action={`/proceedings/${id}/delete`}>
               <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo CNJ?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
             </form>
@@ -180,44 +180,13 @@ proceedingsRoutes.get("/:id", async (c) => {
   );
 });
 
-// GET /proceedings/:id/movements/new -- new movement form.
-proceedingsRoutes.get("/:id/movements/new", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-  const { data: proceeding } = await supabase
-    .from("proceedings")
-    .select("cnj_number")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .single();
-  if (!proceeding) return c.html("Processo CNJ nao encontrado.", 404);
-
-  return renderPage(
-    c,
-    { title: "Novo Andamento", active: "proceedings" },
-    <>
-      <PageHeader title={`Novo Andamento - ${proceeding.cnj_number}`} icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action={`/proceedings/${id}/movements`} class="flex flex-col gap-4">
-          <TextField label="Data do movimento" id="movement_date" name="movement_date" type="date" required />
-          <Textarea label="Texto do movimento" id="movement_text" name="movement_text" rows={6} required />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/proceedings/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /proceedings/:id/movements -- create movement.
 proceedingsRoutes.post("/:id/movements", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
   const parsed = movementSchema.safeParse(body);
-  if (!parsed.success) return c.redirect(`/proceedings/${id}/movements/new`);
+  if (!parsed.success) return c.redirect(`/proceedings/${id}`);
 
   await supabase.from("proceeding_movements").insert({
     tenant_id: user.tenantId,

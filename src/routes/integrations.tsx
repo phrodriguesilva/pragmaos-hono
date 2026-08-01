@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const integrationsRoutes = new Hono<AppEnv>();
 
@@ -78,9 +78,27 @@ integrationsRoutes.get("/", async (c) => {
         title="Integracoes"
         icon="ph-plugs-connected"
         actions={() => (
-          <a href="/integrations/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Integracao
-          </a>
+          <Modal
+            id="new-integration"
+            title="Nova Integracao"
+            icon="ph-plugs-connected"
+            triggerText="Nova Integracao"
+            triggerIcon="ph-plus"
+            action="/integrations"
+            submitLabel="Salvar"
+          >
+            <Select label="Tipo" id="type" name="type" required
+              options={Object.entries(TYPE_LABELS).map(([value, label]) => ({ value, label }))}
+            />
+            <TextField label="Nome" id="name" name="name" required placeholder="Nome da integracao" icon="ph-tag" />
+            <Textarea label="Configuracao (JSON)" id="config" name="config" rows={6}>
+              {"{\n  \n}"}
+            </Textarea>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="active" name="active" value="true" checked />
+              <label for="active" class="text-body-sm font-semibold text-gray-700">Ativar integracao</label>
+            </div>
+          </Modal>
         )}
       />
       <div class="grid grid-cols-3 gap-4 mb-6">
@@ -116,36 +134,6 @@ integrationsRoutes.get("/", async (c) => {
   );
 });
 
-// GET /integrations/new -- create form.
-integrationsRoutes.get("/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Nova Integracao", active: "integrations" },
-    <>
-      <PageHeader title="Nova Integracao" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/integrations" class="flex flex-col gap-4">
-          <Select label="Tipo" id="type" name="type" required
-            options={Object.entries(TYPE_LABELS).map(([value, label]) => ({ value, label }))}
-          />
-          <TextField label="Nome" id="name" name="name" required placeholder="Nome da integracao" icon="ph-tag" />
-          <Textarea label="Configuracao (JSON)" id="config" name="config" rows={6}>
-            {"{\n  \n}"}
-          </Textarea>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="active" name="active" value="true" checked />
-            <label for="active" class="text-body-sm font-semibold text-gray-700">Ativar integracao</label>
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/integrations" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /integrations -- create.
 integrationsRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -153,7 +141,7 @@ integrationsRoutes.post("/", async (c) => {
   const parsed = integrationSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/integrations/new");
+    return c.redirect("/integrations");
   }
 
   let configJson: Record<string, unknown> = {};
@@ -174,7 +162,7 @@ integrationsRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return c.redirect("/integrations/new");
+    return c.redirect("/integrations");
   }
 
   return c.redirect("/integrations");
@@ -205,7 +193,28 @@ integrationsRoutes.get("/:id", async (c) => {
         icon="ph-plugs-connected"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/integrations/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
+            <Modal
+              id="edit-integration"
+              title={`Editar ${int.name}`}
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/integrations/${id}`}
+              submitLabel="Salvar"
+            >
+              <Select label="Tipo" id="type" name="type" required selected={int.type}
+                options={Object.entries(TYPE_LABELS).map(([value, label]) => ({ value, label }))}
+              />
+              <TextField label="Nome" id="name" name="name" required value={int.name} icon="ph-tag" />
+              <Textarea label="Configuracao (JSON)" id="config" name="config" rows={6}>
+                {int.config ? JSON.stringify(int.config, null, 2) : "{\n  \n}"}
+              </Textarea>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="active" name="active" value="true" checked={int.active} />
+                <label for="active" class="text-body-sm font-semibold text-gray-700">Ativar integracao</label>
+              </div>
+            </Modal>
             <form method="post" action={`/integrations/${id}/toggle`}>
               <button type="submit" class={`btn ${int.active ? "btn-danger" : "btn-primary"} inline-flex items-center gap-1`}>
                 <i class={`ph ${int.active ? "ph-power" : "ph-power"} `} aria-hidden="true"></i>{int.active ? "Desativar" : "Ativar"}
@@ -280,48 +289,6 @@ integrationsRoutes.post("/:id/toggle", async (c) => {
   return c.redirect(`/integrations/${id}`);
 });
 
-// GET /integrations/:id/edit -- edit form.
-integrationsRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: int } = await supabase
-    .from("integrations")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .single();
-
-  if (!int) return c.html("Integracao nao encontrada.", 404);
-
-  return renderPage(
-    c,
-    { title: `Editar ${int.name}`, active: "integrations" },
-    <>
-      <PageHeader title={`Editar ${int.name}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/integrations/${id}`} class="flex flex-col gap-4">
-          <Select label="Tipo" id="type" name="type" required selected={int.type}
-            options={Object.entries(TYPE_LABELS).map(([value, label]) => ({ value, label }))}
-          />
-          <TextField label="Nome" id="name" name="name" required value={int.name} icon="ph-tag" />
-          <Textarea label="Configuracao (JSON)" id="config" name="config" rows={6}>
-            {int.config ? JSON.stringify(int.config, null, 2) : "{\n  \n}"}
-          </Textarea>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="active" name="active" value="true" checked={int.active} />
-            <label for="active" class="text-body-sm font-semibold text-gray-700">Ativar integracao</label>
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/integrations/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /integrations/:id -- update.
 integrationsRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -330,7 +297,7 @@ integrationsRoutes.post("/:id", async (c) => {
   const parsed = integrationSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/integrations/${id}/edit`);
+    return c.redirect(`/integrations/${id}`);
   }
 
   let configJson: Record<string, unknown> = {};

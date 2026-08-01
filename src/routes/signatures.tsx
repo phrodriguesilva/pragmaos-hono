@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Panel, Badge, Modal } from "../components/ui";
 
 export const signatureRoutes = new Hono<AppEnv>();
 
@@ -22,15 +22,27 @@ const signatureSchema = z.object({
   expires_at: z.string().optional(),
 });
 
-// GET / -- list signature requests.
+// GET / -- list signature requests with create modal.
 signatureRoutes.get("/", async (c) => {
   const user = c.get("user");
-  const { data: requests } = await supabase
-    .from("signature_requests")
-    .select("id, title, signer_name, signer_email, provider, status, sent_at, signed_at")
-    .eq("tenant_id", user.tenantId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [reqRes, casesRes, clientsRes, docsRes] = await Promise.all([
+    supabase
+      .from("signature_requests")
+      .select("id, title, signer_name, signer_email, provider, status, sent_at, signed_at")
+      .eq("tenant_id", user.tenantId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+    supabase.from("documents").select("id, title").eq("tenant_id", user.tenantId).order("title"),
+  ]);
+
+  const requests = reqRes.data ?? [];
+  const cases = casesRes.data ?? [];
+  const clients = clientsRes.data ?? [];
+  const docs = docsRes.data ?? [];
+
+  const defaultExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const statusBadge = (status: string) => {
     const map: Record<string, { color: "yellow" | "blue" | "green" | "red" | "gray"; label: string }> = {
@@ -56,7 +68,7 @@ signatureRoutes.get("/", async (c) => {
     return map[p] ?? p;
   };
 
-  const rows = (requests ?? []).map((r) => [
+  const rows = requests.map((r) => [
     <a href={`/signatures/${r.id}`} class="text-terracota-600 hover:underline">{r.title}</a> as unknown as string,
     r.signer_name ?? r.signer_email,
     providerLabel(r.provider),
@@ -73,7 +85,46 @@ signatureRoutes.get("/", async (c) => {
         title="Assinaturas Digitais"
         icon="ph-pen-nib"
         actions={() => (
-          <a href="/signatures/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Nova Solicitacao</a>
+          <Modal
+            id="newSignature"
+            title="Nova Solicitacao"
+            icon="ph-pen-nib"
+            triggerText="Nova Solicitacao"
+            triggerIcon="ph-plus"
+            action="/signatures"
+            submitLabel="Enviar"
+            submitIcon="ph-paper-plane-tilt"
+            large
+          >
+            <TextField label="Titulo" id="title" name="title" required placeholder="Titulo do documento para assinatura" />
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="Nome do Signatario" id="signer_name" name="signer_name" placeholder="Nome completo" icon="ph-user" />
+              <TextField label="E-mail do Signatario" id="signer_email" name="signer_email" type="email" required placeholder="signatario@email.com" icon="ph-envelope" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <Select label="Provedor" id="provider" name="provider" required
+                options={[
+                  { value: "internal", label: "Interno" },
+                  { value: "clicksign", label: "Clicksign" },
+                  { value: "docusign", label: "DocuSign" },
+                  { value: "govbr", label: "Gov.br" },
+                  { value: "icp_brasil", label: "ICP-Brasil" },
+                ]}
+              />
+              <TextField label="Expira em" id="expires_at" name="expires_at" type="date" value={defaultExpires} />
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <Select label="Cliente (opcional)" id="client_id" name="client_id"
+                options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
+              />
+              <Select label="Processo (opcional)" id="case_id" name="case_id"
+                options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
+              />
+              <Select label="Documento (opcional)" id="document_id" name="document_id"
+                options={[{ value: "", label: "Nenhum" }, ...docs.map((d) => ({ value: d.id, label: d.title }))]}
+              />
+            </div>
+          </Modal>
         )}
       />
       <Table
@@ -90,68 +141,12 @@ signatureRoutes.get("/", async (c) => {
   );
 });
 
-// GET /new -- form to create a signature request.
-signatureRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const [casesRes, clientsRes, docsRes] = await Promise.all([
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("documents").select("id, title").eq("tenant_id", user.tenantId).order("title"),
-  ]);
-
-  const defaultExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-
-  return renderPage(
-    c,
-    { title: "Nova Solicitacao de Assinatura", active: "signatures" },
-    <>
-      <PageHeader title="Nova Solicitacao de Assinatura" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/signatures" class="flex flex-col gap-4">
-          <TextField label="Titulo" id="title" name="title" required placeholder="Titulo do documento para assinatura" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Nome do Signatario" id="signer_name" name="signer_name" placeholder="Nome completo" icon="ph-user" />
-            <TextField label="E-mail do Signatario" id="signer_email" name="signer_email" type="email" required placeholder="signatario@email.com" icon="ph-envelope" />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Provedor" id="provider" name="provider" required
-              options={[
-                { value: "internal", label: "Interno" },
-                { value: "clicksign", label: "Clicksign" },
-                { value: "docusign", label: "DocuSign" },
-                { value: "govbr", label: "Gov.br" },
-                { value: "icp_brasil", label: "ICP-Brasil" },
-              ]}
-            />
-            <TextField label="Expira em" id="expires_at" name="expires_at" type="date" value={defaultExpires} />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <Select label="Cliente (opcional)" id="client_id" name="client_id"
-              options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-            />
-            <Select label="Processo (opcional)" id="case_id" name="case_id"
-              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-            />
-            <Select label="Documento (opcional)" id="document_id" name="document_id"
-              options={[{ value: "", label: "Nenhum" }, ...(docsRes.data ?? []).map((d) => ({ value: d.id, label: d.title }))]}
-            />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Enviar</button>
-            <a href="/signatures" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST / -- create + set status=sent, sent_at=now.
 signatureRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = signatureSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/signatures/new");
+  if (!parsed.success) return c.redirect("/signatures");
 
   await supabase.from("signature_requests").insert({
     tenant_id: user.tenantId,

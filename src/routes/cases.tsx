@@ -6,7 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const casesRoutes = new Hono<AppEnv>();
 
@@ -71,7 +71,13 @@ casesRoutes.get("/", async (c) => {
   if (status) query = query.eq("status", status);
   if (type) query = query.eq("case_type", type);
 
-  const { data: cases } = await query;
+  const [casesRes, clientsRes] = await Promise.all([
+    query,
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+  ]);
+
+  const cases = casesRes.data;
+  const clientOptions = (clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }));
 
   const rows = (cases ?? []).slice(0, 25).map((cs) => {
     const clientName = (cs.clients as unknown as { name: string } | null)?.name ?? "-";
@@ -95,7 +101,85 @@ casesRoutes.get("/", async (c) => {
       <PageHeader
         title="Processos"
         icon="ph-folder-open"
-        actions={() => <a href="/cases/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Processo</a>}
+        actions={() => (
+          <WizardModal
+            id="new-case"
+            title="Novo Processo"
+            icon="ph-folder-open"
+            triggerText="Novo Processo"
+            triggerIcon="ph-plus"
+            action="/cases"
+            large
+            steps={[
+              {
+                label: "Dados Principais",
+                icon: "ph-folder",
+                fields: (
+                  <>
+                    <Select label="Cliente" id="client_id" name="client_id" required
+                      options={clientOptions}
+                    />
+                    <TextField label="Titulo" id="title" name="title" required placeholder="Titulo do processo" />
+                    <div class="grid grid-cols-2 gap-4">
+                      <TextField label="Numero" id="case_number" name="case_number" placeholder="CNJ ou numero interno" />
+                      <Select label="Tipo" id="case_type" name="case_type" required
+                        options={CASE_TYPES.map((t) => ({ value: t, label: t }))}
+                      />
+                    </div>
+                  </>
+                ),
+              },
+              {
+                label: "Parte Contraria",
+                icon: "ph-users-three",
+                fields: (
+                  <>
+                    <TextField label="Parte contraria" id="opposing_party" name="opposing_party" placeholder="Nome da parte contraria" />
+                    <TextField label="Advogado contrario" id="opposing_lawyer" name="opposing_lawyer" placeholder="Nome do advogado contrario" />
+                    <div class="grid grid-cols-2 gap-4">
+                      <TextField label="Juiz" id="judge" name="judge" placeholder="Juiz responsavel" />
+                      <TextField label="Tribunal" id="tribunal" name="tribunal" />
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                      <TextField label="Comarca" id="district" name="district" />
+                      <TextField label="Vara" id="court_branch" name="court_branch" />
+                      <Select label="Instancia" id="instance" name="instance" selected="1"
+                        options={[
+                          { value: "1", label: "1 Grau" },
+                          { value: "2", label: "2 Grau" },
+                          { value: "STJ", label: "STJ" },
+                          { value: "STF", label: "STF" },
+                        ]}
+                      />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <TextField label="Classe" id="case_class" name="case_class" placeholder="Classe processual" />
+                      <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto" />
+                    </div>
+                  </>
+                ),
+              },
+              {
+                label: "Valores",
+                icon: "ph-currency-dollar",
+                fields: (
+                  <>
+                    <TextField label="Valor da causa (R$)" id="cause_value_cents" name="cause_value_cents" type="number" step="0.01" placeholder="0,00" />
+                    <Select label="Status" id="status" name="status" required selected="active"
+                      options={[
+                        { value: "active", label: "Ativo" },
+                        { value: "suspended", label: "Suspenso" },
+                        { value: "archived", label: "Arquivado" },
+                      ]}
+                    />
+                    <TextField label="Fase" id="phase" name="phase" placeholder="Fase atual do processo" />
+                    <Textarea label="Descricao" id="description" name="description" rows={4} />
+                  </>
+                ),
+              },
+            ]}
+          />
+        )}
       />
       <form method="get" action="/cases" class="mb-4 flex gap-4 items-end">
         <TextField label="Buscar" id="search" name="search" value={search} placeholder="Titulo do processo..." icon="ph-magnifying-glass" />
@@ -126,76 +210,6 @@ casesRoutes.get("/", async (c) => {
   );
 });
 
-// GET /cases/new -- create form.
-casesRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const { data: clients } = await supabase
-    .from("clients")
-    .select("id, name")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("name");
-
-  return renderPage(
-    c,
-    { title: "Novo Processo", active: "cases" },
-    <>
-      <PageHeader title="Novo Processo" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/cases" class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required
-            options={(clients ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <TextField label="Titulo" id="title" name="title" required placeholder="Titulo do processo" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Numero" id="case_number" name="case_number" placeholder="CNJ ou numero interno" />
-            <Select label="Tipo" id="case_type" name="case_type" required
-              options={CASE_TYPES.map((t) => ({ value: t, label: t }))}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Tribunal" id="tribunal" name="tribunal" />
-            <Select label="Status" id="status" name="status" required selected="active"
-              options={[
-                { value: "active", label: "Ativo" },
-                { value: "suspended", label: "Suspenso" },
-                { value: "archived", label: "Arquivado" },
-              ]}
-            />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <TextField label="Valor da causa (R$)" id="cause_value_cents" name="cause_value_cents" type="number" step="0.01" placeholder="0,00" />
-            <TextField label="Juiz" id="judge" name="judge" placeholder="Juiz responsavel" />
-            <TextField label="Parte contraria" id="opposing_party" name="opposing_party" placeholder="Nome da parte contraria" />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <TextField label="Comarca" id="district" name="district" />
-            <TextField label="Vara" id="court_branch" name="court_branch" />
-            <Select label="Instancia" id="instance" name="instance" selected="1"
-              options={[
-                { value: "1", label: "1 Grau" },
-                { value: "2", label: "2 Grau" },
-                { value: "STJ", label: "STJ" },
-                { value: "STF", label: "STF" },
-              ]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Classe" id="case_class" name="case_class" placeholder="Classe processual" />
-            <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto" />
-          </div>
-          <TextField label="Fase" id="phase" name="phase" placeholder="Fase atual do processo" />
-          <Textarea label="Descricao" id="description" name="description" rows={4} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/cases" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /cases -- create.
 casesRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -203,7 +217,7 @@ casesRoutes.post("/", async (c) => {
   const parsed = caseSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/cases/new");
+    return c.redirect("/cases");
   }
 
   const { data: newCase } = await supabase.from("cases").insert({
@@ -255,7 +269,7 @@ casesRoutes.get("/:id", async (c) => {
 
   if (!caseRow) return c.html("Processo nao encontrado.", 404);
 
-  const [events, summary, deadlines, hearings, proceedings, parties, risk] = await Promise.all([
+  const [events, summary, deadlines, hearings, proceedings, parties, risk, clientsRes] = await Promise.all([
     supabase.from("case_events").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).order("created_at", { ascending: false }),
     supabase.from("case_summaries").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).single(),
     supabase.from("deadlines").select("id, title, due_date, completed_at, priority").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("due_date", { ascending: true }),
@@ -263,9 +277,11 @@ casesRoutes.get("/:id", async (c) => {
     supabase.from("proceedings").select("id, cnj_number, tribunal").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null),
     supabase.from("case_parties").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("party_type"),
     supabase.from("case_risk").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).single(),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
   ]);
 
   const client = caseRow.clients as { name: string; email?: string; cpf?: string; cnpj?: string; phone?: string; address?: string } | null;
+  const clientOptions = (clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }));
 
   return renderPage(
     c,
@@ -276,7 +292,84 @@ casesRoutes.get("/:id", async (c) => {
         icon="ph-folder-open"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/cases/${id}/edit`} class="btn btn-secondary"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
+            <WizardModal
+              id="edit-case"
+              title={`Editar ${caseRow.title}`}
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/cases/${caseRow.id}`}
+              large
+              steps={[
+                {
+                  label: "Dados Principais",
+                  icon: "ph-folder",
+                  fields: (
+                    <>
+                      <Select label="Cliente" id="client_id" name="client_id" required selected={caseRow.client_id}
+                        options={clientOptions}
+                      />
+                      <TextField label="Titulo" id="title" name="title" required value={caseRow.title} />
+                      <div class="grid grid-cols-2 gap-4">
+                        <TextField label="Numero" id="case_number" name="case_number" value={caseRow.case_number ?? ""} />
+                        <Select label="Tipo" id="case_type" name="case_type" required selected={caseRow.case_type}
+                          options={CASE_TYPES.map((t) => ({ value: t, label: t }))}
+                        />
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  label: "Parte Contraria",
+                  icon: "ph-users-three",
+                  fields: (
+                    <>
+                      <TextField label="Parte contraria" id="opposing_party" name="opposing_party" value={caseRow.opposing_party ?? ""} />
+                      <TextField label="Advogado contrario" id="opposing_lawyer" name="opposing_lawyer" />
+                      <div class="grid grid-cols-2 gap-4">
+                        <TextField label="Juiz" id="judge" name="judge" value={caseRow.judge ?? ""} />
+                        <TextField label="Tribunal" id="tribunal" name="tribunal" value={caseRow.tribunal ?? ""} />
+                      </div>
+                      <div class="grid grid-cols-3 gap-4">
+                        <TextField label="Comarca" id="district" name="district" value={caseRow.district ?? ""} />
+                        <TextField label="Vara" id="court_branch" name="court_branch" value={caseRow.court_branch ?? ""} />
+                        <Select label="Instancia" id="instance" name="instance" selected={caseRow.instance ?? "1"}
+                          options={[
+                            { value: "1", label: "1 Grau" },
+                            { value: "2", label: "2 Grau" },
+                            { value: "STJ", label: "STJ" },
+                            { value: "STF", label: "STF" },
+                          ]}
+                        />
+                      </div>
+                      <div class="grid grid-cols-2 gap-4">
+                        <TextField label="Classe" id="case_class" name="case_class" value={caseRow.case_class ?? ""} />
+                        <TextField label="Assunto" id="subject" name="subject" value={caseRow.subject ?? ""} />
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  label: "Valores",
+                  icon: "ph-currency-dollar",
+                  fields: (
+                    <>
+                      <TextField label="Valor da causa (R$)" id="cause_value_cents" name="cause_value_cents" type="number" step="0.01" value={caseRow.cause_value_cents ? String(caseRow.cause_value_cents / 100) : ""} />
+                      <Select label="Status" id="status" name="status" required selected={caseRow.status}
+                        options={[
+                          { value: "active", label: "Ativo" },
+                          { value: "suspended", label: "Suspenso" },
+                          { value: "archived", label: "Arquivado" },
+                        ]}
+                      />
+                      <TextField label="Fase" id="phase" name="phase" value={caseRow.phase ?? ""} />
+                      <Textarea label="Descricao" id="description" name="description" rows={4}>{caseRow.description ?? ""}</Textarea>
+                    </>
+                  ),
+                },
+              ]}
+            />
             <form method="post" action={`/cases/${id}/delete`}>
               <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
             </form>
@@ -611,85 +704,13 @@ casesRoutes.post("/:id/nextsteps", async (c) => {
   return c.redirect(`/cases/${id}`);
 });
 
-// GET /cases/:id/edit -- edit form.
-casesRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const [caseRes, clientsRes] = await Promise.all([
-    supabase.from("cases").select("*").eq("id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).single(),
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-  ]);
-
-  if (!caseRes.data) return c.html("Processo nao encontrado.", 404);
-
-  return renderPage(
-    c,
-    { title: `Editar ${caseRes.data.title}`, active: "cases" },
-    <>
-      <PageHeader title={`Editar ${caseRes.data.title}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/cases/${id}`} class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required selected={caseRes.data.client_id}
-            options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <TextField label="Titulo" id="title" name="title" required value={caseRes.data.title} />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Numero" id="case_number" name="case_number" value={caseRes.data.case_number ?? ""} />
-            <Select label="Tipo" id="case_type" name="case_type" required selected={caseRes.data.case_type}
-              options={CASE_TYPES.map((t) => ({ value: t, label: t }))}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Tribunal" id="tribunal" name="tribunal" value={caseRes.data.tribunal ?? ""} />
-            <Select label="Status" id="status" name="status" required selected={caseRes.data.status}
-              options={[
-                { value: "active", label: "Ativo" },
-                { value: "suspended", label: "Suspenso" },
-                { value: "archived", label: "Arquivado" },
-              ]}
-            />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <TextField label="Valor da causa (R$)" id="cause_value_cents" name="cause_value_cents" type="number" step="0.01" value={caseRes.data.cause_value_cents ? String(caseRes.data.cause_value_cents / 100) : ""} />
-            <TextField label="Juiz" id="judge" name="judge" value={caseRes.data.judge ?? ""} />
-            <TextField label="Parte contraria" id="opposing_party" name="opposing_party" value={caseRes.data.opposing_party ?? ""} />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <TextField label="Comarca" id="district" name="district" value={caseRes.data.district ?? ""} />
-            <TextField label="Vara" id="court_branch" name="court_branch" value={caseRes.data.court_branch ?? ""} />
-            <Select label="Instancia" id="instance" name="instance" selected={caseRes.data.instance ?? "1"}
-              options={[
-                { value: "1", label: "1 Grau" },
-                { value: "2", label: "2 Grau" },
-                { value: "STJ", label: "STJ" },
-                { value: "STF", label: "STF" },
-              ]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Classe" id="case_class" name="case_class" value={caseRes.data.case_class ?? ""} />
-            <TextField label="Assunto" id="subject" name="subject" value={caseRes.data.subject ?? ""} />
-          </div>
-          <TextField label="Fase" id="phase" name="phase" value={caseRes.data.phase ?? ""} />
-          <Textarea label="Descricao" id="description" name="description" rows={4}>{caseRes.data.description ?? ""}</Textarea>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/cases/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /cases/:id -- update.
 casesRoutes.post("/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
   const parsed = caseSchema.safeParse(body);
-  if (!parsed.success) return c.redirect(`/cases/${id}/edit`);
+  if (!parsed.success) return c.redirect(`/cases/${id}`);
 
   await supabase.from("cases").update({
     client_id: parsed.data.client_id,

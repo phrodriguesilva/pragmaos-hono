@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Panel, Badge, Modal } from "../components/ui";
 
 export const messagesRoutes = new Hono<AppEnv>();
 
@@ -39,6 +39,16 @@ function formatDateTime(value: string | null | undefined): string {
 messagesRoutes.get("/", async (c) => {
   const user = c.get("user");
 
+  // Fetch cases for the channel creation modal.
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("title");
+
+  const caseOptions = [{ value: "", label: "Nenhum" }, ...(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))];
+
   // Get channels the user is a member of.
   const { data: memberships } = await supabase
     .from("chat_channel_members")
@@ -56,9 +66,24 @@ messagesRoutes.get("/", async (c) => {
           title="Mensagens"
           icon="ph-chat-circle"
           actions={() => (
-            <a href="/messages/new" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-plus" aria-hidden="true"></i>Novo Canal
-            </a>
+            <Modal
+              id="new-channel"
+              title="Novo Canal"
+              icon="ph-chat-circle"
+              triggerText="Novo Canal"
+              triggerIcon="ph-plus"
+              action="/messages"
+              submitLabel="Criar Canal"
+            >
+              <TextField label="Nome" id="name" name="name" required placeholder="Nome do canal" icon="ph-hash" />
+              <Select label="Processo (opcional)" id="case_id" name="case_id" options={caseOptions} />
+              <Select label="Tipo" id="type" name="type" required selected="channel"
+                options={[
+                  { value: "channel", label: "Canal" },
+                  { value: "direct", label: "Direto" },
+                ]}
+              />
+            </Modal>
           )}
         />
         <Table
@@ -119,10 +144,25 @@ messagesRoutes.get("/", async (c) => {
         title="Mensagens"
         icon="ph-chat-circle"
         actions={() => (
-          <a href="/messages/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Novo Canal
-          </a>
-        )}
+            <Modal
+              id="new-channel"
+              title="Novo Canal"
+              icon="ph-chat-circle"
+              triggerText="Novo Canal"
+              triggerIcon="ph-plus"
+              action="/messages"
+              submitLabel="Criar Canal"
+            >
+              <TextField label="Nome" id="name" name="name" required placeholder="Nome do canal" icon="ph-hash" />
+              <Select label="Processo (opcional)" id="case_id" name="case_id" options={caseOptions} />
+              <Select label="Tipo" id="type" name="type" required selected="channel"
+                options={[
+                  { value: "channel", label: "Canal" },
+                  { value: "direct", label: "Direto" },
+                ]}
+              />
+            </Modal>
+          )}
       />
       <Table
         columns={[
@@ -140,44 +180,6 @@ messagesRoutes.get("/", async (c) => {
   );
 });
 
-// GET /messages/new -- create channel form.
-messagesRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-
-  const { data: cases } = await supabase
-    .from("cases")
-    .select("id, title")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("title");
-
-  return renderPage(
-    c,
-    { title: "Novo Canal", active: "messages" },
-    <>
-      <PageHeader title="Novo Canal" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/messages" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required placeholder="Nome do canal" icon="ph-hash" />
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <Select label="Tipo" id="type" name="type" required selected="channel"
-            options={[
-              { value: "channel", label: "Canal" },
-              { value: "direct", label: "Direto" },
-            ]}
-          />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Criar Canal</button>
-            <a href="/messages" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /messages -- create channel + add creator as member.
 messagesRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -185,7 +187,7 @@ messagesRoutes.post("/", async (c) => {
   const parsed = channelSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/messages/new");
+    return c.redirect("/messages");
   }
 
   const { data: channel, error } = await supabase
@@ -200,7 +202,7 @@ messagesRoutes.post("/", async (c) => {
     .single();
 
   if (error || !channel) {
-    return c.redirect("/messages/new");
+    return c.redirect("/messages");
   }
 
   // Add creator as a member.

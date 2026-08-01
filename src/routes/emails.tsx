@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const emailRoutes = new Hono<AppEnv>();
 
@@ -28,7 +28,7 @@ const composeSchema = z.object({
 emailRoutes.get("/", async (c) => {
   const user = c.get("user");
 
-  const [inboxRes, sentRes, unreadRes, recentRes] = await Promise.all([
+  const [inboxRes, sentRes, unreadRes, recentRes, casesRes, clientsRes] = await Promise.all([
     supabase.from("email_messages").select("id", { count: "exact", head: true })
       .eq("tenant_id", user.tenantId).eq("direction", "inbound"),
     supabase.from("email_messages").select("id", { count: "exact", head: true })
@@ -40,6 +40,8 @@ emailRoutes.get("/", async (c) => {
       .eq("tenant_id", user.tenantId)
       .order("created_at", { ascending: false })
       .limit(25),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
   ]);
 
   const inboxCount = inboxRes.count ?? 0;
@@ -65,7 +67,29 @@ emailRoutes.get("/", async (c) => {
         actions={() => (
           <div class="flex gap-2">
             <a href="/emails/accounts" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-at" aria-hidden="true"></i>Contas</a>
-            <a href="/emails/compose" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Enviar E-mail</a>
+            <Modal
+              id="compose-email"
+              title="Enviar E-mail"
+              icon="ph-paper-plane-tilt"
+              triggerText="Enviar E-mail"
+              triggerIcon="ph-paper-plane-tilt"
+              action="/emails/send"
+              submitLabel="Enviar"
+              submitIcon="ph-paper-plane-tilt"
+              large
+            >
+              <TextField label="Para" id="to_email" name="to_email" type="email" required placeholder="destinatario@email.com" icon="ph-envelope" />
+              <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto do e-mail" />
+              <Textarea label="Mensagem" id="body" name="body" rows={8} />
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Processo (opcional)" id="case_id" name="case_id"
+                  options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+                />
+                <Select label="Cliente (opcional)" id="client_id" name="client_id"
+                  options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
+                />
+              </div>
+            </Modal>
           </div>
         )}
       />
@@ -132,7 +156,25 @@ emailRoutes.get("/accounts", async (c) => {
         title="Contas de E-mail"
         icon="ph-at"
         actions={() => (
-          <a href="/emails/accounts/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Nova Conta</a>
+          <Modal
+            id="new-email-account"
+            title="Nova Conta de E-mail"
+            icon="ph-at"
+            triggerText="Nova Conta"
+            triggerIcon="ph-plus"
+            action="/emails/accounts"
+            submitLabel="Salvar"
+          >
+            <Select label="Provedor" id="provider" name="provider" required
+              options={[
+                { value: "gmail", label: "Gmail" },
+                { value: "outlook", label: "Outlook" },
+                { value: "imap", label: "IMAP" },
+                { value: "smtp", label: "SMTP" },
+              ]}
+            />
+            <TextField label="E-mail" id="email" name="email" type="email" required placeholder="seu@email.com" icon="ph-envelope" />
+          </Modal>
         )}
       />
       <Table
@@ -149,47 +191,12 @@ emailRoutes.get("/accounts", async (c) => {
   );
 });
 
-// GET /accounts/new -- form to create an email account.
-emailRoutes.get("/accounts/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Nova Conta de E-mail", active: "emails" },
-    <>
-      <PageHeader title="Nova Conta de E-mail" icon="ph-plus-circle" />
-      <Panel>
-        <div class="mb-4 p-3 border border-border bg-gray-50 flex items-start gap-2">
-          <i class="ph ph-info text-h3 text-carvao-600 mt-0.5" aria-hidden="true"></i>
-          <div class="text-body-sm text-gray-600">
-            Para Gmail e Outlook e necessario configurar OAuth2 (credenciais de API).
-            Para IMAP/SMTP, utilize as credenciais do seu servidor de e-mail.
-          </div>
-        </div>
-        <form method="post" action="/emails/accounts" class="flex flex-col gap-4">
-          <Select label="Provedor" id="provider" name="provider" required
-            options={[
-              { value: "gmail", label: "Gmail" },
-              { value: "outlook", label: "Outlook" },
-              { value: "imap", label: "IMAP" },
-              { value: "smtp", label: "SMTP" },
-            ]}
-          />
-          <TextField label="E-mail" id="email" name="email" type="email" required placeholder="seu@email.com" icon="ph-envelope" />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/emails/accounts" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /accounts -- create account (stub).
 emailRoutes.post("/accounts", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = accountSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/emails/accounts/new");
+  if (!parsed.success) return c.redirect("/emails/accounts");
 
   await supabase.from("email_accounts").insert({
     tenant_id: user.tenantId,
@@ -222,48 +229,12 @@ emailRoutes.post("/accounts/:id/delete", async (c) => {
   return c.redirect("/emails/accounts");
 });
 
-// GET /compose -- email compose form.
-emailRoutes.get("/compose", async (c) => {
-  const user = c.get("user");
-  const [casesRes, clientsRes] = await Promise.all([
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Enviar E-mail", active: "emails" },
-    <>
-      <PageHeader title="Enviar E-mail" icon="ph-paper-plane-tilt" />
-      <Panel>
-        <form method="post" action="/emails/send" class="flex flex-col gap-4">
-          <TextField label="Para" id="to_email" name="to_email" type="email" required placeholder="destinatario@email.com" icon="ph-envelope" />
-          <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto do e-mail" />
-          <Textarea label="Mensagem" id="body" name="body" rows={8} />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Processo (opcional)" id="case_id" name="case_id"
-              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-            />
-            <Select label="Cliente (opcional)" id="client_id" name="client_id"
-              options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-            />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Enviar</button>
-            <a href="/emails" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /send -- create outbound email message (stub).
 emailRoutes.post("/send", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = composeSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/emails/compose");
+  if (!parsed.success) return c.redirect("/emails");
 
   await supabase.from("email_messages").insert({
     tenant_id: user.tenantId,

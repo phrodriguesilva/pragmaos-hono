@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Badge, Modal } from "../components/ui";
 
 export const deadlinesRoutes = new Hono<AppEnv>();
 
@@ -32,7 +32,13 @@ deadlinesRoutes.get("/", async (c) => {
 
   if (!showAll) query = query.is("completed_at", null);
 
-  const { data: deadlines } = await query;
+  const [deadlinesRes, casesRes] = await Promise.all([
+    query,
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+  ]);
+
+  const deadlines = deadlinesRes.data;
+  const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
   const now = new Date();
 
   const rows = (deadlines ?? []).map((d) => {
@@ -63,7 +69,26 @@ deadlinesRoutes.get("/", async (c) => {
       <PageHeader
         title="Prazos"
         icon="ph-clock-countdown"
-        actions={() => <a href="/deadlines/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Prazo</a>}
+        actions={() => (
+          <Modal
+            id="new-deadline"
+            title="Novo Prazo"
+            icon="ph-clock-countdown"
+            triggerText="Novo Prazo"
+            triggerIcon="ph-plus"
+            action="/deadlines"
+            large
+          >
+            <Select label="Processo" id="case_id" name="case_id" required
+              options={caseOptions}
+            />
+            <TextField label="Titulo" id="title" name="title" required placeholder="Descricao do prazo" />
+            <TextField label="Data limite" id="due_date" name="due_date" type="date" required />
+            <Select label="Prioridade" id="priority" name="priority" required selected="3"
+              options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
+            />
+          </Modal>
+        )}
       />
       <div class="mb-4 flex gap-2">
         <a href="/deadlines" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-clock" aria-hidden="true"></i>Pendentes</a>
@@ -80,47 +105,12 @@ deadlinesRoutes.get("/", async (c) => {
   );
 });
 
-// GET /deadlines/new -- create form.
-deadlinesRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const { data: cases } = await supabase
-    .from("cases")
-    .select("id, title")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("title");
-
-  return renderPage(
-    c,
-    { title: "Novo Prazo", active: "deadlines" },
-    <>
-      <PageHeader title="Novo Prazo" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/deadlines" class="flex flex-col gap-4">
-          <Select label="Processo" id="case_id" name="case_id" required
-            options={(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))}
-          />
-          <TextField label="Titulo" id="title" name="title" required placeholder="Descricao do prazo" />
-          <TextField label="Data limite" id="due_date" name="due_date" type="date" required />
-          <Select label="Prioridade" id="priority" name="priority" required selected="3"
-            options={[1, 2, 3, 4, 5].map((p) => ({ value: String(p), label: `P${p}` }))}
-          />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/deadlines" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /deadlines -- create.
 deadlinesRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = deadlineSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/deadlines/new");
+  if (!parsed.success) return c.redirect("/deadlines");
 
   await supabase.from("deadlines").insert({
     tenant_id: user.tenantId,

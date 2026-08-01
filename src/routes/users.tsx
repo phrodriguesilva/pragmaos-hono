@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Panel, Badge, Modal } from "../components/ui";
 
 export const usersRoutes = new Hono<AppEnv>();
 
@@ -39,26 +39,17 @@ usersRoutes.get("/", async (c) => {
     c,
     { title: "Usuarios", active: "users" },
     <>
-      <PageHeader title="Usuarios" icon="ph-user-circle-gear" actions={() => <a href="/users/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Usuario</a>} />
-      <Table
-        columns={[{ label: "Nome" }, { label: "Email" }, { label: "Papel" }, { label: "Status" }]}
-        rows={rows}
-        emptyMsg="Nenhum usuario."
-        emptyIcon="ph-users"
-        ariaLabel="Lista de usuarios"
-      />
-    </>,
-  );
-});
-
-usersRoutes.get("/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Novo Usuario", active: "users" },
-    <>
-      <PageHeader title="Novo Usuario" icon="ph-user-plus" />
-      <Panel>
-        <form method="post" action="/users" class="flex flex-col gap-4">
+      <PageHeader title="Usuarios" icon="ph-user-circle-gear" actions={() => (
+        <Modal
+          id="newUser"
+          title="Novo Usuario"
+          icon="ph-user-plus"
+          triggerText="Novo Usuario"
+          triggerIcon="ph-plus"
+          action="/users"
+          submitLabel="Criar e Convidar"
+          submitIcon="ph-paper-plane-tilt"
+        >
           <TextField label="Nome" id="full_name" name="full_name" required />
           <TextField label="Email" id="email" name="email" type="email" required />
           <Select label="Papel" id="role" name="role" required
@@ -70,12 +61,15 @@ usersRoutes.get("/new", (c) => {
               { value: "recepcao", label: "Recepcao" },
             ]}
           />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Criar e Convidar</button>
-            <a href="/users" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
+        </Modal>
+      )} />
+      <Table
+        columns={[{ label: "Nome" }, { label: "Email" }, { label: "Papel" }, { label: "Status" }]}
+        rows={rows}
+        emptyMsg="Nenhum usuario."
+        emptyIcon="ph-users"
+        ariaLabel="Lista de usuarios"
+      />
     </>,
   );
 });
@@ -84,24 +78,14 @@ usersRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = userSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/users/new");
+  if (!parsed.success) return c.redirect("/users");
 
   // Invite the user via Supabase Auth (sends an email with a password setup link).
   const { data, error } = await supabase.auth.admin.inviteUserByEmail(parsed.data.email, {
     redirectTo: "/login",
   });
   if (error || !data.user) {
-    return renderPage(
-      c,
-      { title: "Novo Usuario", active: "users" },
-      <>
-        <PageHeader title="Novo Usuario" icon="ph-user-plus" />
-        <Panel>
-          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao convidar: {error?.message ?? "erro desconhecido"}</div>
-          <a href="/users/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/users");
   }
 
   // Create the profile row with the tenant_id and role.

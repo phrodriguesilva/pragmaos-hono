@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const permissionsRoutes = new Hono<AppEnv>();
 
@@ -88,9 +88,18 @@ permissionsRoutes.get("/", async (c) => {
         title="Permissoes"
         icon="ph-key"
         actions={() => (
-          <a href="/permissions/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Novo Perfil
-          </a>
+          <Modal
+            id="new-role"
+            title="Novo Perfil"
+            icon="ph-key"
+            triggerText="Novo Perfil"
+            triggerIcon="ph-plus"
+            action="/permissions"
+            submitLabel="Salvar"
+          >
+            <TextField label="Nome" id="name" name="name" required placeholder="Ex: Advogado Senior" />
+            <Textarea label="Descricao" id="description" name="description" rows={3} />
+          </Modal>
         )}
       />
       <Table
@@ -109,27 +118,6 @@ permissionsRoutes.get("/", async (c) => {
   );
 });
 
-// GET /permissions/new -- render the create form.
-permissionsRoutes.get("/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Novo Perfil", active: "permissions" },
-    <>
-      <PageHeader title="Novo Perfil" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/permissions" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required placeholder="Ex: Advogado Senior" />
-          <Textarea label="Descricao" id="description" name="description" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/permissions" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /permissions -- create.
 permissionsRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -137,21 +125,7 @@ permissionsRoutes.post("/", async (c) => {
   const parsed = roleSchema.safeParse(body);
 
   if (!parsed.success) {
-    const errors = parsed.error.flatten().fieldErrors;
-    return renderPage(
-      c,
-      { title: "Novo Perfil", active: "permissions" },
-      <>
-        <PageHeader title="Novo Perfil" icon="ph-plus-circle" />
-        <Panel>
-          <div class="mb-4 text-status-red">
-            <i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>
-            {Object.values(errors).flat().join(", ")}
-          </div>
-          <a href="/permissions/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/permissions");
   }
 
   const { error } = await supabase.from("roles").insert({
@@ -162,17 +136,7 @@ permissionsRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return renderPage(
-      c,
-      { title: "Novo Perfil", active: "permissions" },
-      <>
-        <PageHeader title="Novo Perfil" icon="ph-plus-circle" />
-        <Panel>
-          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
-          <a href="/permissions/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/permissions");
   }
 
   return c.redirect("/permissions");

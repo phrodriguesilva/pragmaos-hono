@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const cashflowRoutes = new Hono<AppEnv>();
 
@@ -225,6 +225,14 @@ cashflowRoutes.get("/expenses", async (c) => {
 
   const { data: expenses } = await query;
 
+  // Fetch cases for the modal select.
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("title");
+
   const rows = (expenses ?? []).map((e) => [
     e.description,
     CATEGORY_LABELS[e.category] ?? e.category,
@@ -241,9 +249,37 @@ cashflowRoutes.get("/expenses", async (c) => {
         title="Contas a Pagar"
         icon="ph-arrow-fat-line-down"
         actions={() => (
-          <a href="/cashflow/expenses/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Despesa
-          </a>
+          <Modal id="new-expense" title="Nova Despesa" icon="ph-arrow-fat-line-down" triggerText="Nova Despesa" triggerIcon="ph-plus" action="/cashflow/expenses" submitLabel="Salvar" large>
+            <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" placeholder="Descricao da despesa" />
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" />
+              <Select label="Categoria" id="category" name="category" required
+                options={[
+                  { value: "aluguel", label: "Aluguel" },
+                  { value: "salario", label: "Salario" },
+                  { value: "impostos", label: "Impostos" },
+                  { value: "software", label: "Software" },
+                  { value: "material", label: "Material" },
+                  { value: "viagem", label: "Viagem" },
+                  { value: "outros", label: "Outros" },
+                ]}
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <Select label="Status" id="status" name="status" required selected="pending"
+                options={[
+                  { value: "pending", label: "Pendente" },
+                  { value: "paid", label: "Pago" },
+                  { value: "cancelled", label: "Cancelado" },
+                ]}
+              />
+              <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
+            </div>
+            <Select label="Processo (opcional)" id="case_id" name="case_id"
+              options={[{ value: "", label: "Nenhum" }, ...(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+            />
+            <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+          </Modal>
         )}
       />
       <div class="flex gap-2 mb-4">
@@ -273,63 +309,6 @@ cashflowRoutes.get("/expenses", async (c) => {
         emptyIcon="ph-arrow-fat-line-down"
         ariaLabel="Lista de despesas"
       />
-    </>,
-  );
-});
-
-// --- GET /expenses/new -- form ---
-
-cashflowRoutes.get("/expenses/new", async (c) => {
-  const user = c.get("user");
-  const { data: cases } = await supabase
-    .from("cases")
-    .select("id, title")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("title");
-
-  return renderPage(
-    c,
-    { title: "Nova Despesa", active: "cashflow" },
-    <>
-      <PageHeader title="Nova Despesa" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/cashflow/expenses" class="flex flex-col gap-4">
-          <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" placeholder="Descricao da despesa" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" />
-            <Select label="Categoria" id="category" name="category" required
-              options={[
-                { value: "aluguel", label: "Aluguel" },
-                { value: "salario", label: "Salario" },
-                { value: "impostos", label: "Impostos" },
-                { value: "software", label: "Software" },
-                { value: "material", label: "Material" },
-                { value: "viagem", label: "Viagem" },
-                { value: "outros", label: "Outros" },
-              ]}
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Status" id="status" name="status" required selected="pending"
-              options={[
-                { value: "pending", label: "Pendente" },
-                { value: "paid", label: "Pago" },
-                { value: "cancelled", label: "Cancelado" },
-              ]}
-            />
-            <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
-          </div>
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/cashflow/expenses" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });
@@ -468,9 +447,17 @@ cashflowRoutes.get("/accounts", async (c) => {
         title="Contas Bancarias"
         icon="ph-bank"
         actions={() => (
-          <a href="/cashflow/accounts/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Conta
-          </a>
+          <Modal id="new-account" title="Nova Conta Bancaria" icon="ph-bank" triggerText="Nova Conta" triggerIcon="ph-plus" action="/cashflow/accounts" submitLabel="Salvar">
+            <TextField label="Nome" id="name" name="name" required icon="ph-tag" placeholder="Conta principal" />
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="Banco" id="bank" name="bank" required icon="ph-bank" placeholder="Banco do Brasil" />
+              <TextField label="Saldo Inicial (R$)" id="balance_cents" name="balance_cents" type="number" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="Agencia" id="agency" name="agency" placeholder="0001" />
+              <TextField label="Conta" id="account" name="account" placeholder="12345-6" />
+            </div>
+          </Modal>
         )}
       />
       <Table
@@ -487,35 +474,6 @@ cashflowRoutes.get("/accounts", async (c) => {
         emptyIcon="ph-bank"
         ariaLabel="Contas bancarias"
       />
-    </>,
-  );
-});
-
-// --- GET /accounts/new -- form ---
-
-cashflowRoutes.get("/accounts/new", async (c) => {
-  return renderPage(
-    c,
-    { title: "Nova Conta Bancaria", active: "cashflow" },
-    <>
-      <PageHeader title="Nova Conta Bancaria" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/cashflow/accounts" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required icon="ph-tag" placeholder="Conta principal" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Banco" id="bank" name="bank" required icon="ph-bank" placeholder="Banco do Brasil" />
-            <TextField label="Saldo Inicial (R$)" id="balance_cents" name="balance_cents" type="number" step="0.01" placeholder="0,00" />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Agencia" id="agency" name="agency" placeholder="0001" />
-            <TextField label="Conta" id="account" name="account" placeholder="12345-6" />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/cashflow/accounts" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });

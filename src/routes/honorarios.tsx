@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const honorariosRoutes = new Hono<AppEnv>();
 
@@ -63,18 +63,23 @@ function toDateInput(value: string | null | undefined): string {
 honorariosRoutes.get("/", async (c) => {
   const user = c.get("user");
 
-  const { data: honorarios } = await supabase
-    .from("honorarios")
-    .select("id, description, type, amount_cents, status, due_date, clients(name)")
-    .eq("tenant_id", user.tenantId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [honorariosRes, totalsRes, clientsRes, casesRes] = await Promise.all([
+    supabase
+      .from("honorarios")
+      .select("id, description, type, amount_cents, status, due_date, clients(name)")
+      .eq("tenant_id", user.tenantId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("honorarios")
+      .select("status, amount_cents")
+      .eq("tenant_id", user.tenantId),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+  ]);
 
-  // Summary totals.
-  const { data: totals } = await supabase
-    .from("honorarios")
-    .select("status, amount_cents")
-    .eq("tenant_id", user.tenantId);
+  const honorarios = honorariosRes.data;
+  const totals = totalsRes.data;
 
   const sumByStatus: Record<string, number> = {};
   for (const t of totals ?? []) {
@@ -101,9 +106,40 @@ honorariosRoutes.get("/", async (c) => {
         title="Honorarios"
         icon="ph-hand-coins"
         actions={() => (
-          <a href="/honorarios/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Fatura
-          </a>
+          <Modal id="new-honorario" title="Novo Honorario" icon="ph-hand-coins" triggerText="Novo Honorario" triggerIcon="ph-plus" action="/honorarios" submitLabel="Salvar" large>
+            <Select label="Cliente" id="client_id" name="client_id" required
+              options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
+            />
+            <Select label="Processo (opcional)" id="case_id" name="case_id"
+              options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+            />
+            <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" placeholder="Descricao do honorario" />
+            <div class="grid grid-cols-2 gap-4">
+              <Select label="Tipo" id="type" name="type" required
+                options={[
+                  { value: "contratual", label: "Contratual" },
+                  { value: "sucumbencial", label: "Sucumbencial" },
+                  { value: "exito", label: "Exito" },
+                  { value: "mensalidade", label: "Mensalidade" },
+                  { value: "parcelamento", label: "Parcelamento" },
+                ]}
+              />
+              <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" />
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <Select label="Status" id="status" name="status" required selected="pending"
+                options={[
+                  { value: "pending", label: "Pendente" },
+                  { value: "paid", label: "Pago" },
+                  { value: "overdue", label: "Atrasado" },
+                  { value: "cancelled", label: "Cancelado" },
+                ]}
+              />
+              <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
+              <TextField label="Parcelas" id="installments" name="installments" type="number" value="1" />
+            </div>
+            <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+          </Modal>
         )}
       />
       <div class="grid grid-cols-4 gap-4 mb-6">
@@ -146,63 +182,6 @@ honorariosRoutes.get("/", async (c) => {
         emptyIcon="ph-hand-coins"
         ariaLabel="Lista de honorarios"
       />
-    </>,
-  );
-});
-
-// GET /honorarios/new -- create form.
-honorariosRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const [clientsRes, casesRes] = await Promise.all([
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Nova Fatura", active: "honorarios" },
-    <>
-      <PageHeader title="Nova Fatura" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/honorarios" class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required
-            options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" placeholder="Descricao do honorario" />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Tipo" id="type" name="type" required
-              options={[
-                { value: "contratual", label: "Contratual" },
-                { value: "sucumbencial", label: "Sucumbencial" },
-                { value: "exito", label: "Exito" },
-                { value: "mensalidade", label: "Mensalidade" },
-                { value: "parcelamento", label: "Parcelamento" },
-              ]}
-            />
-            <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <Select label="Status" id="status" name="status" required selected="pending"
-              options={[
-                { value: "pending", label: "Pendente" },
-                { value: "paid", label: "Pago" },
-                { value: "overdue", label: "Atrasado" },
-                { value: "cancelled", label: "Cancelado" },
-              ]}
-            />
-            <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
-            <TextField label="Parcelas" id="installments" name="installments" type="number" value="1" />
-          </div>
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/honorarios" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });
@@ -255,6 +234,11 @@ honorariosRoutes.get("/:id", async (c) => {
 
   if (!h) return c.html("Honorario nao encontrado.", 404);
 
+  const [clientsRes, casesRes] = await Promise.all([
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+  ]);
+
   const client = h.clients as { name: string } | null;
   const caseRow = h.cases as { title: string } | null;
 
@@ -267,7 +251,42 @@ honorariosRoutes.get("/:id", async (c) => {
         icon="ph-hand-coins"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/honorarios/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
+            <Modal id="edit-honorario" title="Editar" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/honorarios/${id}`} submitLabel="Salvar" large>
+              <Select label="Cliente" id="client_id" name="client_id" required selected={h.client_id}
+                options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
+              />
+              <Select label="Processo (opcional)" id="case_id" name="case_id" selected={h.case_id ?? ""}
+                options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+              />
+              <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" value={h.description} />
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Tipo" id="type" name="type" required selected={h.type}
+                  options={[
+                    { value: "contratual", label: "Contratual" },
+                    { value: "sucumbencial", label: "Sucumbencial" },
+                    { value: "exito", label: "Exito" },
+                    { value: "mensalidade", label: "Mensalidade" },
+                    { value: "parcelamento", label: "Parcelamento" },
+                  ]}
+                />
+                <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" value={String(h.amount_cents / 100)} />
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <Select label="Status" id="status" name="status" required selected={h.status}
+                  options={[
+                    { value: "pending", label: "Pendente" },
+                    { value: "paid", label: "Pago" },
+                    { value: "overdue", label: "Atrasado" },
+                    { value: "cancelled", label: "Cancelado" },
+                  ]}
+                />
+                <TextField label="Vencimento" id="due_date" name="due_date" type="date" value={toDateInput(h.due_date)} />
+                <TextField label="Parcelas" id="installments" name="installments" type="number" value={String(h.installments ?? 1)} />
+              </div>
+              <Textarea label="Observacoes" id="notes" name="notes" rows={3}>
+                {h.notes ?? ""}
+              </Textarea>
+            </Modal>
             <form method="post" action={`/honorarios/${id}/delete`}>
               <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este honorario?')">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
@@ -300,76 +319,6 @@ honorariosRoutes.get("/:id", async (c) => {
           </Panel>
         ) : null}
       </div>
-    </>,
-  );
-});
-
-// GET /honorarios/:id/edit -- edit form.
-honorariosRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: h } = await supabase
-    .from("honorarios")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .single();
-
-  if (!h) return c.html("Honorario nao encontrado.", 404);
-
-  const [clientsRes, casesRes] = await Promise.all([
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: `Editar ${h.description}`, active: "honorarios" },
-    <>
-      <PageHeader title={`Editar ${h.description}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/honorarios/${id}`} class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required selected={h.client_id}
-            options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <Select label="Processo (opcional)" id="case_id" name="case_id" selected={h.case_id ?? ""}
-            options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" value={h.description} />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Tipo" id="type" name="type" required selected={h.type}
-              options={[
-                { value: "contratual", label: "Contratual" },
-                { value: "sucumbencial", label: "Sucumbencial" },
-                { value: "exito", label: "Exito" },
-                { value: "mensalidade", label: "Mensalidade" },
-                { value: "parcelamento", label: "Parcelamento" },
-              ]}
-            />
-            <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" value={String(h.amount_cents / 100)} />
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <Select label="Status" id="status" name="status" required selected={h.status}
-              options={[
-                { value: "pending", label: "Pendente" },
-                { value: "paid", label: "Pago" },
-                { value: "overdue", label: "Atrasado" },
-                { value: "cancelled", label: "Cancelado" },
-              ]}
-            />
-            <TextField label="Vencimento" id="due_date" name="due_date" type="date" value={toDateInput(h.due_date)} />
-            <TextField label="Parcelas" id="installments" name="installments" type="number" value={String(h.installments ?? 1)} />
-          </div>
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3}>
-            {h.notes ?? ""}
-          </Textarea>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/honorarios/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });

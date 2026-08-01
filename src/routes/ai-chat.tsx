@@ -6,7 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { AI_API_KEY, AI_BASE_URL, AI_MODEL } from "../lib/env";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiChatRoutes = new Hono<AppEnv>();
 
@@ -102,9 +102,24 @@ aiChatRoutes.get("/", async (c) => {
         title="Assistente Juridico"
         icon="ph-chats-teardrop"
         actions={() => (
-          <a href="/ai-chat/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Conversa
-          </a>
+          <Modal
+            id="new-conversation"
+            title="Nova Conversa"
+            icon="ph-chats-teardrop"
+            triggerText="Nova Conversa"
+            triggerIcon="ph-plus"
+            action="/ai-chat"
+            submitLabel="Criar"
+          >
+            <TextField label="Titulo" id="title" name="title" required icon="ph-text-aa" placeholder="Titulo da conversa" />
+            <Select label="Modelo" id="model" name="model"
+              options={[
+                { value: "gpt-4o-mini", label: "GPT-4o mini" },
+                { value: "gpt-4o", label: "GPT-4o" },
+                { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
+              ]}
+            />
+          </Modal>
         )}
       />
       <Table
@@ -124,38 +139,6 @@ aiChatRoutes.get("/", async (c) => {
   );
 });
 
-// --- GET /new -- new conversation form ---
-
-aiChatRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const { data: cases } = await supabase
-    .from("cases")
-    .select("id, title")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("title");
-
-  return renderPage(
-    c,
-    { title: "Nova Conversa", active: "ai-assistant" },
-    <>
-      <PageHeader title="Nova Conversa" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/ai-chat" class="flex flex-col gap-4">
-          <TextField label="Titulo" id="title" name="title" required icon="ph-text-aa" placeholder="Titulo da conversa" />
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Criar</button>
-            <a href="/ai-chat" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // --- POST / -- create conversation ---
 
 const conversationSchema = z.object({
@@ -167,7 +150,7 @@ aiChatRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = conversationSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/ai-chat/new");
+  if (!parsed.success) return c.redirect("/ai-chat");
 
   const { data, error } = await supabase
     .from("ai_conversations")
@@ -181,7 +164,7 @@ aiChatRoutes.post("/", async (c) => {
     .select("id")
     .single();
 
-  if (error || !data) return c.redirect("/ai-chat/new");
+  if (error || !data) return c.redirect("/ai-chat");
   return c.redirect(`/ai-chat/${data.id}`);
 });
 

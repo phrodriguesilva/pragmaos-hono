@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const companiesRoutes = new Hono<AppEnv>();
 
@@ -55,9 +55,27 @@ companiesRoutes.get("/", async (c) => {
         title="Empresas"
         icon="ph-building"
         actions={() => (
-          <a href="/companies/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Empresa
-          </a>
+          <Modal
+            id="newCompany"
+            title="Nova Empresa"
+            icon="ph-building"
+            triggerText="Nova Empresa"
+            triggerIcon="ph-plus"
+            action="/companies"
+            submitLabel="Salvar"
+            large
+          >
+            <TextField label="Nome" id="name" name="name" required placeholder="Razao social" />
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="CNPJ" id="cnpj" name="cnpj" placeholder="00000000000000" />
+              <TextField label="Email" id="email" name="email" type="email" placeholder="empresa@email.com" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" />
+              <TextField label="Endereco" id="address" name="address" />
+            </div>
+            <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+          </Modal>
         )}
       />
       <Table
@@ -77,35 +95,6 @@ companiesRoutes.get("/", async (c) => {
   );
 });
 
-// GET /companies/new -- render the create form.
-companiesRoutes.get("/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Nova Empresa", active: "companies" },
-    <>
-      <PageHeader title="Nova Empresa" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/companies" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required placeholder="Razao social" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="CNPJ" id="cnpj" name="cnpj" placeholder="00000000000000" />
-            <TextField label="Email" id="email" name="email" type="email" placeholder="empresa@email.com" />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" />
-            <TextField label="Endereco" id="address" name="address" />
-          </div>
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/companies" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /companies -- create.
 companiesRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -113,21 +102,7 @@ companiesRoutes.post("/", async (c) => {
   const parsed = companySchema.safeParse(body);
 
   if (!parsed.success) {
-    const errors = parsed.error.flatten().fieldErrors;
-    return renderPage(
-      c,
-      { title: "Nova Empresa", active: "companies" },
-      <>
-        <PageHeader title="Nova Empresa" icon="ph-plus-circle" />
-        <Panel>
-          <div class="mb-4 text-status-red">
-            <i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>
-            {Object.values(errors).flat().join(", ")}
-          </div>
-          <a href="/companies/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/companies");
   }
 
   const { error } = await supabase.from("companies").insert({
@@ -142,17 +117,7 @@ companiesRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return renderPage(
-      c,
-      { title: "Nova Empresa", active: "companies" },
-      <>
-        <PageHeader title="Nova Empresa" icon="ph-plus-circle" />
-        <Panel>
-          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
-          <a href="/companies/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/companies");
   }
 
   return c.redirect("/companies");
@@ -192,7 +157,30 @@ companiesRoutes.get("/:id", async (c) => {
         icon="ph-building"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/companies/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
+            <Modal
+              id="editCompany"
+              title="Editar Empresa"
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/companies/${id}`}
+              submitLabel="Salvar Alteracoes"
+              large
+            >
+              <TextField label="Nome" id="name" name="name" required value={company.name} />
+              <div class="grid grid-cols-2 gap-4">
+                <TextField label="CNPJ" id="cnpj" name="cnpj" value={company.cnpj ?? ""} />
+                <TextField label="Email" id="email" name="email" type="email" value={company.email ?? ""} />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <TextField label="Telefone" id="phone" name="phone" value={company.phone ?? ""} />
+                <TextField label="Endereco" id="address" name="address" value={company.address ?? ""} />
+              </div>
+              <Textarea label="Observacoes" id="notes" name="notes" rows={3}>
+                {company.notes ?? ""}
+              </Textarea>
+            </Modal>
             <form method="post" action={`/companies/${id}/delete`}>
               <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta empresa?')">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
@@ -219,7 +207,25 @@ companiesRoutes.get("/:id", async (c) => {
       </div>
       <Panel title="Representantes" icon="ph-users">
         <div class="mb-4">
-          <a href={`/companies/${id}/representatives/new`} class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Representante</a>
+          <Modal
+            id="newRepresentative"
+            title="Novo Representante"
+            icon="ph-user-plus"
+            triggerText="Novo Representante"
+            triggerIcon="ph-plus"
+            action={`/companies/${id}/representatives`}
+            submitLabel="Salvar"
+          >
+            <TextField label="Nome" id="name" name="name" required placeholder="Nome completo" />
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="CPF" id="cpf" name="cpf" placeholder="00000000000" />
+              <TextField label="Cargo" id="role" name="role" placeholder="Diretor, Gerente..." />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <TextField label="Email" id="email" name="email" type="email" placeholder="representante@email.com" />
+              <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" />
+            </div>
+          </Modal>
         </div>
         <Table
           columns={[
@@ -251,52 +257,6 @@ companiesRoutes.get("/:id", async (c) => {
   );
 });
 
-// GET /companies/:id/edit -- edit form.
-companiesRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: company } = await supabase
-    .from("companies")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!company) {
-    return c.html("Empresa nao encontrada.", 404);
-  }
-
-  return renderPage(
-    c,
-    { title: `Editar ${company.name}`, active: "companies" },
-    <>
-      <PageHeader title={`Editar ${company.name}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/companies/${id}`} class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required value={company.name} />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="CNPJ" id="cnpj" name="cnpj" value={company.cnpj ?? ""} />
-            <TextField label="Email" id="email" name="email" type="email" value={company.email ?? ""} />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Telefone" id="phone" name="phone" value={company.phone ?? ""} />
-            <TextField label="Endereco" id="address" name="address" value={company.address ?? ""} />
-          </div>
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3}>
-            {company.notes ?? ""}
-          </Textarea>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/companies/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /companies/:id -- update.
 companiesRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -305,7 +265,7 @@ companiesRoutes.post("/:id", async (c) => {
   const parsed = companySchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/companies/${id}/edit`);
+    return c.redirect(`/companies/${id}`);
   }
 
   await supabase
@@ -339,50 +299,6 @@ companiesRoutes.post("/:id/delete", async (c) => {
   return c.redirect("/companies");
 });
 
-// GET /companies/:id/representatives/new -- form to create representative.
-companiesRoutes.get("/:id/representatives/new", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: company } = await supabase
-    .from("companies")
-    .select("id, name")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!company) {
-    return c.html("Empresa nao encontrada.", 404);
-  }
-
-  return renderPage(
-    c,
-    { title: "Novo Representante", active: "companies" },
-    <>
-      <PageHeader title="Novo Representante" icon="ph-user-plus" />
-      <Panel>
-        <p class="mb-4 text-body-sm text-gray-600">Empresa: <a href={`/companies/${id}`} class="text-terracota-600 hover:underline">{company.name}</a></p>
-        <form method="post" action={`/companies/${id}/representatives`} class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required placeholder="Nome completo" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="CPF" id="cpf" name="cpf" placeholder="00000000000" />
-            <TextField label="Cargo" id="role" name="role" placeholder="Diretor, Gerente..." />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Email" id="email" name="email" type="email" placeholder="representante@email.com" />
-            <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" />
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/companies/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /companies/:id/representatives -- create representative.
 companiesRoutes.post("/:id/representatives", async (c) => {
   const user = c.get("user");
@@ -391,7 +307,7 @@ companiesRoutes.post("/:id/representatives", async (c) => {
   const parsed = representativeSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/companies/${id}/representatives/new`);
+    return c.redirect(`/companies/${id}`);
   }
 
   await supabase.from("company_representatives").insert({

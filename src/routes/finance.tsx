@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const financeRoutes = new Hono<AppEnv>();
 
@@ -66,7 +66,35 @@ financeRoutes.get("/", async (c) => {
     c,
     { title: "Financeiro", active: "finance" },
     <>
-      <PageHeader title="Financeiro" icon="ph-currency-dollar" actions={() => <a href="/finance/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Nova Fatura</a>} />
+      <PageHeader title="Financeiro" icon="ph-currency-dollar" actions={() => (
+        <Modal id="new-despesa" title="Nova Despesa" icon="ph-currency-dollar" triggerText="Nova Despesa" triggerIcon="ph-plus" action="/finance" submitLabel="Salvar" large>
+          <TextField label="Descricao" id="description" name="description" required icon="ph-text-aa" placeholder="Descricao da despesa" />
+          <Select label="Categoria" id="category" name="category" required
+            options={[
+              { value: "aluguel", label: "Aluguel" },
+              { value: "salario", label: "Salario" },
+              { value: "impostos", label: "Impostos" },
+              { value: "software", label: "Software" },
+              { value: "material", label: "Material" },
+              { value: "viagem", label: "Viagem" },
+              { value: "outros", label: "Outros" },
+            ]}
+          />
+          <TextField label="Valor (R$)" id="amount" name="amount" type="number" step="0.01" required placeholder="0,00" icon="ph-currency-dollar" />
+          <div class="grid grid-cols-2 gap-4">
+            <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
+            <TextField label="Data de Pagamento (opcional)" id="paid_date" name="paid_date" type="date" />
+          </div>
+          <Select label="Status" id="status" name="status" required selected="pending"
+            options={[
+              { value: "pending", label: "Pendente" },
+              { value: "paid", label: "Pago" },
+              { value: "cancelled", label: "Cancelado" },
+            ]}
+          />
+          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+        </Modal>
+      )} />
       <div class="grid grid-cols-4 gap-4 mb-6">
         <Panel><div class="text-body-sm text-gray-500 flex items-center gap-2"><i class="ph ph-clock text-h3 text-status-yellow" aria-hidden="true"></i>Pendente</div><div class="text-h2 font-bold text-status-yellow">{formatCurrency(sumByStatus.pending ?? 0)}</div></Panel>
         <Panel><div class="text-body-sm text-gray-500 flex items-center gap-2"><i class="ph ph-check-circle text-h3 text-status-green" aria-hidden="true"></i>Pago</div><div class="text-h2 font-bold text-status-green">{formatCurrency(sumByStatus.paid ?? 0)}</div></Panel>
@@ -80,52 +108,6 @@ financeRoutes.get("/", async (c) => {
         emptyIcon="ph-currency-dollar"
         ariaLabel="Lista de faturas"
       />
-    </>,
-  );
-});
-
-financeRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const [clientsRes, casesRes] = await Promise.all([
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Nova Fatura", active: "finance" },
-    <>
-      <PageHeader title="Nova Fatura" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/finance" class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required
-            options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Numero" id="number" name="number" required placeholder="2026-001" />
-            <TextField label="Valor (R$)" id="amount_cents" name="amount_cents" type="number" step="0.01" required placeholder="0,00" />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Status" id="status" name="status" required selected="pending"
-              options={[
-                { value: "pending", label: "Pendente" },
-                { value: "paid", label: "Pago" },
-                { value: "overdue", label: "Atrasado" },
-                { value: "cancelled", label: "Cancelado" },
-              ]}
-            />
-            <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
-          </div>
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/finance" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });

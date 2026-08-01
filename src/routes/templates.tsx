@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const templatesRoutes = new Hono<AppEnv>();
 
@@ -19,17 +19,14 @@ const templateSchema = z.object({
 });
 
 const docTypeOptions = [
+  { value: "contrato", label: "Contrato" },
   { value: "peticao", label: "Peticao" },
   { value: "procuracao", label: "Procuracao" },
-  { value: "contrato", label: "Contrato" },
-  { value: "sentenca", label: "Sentenca" },
-  { value: "acordao", label: "Acordao" },
   { value: "declaracao", label: "Declaracao" },
-  { value: "recibo", label: "Recibo" },
   { value: "outro", label: "Outro" },
 ];
 
-// GET / -- list all templates.
+// GET / -- list all templates with create modal.
 templatesRoutes.get("/", async (c) => {
   const user = c.get("user");
 
@@ -55,9 +52,22 @@ templatesRoutes.get("/", async (c) => {
         title="Modelos de Documentos"
         icon="ph-files"
         actions={() => (
-          <a href="/templates/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Novo Modelo
-          </a>
+          <Modal
+            id="newTemplate"
+            title="Novo Modelo"
+            icon="ph-files"
+            triggerText="Novo Modelo"
+            triggerIcon="ph-plus"
+            action="/templates"
+            submitLabel="Salvar"
+          >
+            <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" placeholder="Nome do modelo" />
+            <Select label="Categoria" id="doc_type" name="doc_type" options={docTypeOptions} selected="contrato" required />
+            <Textarea label="Conteudo" id="content" name="content" rows={10} required>
+              {""}
+            </Textarea>
+            <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
+          </Modal>
         )}
       />
       <Table
@@ -76,32 +86,6 @@ templatesRoutes.get("/", async (c) => {
   );
 });
 
-// GET /new -- form to create a template.
-templatesRoutes.get("/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Novo Modelo", active: "templates" },
-    <>
-      <PageHeader title="Novo Modelo" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/templates" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" placeholder="Nome do modelo" />
-          <Select label="Tipo" id="doc_type" name="doc_type" options={docTypeOptions} selected="peticao" required />
-          <Textarea label="Conteudo" id="content" name="content" rows={10} required>
-            {""}
-          </Textarea>
-          <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
-          <TextField label="Variaveis" id="variables" name="variables" placeholder="cliente, processo, tribunal, data" icon="ph-tag" />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/templates" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST / -- create.
 templatesRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -112,15 +96,15 @@ templatesRoutes.post("/", async (c) => {
     const errors = parsed.error.flatten().fieldErrors;
     return renderPage(
       c,
-      { title: "Novo Modelo", active: "templates" },
+      { title: "Modelos de Documentos", active: "templates" },
       <>
-        <PageHeader title="Novo Modelo" icon="ph-plus-circle" />
+        <PageHeader title="Modelos de Documentos" icon="ph-files" />
         <Panel>
           <div class="mb-4 text-status-red">
             <i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>
             {Object.values(errors).flat().join(", ")}
           </div>
-          <a href="/templates/new" class="btn btn-secondary">Voltar</a>
+          <a href="/templates" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,
     );
@@ -142,12 +126,12 @@ templatesRoutes.post("/", async (c) => {
   if (error) {
     return renderPage(
       c,
-      { title: "Novo Modelo", active: "templates" },
+      { title: "Modelos de Documentos", active: "templates" },
       <>
-        <PageHeader title="Novo Modelo" icon="ph-plus-circle" />
+        <PageHeader title="Modelos de Documentos" icon="ph-files" />
         <Panel>
           <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
-          <a href="/templates/new" class="btn btn-secondary">Voltar</a>
+          <a href="/templates" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,
     );
@@ -156,7 +140,7 @@ templatesRoutes.post("/", async (c) => {
   return c.redirect("/templates");
 });
 
-// GET /:id -- detail view.
+// GET /:id -- detail view with edit modal.
 templatesRoutes.get("/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
@@ -184,7 +168,23 @@ templatesRoutes.get("/:id", async (c) => {
         icon="ph-file-text"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/templates/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
+            <Modal
+              id="editTemplate"
+              title="Editar Modelo"
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/templates/${id}`}
+              submitLabel="Salvar"
+            >
+              <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" value={template.name} />
+              <Select label="Categoria" id="doc_type" name="doc_type" options={docTypeOptions} selected={template.doc_type} required />
+              <Textarea label="Conteudo" id="content" name="content" rows={10} required>
+                {template.content}
+              </Textarea>
+              <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
+            </Modal>
             <form method="post" action={`/templates/${id}/delete`}>
               <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este modelo?')">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
@@ -214,49 +214,6 @@ templatesRoutes.get("/:id", async (c) => {
   );
 });
 
-// GET /:id/edit -- edit form.
-templatesRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: template } = await supabase
-    .from("document_templates")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!template) {
-    return c.html("Modelo nao encontrado.", 404);
-  }
-
-  const variables: string[] = Array.isArray(template.variables) ? template.variables : [];
-
-  return renderPage(
-    c,
-    { title: `Editar ${template.name}`, active: "templates" },
-    <>
-      <PageHeader title={`Editar ${template.name}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/templates/${id}`} class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" value={template.name} />
-          <Select label="Tipo" id="doc_type" name="doc_type" options={docTypeOptions} selected={template.doc_type} required />
-          <Textarea label="Conteudo" id="content" name="content" rows={10} required>
-            {template.content}
-          </Textarea>
-          <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
-          <TextField label="Variaveis" id="variables" name="variables" placeholder="cliente, processo, tribunal, data" icon="ph-tag" value={variables.join(", ")} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/templates/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /:id -- update.
 templatesRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -265,7 +222,7 @@ templatesRoutes.post("/:id", async (c) => {
   const parsed = templateSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/templates/${id}/edit`);
+    return c.redirect(`/templates/${id}`);
   }
 
   const variables = parsed.data.variables

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Panel } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Modal } from "../components/ui";
 
 export const documentsRoutes = new Hono<AppEnv>();
 
@@ -15,20 +15,30 @@ const docSchema = z.object({
   case_id: z.string().optional(),
   client_id: z.string().optional(),
   title: z.string().min(1, "Titulo e obrigatorio"),
-  doc_type: z.string().min(1),
+  description: z.string().optional(),
+  file_url: z.string().optional(),
 });
 
+// GET / -- list documents with create modal.
 documentsRoutes.get("/", async (c) => {
   const user = c.get("user");
-  const { data: docs } = await supabase
-    .from("documents")
-    .select("id, title, doc_type, storage_path, created_at, cases(title), clients(name)")
-    .eq("tenant_id", user.tenantId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [docsRes, casesRes, clientsRes] = await Promise.all([
+    supabase
+      .from("documents")
+      .select("id, title, doc_type, storage_path, created_at, cases(title), clients(name)")
+      .eq("tenant_id", user.tenantId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+  ]);
 
-  const rows = (docs ?? []).map((d) => [
-    d.title,
+  const docs = docsRes.data ?? [];
+  const cases = casesRes.data ?? [];
+  const clients = clientsRes.data ?? [];
+
+  const rows = docs.map((d) => [
+    <a href={`/documents/${d.id}`} class="text-terracota-600 hover:underline">{d.title}</a> as unknown as string,
     d.doc_type,
     (d.cases as unknown as { title: string } | null)?.title ?? "-",
     (d.clients as unknown as { name: string } | null)?.name ?? "-",
@@ -39,7 +49,32 @@ documentsRoutes.get("/", async (c) => {
     c,
     { title: "Documentos", active: "documents" },
     <>
-      <PageHeader title="Documentos" icon="ph-file-text" actions={() => <a href="/documents/new" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-plus" aria-hidden="true"></i>Novo Documento</a>} />
+      <PageHeader
+        title="Documentos"
+        icon="ph-file-text"
+        actions={() => (
+          <Modal
+            id="newDoc"
+            title="Novo Documento"
+            icon="ph-file-text"
+            triggerText="Novo Documento"
+            triggerIcon="ph-plus"
+            action="/documents"
+            submitLabel="Salvar"
+            large
+          >
+            <TextField label="Titulo" id="title" name="title" required placeholder="Nome do documento" />
+            <Select label="Processo (opcional)" id="case_id" name="case_id"
+              options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
+            />
+            <Select label="Cliente (opcional)" id="client_id" name="client_id"
+              options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
+            />
+            <Textarea label="Descricao" id="description" name="description" rows={4} />
+            <TextField label="URL do Arquivo" id="file_url" name="file_url" placeholder="https://..." icon="ph-link" />
+          </Modal>
+        )}
+      />
       <Table
         columns={[{ label: "Titulo" }, { label: "Tipo" }, { label: "Processo" }, { label: "Cliente" }, { label: "Criado em" }]}
         rows={rows}
@@ -51,83 +86,168 @@ documentsRoutes.get("/", async (c) => {
   );
 });
 
-documentsRoutes.get("/new", async (c) => {
+// GET /:id -- detail with edit modal.
+documentsRoutes.get("/:id", async (c) => {
   const user = c.get("user");
-  const [casesRes, clientsRes] = await Promise.all([
+  const id = c.req.param("id");
+
+  const [docRes, casesRes, clientsRes] = await Promise.all([
+    supabase
+      .from("documents")
+      .select("*")
+      .eq("id", id)
+      .eq("tenant_id", user.tenantId)
+      .single(),
     supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
     supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
   ]);
 
+  const doc = docRes.data;
+  if (!doc) return c.html("Documento nao encontrado.", 404);
+
+  const cases = casesRes.data ?? [];
+  const clients = clientsRes.data ?? [];
+
+  const caseTitle = (doc.cases as unknown as { title: string } | null)?.title;
+  const clientName = (doc.clients as unknown as { name: string } | null)?.name;
+
   return renderPage(
     c,
-    { title: "Novo Documento", active: "documents" },
+    { title: doc.title, active: "documents" },
     <>
-      <PageHeader title="Novo Documento" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/documents" class="flex flex-col gap-4" enctype="multipart/form-data">
-          <TextField label="Titulo" id="title" name="title" required placeholder="Nome do documento" />
-          <Select label="Tipo" id="doc_type" name="doc_type" required
-            options={[
-              { value: "peticao", label: "Peticao" },
-              { value: "procuracao", label: "Procuracao" },
-              { value: "contrato", label: "Contrato" },
-              { value: "sentenca", label: "Sentenca" },
-              { value: "acordao", label: "Acordao" },
-              { value: "outro", label: "Outro" },
-            ]}
-          />
-          <Select label="Cliente (opcional)" id="client_id" name="client_id"
-            options={[{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-          />
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <div class="flex flex-col gap-1">
-            <label for="file" class="text-body-sm font-semibold text-gray-700"><i class="ph ph-upload-simple" aria-hidden="true"></i>Arquivo *</label>
-            <input id="file" name="file" type="file" required class="text-body-sm" />
-          </div>
+      <PageHeader
+        title={doc.title}
+        icon="ph-file-text"
+        actions={() => (
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/documents" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
+            <Modal
+              id="editDoc"
+              title="Editar Documento"
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/documents/${id}`}
+              submitLabel="Salvar"
+              large
+            >
+              <TextField label="Titulo" id="title" name="title" required value={doc.title} />
+              <Select label="Processo (opcional)" id="case_id" name="case_id"
+                options={[{ value: "", label: "Nenhum" }, ...cases.map((cs) => ({ value: cs.id, label: cs.title }))]}
+                selected={doc.case_id ?? ""}
+              />
+              <Select label="Cliente (opcional)" id="client_id" name="client_id"
+                options={[{ value: "", label: "Nenhum" }, ...clients.map((cl) => ({ value: cl.id, label: cl.name }))]}
+                selected={doc.client_id ?? ""}
+              />
+              <Textarea label="Descricao" id="description" name="description" rows={4}>
+                {doc.description ?? ""}
+              </Textarea>
+              <TextField label="URL do Arquivo" id="file_url" name="file_url" value={doc.file_url ?? doc.storage_path ?? ""} icon="ph-link" />
+            </Modal>
+            <form method="post" action={`/documents/${id}/delete`}>
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este documento?')">
+                <i class="ph ph-trash" aria-hidden="true"></i>Excluir
+              </button>
+            </form>
           </div>
-        </form>
-      </Panel>
+        )}
+      />
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <Panel title="Dados do Documento" icon="ph-file-text">
+          <dl class="flex flex-col gap-2 text-body-sm">
+            <div><dt class="font-semibold text-gray-700 inline">Titulo: </dt><dd class="inline">{doc.title}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{doc.doc_type}</dd></div>
+            {caseTitle ? <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${doc.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a></dd></div> : null}
+            {clientName ? <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${doc.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a></dd></div> : null}
+            <div><dt class="font-semibold text-gray-700 inline">Criado em: </dt><dd class="inline">{new Date(doc.created_at).toLocaleDateString("pt-BR")}</dd></div>
+          </dl>
+        </Panel>
+        {doc.description ? (
+          <Panel title="Descricao" icon="ph-text-aa">
+            <p class="text-body-sm text-gray-700 whitespace-pre-wrap">{doc.description}</p>
+          </Panel>
+        ) : null}
+      </div>
+      {(doc.file_url || doc.storage_path) ? (
+        <Panel title="Arquivo" icon="ph-link">
+          <a href={doc.file_url ?? "#"} class="text-terracota-600 hover:underline" target="_blank" rel="noopener noreferrer">
+            {doc.file_url ?? doc.storage_path}
+          </a>
+        </Panel>
+      ) : null}
     </>,
   );
 });
 
+// POST / -- create.
 documentsRoutes.post("/", async (c) => {
   const user = c.get("user");
-  const formData = await c.req.formData();
-  const file = formData.get("file") as File | null;
-  const title = String(formData.get("title") ?? "");
-  const docType = String(formData.get("doc_type") ?? "outro");
-  const clientId = String(formData.get("client_id") ?? "") || null;
-  const caseId = String(formData.get("case_id") ?? "") || null;
+  const body = await c.req.parseBody();
+  const title = String(body.title ?? "");
+  const clientId = String(body.client_id ?? "") || null;
+  const caseId = String(body.case_id ?? "") || null;
+  const description = String(body.description ?? "") || null;
+  const fileUrl = String(body.file_url ?? "") || null;
 
-  if (!file) return c.redirect("/documents/new");
-
-  const parsed = docSchema.safeParse({ title, doc_type: docType, client_id: clientId, case_id: caseId });
-  if (!parsed.success) return c.redirect("/documents/new");
-
-  // Upload to Supabase Storage.
-  const ext = file.name.split(".").pop() ?? "bin";
-  const path = `${user.tenantId}/${crypto.randomUUID()}.${ext}`;
-  const { error: uploadErr } = await supabase.storage.from("documents").upload(path, file);
-  if (uploadErr) {
-    console.error("upload error:", uploadErr);
-    return c.redirect("/documents/new");
-  }
+  const parsed = docSchema.safeParse({ title, client_id: clientId, case_id: caseId, description, file_url: fileUrl });
+  if (!parsed.success) return c.redirect("/documents");
 
   await supabase.from("documents").insert({
     tenant_id: user.tenantId,
     case_id: caseId,
     client_id: clientId,
     title: parsed.data.title,
-    doc_type: parsed.data.doc_type,
-    storage_path: path,
+    doc_type: "outro",
+    description: parsed.data.description || null,
+    storage_path: parsed.data.file_url || "",
+    file_url: parsed.data.file_url || null,
     uploaded_by: user.id,
   });
+
+  return c.redirect("/documents");
+});
+
+// POST /:id -- update.
+documentsRoutes.post("/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+  const title = String(body.title ?? "");
+  const clientId = String(body.client_id ?? "") || null;
+  const caseId = String(body.case_id ?? "") || null;
+  const description = String(body.description ?? "") || null;
+  const fileUrl = String(body.file_url ?? "") || null;
+
+  const parsed = docSchema.safeParse({ title, client_id: clientId, case_id: caseId, description, file_url: fileUrl });
+  if (!parsed.success) return c.redirect(`/documents/${id}`);
+
+  await supabase
+    .from("documents")
+    .update({
+      title: parsed.data.title,
+      case_id: caseId,
+      client_id: clientId,
+      description: parsed.data.description || null,
+      storage_path: parsed.data.file_url || "",
+      file_url: parsed.data.file_url || null,
+    })
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId);
+
+  return c.redirect(`/documents/${id}`);
+});
+
+// POST /:id/delete -- delete.
+documentsRoutes.post("/:id/delete", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  await supabase
+    .from("documents")
+    .delete()
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId);
 
   return c.redirect("/documents");
 });

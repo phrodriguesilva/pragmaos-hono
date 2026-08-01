@@ -220,3 +220,273 @@ export const Spinner: FC = () => (
     carregando...
   </span>
 );
+
+// ============================================================
+// Modal -- simple form popup (Alpine.js controlled)
+// ============================================================
+
+export const Modal: FC<{
+  id: string;
+  title: string;
+  icon?: string;
+  triggerText: string;
+  triggerIcon?: string;
+  triggerVariant?: "primary" | "secondary";
+  action: string;
+  method?: "post" | "get";
+  large?: boolean;
+  submitLabel?: string;
+  submitIcon?: string;
+  children: PropsWithChildren["children"];
+}> = ({
+  id,
+  title,
+  icon,
+  triggerText,
+  triggerIcon,
+  triggerVariant = "primary",
+  action,
+  method = "post",
+  large,
+  submitLabel = "Salvar",
+  submitIcon = "ph-floppy-disk",
+  children,
+}) => (
+  <div {...{ "x-data": `{ open: false }` }}>
+    <button
+      type="button"
+      {...{ "@click": "open = true; document.body.classList.add('modal-open')" }}
+      class={`btn btn-${triggerVariant} inline-flex items-center gap-1`}
+    >
+      {triggerIcon ? <i class={`ph ${triggerIcon}`} aria-hidden="true" /> : null}
+      {triggerText}
+    </button>
+
+    <div {...{ "x-show": "open" }} x-cloak class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
+      <div class={`modal-panel${large ? " modal-lg" : ""}`}>
+        <div class="modal-header">
+          <div class="flex items-center gap-2">
+            {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
+            <h2 id={`${id}-title`} class="text-h3 font-semibold text-gray-800">{title}</h2>
+          </div>
+          <button
+            type="button"
+            {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+            aria-label="Fechar"
+            class="text-gray-400 hover:text-gray-700"
+          >
+            <i class="ph ph-x text-h3" aria-hidden="true" />
+          </button>
+        </div>
+        <form method={method} action={action}>
+          <div class="modal-body flex flex-col gap-4">
+            {children}
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+              class="btn btn-secondary inline-flex items-center gap-1"
+            >
+              <i class="ph ph-x" aria-hidden="true" />Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
+              <i class={`ph ${submitIcon}`} aria-hidden="true" />{submitLabel}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+);
+
+// ============================================================
+// WizardModal -- multi-step form popup (Alpine.js controlled)
+// ============================================================
+
+export type WizardStep = {
+  label: string;
+  icon?: string;
+  fields: PropsWithChildren["children"];
+};
+
+export const WizardModal: FC<{
+  id: string;
+  title: string;
+  icon?: string;
+  triggerText: string;
+  triggerIcon?: string;
+  triggerVariant?: "primary" | "secondary";
+  action: string;
+  method?: "post" | "get";
+  large?: boolean;
+  steps: WizardStep[];
+  submitLabel?: string;
+  submitIcon?: string;
+}> = ({
+  id,
+  title,
+  icon,
+  triggerText,
+  triggerIcon,
+  triggerVariant = "primary",
+  action,
+  method = "post",
+  large,
+  steps,
+  submitLabel = "Salvar",
+  submitIcon = "ph-floppy-disk",
+}) => {
+  const stepCount = steps.length;
+  const stepNumbers = Array.from({ length: stepCount }, (_, i) => i).join(", ");
+
+  return (
+    <div {...{ "x-data": `{ open: false, step: 0 }` }}>
+      <button
+        type="button"
+        {...{ "@click": `open = true; step = 0; document.body.classList.add('modal-open')` }}
+        class={`btn btn-${triggerVariant} inline-flex items-center gap-1`}
+      >
+        {triggerIcon ? <i class={`ph ${triggerIcon}`} aria-hidden="true" /> : null}
+        {triggerText}
+      </button>
+
+      <div {...{ "x-show": "open" }} x-cloak class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
+        <div class={`modal-panel${large ? " modal-lg" : ""}`}>
+          <div class="modal-header">
+            <div class="flex items-center gap-2">
+              {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
+              <h2 id={`${id}-title`} class="text-h3 font-semibold text-gray-800">{title}</h2>
+            </div>
+            <button
+              type="button"
+              {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+              aria-label="Fechar"
+              class="text-gray-400 hover:text-gray-700"
+            >
+              <i class="ph ph-x text-h3" aria-hidden="true" />
+            </button>
+          </div>
+
+          {/* Step indicator */}
+          <div class="wizard-steps">
+            {steps.map((s, i) => (
+              <div
+                class={`wizard-step ${i === 0 ? "wizard-step-active" : "wizard-step-pending"}`}
+                {...{ ":class": `step === ${i} ? 'wizard-step-active' : step > ${i} ? 'wizard-step-done' : 'wizard-step-pending'` }}
+              >
+                <span
+                  class={`wizard-step-number wizard-step-number-${i === 0 ? "active" : "pending"}`}
+                  {...{ ":class": `step === ${i} ? 'wizard-step-number-active' : step > ${i} ? 'wizard-step-number-done' : 'wizard-step-number-pending'` }}
+                >
+                  <span {...{ "x-show": `step <= ${i}` }}>{i + 1}</span>
+                  <i class="ph ph-check" aria-hidden="true" {...{ "x-show": `step > ${i}` }} x-cloak />
+                </span>
+                {s.icon ? <i class={`ph ${s.icon}`} aria-hidden="true" /> : null}
+                {s.label}
+              </div>
+            ))}
+          </div>
+
+          <form method={method} action={action}>
+            {/* Step content */}
+            {steps.map((s, i) => (
+              <div {...{ "x-show": `step === ${i}` }} x-cloak>
+                <div class="modal-body flex flex-col gap-4">
+                  {s.fields}
+                </div>
+              </div>
+            ))}
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+                class="btn btn-secondary inline-flex items-center gap-1"
+              >
+                <i class="ph ph-x" aria-hidden="true" />Cancelar
+              </button>
+              <button
+                type="button"
+                {...{ "@click": "step > 0 ? step-- : null" }}
+                {...{ "x-show": "step > 0" }}
+                x-cloak
+                class="btn btn-secondary inline-flex items-center gap-1"
+              >
+                <i class="ph ph-arrow-left" aria-hidden="true" />Voltar
+              </button>
+              <button
+                type="button"
+                {...{ "@click": `step < ${stepCount - 1} ? step++ : null` }}
+                {...{ "x-show": `step < ${stepCount - 1}` }}
+                x-cloak
+                class="btn btn-primary inline-flex items-center gap-1"
+              >
+                Proximo<i class="ph ph-arrow-right" aria-hidden="true" />
+              </button>
+              <button
+                type="submit"
+                {...{ "x-show": `step === ${stepCount - 1}` }}
+                x-cloak
+                class="btn btn-primary inline-flex items-center gap-1"
+              >
+                <i class={`ph ${submitIcon}`} aria-hidden="true" />{submitLabel}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// EditModal -- modal that loads form content via fetch
+// Used for edit forms: fetches HTML from a URL and injects it
+// ============================================================
+
+export const EditModal: FC<{
+  id: string;
+  title: string;
+  icon?: string;
+  large?: boolean;
+}> = ({
+  id,
+  title,
+  icon,
+  large,
+}) => (
+  <div {...{ "x-data": `{ open: false, loading: false }` }}>
+    <div {...{ "x-show": "open" }} x-cloak class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
+      <div class={`modal-panel${large ? " modal-lg" : ""}`}>
+        <div class="modal-header">
+          <div class="flex items-center gap-2">
+            {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
+            <h2 id={`${id}-title`} class="text-h3 font-semibold text-gray-800">{title}</h2>
+          </div>
+          <button
+            type="button"
+            {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+            aria-label="Fechar"
+            class="text-gray-400 hover:text-gray-700"
+          >
+            <i class="ph ph-x text-h3" aria-hidden="true" />
+          </button>
+        </div>
+        <div {...{ "x-ref": "body" }}>
+          <div class="modal-body text-center text-gray-500" {...{ "x-show": "loading" }} x-cloak>
+            <i class="ph ph-circle-notch animate-spin text-h2 block mb-2" aria-hidden="true" />
+            Carregando...
+          </div>
+          <div {...{ "x-show": "!loading" }} x-cloak {...{ "x-html": "content" }}></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Helper: generates the Alpine @click handler for opening an edit modal with fetched content.
+// Usage: <button @click={editModalOpen("editClientModal", `/clients/${c.id}/edit-form`)}>
+export function editModalOpen(modalId: string, fetchUrl: string): string {
+  return `const m = document.querySelector('[x-data]').__x.$data; ${modalId} = true; document.body.classList.add('modal-open'); fetch('${fetchUrl}').then(r => r.text()).then(h => { content = h; loading = false; })`;
+}

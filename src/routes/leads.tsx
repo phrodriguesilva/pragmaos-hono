@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const leadsRoutes = new Hono<AppEnv>();
 
@@ -74,9 +74,40 @@ leadsRoutes.get("/", async (c) => {
               <a href="/leads?view=list" class="btn btn-secondary inline-flex items-center gap-1">
                 <i class="ph ph-list" aria-hidden="true" />Lista
               </a>
-              <a href="/leads/new" class="btn btn-primary inline-flex items-center gap-1">
-                <i class="ph ph-plus" aria-hidden="true" />Novo Lead
-              </a>
+              <Modal
+                id="newLead"
+                title="Novo Lead"
+                icon="ph-user-plus"
+                triggerText="Novo Lead"
+                triggerIcon="ph-plus"
+                action="/leads"
+                submitLabel="Salvar"
+                large
+              >
+                <TextField label="Nome" id="name" name="name" required placeholder="Nome do lead" icon="ph-user" />
+                <div class="grid grid-cols-2 gap-4">
+                  <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" icon="ph-phone" />
+                  <TextField label="WhatsApp" id="whatsapp" name="whatsapp" placeholder="11999999999" icon="ph-whatsapp-logo" />
+                </div>
+                <TextField label="Email" id="email" name="email" type="email" placeholder="lead@email.com" icon="ph-envelope" />
+                <div class="grid grid-cols-2 gap-4">
+                  <Select label="Origem" id="origin" name="origin" required icon="ph-flag"
+                    options={[
+                      { value: "indicacao", label: "Indicacao" },
+                      { value: "google", label: "Google" },
+                      { value: "redes_sociais", label: "Redes Sociais" },
+                      { value: "site", label: "Site" },
+                      { value: "evento", label: "Evento" },
+                      { value: "outro", label: "Outro" },
+                    ]}
+                  />
+                  <Select label="Status" id="status" name="status" required selected="novo" icon="ph-circle-half"
+                    options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
+                  />
+                </div>
+                <TextField label="Area de interesse" id="area_of_interest" name="area_of_interest" placeholder="Civel, Trabalhista, Familia..." icon="ph-tag" />
+                <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+              </Modal>
             </div>
           )}
         />
@@ -117,9 +148,40 @@ leadsRoutes.get("/", async (c) => {
             <a href="/leads?view=list" class="btn btn-secondary inline-flex items-center gap-1">
               <i class="ph ph-list" aria-hidden="true" />Lista
             </a>
-            <a href="/leads/new" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-plus" aria-hidden="true" />Novo Lead
-            </a>
+            <Modal
+              id="newLeadPipeline"
+              title="Novo Lead"
+              icon="ph-user-plus"
+              triggerText="Novo Lead"
+              triggerIcon="ph-plus"
+              action="/leads"
+              submitLabel="Salvar"
+              large
+            >
+              <TextField label="Nome" id="name" name="name" required placeholder="Nome do lead" icon="ph-user" />
+              <div class="grid grid-cols-2 gap-4">
+                <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" icon="ph-phone" />
+                <TextField label="WhatsApp" id="whatsapp" name="whatsapp" placeholder="11999999999" icon="ph-whatsapp-logo" />
+              </div>
+              <TextField label="Email" id="email" name="email" type="email" placeholder="lead@email.com" icon="ph-envelope" />
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Origem" id="origin" name="origin" required icon="ph-flag"
+                  options={[
+                    { value: "indicacao", label: "Indicacao" },
+                    { value: "google", label: "Google" },
+                    { value: "redes_sociais", label: "Redes Sociais" },
+                    { value: "site", label: "Site" },
+                    { value: "evento", label: "Evento" },
+                    { value: "outro", label: "Outro" },
+                  ]}
+                />
+                <Select label="Status" id="status" name="status" required selected="novo" icon="ph-circle-half"
+                  options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
+                />
+              </div>
+              <TextField label="Area de interesse" id="area_of_interest" name="area_of_interest" placeholder="Civel, Trabalhista, Familia..." icon="ph-tag" />
+              <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+            </Modal>
           </div>
         )}
       />
@@ -163,59 +225,13 @@ leadsRoutes.get("/", async (c) => {
   );
 });
 
-// GET /leads/new -- create form.
-leadsRoutes.get("/new", (c) => {
-  return renderPage(
-    c,
-    { title: "Novo Lead", active: "leads" },
-    <>
-      <PageHeader title="Novo Lead" icon="ph-user-plus" />
-      <Panel>
-        <form method="post" action="/leads" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required placeholder="Nome do lead" icon="ph-user" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Telefone" id="phone" name="phone" placeholder="11999999999" icon="ph-phone" />
-            <TextField label="WhatsApp" id="whatsapp" name="whatsapp" placeholder="11999999999" icon="ph-whatsapp-logo" />
-          </div>
-          <TextField label="Email" id="email" name="email" type="email" placeholder="lead@email.com" icon="ph-envelope" />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Origem" id="origin" name="origin" required icon="ph-flag"
-              options={[
-                { value: "indicacao", label: "Indicacao" },
-                { value: "google", label: "Google" },
-                { value: "redes_sociais", label: "Redes Sociais" },
-                { value: "site", label: "Site" },
-                { value: "evento", label: "Evento" },
-                { value: "outro", label: "Outro" },
-              ]}
-            />
-            <Select label="Status" id="status" name="status" required selected="novo" icon="ph-circle-half"
-              options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
-            />
-          </div>
-          <TextField label="Area de interesse" id="area_of_interest" name="area_of_interest" placeholder="Civel, Trabalhista, Familia..." icon="ph-tag" />
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar
-            </button>
-            <a href="/leads" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /leads -- create.
 leadsRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = leadSchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect("/leads/new");
+  if (!parsed.success) return c.redirect("/leads");
 
   await supabase.from("leads").insert({
     tenant_id: user.tenantId,
@@ -260,9 +276,41 @@ leadsRoutes.get("/:id", async (c) => {
         icon="ph-user-plus"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/leads/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-pencil" aria-hidden="true" />Editar
-            </a>
+            <Modal
+              id="editLead"
+              title="Editar Lead"
+              icon="ph-pencil"
+              triggerText="Editar"
+              triggerIcon="ph-pencil"
+              triggerVariant="secondary"
+              action={`/leads/${id}`}
+              submitLabel="Salvar Alteracoes"
+              large
+            >
+              <TextField label="Nome" id="name" name="name" required value={lead.name} icon="ph-user" />
+              <div class="grid grid-cols-2 gap-4">
+                <TextField label="Telefone" id="phone" name="phone" value={lead.phone ?? ""} icon="ph-phone" />
+                <TextField label="WhatsApp" id="whatsapp" name="whatsapp" value={lead.whatsapp ?? ""} icon="ph-whatsapp-logo" />
+              </div>
+              <TextField label="Email" id="email" name="email" type="email" value={lead.email ?? ""} icon="ph-envelope" />
+              <div class="grid grid-cols-2 gap-4">
+                <Select label="Origem" id="origin" name="origin" required selected={lead.origin} icon="ph-flag"
+                  options={[
+                    { value: "indicacao", label: "Indicacao" },
+                    { value: "google", label: "Google" },
+                    { value: "redes_sociais", label: "Redes Sociais" },
+                    { value: "site", label: "Site" },
+                    { value: "evento", label: "Evento" },
+                    { value: "outro", label: "Outro" },
+                  ]}
+                />
+                <Select label="Status" id="status" name="status" required selected={lead.status} icon="ph-circle-half"
+                  options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
+                />
+              </div>
+              <TextField label="Area de interesse" id="area_of_interest" name="area_of_interest" value={lead.area_of_interest ?? ""} icon="ph-tag" />
+              <Textarea label="Observacoes" id="notes" name="notes" rows={3}>{lead.notes ?? ""}</Textarea>
+            </Modal>
             <form method="post" action={`/leads/${id}/delete`}>
               <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este lead?')">
                 <i class="ph ph-trash" aria-hidden="true" />Excluir
@@ -321,65 +369,6 @@ leadsRoutes.post("/:id/status", async (c) => {
   return c.redirect(`/leads/${id}`);
 });
 
-// GET /leads/:id/edit -- edit form.
-leadsRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: lead } = await supabase
-    .from("leads")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!lead) return c.html("Lead nao encontrado.", 404);
-
-  return renderPage(
-    c,
-    { title: `Editar ${lead.name}`, active: "leads" },
-    <>
-      <PageHeader title={`Editar ${lead.name}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/leads/${id}`} class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required value={lead.name} icon="ph-user" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Telefone" id="phone" name="phone" value={lead.phone ?? ""} icon="ph-phone" />
-            <TextField label="WhatsApp" id="whatsapp" name="whatsapp" value={lead.whatsapp ?? ""} icon="ph-whatsapp-logo" />
-          </div>
-          <TextField label="Email" id="email" name="email" type="email" value={lead.email ?? ""} icon="ph-envelope" />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="Origem" id="origin" name="origin" required selected={lead.origin} icon="ph-flag"
-              options={[
-                { value: "indicacao", label: "Indicacao" },
-                { value: "google", label: "Google" },
-                { value: "redes_sociais", label: "Redes Sociais" },
-                { value: "site", label: "Site" },
-                { value: "evento", label: "Evento" },
-                { value: "outro", label: "Outro" },
-              ]}
-            />
-            <Select label="Status" id="status" name="status" required selected={lead.status} icon="ph-circle-half"
-              options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
-            />
-          </div>
-          <TextField label="Area de interesse" id="area_of_interest" name="area_of_interest" value={lead.area_of_interest ?? ""} icon="ph-tag" />
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3}>{lead.notes ?? ""}</Textarea>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar
-            </button>
-            <a href={`/leads/${id}`} class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-x" aria-hidden="true" />Cancelar
-            </a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /leads/:id -- update.
 leadsRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -387,7 +376,7 @@ leadsRoutes.post("/:id", async (c) => {
   const body = await c.req.parseBody();
   const parsed = leadSchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect(`/leads/${id}/edit`);
+  if (!parsed.success) return c.redirect(`/leads/${id}`);
 
   await supabase.from("leads").update({
     name: parsed.data.name,

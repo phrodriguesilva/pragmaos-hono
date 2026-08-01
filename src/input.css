@@ -107,6 +107,14 @@
   ::after {
     transition: none !important;
   }
+  /* Hide Alpine.js elements before initialization */
+  [x-cloak] {
+    display: none !important;
+  }
+  /* Modal overlay scroll lock helper */
+  body.modal-open {
+    overflow: hidden;
+  }
 }
 
 @layer components {
@@ -177,5 +185,54 @@
   }
   .btn-danger:hover {
     background-color: var(--color-status-red-bg);
+  }
+  /* Modal overlay */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .modal-panel {
+    @apply bg-white border border-border-strong w-full my-8;
+    max-width: 640px;
+  }
+  .modal-panel.modal-lg {
+    max-width: 800px;
+  }
+  .modal-header {
+    @apply flex items-center justify-between border-b border-border-strong px-4 py-3 bg-gray-50;
+  }
+  .modal-body {
+    @apply p-4 max-h-[70vh] overflow-y-auto;
+  }
+  .modal-footer {
+    @apply flex items-center justify-end gap-2 border-t border-border-strong px-4 py-3 bg-gray-50;
+  }
+  /* Wizard step indicator */
+  .wizard-steps {
+    @apply flex items-center gap-1 border-b border-border-subtle px-4 py-2 bg-gray-50;
+  }
+  .wizard-step {
+    @apply flex items-center gap-1 text-body-sm px-2 py-1;
+  }
+  .wizard-step-active {
+    @apply text-carvao-700 font-semibold;
+  }
+  .wizard-step-done {
+    @apply text-status-green;
+  }
+  .wizard-step-pending {
+    @apply text-gray-400;
+  }
+  .wizard-step-number {
+    @apply inline-flex items-center justify-center w-5 h-5 border text-body-sm;
+  }
+  .wizard-step-number-active {
+    @apply border-carvao-600 text-carvao-600;
+  }
+  .wizard-step-number-done {
+    @apply border-status-green text-status-green;
+  }
+  .wizard-step-number-pending {
+    @apply border-gray-300 text-gray-400;
   }
 }

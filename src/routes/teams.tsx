@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const teamsRoutes = new Hono<AppEnv>();
 
@@ -32,13 +32,14 @@ teamsRoutes.get("/", async (c) => {
   const leaderIds = (teams ?? []).map((t) => t.leader_id).filter(Boolean) as string[];
   const teamIds = (teams ?? []).map((t) => t.id);
 
-  const [leadersRes, membersRes] = await Promise.all([
+  const [leadersRes, membersRes, profilesRes] = await Promise.all([
     leaderIds.length
       ? supabase.from("profiles").select("id, full_name").in("id", leaderIds)
       : Promise.resolve({ data: [], error: null }),
     teamIds.length
       ? supabase.from("team_members").select("team_id").in("team_id", teamIds)
       : Promise.resolve({ data: [], error: null }),
+    supabase.from("profiles").select("id, full_name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("full_name"),
   ]);
 
   const leaderMap = new Map((leadersRes.data ?? []).map((p) => [p.id, p.full_name]));
@@ -46,6 +47,7 @@ teamsRoutes.get("/", async (c) => {
   for (const m of membersRes.data ?? []) {
     memberCountMap.set(m.team_id, (memberCountMap.get(m.team_id) ?? 0) + 1);
   }
+  const profiles = profilesRes.data ?? [];
 
   const rows = (teams ?? []).map((t) => [
     <a href={`/teams/${t.id}`} class="text-terracota-600 hover:underline">{t.name}</a> as unknown as string,
@@ -62,9 +64,28 @@ teamsRoutes.get("/", async (c) => {
         title="Equipes"
         icon="ph-users-four"
         actions={() => (
-          <a href="/teams/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Equipe
-          </a>
+          <Modal
+            id="newTeam"
+            title="Nova Equipe"
+            icon="ph-users-four"
+            triggerText="Nova Equipe"
+            triggerIcon="ph-plus"
+            action="/teams"
+            submitLabel="Salvar"
+          >
+            <TextField label="Nome" id="name" name="name" required placeholder="Nome da equipe" />
+            <Textarea label="Descricao" id="description" name="description" rows={3} />
+            <Select
+              label="Lider"
+              id="leader_id"
+              name="leader_id"
+              icon="ph-user-circle"
+              options={[
+                { value: "", label: "Sem lider" },
+                ...(profiles.map((p) => ({ value: p.id, label: p.full_name }))),
+              ]}
+            />
+          </Modal>
         )}
       />
       <Table
@@ -83,46 +104,6 @@ teamsRoutes.get("/", async (c) => {
   );
 });
 
-// GET /teams/new -- render the create form.
-teamsRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("full_name");
-
-  return renderPage(
-    c,
-    { title: "Nova Equipe", active: "teams" },
-    <>
-      <PageHeader title="Nova Equipe" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/teams" class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required placeholder="Nome da equipe" />
-          <Textarea label="Descricao" id="description" name="description" rows={3} />
-          <Select
-            label="Lider"
-            id="leader_id"
-            name="leader_id"
-            icon="ph-user-circle"
-            options={[
-              { value: "", label: "Sem lider" },
-              ...((profiles ?? []).map((p) => ({ value: p.id, label: p.full_name }))),
-            ]}
-          />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/teams" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /teams -- create.
 teamsRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -130,21 +111,7 @@ teamsRoutes.post("/", async (c) => {
   const parsed = teamSchema.safeParse(body);
 
   if (!parsed.success) {
-    const errors = parsed.error.flatten().fieldErrors;
-    return renderPage(
-      c,
-      { title: "Nova Equipe", active: "teams" },
-      <>
-        <PageHeader title="Nova Equipe" icon="ph-plus-circle" />
-        <Panel>
-          <div class="mb-4 text-status-red">
-            <i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>
-            {Object.values(errors).flat().join(", ")}
-          </div>
-          <a href="/teams/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/teams");
   }
 
   const { error } = await supabase.from("teams").insert({
@@ -155,17 +122,7 @@ teamsRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return renderPage(
-      c,
-      { title: "Nova Equipe", active: "teams" },
-      <>
-        <PageHeader title="Nova Equipe" icon="ph-plus-circle" />
-        <Panel>
-          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
-          <a href="/teams/new" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-arrow-left" aria-hidden="true"></i>Voltar</a>
-        </Panel>
-      </>,
-    );
+    return c.redirect("/teams");
   }
 
   return c.redirect("/teams");
@@ -226,7 +183,32 @@ teamsRoutes.get("/:id", async (c) => {
         title={team.name}
         icon="ph-users-four"
         actions={() => (
-          <a href={`/teams/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
+          <Modal
+            id="editTeam"
+            title="Editar Equipe"
+            icon="ph-pencil"
+            triggerText="Editar"
+            triggerIcon="ph-pencil"
+            triggerVariant="secondary"
+            action={`/teams/${id}`}
+            submitLabel="Salvar Alteracoes"
+          >
+            <TextField label="Nome" id="name" name="name" required value={team.name} />
+            <Textarea label="Descricao" id="description" name="description" rows={3}>
+              {team.description ?? ""}
+            </Textarea>
+            <Select
+              label="Lider"
+              id="leader_id"
+              name="leader_id"
+              icon="ph-user-circle"
+              selected={team.leader_id ?? ""}
+              options={[
+                { value: "", label: "Sem lider" },
+                ...((profiles ?? []).map((p) => ({ value: p.id, label: p.full_name }))),
+              ]}
+            />
+          </Modal>
         )}
       />
       <div class="mb-6">
@@ -283,62 +265,6 @@ teamsRoutes.get("/:id", async (c) => {
   );
 });
 
-// GET /teams/:id/edit -- edit form.
-teamsRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: team } = await supabase
-    .from("teams")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .single();
-
-  if (!team) {
-    return c.html("Equipe nao encontrada.", 404);
-  }
-
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("full_name");
-
-  return renderPage(
-    c,
-    { title: `Editar ${team.name}`, active: "teams" },
-    <>
-      <PageHeader title={`Editar ${team.name}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/teams/${id}`} class="flex flex-col gap-4">
-          <TextField label="Nome" id="name" name="name" required value={team.name} />
-          <Textarea label="Descricao" id="description" name="description" rows={3}>
-            {team.description ?? ""}
-          </Textarea>
-          <Select
-            label="Lider"
-            id="leader_id"
-            name="leader_id"
-            icon="ph-user-circle"
-            selected={team.leader_id ?? ""}
-            options={[
-              { value: "", label: "Sem lider" },
-              ...((profiles ?? []).map((p) => ({ value: p.id, label: p.full_name }))),
-            ]}
-          />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/teams/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /teams/:id -- update.
 teamsRoutes.post("/:id", async (c) => {
   const user = c.get("user");
@@ -347,7 +273,7 @@ teamsRoutes.post("/:id", async (c) => {
   const parsed = teamSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/teams/${id}/edit`);
+    return c.redirect(`/teams/${id}`);
   }
 
   await supabase

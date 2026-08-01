@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const billingRoutes = new Hono<AppEnv>();
 
@@ -97,6 +97,14 @@ billingRoutes.get("/", async (c) => {
 
   const { data: invoices } = await query;
 
+  // Fetch data for the wizard modal selects.
+  const [clientsRes, casesRes, honorariosRes, suggested] = await Promise.all([
+    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
+    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
+    supabase.from("honorarios").select("id, description").eq("tenant_id", user.tenantId).order("created_at", { ascending: false }),
+    suggestInvoiceNumber(user.tenantId),
+  ]);
+
   const rows = (invoices ?? []).map((inv) => {
     const clientName = (inv.clients as unknown as { name: string } | null)?.name ?? "-";
     const caseTitle = (inv.cases as unknown as { title: string } | null)?.title;
@@ -121,9 +129,54 @@ billingRoutes.get("/", async (c) => {
         title="Cobrancas"
         icon="ph-receipt"
         actions={() => (
-          <a href="/billing/new" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-plus" aria-hidden="true"></i>Nova Cobranca
-          </a>
+          <WizardModal id="new-billing" title="Nova Cobranca" icon="ph-receipt" triggerText="Nova Cobranca" triggerIcon="ph-plus" action="/billing" large
+            steps={[
+              {
+                label: "Cliente e Referencia",
+                icon: "ph-user",
+                fields: (
+                  <>
+                    <Select label="Cliente" id="client_id" name="client_id" required
+                      options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
+                    />
+                    <Select label="Processo (opcional)" id="case_id" name="case_id"
+                      options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
+                    />
+                    <Select label="Honorario (opcional)" id="honorario_id" name="honorario_id"
+                      options={[{ value: "", label: "Nenhum" }, ...(honorariosRes.data ?? []).map((h) => ({ value: h.id, label: h.description }))]}
+                    />
+                    <TextField label="Numero" id="number" name="number" required value={suggested} icon="ph-hash" />
+                  </>
+                ),
+              },
+              {
+                label: "Valores",
+                icon: "ph-currency-dollar",
+                fields: (
+                  <>
+                    <TextField label="Valor (R$)" id="amount" name="amount" type="number" step="0.01" required placeholder="0,00" icon="ph-currency-dollar" />
+                    <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
+                    <Select label="Metodo de pagamento" id="payment_method" name="payment_method" required selected="pix"
+                      options={[
+                        { value: "pix", label: "PIX" },
+                        { value: "boleto", label: "Boleto" },
+                        { value: "card", label: "Cartao" },
+                        { value: "transfer", label: "Transferencia" },
+                        { value: "cash", label: "Dinheiro" },
+                      ]}
+                    />
+                  </>
+                ),
+              },
+              {
+                label: "Observacoes",
+                icon: "ph-note",
+                fields: (
+                  <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+                ),
+              },
+            ]}
+          />
         )}
       />
       <form method="get" action="/billing" class="mb-4 flex gap-4 items-end">
@@ -159,57 +212,6 @@ billingRoutes.get("/", async (c) => {
         emptyIcon="ph-receipt"
         ariaLabel="Lista de cobrancas"
       />
-    </>,
-  );
-});
-
-// GET /billing/new -- create form.
-billingRoutes.get("/new", async (c) => {
-  const user = c.get("user");
-  const [clientsRes, casesRes, honorariosRes, suggested] = await Promise.all([
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("honorarios").select("id, description").eq("tenant_id", user.tenantId).order("created_at", { ascending: false }),
-    suggestInvoiceNumber(user.tenantId),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Nova Cobranca", active: "billing" },
-    <>
-      <PageHeader title="Nova Cobranca" icon="ph-plus-circle" />
-      <Panel>
-        <form method="post" action="/billing" class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required
-            options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <Select label="Processo (opcional)" id="case_id" name="case_id"
-            options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <Select label="Honorario (opcional)" id="honorario_id" name="honorario_id"
-            options={[{ value: "", label: "Nenhum" }, ...(honorariosRes.data ?? []).map((h) => ({ value: h.id, label: h.description }))]}
-          />
-          <TextField label="Numero" id="number" name="number" required value={suggested} icon="ph-hash" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Valor (R$)" id="amount" name="amount" type="number" step="0.01" required placeholder="0,00" icon="ph-currency-dollar" />
-            <TextField label="Vencimento" id="due_date" name="due_date" type="date" />
-          </div>
-          <Select label="Metodo de pagamento" id="payment_method" name="payment_method" required selected="pix"
-            options={[
-              { value: "pix", label: "PIX" },
-              { value: "boleto", label: "Boleto" },
-              { value: "card", label: "Cartao" },
-              { value: "transfer", label: "Transferencia" },
-              { value: "cash", label: "Dinheiro" },
-            ]}
-          />
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href="/billing" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
     </>,
   );
 });
@@ -278,7 +280,6 @@ billingRoutes.get("/:id", async (c) => {
         icon="ph-receipt"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/billing/${id}/edit`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-pencil" aria-hidden="true"></i>Editar</a>
             {!isCancelled && !isPaid ? (
               <form method="post" action={`/billing/${id}/cancel`}>
                 <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobranca?')">
@@ -405,69 +406,6 @@ billingRoutes.post("/:id/cancel", async (c) => {
     .eq("tenant_id", user.tenantId);
 
   return c.redirect(`/billing/${id}`);
-});
-
-// GET /billing/:id/edit -- edit form.
-billingRoutes.get("/:id/edit", async (c) => {
-  const user = c.get("user");
-  const id = c.req.param("id");
-
-  const { data: inv } = await supabase
-    .from("invoices")
-    .select("*")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .single();
-
-  if (!inv) return c.html("Cobranca nao encontrada.", 404);
-
-  const [clientsRes, casesRes, honorariosRes] = await Promise.all([
-    supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
-    supabase.from("honorarios").select("id, description").eq("tenant_id", user.tenantId).order("created_at", { ascending: false }),
-  ]);
-
-  return renderPage(
-    c,
-    { title: `Editar ${inv.number}`, active: "billing" },
-    <>
-      <PageHeader title={`Editar ${inv.number}`} icon="ph-pencil" />
-      <Panel>
-        <form method="post" action={`/billing/${id}`} class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id" required selected={inv.client_id}
-            options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
-          />
-          <Select label="Processo (opcional)" id="case_id" name="case_id" selected={inv.case_id ?? ""}
-            options={[{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))]}
-          />
-          <Select label="Honorario (opcional)" id="honorario_id" name="honorario_id" selected={inv.honorario_id ?? ""}
-            options={[{ value: "", label: "Nenhum" }, ...(honorariosRes.data ?? []).map((h) => ({ value: h.id, label: h.description }))]}
-          />
-          <TextField label="Numero" id="number" name="number" required value={inv.number} icon="ph-hash" />
-          <div class="grid grid-cols-2 gap-4">
-            <TextField label="Valor (R$)" id="amount" name="amount" type="number" step="0.01" required placeholder="0,00" icon="ph-currency-dollar" value={String(inv.amount_cents / 100)} />
-            <TextField label="Vencimento" id="due_date" name="due_date" type="date" value={toDateInput(inv.due_date)} />
-          </div>
-          <Select label="Metodo de pagamento" id="payment_method" name="payment_method" required selected={inv.payment_method}
-            options={[
-              { value: "pix", label: "PIX" },
-              { value: "boleto", label: "Boleto" },
-              { value: "card", label: "Cartao" },
-              { value: "transfer", label: "Transferencia" },
-              { value: "cash", label: "Dinheiro" },
-            ]}
-          />
-          <Textarea label="Observacoes" id="notes" name="notes" rows={3}>
-            {inv.notes ?? ""}
-          </Textarea>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Salvar</button>
-            <a href={`/billing/${id}`} class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
 });
 
 // POST /billing/:id -- update.

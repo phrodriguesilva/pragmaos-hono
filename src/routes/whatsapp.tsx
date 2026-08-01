@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const whatsappRoutes = new Hono<AppEnv>();
 
@@ -35,7 +35,7 @@ const TEMPLATES = [
 whatsappRoutes.get("/", async (c) => {
   const user = c.get("user");
 
-  const [sentRes, receivedRes, deliveredRes, recentRes] = await Promise.all([
+  const [sentRes, receivedRes, deliveredRes, recentRes, clientsRes] = await Promise.all([
     supabase.from("whatsapp_messages").select("id", { count: "exact", head: true })
       .eq("tenant_id", user.tenantId).eq("direction", "outbound"),
     supabase.from("whatsapp_messages").select("id", { count: "exact", head: true })
@@ -47,7 +47,15 @@ whatsappRoutes.get("/", async (c) => {
       .eq("tenant_id", user.tenantId)
       .order("created_at", { ascending: false })
       .limit(25),
+    supabase.from("clients")
+      .select("id, name, phone")
+      .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null)
+      .order("name"),
   ]);
+
+  const clientOptions = [{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))];
+  const bulkClientOptions = [{ value: "", label: "Todos os clientes" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))];
 
   const sentCount = sentRes.count ?? 0;
   const receivedCount = receivedRes.count ?? 0;
@@ -73,8 +81,35 @@ whatsappRoutes.get("/", async (c) => {
         actions={() => (
           <div class="flex gap-2">
             <a href="/whatsapp/templates" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-files" aria-hidden="true"></i>Templates</a>
-            <a href="/whatsapp/bulk" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-users-three" aria-hidden="true"></i>Envio em Massa</a>
-            <a href="/whatsapp/send" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Enviar Mensagem</a>
+            <Modal
+              id="bulk-whatsapp"
+              title="Enviar em Massa"
+              icon="ph-users-three"
+              triggerText="Envio em Massa"
+              triggerIcon="ph-users-three"
+              triggerVariant="secondary"
+              action="/whatsapp/bulk"
+              submitLabel="Enviar para todos"
+              submitIcon="ph-paper-plane-tilt"
+            >
+              <Textarea label="Mensagem" id="bulk_message" name="message" rows={5} required />
+              <Select label="Filtrar por cliente (opcional)" id="bulk_client_id" name="client_id" options={bulkClientOptions} />
+            </Modal>
+            <Modal
+              id="send-whatsapp"
+              title="Enviar Mensagem"
+              icon="ph-paper-plane-tilt"
+              triggerText="Enviar Mensagem"
+              triggerIcon="ph-paper-plane-tilt"
+              action="/whatsapp/send"
+              submitLabel="Enviar"
+              submitIcon="ph-paper-plane-tilt"
+            >
+              <Select label="Cliente" id="client_id" name="client_id" options={clientOptions} />
+              <TextField label="Telefone" id="phone" name="phone" required placeholder="5511999999999" icon="ph-phone" />
+              <Textarea label="Mensagem" id="message" name="message" rows={5} required />
+              <TextField label="Template (opcional)" id="template_name" name="template_name" placeholder="Nome do template" icon="ph-files" />
+            </Modal>
           </div>
         )}
       />
@@ -112,45 +147,12 @@ whatsappRoutes.get("/", async (c) => {
   );
 });
 
-// GET /send -- form to send a message.
-whatsappRoutes.get("/send", async (c) => {
-  const user = c.get("user");
-  const { data: clients } = await supabase
-    .from("clients")
-    .select("id, name, phone")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("name");
-
-  return renderPage(
-    c,
-    { title: "Enviar Mensagem", active: "whatsapp" },
-    <>
-      <PageHeader title="Enviar Mensagem" icon="ph-paper-plane-tilt" />
-      <Panel>
-        <form method="post" action="/whatsapp/send" class="flex flex-col gap-4">
-          <Select label="Cliente" id="client_id" name="client_id"
-            options={[{ value: "", label: "Nenhum" }, ...(clients ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-          />
-          <TextField label="Telefone" id="phone" name="phone" required placeholder="5511999999999" icon="ph-phone" />
-          <Textarea label="Mensagem" id="message" name="message" rows={5} required />
-          <TextField label="Template (opcional)" id="template_name" name="template_name" placeholder="Nome do template" icon="ph-files" />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Enviar</button>
-            <a href="/whatsapp" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /send -- create outbound message (stub).
 whatsappRoutes.post("/send", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = sendSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/whatsapp/send");
+  if (!parsed.success) return c.redirect("/whatsapp");
 
   await supabase.from("whatsapp_messages").insert({
     tenant_id: user.tenantId,
@@ -232,50 +234,12 @@ whatsappRoutes.get("/:id", async (c) => {
   );
 });
 
-// GET /bulk -- bulk send form.
-whatsappRoutes.get("/bulk", async (c) => {
-  const user = c.get("user");
-  const { data: clients } = await supabase
-    .from("clients")
-    .select("id, name")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null)
-    .order("name");
-
-  return renderPage(
-    c,
-    { title: "Envio em Massa", active: "whatsapp" },
-    <>
-      <PageHeader title="Envio em Massa" icon="ph-users-three" />
-      <Panel>
-        <div class="mb-4 p-3 border border-border bg-gray-50 flex items-start gap-2">
-          <i class="ph ph-warning text-h3 text-terracota-600 mt-0.5" aria-hidden="true"></i>
-          <div class="text-body-sm text-gray-600">
-            O envio em massa sera realizado para todos os clientes com telefone cadastrado.
-            Selecione um cliente para filtrar apenas os contatos associados a ele.
-          </div>
-        </div>
-        <form method="post" action="/whatsapp/bulk" class="flex flex-col gap-4">
-          <Textarea label="Mensagem" id="message" name="message" rows={5} required />
-          <Select label="Filtrar por cliente (opcional)" id="client_id" name="client_id"
-            options={[{ value: "", label: "Todos os clientes" }, ...(clients ?? []).map((cl) => ({ value: cl.id, label: cl.name }))]}
-          />
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary inline-flex items-center gap-1" onclick="return confirm('Enviar mensagem para todos os clientes selecionados?')"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Enviar para todos</button>
-            <a href="/whatsapp" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-x" aria-hidden="true"></i>Cancelar</a>
-          </div>
-        </form>
-      </Panel>
-    </>,
-  );
-});
-
 // POST /bulk -- create messages for all/filtered clients (stub).
 whatsappRoutes.post("/bulk", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = bulkSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/whatsapp/bulk");
+  if (!parsed.success) return c.redirect("/whatsapp");
 
   let query = supabase
     .from("clients")
