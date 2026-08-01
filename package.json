@@ -1,13 +1,14 @@
 {
   "name": "pragmaos-2",
-  "module": "src/index.tsx",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot src/index.tsx",
+    "dev": "bun --hot src/index.ts",
     "build:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --minify",
+    "build": "bun scripts/build.ts",
     "watch:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --watch",
-    "start": "bun src/index.tsx",
+    "start": "bun src/index.ts",
     "seed": "bun scripts/seed.ts",
     "typecheck": "tsc --noEmit"
   },
