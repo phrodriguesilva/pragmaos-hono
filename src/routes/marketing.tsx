@@ -188,7 +188,7 @@ marketingRoutes.get("/", (c) => {
               <i class="ph-fill ph-sparkle text-[#bbc7da]" aria-hidden="true" />
               <span>Novo: IA jurídica com jurisprudência em tempo real</span>
             </div>
-            <h1 class="reveal text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-[-0.02em] text-balance mb-6">
+            <h1 class="reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-[-0.02em] text-balance mb-6">
               A gestão jurídica do seu escritório, <span class="text-[#bbc7da] italic font-serif font-normal">finalmente</span> em um só lugar.
             </h1>
             <p class="reveal text-base sm:text-lg md:text-xl text-[#bbc7da]/80 text-pretty mb-8 max-w-2xl leading-relaxed">
