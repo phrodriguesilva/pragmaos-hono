@@ -157,7 +157,7 @@ Fase 5.1 (importação CSV)       ███████████████�
 Fase 3 (mobile/a11y)            ████████████████  100% feito (3.1✅ 3.2✅ 3.3✅ 3.4✅ 3.5✅ 3.6✅)
 Fase 4 (infra/qualidade)        ████████████████  100% feito (4.1✅ 4.2✅ 4.3✅ 4.4✅ 4.5✅ 4.6✅ 4.7✅ 4.8✅)
 Fase 5 (features restantes)     ████████████████  100% feito (5.1✅ 5.2✅ 5.3✅ 5.4✅ 5.5✅ 5.6✅ 5.7✅ 5.8✅ 5.9✅ 5.10✅)
-Fase 6 (PWA/nativo)             ░░░░░░░░░░░░░░░░  0% feito
+Fase 6 (PWA/nativo)             ████████████████  100% feito (6.1✅ PWA manifest + service worker)
 ```
 
 ### Ordem sugerida de execução
