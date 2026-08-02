@@ -234,9 +234,9 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-24 md:py-32 lg:py-40 relative">
           <div class="max-w-2xl">
             <h1 class="reveal text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.05] tracking-[-0.02em] text-balance mb-6">
-              A gestão jurídica do seu escritório, <span class="text-[#4d8bff] italic font-serif font-normal">finalmente</span> em um só lugar.
+              A gestão jurídica do seu escritório, <span class="text-white italic font-serif font-normal">finalmente</span> em um só lugar.
             </h1>
-            <p class="reveal text-lg md:text-xl text-[#4d8bff]/80 text-pretty mb-10 leading-relaxed">
+            <p class="reveal text-lg md:text-xl text-white/80 text-pretty mb-10 leading-relaxed">
               Processos, prazos, financeiro e IA jurídica — tudo integrado. Comece grátis em 2 minutos.
             </p>
             <div class="reveal flex flex-col sm:flex-row gap-4">
@@ -263,7 +263,7 @@ marketingRoutes.get("/", (c) => {
           <div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {STATS.map((s) => (
               <div>
-                <div class="text-3xl md:text-4xl font-extrabold text-[#0568ff] stat-counter" data-value={s.value}>{s.value}</div>
+                <div class="text-3xl md:text-4xl font-extrabold text-[#232856] stat-counter" data-value={s.value}>{s.value}</div>
                 <div class="text-sm text-[#4a5470] mt-1">{s.label}</div>
               </div>
             ))}
@@ -276,7 +276,7 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal text-center mb-14">
             <p class="text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">Para quem é</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] text-balance tracking-[-0.01em] mb-4">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] text-balance tracking-[-0.01em] mb-4">
               Do advogado solo ao escritório em crescimento.
             </h2>
             <p class="text-base md:text-lg text-[#4a5470] text-pretty max-w-2xl mx-auto leading-relaxed">
@@ -288,7 +288,7 @@ marketingRoutes.get("/", (c) => {
               <div class="w-12 h-12 rounded-xl bg-[#eef0f5] flex items-center justify-center mb-5">
                 <i class="ph-bold ph-user text-2xl text-[#0568ff]" aria-hidden="true" />
               </div>
-              <h3 class="text-lg font-bold text-[#0568ff] mb-2">Advogados solo</h3>
+              <h3 class="text-lg font-bold text-[#232856] mb-2">Advogados solo</h3>
               <p class="text-sm text-[#4a5470] leading-relaxed mb-4">Centralize processos, prazos e financeiro sem contratar secretaria. A IA faz o trabalho repetitivo por você.</p>
               <ul class="space-y-2 text-sm text-[#4a5470]">
                 <li class="flex gap-2"><i class="ph ph-check text-[#0568ff] mt-0.5" aria-hidden="true" /> Monitoramento automático pela OAB</li>
@@ -301,7 +301,7 @@ marketingRoutes.get("/", (c) => {
               <div class="w-12 h-12 rounded-xl bg-[#4d8bff] flex items-center justify-center mb-5">
                 <i class="ph-bold ph-users-three text-2xl text-white" aria-hidden="true" />
               </div>
-              <h3 class="text-lg font-bold text-[#0568ff] mb-2">Pequenos escritórios</h3>
+              <h3 class="text-lg font-bold text-[#232856] mb-2">Pequenos escritórios</h3>
               <p class="text-sm text-[#4a5470] leading-relaxed mb-4">Gestão de equipe, permissões, portal do cliente e WhatsApp integrado. Tudo que um escritório de 2 a 10 advogados precisa.</p>
               <ul class="space-y-2 text-sm text-[#4a5470]">
                 <li class="flex gap-2"><i class="ph ph-check text-[#0568ff] mt-0.5" aria-hidden="true" /> Até 10 usuários com permissões</li>
@@ -313,7 +313,7 @@ marketingRoutes.get("/", (c) => {
               <div class="w-12 h-12 rounded-xl bg-[#eef0f5] flex items-center justify-center mb-5">
                 <i class="ph-bold ph-building-office text-2xl text-[#0568ff]" aria-hidden="true" />
               </div>
-              <h3 class="text-lg font-bold text-[#0568ff] mb-2">Escritórios em escala</h3>
+              <h3 class="text-lg font-bold text-[#232856] mb-2">Escritórios em escala</h3>
               <p class="text-sm text-[#4a5470] leading-relaxed mb-4">Onboarding personalizado, SLA 24/7, integrações sob medida e gerente de conta dedicado. Para operações que não podem parar.</p>
               <ul class="space-y-2 text-sm text-[#4a5470]">
                 <li class="flex gap-2"><i class="ph ph-check text-[#0568ff] mt-0.5" aria-hidden="true" /> Usuários e processos ilimitados</li>
@@ -330,7 +330,7 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal max-w-3xl mx-auto text-center mb-14">
             <p class="text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">O problema</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] text-balance mb-6 tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] text-balance mb-6 tracking-[-0.01em]">
               Seu escritório não deveria ser gerido em planilhas.
             </h2>
             <p class="text-base md:text-lg text-[#4a5470] text-pretty max-w-2xl mx-auto leading-relaxed">
@@ -356,7 +356,7 @@ marketingRoutes.get("/", (c) => {
               <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#4d8bff] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">A Solução</div>
               <div class="flex items-center gap-2 mb-6">
                 <i class="ph-bold ph-check-circle text-[#0568ff] text-xl" aria-hidden="true" />
-                <h3 class="font-bold text-[#0568ff] text-lg">Com PragmaOS</h3>
+                <h3 class="font-bold text-[#232856] text-lg">Com PragmaOS</h3>
               </div>
               <ul class="space-y-3 text-sm text-[#4a5470]">
                 <li class="flex gap-2"><i class="ph ph-check text-[#0568ff] mt-0.5" aria-hidden="true" />Prazos calculados e alertados automaticamente</li>
@@ -375,7 +375,7 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal text-center mb-14">
             <p class="text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">Tudo em um</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] text-balance tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] text-balance tracking-[-0.01em]">
               Uma plataforma. Tudo que seu escritório precisa.
             </h2>
           </div>
@@ -386,7 +386,7 @@ marketingRoutes.get("/", (c) => {
                   <i class={`ph-bold ${f.icon} text-2xl ${i === 3 ? "text-white" : "text-[#0568ff] group-hover:text-white"} transition`} aria-hidden="true" />
                 </div>
                 {i === 3 && <div class="inline-block bg-[#4d8bff] text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold mb-2">Novo</div>}
-                <h3 class="font-bold text-[#0568ff] mb-2 text-base">{f.title}</h3>
+                <h3 class="font-bold text-[#232856] mb-2 text-base">{f.title}</h3>
                 <p class="text-sm text-[#4a5470] leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -400,7 +400,7 @@ marketingRoutes.get("/", (c) => {
           <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e6efff] text-[#0568ff] text-xs font-bold uppercase tracking-wider mb-6">
             <i class="ph-fill ph-sparkle" aria-hidden="true" /> IA Jurídica
           </div>
-          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] mb-5 text-balance tracking-[-0.01em]">
+          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] mb-5 text-balance tracking-[-0.01em]">
             Menos trabalho manual. Mais tempo para o que importa.
           </h2>
           <p class="reveal text-base md:text-lg text-[#4a5470] text-pretty mb-12 leading-relaxed">
@@ -446,7 +446,7 @@ marketingRoutes.get("/", (c) => {
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0568ff] text-white text-xs sm:text-sm mb-5">
               <i class="ph-bold ph-magnifying-glass" aria-hidden="true" /> Consultas Legais
             </div>
-            <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] mb-4 text-balance tracking-[-0.01em]">
+            <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] mb-4 text-balance tracking-[-0.01em]">
               Localize bens, pessoas e empresas em segundos.
             </h2>
             <p class="reveal text-[#4a5470] max-w-2xl mx-auto text-pretty leading-relaxed">
@@ -473,7 +473,7 @@ marketingRoutes.get("/", (c) => {
                     <i class={`ph-bold ${c.icon} text-white text-lg`} aria-hidden="true" />
                   </div>
                   <div>
-                    <div class="font-semibold text-[#0568ff] text-sm">{c.title}</div>
+                    <div class="font-semibold text-[#232856] text-sm">{c.title}</div>
                     <div class="text-xs text-[#7a82a0] mt-0.5">{c.desc}</div>
                   </div>
                 </div>
@@ -496,7 +496,7 @@ marketingRoutes.get("/", (c) => {
       <section id="integracoes" class="py-20 px-4 sm:px-6 bg-[#eef0f5]">
         <div class="max-w-5xl mx-auto text-center">
           <p class="reveal text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">Integrações nativas</p>
-          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] mb-4 text-balance tracking-[-0.01em]">
+          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] mb-4 text-balance tracking-[-0.01em]">
             Conectado ao que já importa para você.
           </h2>
           <p class="reveal text-[#4a5470] mb-12 max-w-2xl mx-auto">Dados que antes exigiam cópia manual, agora sincronizados automaticamente.</p>
@@ -525,7 +525,7 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-5xl mx-auto">
           <div class="reveal text-center mb-14">
             <p class="text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">Quem usa, recomenda</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] text-balance tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] text-balance tracking-[-0.01em]">
               Escritórios que transformaram sua operação.
             </h2>
           </div>
@@ -544,7 +544,7 @@ marketingRoutes.get("/", (c) => {
                     {t.initials}
                   </div>
                   <div>
-                    <div class="font-bold text-[#0568ff] text-sm">{t.author}</div>
+                    <div class="font-bold text-[#232856] text-sm">{t.author}</div>
                     <div class="text-xs text-[#7a82a0]">{t.role}</div>
                   </div>
                 </figcaption>
@@ -559,7 +559,7 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal text-center mb-14">
             <p class="text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">Planos</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] mb-4 text-balance tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] mb-4 text-balance tracking-[-0.01em]">
               Preço justo. Sem surpresas.
             </h2>
             <p class="text-[#4a5470]">Escolha o plano ideal para o momento do seu escritório.</p>
@@ -573,16 +573,16 @@ marketingRoutes.get("/", (c) => {
                   </div>
                 )}
                 <h3 class={`text-lg font-extrabold mb-1 ${p.highlight ? "text-white" : "text-[#0568ff]"}`}>{p.name}</h3>
-                <p class={`text-sm mb-4 ${p.highlight ? "text-[#4d8bff]" : "text-[#7a82a0]"}`}>{p.tagline}</p>
+                <p class={`text-sm mb-4 ${p.highlight ? "text-white/80" : "text-[#7a82a0]"}`}>{p.tagline}</p>
                 <div class="mb-5">
                   <span class={`text-3xl font-extrabold ${p.highlight ? "text-white" : "text-[#0568ff]"}`}>{p.price}</span>
-                  {p.period && <span class={`text-sm ${p.highlight ? "text-[#4d8bff]" : "text-[#7a82a0]"}`}>{p.period}</span>}
+                  {p.period && <span class={`text-sm ${p.highlight ? "text-white/70" : "text-[#7a82a0]"}`}>{p.period}</span>}
                 </div>
                 <ul class="space-y-2.5 text-sm mb-6 flex-1">
                   {p.features.map((f) => (
                     <li class="flex gap-2">
-                      <i class={`ph-fill ph-check-circle mt-0.5 ${p.highlight ? "text-[#4d8bff]" : "text-[#0568ff]"}`} aria-hidden="true" />
-                      <span class={p.highlight ? "text-[#4d8bff]" : "text-[#4a5470]"}>{f}</span>
+                      <i class={`ph-fill ph-check-circle mt-0.5 ${p.highlight ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" />
+                      <span class={p.highlight ? "text-white/90" : "text-[#4a5470]"}>{f}</span>
                     </li>
                   ))}
                 </ul>
@@ -607,7 +607,7 @@ marketingRoutes.get("/", (c) => {
             <table class="w-full text-sm border-collapse">
               <thead>
                 <tr class="border-b-2 border-[#c5cad6]">
-                  <th class="text-left py-4 px-4 font-bold text-[#0568ff]">Recurso</th>
+                  <th class="text-left py-4 px-4 font-bold text-[#232856]">Recurso</th>
                   <th class="text-center py-4 px-3 font-bold text-[#4a5470]">Trial</th>
                   <th class="text-center py-4 px-3 font-bold text-[#4a5470]">Starter</th>
                   <th class="text-center py-4 px-3 font-bold text-white bg-[#0568ff] rounded-t-lg">Pro</th>
@@ -637,7 +637,7 @@ marketingRoutes.get("/", (c) => {
             <div class="w-14 h-14 rounded-2xl bg-[#0568ff] flex items-center justify-center mb-5">
               <i class="ph-bold ph-shield-check text-3xl text-white" aria-hidden="true" />
             </div>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-[#0568ff] mb-4 text-balance tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-[#232856] mb-4 text-balance tracking-[-0.01em]">
               Segurança de nível bancário. Conformidade com a LGPD.
             </h2>
             <p class="text-[#4a5470] mb-6 text-pretty leading-relaxed">
@@ -659,7 +659,7 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-3xl mx-auto">
           <div class="reveal text-center mb-12">
             <p class="text-xs font-bold text-[#0568ff] uppercase tracking-wider mb-3">Dúvidas frequentes</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0568ff] text-balance tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#232856] text-balance tracking-[-0.01em]">
               Tudo que você precisa saber.
             </h2>
           </div>
@@ -670,7 +670,7 @@ marketingRoutes.get("/", (c) => {
                   class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
                   {...{ "@click": `open = open === ${i + 1} ? 0 : ${i + 1}` }}
                 >
-                  <span class="font-bold text-[#0568ff]">{f.q}</span>
+                  <span class="font-bold text-[#232856]">{f.q}</span>
                   <i class="ph ph-caret-down text-[#0568ff] transition-transform" {...{ ":class": `open === ${i + 1} ? 'rotate-180' : ''` }} aria-hidden="true" />
                 </button>
                 <div {...{ "x-show": `open === ${i + 1}` }} x-cloak {...{ "x-transition": "" }} class="px-5 pb-4 text-sm text-[#4a5470] leading-relaxed">
@@ -689,7 +689,7 @@ marketingRoutes.get("/", (c) => {
           <h2 class="reveal text-3xl md:text-5xl font-extrabold mb-5 text-balance tracking-[-0.02em]">
             Pronto para transformar seu escritório?
           </h2>
-          <p class="reveal text-base md:text-lg text-[#4d8bff] mb-8 text-pretty">
+          <p class="reveal text-base md:text-lg text-white/80 mb-8 text-pretty">
             Comece hoje. 14 dias grátis, sem cartão de crédito. Em 2 minutos você está dentro.
           </p>
           <div class="reveal flex flex-col sm:flex-row gap-4 justify-center">
@@ -719,7 +719,7 @@ marketingRoutes.get("/sobre", (c) => {
     <MarketingLayout title="Sobre o PragmaOS — Nossa Missão" active="Sobre" description="O PragmaOS nasceu para devolver tempo aos advogados. Conheça nossa história e missão.">
       <section class="py-20 px-4 sm:px-6 bg-[#f5f6fa]">
         <div class="max-w-3xl mx-auto">
-          <h1 class="reveal text-4xl md:text-5xl font-extrabold text-[#0568ff] mb-6 text-balance tracking-[-0.02em]">Construído por quem entende o jurídico brasileiro.</h1>
+          <h1 class="reveal text-4xl md:text-5xl font-extrabold text-[#232856] mb-6 text-balance tracking-[-0.02em]">Construído por quem entende o jurídico brasileiro.</h1>
           <p class="reveal text-lg text-[#4a5470] mb-8 text-pretty leading-relaxed">
             O PragmaOS nasceu de uma frustração simples: escritórios de advocacia no Brasil operavam com ferramentas pensadas para outros setores — ou pior, com planilhas. Prazos se perdiam, o financeiro vivia desconectado dos processos, e a equipe gastava horas em tarefas que a tecnologia já conseguia resolver.
           </p>
@@ -740,7 +740,7 @@ marketingRoutes.get("/sobre", (c) => {
               <div class="text-sm text-[#7a82a0]">100% nacional</div>
             </div>
           </div>
-          <h2 class="reveal text-2xl font-extrabold text-[#0568ff] mb-4">Nossos valores</h2>
+          <h2 class="reveal text-2xl font-extrabold text-[#232856] mb-4">Nossos valores</h2>
           <ul class="reveal-stagger space-y-4 text-[#4a5470]">
             <li class="flex gap-3"><i class="ph-bold ph-target text-[#0568ff] text-xl mt-0.5" aria-hidden="true" /><div><strong>Tempo é o ativo mais valioso.</strong> Tudo que automatizamos é tempo que devolvemos ao advogado para o que importa: estratégia e relacionamento.</div></li>
             <li class="flex gap-3"><i class="ph-bold ph-shield-check text-[#0568ff] text-xl mt-0.5" aria-hidden="true" /><div><strong>Segurança não é negociável.</strong> Dados jurídicos são sensíveis. Tratamos cada byte como se fosse nosso.</div></li>
@@ -778,7 +778,7 @@ marketingRoutes.get("/contato", (c) => {
         <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Copy side */}
           <div>
-            <h1 class="reveal text-3xl md:text-4xl font-extrabold text-[#0568ff] mb-5 text-balance tracking-[-0.01em]">
+            <h1 class="reveal text-3xl md:text-4xl font-extrabold text-[#232856] mb-5 text-balance tracking-[-0.01em]">
               Vamos conversar sobre o seu escritório.
             </h1>
             <p class="reveal text-lg text-[#4a5470] mb-8 text-pretty leading-relaxed">
@@ -790,7 +790,7 @@ marketingRoutes.get("/contato", (c) => {
                   <i class="ph-bold ph-envelope text-[#0568ff]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-bold text-[#0568ff] text-sm">E-mail comercial</div>
+                  <div class="font-bold text-[#232856] text-sm">E-mail comercial</div>
                   <a href="mailto:comercial@pragmaos.com.br" class="text-sm text-[#0568ff] hover:underline">comercial@pragmaos.com.br</a>
                 </div>
               </div>
@@ -799,7 +799,7 @@ marketingRoutes.get("/contato", (c) => {
                   <i class="ph-bold ph-whatsapp-logo text-[#0568ff]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-bold text-[#0568ff] text-sm">WhatsApp</div>
+                  <div class="font-bold text-[#232856] text-sm">WhatsApp</div>
                   <a href="https://wa.me/5535984641515" class="text-sm text-[#0568ff] hover:underline">+55 (35) 98464-1515</a>
                 </div>
               </div>
@@ -808,7 +808,7 @@ marketingRoutes.get("/contato", (c) => {
                   <i class="ph-bold ph-clock text-[#0568ff]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-bold text-[#0568ff] text-sm">Tempo de resposta</div>
+                  <div class="font-bold text-[#232856] text-sm">Tempo de resposta</div>
                   <span class="text-sm text-[#4a5470]">Até 1 dia útil</span>
                 </div>
               </div>
@@ -822,7 +822,7 @@ marketingRoutes.get("/contato", (c) => {
                 <div class="w-16 h-16 rounded-full bg-[#e6efff] flex items-center justify-center mx-auto mb-4">
                   <i class="ph-bold ph-check-circle text-3xl text-[#0568ff]" aria-hidden="true" />
                 </div>
-                <h2 class="text-xl font-extrabold text-[#0568ff] mb-2">Recebemos seu contato!</h2>
+                <h2 class="text-xl font-extrabold text-[#232856] mb-2">Recebemos seu contato!</h2>
                 <p class="text-sm text-[#4a5470] mb-6">Nosso time comercial entrará em contato em breve. Obrigado pelo interesse.</p>
                 <a href="/" class="inline-flex items-center gap-2 px-4 py-2 border border-[#c5cad6] rounded-lg text-sm font-semibold text-[#0568ff] hover:bg-white transition">Voltar ao início</a>
               </div>
@@ -993,62 +993,62 @@ marketingRoutes.get("/termos", (c) => {
   return c.html(
     <MarketingLayout title="Termos de Uso — PragmaOS" active="" description="Termos de uso da plataforma PragmaOS.">
       <div class="max-w-3xl mx-auto px-4 py-16">
-        <h1 class="text-4xl font-serif font-bold text-carvao-800 mb-2">Termos de Uso</h1>
+        <h1 class="text-4xl font-serif font-bold text-gray-800 mb-2">Termos de Uso</h1>
         <p class="text-sm text-gray-500 mb-8">Última atualização: 02 de agosto de 2026</p>
 
         <div class="prose prose-lg max-w-none text-gray-700 space-y-6">
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">1. Aceitação dos Termos</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">1. Aceitação dos Termos</h2>
             <p>Ao criar uma conta ou utilizar a plataforma PragmaOS ("Serviço"), você concorda com estes Termos de Uso. Se não concordar, não utilize o Serviço.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">2. Descrição do Serviço</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">2. Descrição do Serviço</h2>
             <p>O PragmaOS é uma plataforma SaaS de gestão jurídica para escritórios de advocacia, incluindo gestão de processos, prazos, financeiro, IA jurídica e site público white-label.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">3. Conta e Responsabilidade</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">3. Conta e Responsabilidade</h2>
             <p>Você é responsável pela precisão dos dados fornecidos no cadastro e pela segurança de suas credenciais. A conta é pessoal e intransferível, vinculada ao escritório cadastrado.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">4. Uso Aceitável</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">4. Uso Aceitável</h2>
             <p>Você concorda em não: (a) usar o Serviço para fins ilegais; (b) tentar acessar dados de outros escritórios; (c) fazer engenharia reversa ou descompilar o software; (d) usar bots ou scripts que sobrecarreguem a infraestrutura.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">5. Planos e Pagamentos</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">5. Planos e Pagamentos</h2>
             <p>Oferecemos um período de trial gratuito de 14 dias. Após o trial, a assinatura do plano escolhido é cobrada mensal ou anualmente. Cancelamentos são processados conforme nossa política de reembolso. Preços podem ser alterados com aviso prévio de 30 dias.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">6. Dados e Privacidade</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">6. Dados e Privacidade</h2>
             <p>Seus dados são tratados conforme nossa <a href="/privacidade" class="text-terracota-600 hover:underline">Política de Privacidade</a> e a LGPD (Lei 13.709/2018). Você é titular dos dados inseridos no Serviço e pode solicitá-los ou excluí-los a qualquer momento.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">7. Disponibilidade do Serviço</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">7. Disponibilidade do Serviço</h2>
             <p>Esforçamo-nos para manter 99,9% de uptime, mas não garantimos que o Serviço será ininterrupto ou livre de erros. Manutenções programadas são comunicadas com antecedência.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">8. Limitação de Responsabilidade</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">8. Limitação de Responsabilidade</h2>
             <p>O PragmaOS não se responsabiliza por decisões jurídicas tomadas com base em sugestões de IA, sendo estas apenas ferramentas de apoio. A responsabilidade total é limitada ao valor pago nos últimos 12 meses.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">9. Cancelamento</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">9. Cancelamento</h2>
             <p>Você pode cancelar a assinatura a qualquer momento na área de Assinatura. O acesso continua até o fim do período já pago.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">10. Alterações dos Termos</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">10. Alterações dos Termos</h2>
             <p>Estes termos podem ser atualizados periodicamente. Alterações significativas serão comunicadas por e-mail com 30 dias de antecedência.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">11. Contato</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">11. Contato</h2>
             <p>Em caso de dúvidas: <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a></p>
           </section>
         </div>
@@ -1068,17 +1068,17 @@ marketingRoutes.get("/privacidade", (c) => {
   return c.html(
     <MarketingLayout title="Política de Privacidade — PragmaOS" active="" description="Política de privacidade e proteção de dados da plataforma PragmaOS (LGPD).">
       <div class="max-w-3xl mx-auto px-4 py-16">
-        <h1 class="text-4xl font-serif font-bold text-carvao-800 mb-2">Política de Privacidade</h1>
+        <h1 class="text-4xl font-serif font-bold text-gray-800 mb-2">Política de Privacidade</h1>
         <p class="text-sm text-gray-500 mb-8">Última atualização: 02 de agosto de 2026</p>
 
         <div class="prose prose-lg max-w-none text-gray-700 space-y-6">
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">1. Introdução</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">1. Introdução</h2>
             <p>A PragmaOS ("nós", "nosso") respeita sua privacidade e está comprometida em proteger seus dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018).</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">2. Dados Coletados</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">2. Dados Coletados</h2>
             <p>Coletamos os seguintes dados:</p>
             <ul class="list-disc pl-6 space-y-1">
               <li><strong>Cadastro:</strong> nome, e-mail, telefone, nome do escritório</li>
@@ -1089,7 +1089,7 @@ marketingRoutes.get("/privacidade", (c) => {
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">3. Finalidade do Tratamento</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">3. Finalidade do Tratamento</h2>
             <p>Seus dados são utilizados para:</p>
             <ul class="list-disc pl-6 space-y-1">
               <li>Fornecer e manter o Serviço</li>
@@ -1101,12 +1101,12 @@ marketingRoutes.get("/privacidade", (c) => {
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">4. Base Legal</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">4. Base Legal</h2>
             <p>O tratamento de dados ocorre com base no consentimento, execução de contrato e cumprimento de obrigações legais.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">5. Compartilhamento de Dados</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">5. Compartilhamento de Dados</h2>
             <p>Não vendemos seus dados. Compartilhamos dados apenas com:</p>
             <ul class="list-disc pl-6 space-y-1">
               <li><strong>Asaas:</strong> processamento de pagamentos</li>
@@ -1117,33 +1117,33 @@ marketingRoutes.get("/privacidade", (c) => {
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">6. Seus Direitos (LGPD)</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">6. Seus Direitos (LGPD)</h2>
             <p>Você tem direito a: confirmar a existência de tratamento, acessar os dados, corrigi-los, anonimizá-los, bloqueá-los, eliminá-los, portar os dados, revogar consentimento e opor-se ao tratamento.</p>
             <p>Para exercer seus direitos, envie e-mail para <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a>.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">7. Segurança</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">7. Segurança</h2>
             <p>Utilizamos criptografia em trânsito (TLS/SSL), isolamento de dados por tenant, backups criptografados e controle de acesso baseado em funções (RBAC).</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">8. Retenção de Dados</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">8. Retenção de Dados</h2>
             <p>Os dados são mantidos enquanto a conta estiver ativa. Após cancelamento, os dados são retidos por 90 dias para exportação e depois permanentemente excluídos, salvo obrigação legal de retenção.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">9. Cookies</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">9. Cookies</h2>
             <p>Usamos apenas cookies essenciais para funcionamento (sessão de autenticação). Não usamos cookies de rastreamento de terceiros para publicidade.</p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">10. Encarregado de Dados (DPO)</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">10. Encarregado de Dados (DPO)</h2>
             <p>Para questões de privacidade: <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a></p>
           </section>
 
           <section>
-            <h2 class="text-xl font-semibold text-carvao-800 mb-2">11. Alterações desta Política</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">11. Alterações desta Política</h2>
             <p>Esta política pode ser atualizada periodicamente. Alterações significativas serão comunicadas por e-mail.</p>
           </section>
         </div>

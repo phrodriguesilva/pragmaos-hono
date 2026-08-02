@@ -180,7 +180,7 @@ searchRoutes.get("/documents", async (c) => {
     c,
     { title: "Busca em Documentos", active: "doc-search" },
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-h1 font-bold text-carvao-800 mb-6">Busca em Documentos</h1>
+      <h1 class="text-h1 font-bold text-gray-800 mb-6">Busca em Documentos</h1>
 
       <form method="get" action="/search/documents" class="mb-6">
         <div class="relative">
@@ -212,7 +212,7 @@ searchRoutes.get("/documents", async (c) => {
               <div class="flex items-start gap-3">
                 <i class="ph ph-file-text text-h3 text-terracota-600 mt-1" aria-hidden="true"></i>
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium text-carvao-800">{doc.title}</div>
+                  <div class="font-medium text-gray-800">{doc.title}</div>
                   <div class="text-xs text-gray-400 mt-0.5">
                     {[caseTitle, clientName, doc.doc_type, new Date(doc.created_at).toLocaleDateString("pt-BR")].filter(Boolean).join(" — ")}
                   </div>

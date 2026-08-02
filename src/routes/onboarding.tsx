@@ -38,7 +38,7 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="/static/js/alpine.min.js" defer />
       </head>
-      <body class="bg-carvao-50 text-carvao-800 font-sans min-h-screen antialiased">
+      <body class="bg-carvao-50 text-gray-800 font-sans min-h-screen antialiased">
         <div class="min-h-screen flex flex-col">
           {/* Top bar */}
           <header class="bg-white border-b border-carvao-100">
@@ -47,7 +47,7 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
                 <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
               </div>
               <a href="/dashboard" class="text-sm text-carvao-400 hover:text-carvao-600 transition">Pular por agora</a>
-              {skipHref && <a href={skipHref} class="text-sm text-carvao-600 hover:text-carvao-800 transition ml-3">Pular esta etapa →</a>}
+              {skipHref && <a href={skipHref} class="text-sm text-carvao-600 hover:text-gray-800 transition ml-3">Pular esta etapa →</a>}
             </div>
             {/* Progress bar */}
             <div class="h-1 bg-carvao-100">
@@ -82,7 +82,7 @@ function stepIndicator(currentIdx: number) {
           <div class={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i < currentIdx ? "bg-terracota-500 text-white" : i === currentIdx ? "bg-terracota-500 text-white ring-4 ring-terracota-100" : "bg-carvao-100 text-carvao-400"}`}>
             {i < currentIdx ? <i class="ph-bold ph-check" aria-hidden="true" /> : i + 1}
           </div>
-          <span class={`hidden sm:inline ${i === currentIdx ? "font-semibold text-carvao-800" : "text-carvao-400"}`}>{STEP_LABELS[s]}</span>
+          <span class={`hidden sm:inline ${i === currentIdx ? "font-semibold text-gray-800" : "text-carvao-400"}`}>{STEP_LABELS[s]}</span>
           {i < ONBOARDING_STEPS.length - 2 && <div class={`w-6 h-px ${i < currentIdx ? "bg-terracota-500" : "bg-carvao-200"}`} />}
         </div>
       ))}
@@ -125,35 +125,35 @@ onboardingRoutes.get("/company", async (c) => {
 
         <form method="post" action="/onboarding/company" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           <div>
-            <label for="name" class="block text-sm font-semibold text-carvao-700 mb-1">Nome do escritório *</label>
+            <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nome do escritório *</label>
             <input id="name" name="name" type="text" required value={tenant?.name ?? ""} class="input w-full" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="cnpj" class="block text-sm font-semibold text-carvao-700 mb-1">CNPJ</label>
+              <label for="cnpj" class="block text-sm font-semibold text-gray-700 mb-1">CNPJ</label>
               <input id="cnpj" name="cnpj" type="text" placeholder="00.000.000/0000-00" value={tenant?.cnpj ?? ""} class="input w-full" />
             </div>
             <div>
-              <label for="oab_number" class="block text-sm font-semibold text-carvao-700 mb-1">OAB (registro)</label>
+              <label for="oab_number" class="block text-sm font-semibold text-gray-700 mb-1">OAB (registro)</label>
               <input id="oab_number" name="oab_number" type="text" placeholder="123456/SP" value={tenant?.oab_number ?? ""} class="input w-full" />
             </div>
           </div>
           <div>
-            <label for="address" class="block text-sm font-semibold text-carvao-700 mb-1">Endereço</label>
+            <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Endereço</label>
             <input id="address" name="address" type="text" placeholder="Av. Paulista, 1000 - São Paulo/SP" value={tenant?.address ?? ""} class="input w-full" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="phone" class="block text-sm font-semibold text-carvao-700 mb-1">Telefone</label>
+              <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1">Telefone</label>
               <input id="phone" name="phone" type="tel" placeholder="(11) 3000-0000" value={tenant?.phone ?? ""} class="input w-full" />
             </div>
             <div>
-              <label for="email_public" class="block text-sm font-semibold text-carvao-700 mb-1">E-mail público</label>
+              <label for="email_public" class="block text-sm font-semibold text-gray-700 mb-1">E-mail público</label>
               <input id="email_public" name="email_public" type="email" placeholder="contato@escritorio.com" value={tenant?.email_public ?? ""} class="input w-full" />
             </div>
           </div>
           <div>
-            <label for="founded_year" class="block text-sm font-semibold text-carvao-700 mb-1">Ano de fundação</label>
+            <label for="founded_year" class="block text-sm font-semibold text-gray-700 mb-1">Ano de fundação</label>
             <input id="founded_year" name="founded_year" type="number" min="1900" max="2099" placeholder="2010" value={tenant?.founded_year ?? ""} class="input w-full" />
           </div>
           <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2" {...{ ":disabled": "loading" }}>
@@ -257,7 +257,7 @@ onboardingRoutes.get("/areas", async (c) => {
           {/* Selected areas summary (always visible, even when filtered out) */}
           {selectedCount > 0 && (
             <div class="mt-6 pt-4 border-t border-carvao-100">
-              <h3 class="text-sm font-semibold text-carvao-700 mb-2">Áreas selecionadas ({selectedCount})</h3>
+              <h3 class="text-sm font-semibold text-gray-700 mb-2">Áreas selecionadas ({selectedCount})</h3>
               <div class="flex flex-wrap gap-2">
                 {(allAreas ?? []).filter((a: any) => selectedIds.has(a.id)).map((a: any) => (
                   <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-terracota-50 text-terracota-700 text-xs font-medium">
@@ -423,7 +423,7 @@ onboardingRoutes.get("/branding", async (c) => {
         <form method="post" action="/onboarding/branding" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           {/* Logo URL */}
           <div>
-            <label for="logo_url" class="block text-sm font-semibold text-carvao-700 mb-1">URL do Logo (opcional)</label>
+            <label for="logo_url" class="block text-sm font-semibold text-gray-700 mb-1">URL do Logo (opcional)</label>
             <div class="flex items-center gap-3">
               {tenant?.logo_url && <img src={tenant.logo_url} alt="Logo atual" class="h-10 w-auto max-w-24 object-contain border border-carvao-100 rounded p-1" />}
               <input id="logo_url" name="logo_url" type="url" placeholder="https://... (PNG ou SVG)" value={tenant?.logo_url ?? ""} class="input flex-1" />
@@ -431,23 +431,23 @@ onboardingRoutes.get("/branding", async (c) => {
             <p class="text-xs text-carvao-400 mt-1">Cole a URL do seu logo. Você pode fazer upload depois nas configurações.</p>
           </div>
           <div>
-            <label for="tagline" class="block text-sm font-semibold text-carvao-700 mb-1">Slogan / Tagline</label>
+            <label for="tagline" class="block text-sm font-semibold text-gray-700 mb-1">Slogan / Tagline</label>
             <input id="tagline" name="tagline" type="text" placeholder="Ex: Advocacia estratégica para empresas" value={tenant?.tagline ?? ""} class="input w-full" />
           </div>
           <div>
-            <label for="description" class="block text-sm font-semibold text-carvao-700 mb-1">Descrição curta</label>
+            <label for="description" class="block text-sm font-semibold text-gray-700 mb-1">Descrição curta</label>
             <textarea id="description" name="description" rows={2} placeholder="Em 1-2 frases, o que seu escritório faz." class="input w-full">{tenant?.description ?? ""}</textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="primary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor primária</label>
+              <label for="primary_color" class="block text-sm font-semibold text-gray-700 mb-1">Cor primária</label>
               <div class="flex items-center gap-2">
                 <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#0568ff"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
                 <input type="text" value={tenant?.primary_color ?? "#0568ff"} readonly class="input flex-1 text-sm" />
               </div>
             </div>
             <div>
-              <label for="secondary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor secundária</label>
+              <label for="secondary_color" class="block text-sm font-semibold text-gray-700 mb-1">Cor secundária</label>
               <div class="flex items-center gap-2">
                 <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#4d8bff"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
                 <input type="text" value={tenant?.secondary_color ?? "#4d8bff"} readonly class="input flex-1 text-sm" />
@@ -455,7 +455,7 @@ onboardingRoutes.get("/branding", async (c) => {
             </div>
           </div>
           <div>
-            <label for="subdomain" class="block text-sm font-semibold text-carvao-700 mb-1">Subdomínio do seu site público</label>
+            <label for="subdomain" class="block text-sm font-semibold text-gray-700 mb-1">Subdomínio do seu site público</label>
             <div class="flex items-center gap-1">
               <input id="subdomain" name="subdomain" type="text" placeholder="meu-escritorio" value={tenant?.subdomain ?? ""} class="input flex-1" />
               <span class="text-sm text-carvao-400">.pragmaos.app</span>

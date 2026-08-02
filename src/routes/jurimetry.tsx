@@ -127,7 +127,7 @@ jurimetryRoutes.get("/", async (c) => {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500">Total de Casos</div>
-          <div class="text-h2 font-bold text-carvao-800">{report.totalCases}</div>
+          <div class="text-h2 font-bold text-gray-800">{report.totalCases}</div>
           <div class="text-xs text-gray-400 mt-1">{report.activeCases} ativos, {report.closedCases} encerrados</div>
         </Panel>
         <Panel>

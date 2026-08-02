@@ -129,11 +129,11 @@ subscriptionRoutes.get("/", async (c) => {
 
         {/* Billing cycle toggle (mensal / anual) */}
         <div {...{ "x-data": "{ annual: false }" }} class="flex items-center justify-center gap-3 mb-6">
-          <span {...{ ":class": "annual ? 'text-gray-400' : 'text-carvao-800 font-semibold'" }}>Mensal</span>
+          <span {...{ ":class": "annual ? 'text-gray-400' : 'text-gray-800 font-semibold'" }}>Mensal</span>
           <button type="button" {...{ "@click": "annual = !annual", ":class": "annual ? 'bg-terracota-500' : 'bg-gray-200'" }} class="relative w-12 h-6 rounded-full transition-colors" aria-label="Alternar cobrança anual">
             <span {...{ ":class": "annual ? 'translate-x-6' : 'translate-x-0'" }} class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform" />
           </button>
-          <span {...{ ":class": "annual ? 'text-carvao-800 font-semibold' : 'text-gray-400'" }}>
+          <span {...{ ":class": "annual ? 'text-gray-800 font-semibold' : 'text-gray-400'" }}>
             Anual <span class="text-terracota-600 text-body-sm">(-20%)</span>
           </span>
         </div>

@@ -172,7 +172,7 @@ const StatCard: FC<{ label: string; value: string; icon: string; trend?: string;
         </span>
       )}
     </div>
-    <div class="text-2xl font-bold text-carvao-800 font-serif">{value}</div>
+    <div class="text-2xl font-bold text-gray-800 font-serif">{value}</div>
     <div class="text-sm text-gray-500 mt-1">{label}</div>
   </div>
 );
@@ -282,7 +282,7 @@ backOfficeRoutes.get("/", async (c) => {
               return (
                 <div>
                   <div class="flex items-center justify-between text-sm mb-1">
-                    <span class="font-medium capitalize text-carvao-700">{plan}</span>
+                    <span class="font-medium capitalize text-gray-700">{plan}</span>
                     <span class="text-gray-500">{count} ({pct}%)</span>
                   </div>
                   <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -299,7 +299,7 @@ backOfficeRoutes.get("/", async (c) => {
           <div class="space-y-3">
             {((recentTenants.data as any[]) ?? []).map((t) => (
               <div class="flex items-center justify-between">
-                <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-carvao-700 hover:text-terracota-600">
+                <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-gray-700 hover:text-terracota-600">
                   {t.name}
                 </a>
                 <div class="flex items-center gap-2">
@@ -323,7 +323,7 @@ backOfficeRoutes.get("/", async (c) => {
               const days = daysUntil(t.trial_ends_at);
               return (
                 <div class="flex items-center justify-between">
-                  <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-carvao-700 hover:text-terracota-600">
+                  <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-gray-700 hover:text-terracota-600">
                     {t.name}
                   </a>
                   <Badge color={days <= 3 ? "red" : days <= 7 ? "yellow" : "green"}>
@@ -504,19 +504,19 @@ backOfficeRoutes.get("/tenants/:id", async (c) => {
         <Panel title="Métricas" icon="ph-chart-bar">
           <div class="grid grid-cols-2 gap-4">
             <div class="text-center">
-              <div class="text-2xl font-bold text-carvao-800">{users.length}</div>
+              <div class="text-2xl font-bold text-gray-800">{users.length}</div>
               <div class="text-xs text-gray-500">Usuários</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-carvao-800">{casesCount.count ?? 0}</div>
+              <div class="text-2xl font-bold text-gray-800">{casesCount.count ?? 0}</div>
               <div class="text-xs text-gray-500">Processos</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-carvao-800">{clientsCount.count ?? 0}</div>
+              <div class="text-2xl font-bold text-gray-800">{clientsCount.count ?? 0}</div>
               <div class="text-xs text-gray-500">Clientes</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-carvao-800">{invoices.filter((i) => i.status === "paid").length}</div>
+              <div class="text-2xl font-bold text-gray-800">{invoices.filter((i) => i.status === "paid").length}</div>
               <div class="text-xs text-gray-500">Faturas pagas</div>
             </div>
           </div>

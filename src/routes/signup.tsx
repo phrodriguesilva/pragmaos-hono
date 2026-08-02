@@ -124,7 +124,7 @@ signupRoutes.get("/signup", async (c) => {
           {SignupBrand()}
           <div class="text-center py-8">
             <i class="ph-bold ph-lock text-h1 text-gray-400 mb-4 block" aria-hidden="true" />
-            <h1 class="text-h3 font-bold text-carvao-800 mb-2">Cadastro temporariamente indisponível</h1>
+            <h1 class="text-h3 font-bold text-gray-800 mb-2">Cadastro temporariamente indisponível</h1>
             <p class="text-body-sm text-gray-500 mb-6">Entre em contato pelo e-mail contato@pragmaos.com.br</p>
             <a href="/login" class="btn btn-secondary inline-flex items-center gap-2">
               <i class="ph ph-arrow-left" aria-hidden="true" /> Voltar para login

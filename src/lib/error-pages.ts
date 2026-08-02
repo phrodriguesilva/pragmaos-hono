@@ -35,14 +35,14 @@ export function renderErrorPage({ code, title, message, detail }: ErrorPageOpts)
       </div>
       <div class="text-7xl font-extrabold text-white mb-2">${code}</div>
       <h1 class="text-xl font-semibold text-white mb-3">${title}</h1>
-      <p class="text-carvao-300 mb-6 leading-relaxed">${message}</p>
-      ${detail ? `<details class="text-left bg-carvao-700 rounded-lg p-4 mb-6"><summary class="text-sm text-carvao-300 cursor-pointer">Detalhes técnicos</summary><pre class="text-xs text-carvao-400 mt-2 whitespace-pre-wrap break-all">${escapeHtml(detail)}</pre></details>` : ""}
+      <p class="text-white/70 mb-6 leading-relaxed">${message}</p>
+      ${detail ? `<details class="text-left bg-white/10 rounded-lg p-4 mb-6"><summary class="text-sm text-white/70 cursor-pointer">Detalhes técnicos</summary><pre class="text-xs text-white/50 mt-2 whitespace-pre-wrap break-all">${escapeHtml(detail)}</pre></details>` : ""}
       <div class="flex flex-col sm:flex-row gap-3 justify-center">
         <a href="/dashboard" class="btn btn-primary px-6 py-2.5 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-2">
           <i class="ph-bold ph-squares-four" aria-hidden="true"></i>
           Ir para o Dashboard
         </a>
-        <a href="/" class="px-6 py-2.5 rounded-lg border border-carvao-600 text-carvao-200 text-sm font-semibold hover:bg-carvao-700 transition inline-flex items-center justify-center gap-2">
+        <a href="/" class="px-6 py-2.5 rounded-lg border border-white/20 text-white/80 text-sm font-semibold hover:bg-white/10 transition inline-flex items-center justify-center gap-2">
           <i class="ph ph-house" aria-hidden="true"></i>
           Página inicial
         </a>

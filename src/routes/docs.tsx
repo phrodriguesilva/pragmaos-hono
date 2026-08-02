@@ -39,7 +39,7 @@ docsRoutes.get("/", async (c) => {
         {data.modules.map((mod) => (
           <Panel>
             <div class="flex items-center justify-between mb-3">
-              <h3 class="font-medium text-carvao-800">{mod.name}</h3>
+              <h3 class="font-medium text-gray-800">{mod.name}</h3>
               <Badge color="gray">{mod.routes.length} rotas</Badge>
             </div>
             <div class="overflow-x-auto">
@@ -79,7 +79,7 @@ docsRoutes.get("/", async (c) => {
           <Panel>
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
-                <h3 class="font-mono font-medium text-carvao-800">{table.name}</h3>
+                <h3 class="font-mono font-medium text-gray-800">{table.name}</h3>
                 {table.rls && <Badge color="green">RLS</Badge>}
               </div>
               <span class="text-xs text-gray-400">{table.migration}</span>

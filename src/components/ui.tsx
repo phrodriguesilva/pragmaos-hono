@@ -188,7 +188,7 @@ export const PageHeader: FC<PropsWithChildren<{ title: string; icon?: string; ac
 }) => (
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-2">
-      {icon ? <i class={`ph-bold ${icon} text-h1 text-carvao-700`} aria-hidden="true" /> : null}
+      {icon ? <i class={`ph-bold ${icon} text-h1 text-gray-700`} aria-hidden="true" /> : null}
       <div>
         <h1 class="text-h1 font-bold text-gray-900">{title}</h1>
         {children}
@@ -496,7 +496,7 @@ export const Modal: FC<{
       <div class={`modal-panel${large ? " modal-lg" : ""}`} {...{ "x-ref": "panel" }}>
         <div class="modal-header">
           <div class="flex items-center gap-2">
-            {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
+            {icon ? <i class={`ph-bold ${icon} text-h3 text-gray-700`} aria-hidden="true" /> : null}
             <h2 id={`${id}-title`} class="text-h3 font-semibold text-gray-800">{title}</h2>
           </div>
           <button
@@ -585,7 +585,7 @@ export const WizardModal: FC<{
         <div class={`modal-panel${large ? " modal-lg" : ""}`}>
           <div class="modal-header">
             <div class="flex items-center gap-2">
-              {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
+              {icon ? <i class={`ph-bold ${icon} text-h3 text-gray-700`} aria-hidden="true" /> : null}
               <h2 id={`${id}-title`} class="text-h3 font-semibold text-gray-800">{title}</h2>
             </div>
             <button
@@ -695,7 +695,7 @@ export const EditModal: FC<{
       <div class={`modal-panel${large ? " modal-lg" : ""}`}>
         <div class="modal-header">
           <div class="flex items-center gap-2">
-            {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
+            {icon ? <i class={`ph-bold ${icon} text-h3 text-gray-700`} aria-hidden="true" /> : null}
             <h2 id={`${id}-title`} class="text-h3 font-semibold text-gray-800">{title}</h2>
           </div>
           <button

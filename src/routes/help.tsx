@@ -51,7 +51,7 @@ helpRoutes.get("/", async (c) => {
         <div class="space-y-3">
           {results.map((article) => (
             <a href={`/help/${article.slug}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-terracota-300 hover:shadow-sm transition">
-              <div class="font-medium text-carvao-800">{article.title}</div>
+              <div class="font-medium text-gray-800">{article.title}</div>
               <div class="text-sm text-gray-600 mt-1">{article.excerpt}</div>
             </a>
           ))}
@@ -94,7 +94,7 @@ helpRoutes.get("/", async (c) => {
               <div class="flex items-start gap-3">
                 <i class={`ph ${cat.icon} text-h3 text-terracota-600`} aria-hidden="true"></i>
                 <div class="flex-1">
-                  <div class="font-medium text-carvao-800">{cat.name}</div>
+                  <div class="font-medium text-gray-800">{cat.name}</div>
                   <div class="text-sm text-gray-500 mt-1">{cat.description}</div>
                   <div class="text-xs text-gray-400 mt-2">{articles.length} artigo{articles.length !== 1 ? "s" : ""}</div>
                 </div>
@@ -127,7 +127,7 @@ helpRoutes.get("/c/:category", async (c) => {
       <div class="max-w-3xl space-y-3">
         {articles.map((article: HelpArticle) => (
           <a href={`/help/${article.slug}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-terracota-300 hover:shadow-sm transition">
-            <div class="font-medium text-carvao-800">{article.title}</div>
+            <div class="font-medium text-gray-800">{article.title}</div>
             <div class="text-sm text-gray-600 mt-1">{article.excerpt}</div>
           </a>
         ))}
@@ -171,10 +171,10 @@ helpRoutes.get("/:slug", async (c) => {
               <i class="ph ph-caret-right text-xs" aria-hidden="true"></i>
             </>
           )}
-          <span class="text-carvao-800">{article.title}</span>
+          <span class="text-gray-800">{article.title}</span>
         </div>
 
-        <h1 class="text-h1 font-bold text-carvao-800 mb-4">{article.title}</h1>
+        <h1 class="text-h1 font-bold text-gray-800 mb-4">{article.title}</h1>
         <p class="text-gray-600 mb-8">{article.excerpt}</p>
 
         <div class="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: article.body }} />

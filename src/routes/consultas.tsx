@@ -240,7 +240,7 @@ consultasRoutes.get("/termos", async (c) => {
           <div class="w-16 h-16 rounded-2xl bg-carvao-800 flex items-center justify-center mx-auto mb-4">
             <i class="ph-bold ph-shield-check text-white text-3xl" aria-hidden="true"></i>
           </div>
-          <h1 class="text-h2 font-extrabold text-carvao-800 mb-2">Termos de Uso — Consultas Legais</h1>
+          <h1 class="text-h2 font-extrabold text-gray-800 mb-2">Termos de Uso — Consultas Legais</h1>
           <p class="text-body-sm text-gray-500">Leia com atencao antes de continuar.</p>
         </div>
 
@@ -251,7 +251,7 @@ consultasRoutes.get("/termos", async (c) => {
           </p>
 
           <div class="border-l-4 border-carvao-800 bg-carvao-50 rounded-r-lg p-4">
-            <p class="font-semibold text-carvao-800 mb-1">Base legal</p>
+            <p class="font-semibold text-gray-800 mb-1">Base legal</p>
             <p class="text-gray-600">
               O tratamento de dados pessoais nas Consultas Legais esta fundamentado no
               <strong> art. 7º, VI da LGPD</strong> — exercicio regular de direitos em processo judicial,
@@ -260,7 +260,7 @@ consultasRoutes.get("/termos", async (c) => {
             </p>
           </div>
 
-          <p class="font-semibold text-carvao-800">Ao utilizar as Consultas Legais, voce declara que:</p>
+          <p class="font-semibold text-gray-800">Ao utilizar as Consultas Legais, voce declara que:</p>
 
           <ol class="list-decimal list-inside space-y-2">
             <li>
@@ -315,7 +315,7 @@ consultasRoutes.get("/termos", async (c) => {
               name="accept"
               value="1"
               required
-              class="mt-1 w-5 h-5 rounded border-gray-300 text-carvao-800 focus:ring-carvao-800"
+              class="mt-1 w-5 h-5 rounded border-gray-300 text-gray-800 focus:ring-carvao-800"
             />
             <span class="text-body-sm text-gray-700">
               Li e estou de acordo com os termos acima. Declaro que utilizarei as Consultas Legais
@@ -458,7 +458,7 @@ consultasRoutes.get("/", async (c) => {
               >
                 <div class="flex items-start justify-between mb-3">
                   <div class="w-11 h-11 rounded-lg bg-carvao-50 flex items-center justify-center">
-                    <i class={`ph ${t.icon} text-h3 text-carvao-700`} aria-hidden="true"></i>
+                    <i class={`ph ${t.icon} text-h3 text-gray-700`} aria-hidden="true"></i>
                   </div>
                   <span class="badge badge-gray text-body-xs">{t.credits_cost} credito{t.credits_cost !== 1 ? "s" : ""}</span>
                 </div>
