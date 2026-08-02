@@ -1,13 +1,13 @@
 {
-  "name": "PragmaOS — Gestao Juridica",
+  "name": "PragmaOS — Gestão Jurídica",
   "short_name": "PragmaOS",
-  "description": "SaaS multi-tenant para advocacia: processos, financeiro, IA e comunicacao.",
+  "description": "SaaS multi-tenant para advocacia: processos, financeiro, IA e comunicação.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f4f6",
-  "theme_color": "#c2410c",
+  "theme_color": "#cc8048",
   "lang": "pt-BR",
   "icons": [
     {

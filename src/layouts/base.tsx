@@ -64,7 +64,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
         <main class="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
       <script {...{ type: "application/javascript" }} dangerouslySetInnerHTML={{
-        __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
+        __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)})}`,
       }} />
     </body>
   </html>

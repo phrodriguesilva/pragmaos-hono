@@ -758,3 +758,38 @@ marketingRoutes.post("/contato", async (c) => {
 
   return c.redirect("/contato?success=1");
 });
+
+// ============================================================
+// GET /robots.txt
+// ============================================================
+marketingRoutes.get("/robots.txt", (c) => {
+  const body = `User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /dashboard
+Disallow: /api/
+
+Sitemap: https://pragmaos.app/sitemap.xml`;
+  return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+});
+
+// ============================================================
+// GET /sitemap.xml
+// ============================================================
+marketingRoutes.get("/sitemap.xml", (c) => {
+  const urls = [
+    { loc: "https://pragmaos.app/", priority: "1.0", changefreq: "weekly" },
+    { loc: "https://pragmaos.app/sobre", priority: "0.8", changefreq: "monthly" },
+    { loc: "https://pragmaos.app/contato", priority: "0.8", changefreq: "monthly" },
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((u) => `  <url>
+    <loc>${u.loc}</loc>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join("\n")}
+</urlset>`;
+  return new Response(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
+});

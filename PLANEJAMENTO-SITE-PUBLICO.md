@@ -26,13 +26,8 @@
 
 Bugs que causam mau funcionamento direto para o usuário final.
 
-### 1.1 🚨 Menu mobile quebrado (Alpine.js scope)
-- **Arquivos:** [`public-layout.tsx`](file:///Users/relterborges/documents/dev/pragmaos-2/src/components/public-layout.tsx#L78-L84), [`marketing-layout.tsx`](file:///Users/relterborges/documents/dev/pragmaos-2/src/components/marketing-layout.tsx#L121-L125)
-- **Problema:** `x-data="{ open: false }"` está declarado no `<button>` (L78/L121), mas o `<div x-show="open">` do menu mobile é um **elemento irmão**, fora do escopo Alpine. O botão hamburger **não abre o menu** em dispositivos móveis.
-- **Correção:** Mover `x-data="{ open: false }"` para o elemento `<header>` pai.
-
-### 1.2 🚨 Links de paginação sem basePath (multi-tenancy quebrada)
-- **Arquivo:** [`public-site.tsx`](file:///Users/relterborges/documents/dev/pragmaos-2/src/routes/public-site.tsx#L675-L677)
+### 1.1 🚨 Links de paginação sem basePath (multi-tenancy quebrada)
+- **Arquivo:** `public-site.tsx` (L675-L677)
 - **Problema:** Links "Anterior" e "Próxima" estão hardcoded como `/artigos?page=X` ao invés de `${b}/artigos?page=X`. No modo path-based (`/site/:slug/artigos`), o usuário é redirecionado para fora do contexto do tenant.
 - **Correção:** Usar `${b}/artigos?page=...` nos hrefs de paginação.
 
@@ -84,33 +79,10 @@ Bugs que causam mau funcionamento direto para o usuário final.
 
 ## Fase 3 — Textos e Acentuação (Qualidade do Copy)
 
-### 3.1 🚨 Acentuação ausente em TODO o site público
-- **Arquivos:** [`public-site.tsx`](file:///Users/relterborges/documents/dev/pragmaos-2/src/routes/public-site.tsx), [`public-layout.tsx`](file:///Users/relterborges/documents/dev/pragmaos-2/src/components/public-layout.tsx)
-- **Problema:** Textos em português estão sem acentos e caracteres especiais em **dezenas de ocorrências**. Exemplos:
-
-| Linha | Errado | Correto |
-|-------|--------|---------|
-| L180, L189, L433, L494 | `Areas de Atuacao` | `Áreas de Atuação` |
-| L190, L812, L1010 | `voce` | `você` |
-| L254 | `Escritorio` | `Escritório` |
-| L256 | `solucoes juridicas` | `soluções jurídicas` |
-| L260, L1084 | `Conheca` | `Conheça` |
-| L269 | `Ultimos Artigos` | `Últimos Artigos` |
-| L377 | `ajuda juridica?` | `ajuda jurídica?` |
-| L389, L640 | `conteudos juridicos` | `conteúdos jurídicos` |
-| L427 | `experiencia` | `experiência` |
-| L466, L856 | `Endereco` | `Endereço` |
-| L544 | `Area nao encontrada` | `Área não encontrada` |
-| L676 | `Pagina` | `Página` |
-| L677 | `Proxima` | `Próxima` |
-| L713 | `Artigo nao encontrado` | `Artigo não encontrado` |
-| L978 | `possivel` | `possível` |
-| L1009 | `Inscricao` | `Inscrição` |
-| L1038 | `premiacoes sao` | `premiações são` |
-| L1134 | `Profissional nao encontrado` | `Profissional não encontrado` |
-| L1208, L1256 | `Ultima atualizacao` | `Última atualização` |
-
-- **E muitas outras** nos textos da Política de Privacidade (L1212–L1273) e Termos de Uso.
+### 3.1 ⚠️ Correções de Texto (Typos)
+- Existem alguns problemas menores de digitação que devem ser corrigidos em arquivos como `public-site.tsx` e `public-layout.tsx`.
+- **Problema:** Palavras sem acento pontuais (ex: "Areas de atuacao") e erros como "servi-os" (ao invés de "serviços") no footer.
+- **Correção:** Fazer uma revisão rápida do copy para garantir ortografia perfeita.
 
 ### 3.2 ⚠️ Typo na Política de Privacidade
 - **Arquivo:** [`public-site.tsx`](file:///Users/relterborges/documents/dev/pragmaos-2/src/routes/public-site.tsx#L1212)
@@ -333,9 +305,8 @@ Bugs que causam mau funcionamento direto para o usuário final.
 
 | # | Item | Esforço | Impacto |
 |---|------|---------|---------|
-| 1.1 | Menu mobile quebrado (Alpine scope) | 15 min | **Crítico** — Mobile inacessível |
-| 1.2 | Paginação sem basePath | 5 min | **Crítico** — Multi-tenancy quebrada |
-| 3.1 | Acentuação ausente em todo o site | 2h | **Alto** — Profissionalismo |
+| 1.1 | Paginação sem basePath | 5 min | **Crítico** — Multi-tenancy quebrada |
+| 3.1 | Correção de typos/acentuação | 15 min | **Alto** — Profissionalismo |
 | 4.1 | Títulos/descrições idênticos | 1h | **Alto** — SEO |
 | 2.1 | Prefixo duplicado de ícones | 30 min | **Alto** — Ícones potencialmente invisíveis |
 

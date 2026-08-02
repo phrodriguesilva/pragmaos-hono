@@ -5,32 +5,67 @@ import type { FC, PropsWithChildren } from "hono/jsx";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
 import { appCss } from "../generated/css";
 
-export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active?: string; basePath?: string }>> = ({
+export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active?: string; basePath?: string; pageTitle?: string; pageDescription?: string; canonical?: string; ogType?: string }>> = ({
   tenant,
   active,
   basePath = "",
+  pageTitle,
+  pageDescription,
+  canonical,
+  ogType = "website",
   children,
 }) => {
   const primary = tenant.primary_color || "#c8553d";
   const secondary = tenant.secondary_color || "#2b2925";
   const b = basePath;
+  const title = pageTitle ?? `${tenant.name} — ${tenant.tagline ?? "Advocacia"}`;
+  const description = pageDescription ?? (tenant.description ?? `${tenant.name} — escritório de advocacia`);
+  const favicon = tenant.logo_url ?? "/static/img/icon.svg";
+  const canonicalUrl = canonical ?? undefined;
 
   return (
     <html lang="pt-BR">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{tenant.name} — {tenant.tagline ?? "Advocacia"}</title>
-        <meta name="description" content={tenant.description ?? `${tenant.name} — escritorio de advocacia`} />
-        <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="icon" href={favicon} type="image/svg+xml" />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+        {/* Open Graph */}
+        <meta property="og:type" content={ogType} />
+        <meta property="og:site_name" content={tenant.name} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        {tenant.logo_url && <meta property="og:image" content={tenant.logo_url} />}
+        <meta property="og:locale" content="pt_BR" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        {tenant.logo_url && <meta name="twitter:image" content={tenant.logo_url} />}
+
+        {/* Structured data — LegalService */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LegalService",
+          name: tenant.name,
+          description: description,
+          url: canonicalUrl,
+          ...(tenant.email_public ? { email: tenant.email_public } : {}),
+          ...(tenant.phone ? { telephone: tenant.phone } : {}),
+          ...(tenant.address ? { address: { "@type": "PostalAddress", streetAddress: tenant.address } } : {}),
+          ...(tenant.logo_url ? { logo: tenant.logo_url } : {}),
+        }) }} />
+
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+        <script src="/static/js/alpine.min.js" defer />
         <style>{`
           :root {
             --color-primary: ${primary};
@@ -106,8 +141,8 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
                   </div>
                   <span class="text-base font-semibold text-white">{tenant.name}</span>
                 </div>
-                {tenant.tagline && <p class="text-sm text-gray-400">{tenant.tagline}</p>}
-                {tenant.oab_number && <p class="text-xs text-gray-500 mt-2">OAB: {tenant.oab_number}</p>}
+                {tenant.tagline && <p class="text-sm text-gray-300">{tenant.tagline}</p>}
+                {tenant.oab_number && <p class="text-xs text-gray-400 mt-2">OAB: {tenant.oab_number}</p>}
               </div>
 
               {/* Contact */}
@@ -116,19 +151,19 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
                 <ul class="space-y-2 text-sm">
                   {tenant.email_public && (
                     <li class="flex items-center gap-2">
-                      <i class="ph ph-envelope text-gray-500" aria-hidden="true" />
+                      <i class="ph ph-envelope text-gray-400" aria-hidden="true" />
                       <a href={`mailto:${tenant.email_public}`} class="hover:text-white">{tenant.email_public}</a>
                     </li>
                   )}
                   {tenant.phone && (
                     <li class="flex items-center gap-2">
-                      <i class="ph ph-phone text-gray-500" aria-hidden="true" />
+                      <i class="ph ph-phone text-gray-400" aria-hidden="true" />
                       <a href={`tel:${tenant.phone}`} class="hover:text-white">{tenant.phone}</a>
                     </li>
                   )}
                   {tenant.address && (
                     <li class="flex items-start gap-2">
-                      <i class="ph ph-map-pin text-gray-500 mt-0.5" aria-hidden="true" />
+                      <i class="ph ph-map-pin text-gray-400 mt-0.5" aria-hidden="true" />
                       <span>{tenant.address}</span>
                     </li>
                   )}
@@ -148,15 +183,15 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
                 </ul>
                 {(tenant.social_facebook || tenant.social_instagram || tenant.social_linkedin) && (
                   <div class="flex gap-3 mt-4">
-                    {tenant.social_facebook && <a href={tenant.social_facebook} class="text-gray-400 hover:text-white" aria-label="Facebook"><i class="ph ph-facebook-logo text-lg" aria-hidden="true" /></a>}
-                    {tenant.social_instagram && <a href={tenant.social_instagram} class="text-gray-400 hover:text-white" aria-label="Instagram"><i class="ph ph-instagram-logo text-lg" aria-hidden="true" /></a>}
-                    {tenant.social_linkedin && <a href={tenant.social_linkedin} class="text-gray-400 hover:text-white" aria-label="LinkedIn"><i class="ph ph-linkedin-logo text-lg" aria-hidden="true" /></a>}
+                    {tenant.social_facebook && <a href={tenant.social_facebook} class="text-gray-300 hover:text-white" aria-label="Facebook"><i class="ph ph-facebook-logo text-lg" aria-hidden="true" /></a>}
+                    {tenant.social_instagram && <a href={tenant.social_instagram} class="text-gray-300 hover:text-white" aria-label="Instagram"><i class="ph ph-instagram-logo text-lg" aria-hidden="true" /></a>}
+                    {tenant.social_linkedin && <a href={tenant.social_linkedin} class="text-gray-300 hover:text-white" aria-label="LinkedIn"><i class="ph ph-linkedin-logo text-lg" aria-hidden="true" /></a>}
                   </div>
                 )}
               </div>
             </div>
 
-            <div class="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+            <div class="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
               <span>&copy; {new Date().getFullYear()} {tenant.name}. Todos os direitos reservados.</span>
               <div class="flex gap-4">
                 <a href={`${b}/lgpd`} class="hover:text-white transition">Política de Privacidade</a>
