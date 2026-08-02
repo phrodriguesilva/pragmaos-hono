@@ -130,11 +130,11 @@ subscriptionRoutes.get("/", async (c) => {
         {/* Billing cycle toggle (mensal / anual) */}
         <div {...{ "x-data": "{ annual: false }" }} class="flex items-center justify-center gap-3 mb-6">
           <span {...{ ":class": "annual ? 'text-gray-400' : 'text-gray-800 font-semibold'" }}>Mensal</span>
-          <button type="button" {...{ "@click": "annual = !annual", ":class": "annual ? 'bg-terracota-500' : 'bg-gray-200'" }} class="relative w-12 h-6 rounded-full transition-colors" aria-label="Alternar cobrança anual">
+          <button type="button" {...{ "@click": "annual = !annual", ":class": "annual ? 'bg-[#0568ff]' : 'bg-gray-200'" }} class="relative w-12 h-6 rounded-full transition-colors" aria-label="Alternar cobrança anual">
             <span {...{ ":class": "annual ? 'translate-x-6' : 'translate-x-0'" }} class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform" />
           </button>
           <span {...{ ":class": "annual ? 'text-gray-800 font-semibold' : 'text-gray-400'" }}>
-            Anual <span class="text-terracota-600 text-body-sm">(-20%)</span>
+            Anual <span class="text-[#0568ff] text-body-sm">(-20%)</span>
           </span>
         </div>
 
@@ -145,37 +145,37 @@ subscriptionRoutes.get("/", async (c) => {
             const yearlyPrice = p.price_yearly_cents ?? Math.round(monthlyPrice * 12 * 0.8);
             const annualMonthly = Math.round(yearlyPrice / 12);
             return (
-              <div class={`rounded-xl p-6 border-2 flex flex-col ${p.id === "pro" ? "border-terracota-500 bg-terracota-50" : "border-gray-200 bg-white"}`}>
-                {p.id === "pro" && <div class="text-xs font-bold text-terracota-600 uppercase mb-2">Mais popular</div>}
-                <h3 class="text-h4 font-bold">{p.name}</h3>
-                <p class="text-body-sm text-gray-500 mb-3">{p.tagline}</p>
+              <div class={`fade-in-up card-hover rounded-xl p-6 border-2 flex flex-col ${p.id === "pro" ? "border-[#0568ff] bg-[#0568ff] text-white shadow-[0_20px_40px_-15px_rgba(5,104,255,0.3)] scale-[1.02]" : "border-gray-200 bg-white"}`}>
+                {p.id === "pro" && <div class="inline-flex self-start items-center gap-1 px-2.5 py-1 rounded-full bg-white text-[#0568ff] text-xs font-bold mb-3"><i class="ph-fill ph-star" aria-hidden="true" /> Mais popular</div>}
+                <h3 class={`text-h4 font-extrabold mb-1 ${p.id === "pro" ? "text-white" : ""}`}>{p.name}</h3>
+                <p class={`text-body-sm mb-3 ${p.id === "pro" ? "text-white/80" : "text-gray-500"}`}>{p.tagline}</p>
                 <div class="mb-4">
                   {/* Monthly price */}
                   <div {...{ "x-show": "!annual" }} class="flex items-baseline gap-1">
-                    <span class="text-h2 font-bold">{formatCurrency(monthlyPrice)}</span>
-                    <span class="text-body-sm text-gray-400">/mês</span>
+                    <span class={`text-h2 font-extrabold ${p.id === "pro" ? "text-white" : ""}`}>{formatCurrency(monthlyPrice)}</span>
+                    <span class={`text-body-sm ${p.id === "pro" ? "text-white/70" : "text-gray-400"}`}>/mês</span>
                   </div>
                   {/* Annual price (shows monthly equivalent) */}
                   <div {...{ "x-show": "annual", "x-cloak": "" }} class="flex items-baseline gap-1">
-                    <span class="text-h2 font-bold">{formatCurrency(annualMonthly)}</span>
-                    <span class="text-body-sm text-gray-400">/mês · cobrado anualmente</span>
+                    <span class={`text-h2 font-extrabold ${p.id === "pro" ? "text-white" : ""}`}>{formatCurrency(annualMonthly)}</span>
+                    <span class={`text-body-sm ${p.id === "pro" ? "text-white/70" : "text-gray-400"}`}>/mês · cobrado anualmente</span>
                   </div>
                 </div>
                 <ul class="space-y-2 text-body-sm mb-6 flex-1">
-                  <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_users} usuários</li>
-                  <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_cases ? `${p.max_cases} processos` : "Processos ilimitados"}</li>
-                  {p.has_ai && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> IA jurídica</li>}
-                  {p.has_whatsapp && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> WhatsApp integrado</li>}
-                  {p.has_public_site && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> Site público</li>}
-                  {p.has_api && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> API</li>}
-                  {p.has_integrations && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> Integrações</li>}
+                  <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> {p.max_users} usuários</li>
+                  <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> {p.max_cases ? `${p.max_cases} processos` : "Processos ilimitados"}</li>
+                  {p.has_ai && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> IA jurídica</li>}
+                  {p.has_whatsapp && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> WhatsApp integrado</li>}
+                  {p.has_public_site && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> Site público</li>}
+                  {p.has_api && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> API</li>}
+                  {p.has_integrations && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> Integrações</li>}
                 </ul>
                 {isCurrent ? (
-                  <span class="btn btn-secondary w-full text-center cursor-default">Plano atual</span>
+                  <span class={`btn w-full text-center cursor-default ${p.id === "pro" ? "bg-white/15 text-white border-white/20" : "btn-secondary"}`}>Plano atual</span>
                 ) : (
                   <form method="post" action={`/assinatura/assinar/${p.id}`} {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
                     <input type="hidden" name="billing_cycle" value="monthly" {...{ ":value": "annual ? 'yearly' : 'monthly'" }} />
-                    <button type="submit" class={`btn w-full ${p.id === "pro" ? "btn-primary" : "btn-secondary"}`} {...{ ":disabled": "loading" }}>
+                    <button type="submit" class={`btn w-full ${p.id === "pro" ? "bg-white text-[#0568ff] border-white hover:bg-[#4d8bff] hover:text-white hover:border-[#4d8bff]" : "btn-primary"}`} {...{ ":disabled": "loading" }}>
                       <i class="ph ph-spinner animate-spin mr-1" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
                       <span {...{ "x-show": "!loading" }}>Assinar {p.name}</span>
                       <span {...{ "x-show": "loading", "x-cloak": "" }}>Processando...</span>
@@ -187,20 +187,20 @@ subscriptionRoutes.get("/", async (c) => {
           })}
 
           {/* Enterprise card */}
-          <div class="rounded-xl p-6 border-2 border-gray-200 bg-carvao-800 text-white flex flex-col">
-            <h3 class="text-h4 font-bold">Enterprise</h3>
-            <p class="text-body-sm text-gray-300 mb-3">Sob consulta</p>
+          <div class="fade-in-up card-hover rounded-xl p-6 border-2 border-[#232856] bg-[#232856] text-white flex flex-col">
+            <h3 class="text-h4 font-extrabold">Enterprise</h3>
+            <p class="text-body-sm text-white/70 mb-3">Sob consulta</p>
             <div class="mb-4">
-              <span class="text-h2 font-bold">Custom</span>
+              <span class="text-h2 font-extrabold">Custom</span>
             </div>
-            <ul class="space-y-2 text-body-sm mb-6 flex-1 text-gray-200">
-              <li class="flex gap-2"><i class="ph ph-check text-terracota-400" aria-hidden="true" /> Usuarios ilimitados</li>
-              <li class="flex gap-2"><i class="ph ph-check text-terracota-400" aria-hidden="true" /> Tudo do Pro +</li>
-              <li class="flex gap-2"><i class="ph ph-check text-terracota-400" aria-hidden="true" /> Onboarding personalizado</li>
-              <li class="flex gap-2"><i class="ph ph-check text-terracota-400" aria-hidden="true" /> Suporte 24/7</li>
-              <li class="flex gap-2"><i class="ph ph-check text-terracota-400" aria-hidden="true" /> Gerente dedicado</li>
+            <ul class="space-y-2 text-body-sm mb-6 flex-1 text-white/90">
+              <li class="flex gap-2"><i class="ph ph-check text-[#4d8bff]" aria-hidden="true" /> Usuários ilimitados</li>
+              <li class="flex gap-2"><i class="ph ph-check text-[#4d8bff]" aria-hidden="true" /> Tudo do Pro +</li>
+              <li class="flex gap-2"><i class="ph ph-check text-[#4d8bff]" aria-hidden="true" /> Onboarding personalizado</li>
+              <li class="flex gap-2"><i class="ph ph-check text-[#4d8bff]" aria-hidden="true" /> Suporte 24/7</li>
+              <li class="flex gap-2"><i class="ph ph-check text-[#4d8bff]" aria-hidden="true" /> Gerente dedicado</li>
             </ul>
-            <a href="/contato?plan=enterprise" class="btn bg-terracota-500 text-white w-full text-center hover:bg-terracota-600">Falar com comercial</a>
+            <a href="/contato?plan=enterprise" class="btn bg-[#0568ff] text-white border-[#0568ff] w-full text-center hover:bg-[#4d8bff] hover:border-[#4d8bff]">Falar com comercial</a>
           </div>
         </div>
       </div>
@@ -228,8 +228,8 @@ subscriptionRoutes.get("/", async (c) => {
                     <td class="px-4 py-3">{inv.due_date ? new Date(inv.due_date).toLocaleDateString("pt-BR") : "-"}</td>
                     <td class="px-4 py-3">{statusBadge(inv.status)}</td>
                     <td class="px-4 py-3">
-                      {inv.asaas_invoice_url && <a href={inv.asaas_invoice_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline text-body-sm">Ver fatura</a>}
-                      {inv.boleto_url && <a href={inv.boleto_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline text-body-sm ml-2">Boleto</a>}
+                      {inv.asaas_invoice_url && <a href={inv.asaas_invoice_url} target="_blank" rel="noopener" class="text-[#0568ff] hover:underline text-body-sm">Ver fatura</a>}
+                      {inv.boleto_url && <a href={inv.boleto_url} target="_blank" rel="noopener" class="text-[#0568ff] hover:underline text-body-sm ml-2">Boleto</a>}
                     </td>
                   </tr>
                 ))}
