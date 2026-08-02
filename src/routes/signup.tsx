@@ -151,7 +151,7 @@ signupRoutes.get("/signup", async (c) => {
           </div>
         ) : null}
 
-        <form method="post" action="/signup" class="flex flex-col gap-4" {...{ "x-data": "{ loading: false, pwd: '', confirm: '' }", "@submit": "loading = true" }}>
+        <form method="post" action="/signup" class="flex flex-col gap-4" {...{ "x-data": "{ loading: false, pwd: '', confirm: '', emailValid: null }", "@submit": "loading = true" }}>
           {/* Honeypot field — hidden from users, bots fill it */}
           <div class="absolute -left-[9999px] opacity-0" aria-hidden="true">
             <label for="website">Não preencha este campo</label>
@@ -163,6 +163,16 @@ signupRoutes.get("/signup", async (c) => {
           <SignupInput id="admin_name" name="admin_name" label="Seu nome" required placeholder="Nome completo" icon="ph-user" autocomplete="name" />
 
           <SignupInput id="admin_email" name="admin_email" label="E-mail" type="email" required placeholder="voce@escritorio.com" icon="ph-envelope" autocomplete="email" />
+
+          {/* Email validation feedback */}
+          <div class="-mt-2" {...{ "@input": "emailValid = $event.target.id === 'admin_email' ? ($event.target.value.length === 0 ? null : /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test($event.target.value)) : emailValid" }}>
+            <p {...{ "x-show": "emailValid === false", "x-cloak": "" }} class="text-xs text-status-red flex items-center gap-1">
+              <i class="ph ph-warning" aria-hidden="true" /> E-mail invalido
+            </p>
+            <p {...{ "x-show": "emailValid === true", "x-cloak": "" }} class="text-xs text-status-green flex items-center gap-1">
+              <i class="ph ph-check-circle" aria-hidden="true" /> E-mail valido
+            </p>
+          </div>
 
           <SignupInput id="admin_password" name="admin_password" label="Senha" type="password" required placeholder="Mínimo 8 caracteres" icon="ph-lock" minlength={8} autocomplete="new-password" />
 

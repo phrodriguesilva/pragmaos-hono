@@ -134,9 +134,8 @@ export const Table: FC<TableProps> = ({ columns, rows, emptyMsg, ariaLabel, empt
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colspan={columns.length} class="text-center text-gray-500 py-4">
-                  {emptyIcon ? <i class={`ph ${emptyIcon} text-h2 block mb-1 text-gray-300`} aria-hidden="true" /> : null}
-                  {emptyMsg ?? "Nenhum registro encontrado."}
+                <td colspan={columns.length} class="py-4">
+                  <EmptyState icon={emptyIcon ?? "ph-inbox"} title={emptyMsg ?? "Nenhum registro encontrado"} />
                 </td>
               </tr>
             ) : (

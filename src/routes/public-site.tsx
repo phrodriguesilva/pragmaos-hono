@@ -245,7 +245,7 @@ publicSiteRoutes.get("/", async (c) => {
                 cl.website_url ? (
                   <a href={cl.website_url} target="_blank" rel="noopener" class="grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition">
                     {cl.logo_url ? (
-                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" loading="lazy" />
+                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" loading="lazy" decoding="async" />
                     ) : (
                       <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
                     )}
@@ -253,7 +253,7 @@ publicSiteRoutes.get("/", async (c) => {
                 ) : (
                   <span class="grayscale opacity-60">
                     {cl.logo_url ? (
-                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" loading="lazy" />
+                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" loading="lazy" decoding="async" />
                     ) : (
                       <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
                     )}
@@ -310,7 +310,7 @@ publicSiteRoutes.get("/", async (c) => {
                 <a key={m.slug} href={`${b}/equipe/${m.slug}`} class="group text-center">
                   <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-gray-100 group-hover:border-primary transition mb-3">
                     {m.public_photo_url ? (
-                      <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" loading="lazy" />
+                      <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" loading="lazy" decoding="async" />
                     ) : (
                       <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-3xl font-semibold">
                         {m.public_name?.charAt(0)?.toUpperCase() ?? "?"}
@@ -352,7 +352,7 @@ publicSiteRoutes.get("/", async (c) => {
               {articles.map((article: any) => (
                 <a href={`${b}/artigos/${article.slug}`} class="group">
                   {article.cover_image_url && (
-                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" loading="lazy" />
+                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" loading="lazy" decoding="async" />
                   )}
                   <h3 class="text-lg font-semibold text-secondary group-hover:text-primary transition mb-2">{article.title}</h3>
                   {article.excerpt && <p class="text-sm text-gray-500 line-clamp-2">{article.excerpt}</p>}
@@ -772,7 +772,7 @@ publicSiteRoutes.get("/artigos", async (c) => {
               {articles.map((article: any) => (
                 <a href={`${b}/artigos/${article.slug}`} class="group">
                   {article.cover_image_url ? (
-                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" loading="lazy" />
+                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" loading="lazy" decoding="async" />
                   ) : (
                     <div class="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center">
                       <i class="ph ph-file-text text-4xl text-gray-300" aria-hidden="true" />

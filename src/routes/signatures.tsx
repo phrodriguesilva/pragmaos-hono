@@ -698,6 +698,16 @@ signatureRoutes.post("/:id/check-status", async (c) => {
 
     await supabase.from("signature_requests").update(updateData).eq("id", id).eq("tenant_id", user.tenantId);
 
+    // Audit trail: log the status change
+    await supabase.from("audit_log").insert({
+      tenant_id: user.tenantId,
+      user_id: user.id,
+      action: "signature_status_synced",
+      entity_type: "signature_requests",
+      entity_id: id,
+      details: { from: sig.status, to: mappedStatus, provider: sig.provider },
+    });
+
     return c.redirect(`/signatures/${id}?success=${encodeURIComponent(`Status atualizado: ${mappedStatus}`)}`);
   } catch (err) {
     return c.redirect(`/signatures/${id}?error=${encodeURIComponent(`Erro: ${(err as Error).message}`)}`);

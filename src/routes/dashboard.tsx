@@ -4,7 +4,7 @@ import type { AppEnv } from "../lib/types";
 import { requireAuth, requireActiveTenant } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Panel, Badge } from "../components/ui";
+import { PageHeader, Panel, Badge, EmptyState } from "../components/ui";
 
 export const dashboardRoutes = new Hono<AppEnv>();
 
@@ -325,7 +325,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
                 <i class="ph ph-gavel text-status-red" aria-hidden="true" /> Audiencias de hoje
               </div>
               {(agendaHearings.data ?? []).length === 0 ? (
-                <div class="text-body-sm text-gray-400 pl-5">Nenhuma audiencia hoje.</div>
+                <EmptyState icon="ph-gavel" title="Nenhuma audiencia hoje" description="Suas audiencias aparecerao aqui automaticamente." />
               ) : (
                 <ul class="flex flex-col gap-1.5 pl-5">
                   {(agendaHearings.data ?? []).map((h) => (
@@ -346,7 +346,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
                 <i class="ph ph-clock-countdown text-status-yellow" aria-hidden="true" /> Proximos prazos
               </div>
               {(agendaDeadlines.data ?? []).length === 0 ? (
-                <div class="text-body-sm text-gray-400 pl-5">Nenhum prazo proximo.</div>
+                <EmptyState icon="ph-calendar" title="Nenhum prazo proximo" description="Prazos pendentes aparecerao aqui." />
               ) : (
                 <ul class="flex flex-col gap-1.5 pl-5">
                   {(agendaDeadlines.data ?? []).map((d) => (
@@ -364,10 +364,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
 
         <Panel title="Ultimas movimentacoes" icon="ph-list-dashes" action={<a href="/proceedings" class="text-body-sm text-[#0568ff] hover:underline">Ver todos</a>}>
           {(recentMovements.data ?? []).length === 0 ? (
-            <div class="text-body-sm text-gray-400 py-8 text-center">
-              <i class="ph ph-tray text-h2 block mb-1 text-gray-300" aria-hidden="true" />
-              Nenhuma movimentacao recente.
-            </div>
+            <EmptyState icon="ph-tray" title="Nenhuma movimentacao recente" description="Movimentacoes dos seus processos aparecerao aqui." />
           ) : (
             <ul class="flex flex-col gap-2.5">
               {(recentMovements.data ?? []).map((m) => (

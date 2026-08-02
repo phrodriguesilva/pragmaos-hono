@@ -7,7 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
-import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal, EmptyState } from "../components/ui";
 
 export const casesRoutes = new Hono<AppEnv>();
 
