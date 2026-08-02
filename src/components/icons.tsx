@@ -165,7 +165,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   return (
     <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #006382 0%, #00b3e6 100%);">
       <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-white/5">
-        <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
+        <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto brightness-0 invert" />
       </div>
       <nav class="flex-1 flex flex-col py-3 gap-0.5 px-3">
         {MENU.map((item) => {
