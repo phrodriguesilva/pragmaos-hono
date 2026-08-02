@@ -73,7 +73,7 @@ function link(c: any, href: string): string {
 }
 
 // Helper: render with public layout
-function renderPublic(c: any, tenant: ResolvedTenant, active: string, content: any, pageTitle?: string, pageDescription?: string) {
+function renderPublic(c: any, tenant: ResolvedTenant, active: string, content: any, pageTitle?: string, pageDescription?: string, jsonLd?: object) {
   const basePath = getBasePath(c);
   // Auto-generate page title/description based on active section if not provided
   const titleMap: Record<string, string> = {
@@ -88,7 +88,7 @@ function renderPublic(c: any, tenant: ResolvedTenant, active: string, content: a
   };
   const descMap: Record<string, string> = {
     home: tenant.description ?? `${tenant.name} — escritório de advocacia`,
-    areas: `Conheça as áreas de atuação de ${tenant.name}. Advogacia especializada em diversas áreas do direito.`,
+    areas: `Conheça as áreas de atuação de ${tenant.name}. Advocacia especializada em diversas áreas do direito.`,
     equipe: `Conheça a equipe de advogados de ${tenant.name}. Profissionais experientes prontos para ajudar você.`,
     artigos: `Artigos e conteúdos jurídicos produzidos pela equipe de ${tenant.name}.`,
     sobre: `Conheça a história e missão de ${tenant.name}.`,
@@ -99,7 +99,7 @@ function renderPublic(c: any, tenant: ResolvedTenant, active: string, content: a
   const finalTitle = pageTitle ?? titleMap[active] ?? `${tenant.name}`;
   const finalDesc = pageDescription ?? descMap[active] ?? tenant.description ?? "";
   return (
-    <PublicLayout tenant={tenant} active={active} basePath={basePath} pageTitle={finalTitle} pageDescription={finalDesc}>
+    <PublicLayout tenant={tenant} active={active} basePath={basePath} pageTitle={finalTitle} pageDescription={finalDesc} jsonLd={jsonLd}>
       {content}
     </PublicLayout>
   );
@@ -140,7 +140,7 @@ publicSiteRoutes.get("/", async (c) => {
       .order("sort_order", { ascending: true })
       .limit(4),
     supabase.from("testimonials")
-      .select("author_name, author_role, content, rating")
+      .select("author_name, author_role, content, rating, source")
       .eq("tenant_id", tenant.id)
       .eq("is_published", true)
       .order("sort_order", { ascending: true })
@@ -195,6 +195,34 @@ publicSiteRoutes.get("/", async (c) => {
           </div>
         </section>
 
+        {/* Client logos — social proof right after hero */}
+        {clients && clients.length > 0 && (
+          <section class="py-12 px-4 max-w-6xl mx-auto">
+            <h2 class="text-center text-lg font-semibold text-gray-400 mb-8 uppercase tracking-wider">Nossos Clientes</h2>
+            <div class="flex flex-wrap items-center justify-center gap-8">
+              {clients.map((cl: any) => (
+                cl.website_url ? (
+                  <a href={cl.website_url} target="_blank" rel="noopener" class="grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition">
+                    {cl.logo_url ? (
+                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" loading="lazy" />
+                    ) : (
+                      <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
+                    )}
+                  </a>
+                ) : (
+                  <span class="grayscale opacity-60">
+                    {cl.logo_url ? (
+                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" loading="lazy" />
+                    ) : (
+                      <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
+                    )}
+                  </span>
+                )
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Law areas preview */}
         {areas && areas.length > 0 && (
           <section class="py-16 px-4 max-w-6xl mx-auto">
@@ -202,9 +230,9 @@ publicSiteRoutes.get("/", async (c) => {
             <p class="text-center text-gray-500 mb-10">Como podemos ajudar você</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {areas.map((a: any) => (
-                <a href={`${b}/areas/${a.law_areas.slug}`} class="block p-6 rounded-xl border border-gray-100 hover:border-primary hover:shadow-lg transition group">
+                <a key={a.law_areas.slug} href={`${b}/areas/${a.law_areas.slug}`} class="block p-6 rounded-xl border border-gray-100 hover:border-primary hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
                   <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition">
-                    <i class={`${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary group-hover:text-white`} aria-hidden="true" />
+                    <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary group-hover:text-white`} aria-hidden="true" />
                   </div>
                   <h3 class="text-lg font-semibold text-secondary mb-2">{a.law_areas.name}</h3>
                   {a.description && <p class="text-sm text-gray-500 line-clamp-3">{a.description}</p>}
@@ -219,12 +247,12 @@ publicSiteRoutes.get("/", async (c) => {
           <section class="bg-secondary text-white py-16 px-4">
             <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {stats.map((s: any) => (
-                <div>
-                  {s.icon && <i class={`${s.icon} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
-                  <div class="text-4xl font-serif font-bold">
+                <div key={s.label}>
+                  {s.icon && <i class={`ph ${s.icon} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
+                  <div class="text-4xl font-serif font-bold stat-counter" data-value={s.value} data-prefix={s.prefix ?? ""} data-suffix={s.suffix ?? ""}>
                     {s.prefix}{s.value}{s.suffix}
                   </div>
-                  <div class="text-sm text-gray-400 mt-1">{s.label}</div>
+                  <div class="text-sm text-gray-300 mt-1">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -238,10 +266,10 @@ publicSiteRoutes.get("/", async (c) => {
             <p class="text-center text-gray-500 mb-10">Profissionais dedicados ao seu caso</p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
               {teamMembers.map((m: any) => (
-                <a href={`${b}/equipe/${m.slug}`} class="group text-center">
+                <a key={m.slug} href={`${b}/equipe/${m.slug}`} class="group text-center">
                   <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-gray-100 group-hover:border-primary transition mb-3">
                     {m.public_photo_url ? (
-                      <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" />
+                      <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" loading="lazy" />
                     ) : (
                       <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-3xl font-semibold">
                         {m.public_name?.charAt(0)?.toUpperCase() ?? "?"}
@@ -269,7 +297,7 @@ publicSiteRoutes.get("/", async (c) => {
                 personalizadas e estratégicas para nossos clientes.
               </p>
               <a href={`${b}/sobre`} class="inline-block mt-6 text-primary font-semibold hover:underline">
-                Conheça nossa historia <span aria-hidden="true">→</span>
+                Conheça nossa história <span aria-hidden="true">→</span>
               </a>
             </div>
           </section>
@@ -283,7 +311,7 @@ publicSiteRoutes.get("/", async (c) => {
               {articles.map((article: any) => (
                 <a href={`${b}/artigos/${article.slug}`} class="group">
                   {article.cover_image_url && (
-                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" />
+                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" loading="lazy" />
                   )}
                   <h3 class="text-lg font-semibold text-secondary group-hover:text-primary transition mb-2">{article.title}</h3>
                   {article.excerpt && <p class="text-sm text-gray-500 line-clamp-2">{article.excerpt}</p>}
@@ -317,6 +345,11 @@ publicSiteRoutes.get("/", async (c) => {
                     <div class="border-t border-gray-100 pt-3">
                       <p class="font-semibold text-secondary text-sm">{t.author_name}</p>
                       {t.author_role && <p class="text-xs text-gray-500">{t.author_role}</p>}
+                      {t.source === "google" && (
+                        <p class="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <i class="ph ph-google-logo" aria-hidden="true" /> via Google
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -325,35 +358,7 @@ publicSiteRoutes.get("/", async (c) => {
           </section>
         )}
 
-        {/* Client logos */}
-        {clients && clients.length > 0 && (
-          <section class="py-12 px-4 max-w-6xl mx-auto">
-            <h2 class="text-center text-lg font-semibold text-gray-400 mb-8 uppercase tracking-wider">Nossos Clientes</h2>
-            <div class="flex flex-wrap items-center justify-center gap-8">
-              {clients.map((cl: any) => (
-                cl.website_url ? (
-                  <a href={cl.website_url} target="_blank" rel="noopener" class="grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition">
-                    {cl.logo_url ? (
-                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" />
-                    ) : (
-                      <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
-                    )}
-                  </a>
-                ) : (
-                  <span class="grayscale opacity-60">
-                    {cl.logo_url ? (
-                      <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" />
-                    ) : (
-                      <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
-                    )}
-                  </span>
-                )
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Recognitions */}
+        {/* Recognitions — social proof after testimonials */}
         {recognitions && recognitions.length > 0 && (
           <section class="py-16 px-4 bg-secondary text-white">
             <div class="max-w-5xl mx-auto">
@@ -361,10 +366,10 @@ publicSiteRoutes.get("/", async (c) => {
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {recognitions.map((r: any) => (
                   <div class="text-center">
-                    {r.icon && <i class={`${r.icon} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
+                    {r.icon && <i class={`ph ${r.icon} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
                     <h3 class="font-semibold text-lg">{r.title}</h3>
-                    {r.organization && <p class="text-sm text-gray-400">{r.organization}</p>}
-                    {r.year && <p class="text-sm text-gray-500">{r.year}{r.ranking_position ? ` • ${r.ranking_position}` : ""}</p>}
+                    {r.organization && <p class="text-sm text-gray-300">{r.organization}</p>}
+                    {r.year && <p class="text-sm text-gray-400">{r.year}{r.ranking_position ? ` • ${r.ranking_position}` : ""}</p>}
                   </div>
                 ))}
               </div>
@@ -410,6 +415,7 @@ publicSiteRoutes.get("/", async (c) => {
             <h2 class="text-2xl font-serif font-bold text-secondary mb-2">Receba Nossos Artigos</h2>
             <p class="text-sm text-gray-500 mb-6">Inscreva-se para receber novidades e conteúdos jurídicos.</p>
             <form method="post" action={`${b}/newsletter`} class="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+              <input type="text" name="website" tabIndex={-1} autocomplete="off" class="absolute -left-[9999px] opacity-0" aria-hidden="true" />
               <input type="email" name="email" required placeholder="Seu email..." aria-label="E-mail para inscrição" class="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary text-sm" />
               <button type="submit" class="btn btn-primary px-6 py-2.5 rounded-lg text-sm font-semibold">Inscrever</button>
             </form>
@@ -475,7 +481,7 @@ publicSiteRoutes.get("/sobre", async (c) => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {areas.map((a: any) => (
                 <a href={`${b}/areas/${a.law_areas.slug}`} class="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-primary transition">
-                  <i class={`${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary`} aria-hidden="true" />
+                  <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary`} aria-hidden="true" />
                   <span class="font-medium text-secondary">{a.law_areas.name}</span>
                 </a>
               ))}
@@ -526,7 +532,7 @@ publicSiteRoutes.get("/areas", async (c) => {
             {areas.map((a: any) => (
               <a href={`${b}/areas/${a.law_areas.slug}`} class="block p-8 rounded-xl border border-gray-100 hover:border-primary hover:shadow-xl transition group">
                 <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition">
-                  <i class={`${a.law_areas.icon ?? "ph-scales"} text-3xl text-primary group-hover:text-white`} aria-hidden="true" />
+                  <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-3xl text-primary group-hover:text-white`} aria-hidden="true" />
                 </div>
                 <h3 class="text-xl font-serif font-bold text-secondary mb-3">{a.law_areas.name}</h3>
                 {a.description && <p class="text-gray-500 line-clamp-4">{a.description}</p>}
@@ -588,7 +594,7 @@ publicSiteRoutes.get("/areas/:slug", async (c) => {
         <section class="bg-secondary text-white py-16 px-4">
           <div class="max-w-4xl mx-auto">
             <div class="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mb-6">
-              <i class={`${areaData.law_areas.icon ?? "ph-scales"} text-3xl text-white`} aria-hidden="true" />
+              <i class={`ph ${areaData.law_areas.icon ?? "ph-scales"} text-3xl text-white`} aria-hidden="true" />
             </div>
             <h1 class="text-4xl font-serif font-bold mb-4">{areaData.law_areas.name}</h1>
             {areaData.description && <p class="text-lg text-gray-300 max-w-2xl">{areaData.description}</p>}
@@ -672,7 +678,7 @@ publicSiteRoutes.get("/artigos", async (c) => {
               {articles.map((article: any) => (
                 <a href={`${b}/artigos/${article.slug}`} class="group">
                   {article.cover_image_url ? (
-                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" />
+                    <img src={article.cover_image_url} alt={article.title} class="w-full h-48 object-cover rounded-xl mb-4" loading="lazy" />
                   ) : (
                     <div class="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center">
                       <i class="ph ph-file-text text-4xl text-gray-300" aria-hidden="true" />
@@ -750,6 +756,18 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
     .order("published_at", { ascending: false })
     .limit(3);
 
+  // JSON-LD for Article
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: articleData.title,
+    description: articleData.meta_description ?? articleData.excerpt ?? "",
+    ...(articleData.cover_image_url ? { image: articleData.cover_image_url } : {}),
+    ...(articleData.published_at ? { datePublished: articleData.published_at } : {}),
+    author: { "@type": "Person", name: articleData.profiles?.full_name ?? tenant.name },
+    publisher: { "@type": "Organization", name: tenant.name, ...(tenant.logo_url ? { logo: tenant.logo_url } : {}) },
+  };
+
   return c.html(
     renderPublic(c, tenant, "artigos", (
       <article>
@@ -810,7 +828,7 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
           )}
         </div>
       </article>
-    )),
+    ), articleData.title, articleData.meta_description ?? articleData.excerpt, articleJsonLd),
   );
 });
 
@@ -821,6 +839,13 @@ publicSiteRoutes.get("/contato", async (c) => {
   const tenant = getTenant(c);
   const b = getBasePath(c);
   const error = c.req.query("error");
+  // Preserve form data on validation error (redirect back with query params)
+  const prefName = c.req.query("name") ?? "";
+  const prefEmail = c.req.query("email") ?? "";
+  const prefPhone = c.req.query("phone") ?? "";
+  const prefSubject = c.req.query("subject") ?? "";
+  const prefMessage = c.req.query("message") ?? "";
+  const prefArea = c.req.query("law_area_id") ?? "";
 
   const { data: areas }: any = await supabase
     .from("tenant_law_areas")
@@ -892,40 +917,42 @@ publicSiteRoutes.get("/contato", async (c) => {
           {/* Form */}
           <div class="md:col-span-2">
             <form method="post" action={`${b}/contato`} class="space-y-4 bg-gray-50 p-6 rounded-xl">
+              {/* Honeypot field — hidden from users, bots fill it */}
+              <input type="text" name="website" tabIndex={-1} autocomplete="off" class="absolute -left-[9999px] opacity-0" aria-hidden="true" />
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-1">Nome *</label>
-                  <input type="text" name="name" required class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
+                  <label for="contact-name" class="block text-sm font-semibold text-gray-700 mb-1">Nome *</label>
+                  <input id="contact-name" type="text" name="name" required value={prefName} class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-1">E-mail *</label>
-                  <input type="email" name="email" required class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
+                  <label for="contact-email" class="block text-sm font-semibold text-gray-700 mb-1">E-mail *</label>
+                  <input id="contact-email" type="email" name="email" required value={prefEmail} class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
                 </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-1">Telefone</label>
-                  <input type="tel" name="phone" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
+                  <label for="contact-phone" class="block text-sm font-semibold text-gray-700 mb-1">Telefone</label>
+                  <input id="contact-phone" type="tel" name="phone" value={prefPhone} class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
                 </div>
                 {areas && areas.length > 0 && (
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Area de Interesse</label>
-                    <select name="law_area_id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                    <label for="contact-area" class="block text-sm font-semibold text-gray-700 mb-1">Área de Interesse</label>
+                    <select id="contact-area" name="law_area_id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                       <option value="">Selecione...</option>
                       {areas.map((a: any) => (
-                        <option value={a.law_areas.id}>{a.law_areas.name}</option>
+                        <option value={a.law_areas.id} selected={prefArea === String(a.law_areas.id)}>{a.law_areas.name}</option>
                       ))}
                     </select>
                   </div>
                 )}
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Assunto</label>
-                <input type="text" name="subject" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
+                <label for="contact-subject" class="block text-sm font-semibold text-gray-700 mb-1">Assunto</label>
+                <input id="contact-subject" type="text" name="subject" value={prefSubject} class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Mensagem *</label>
-                <textarea name="message" required rows={5} class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" />
+                <label for="contact-message" class="block text-sm font-semibold text-gray-700 mb-1">Mensagem *</label>
+                <textarea id="contact-message" name="message" required rows={5} class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">{prefMessage}</textarea>
               </div>
               <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
                 Enviar Mensagem
@@ -946,6 +973,21 @@ publicSiteRoutes.post("/contato", async (c) => {
   const b = getBasePath(c);
   const body = await c.req.parseBody();
 
+  // Honeypot: if "website" field is filled, it's a bot — silently succeed
+  const honeypot = String(body.website ?? "").trim();
+  if (honeypot) {
+    return c.html(renderPublic(c, tenant, "contato", (
+      <div class="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div class="w-16 h-16 rounded-full bg-status-green-bg flex items-center justify-center mx-auto mb-6">
+          <i class="ph ph-check-circle text-4xl text-status-green" aria-hidden="true" />
+        </div>
+        <h1 class="text-3xl font-serif font-bold text-secondary mb-3">Mensagem Enviada!</h1>
+        <p class="text-gray-500 mb-8">Obrigado pelo contato. Retornaremos o mais breve possível.</p>
+        <a href={`${b}/`} class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">Voltar ao Início</a>
+      </div>
+    )));
+  }
+
   const name = String(body.name ?? "").trim();
   const email = String(body.email ?? "").trim();
   const phone = String(body.phone ?? "").trim() || null;
@@ -954,7 +996,8 @@ publicSiteRoutes.post("/contato", async (c) => {
   const lawAreaId = String(body.law_area_id ?? "").trim() || null;
 
   if (!name || !email || !message) {
-    return c.redirect(`${b}/contato?error=${encodeURIComponent("Por favor, preencha todos os campos obrigatórios.")}`);
+    const params = new URLSearchParams({ error: "Por favor, preencha todos os campos obrigatórios.", name, email, phone: phone ?? "", subject: subject ?? "", message, law_area_id: lawAreaId ?? "" });
+    return c.redirect(`${b}/contato?${params.toString()}`);
   }
 
   // 1. Create a lead in the CRM
@@ -1014,6 +1057,8 @@ publicSiteRoutes.post("/newsletter", async (c) => {
   const body = await c.req.parseBody();
   const email = (body.email as string)?.trim();
 
+  // Honeypot: silently succeed for bots
+  if (String(body.website ?? "").trim()) return c.redirect(`${b}/`);
   if (!email) return c.redirect(`${b}/`);
 
   // Insert (ignore duplicates via upsert)
@@ -1064,7 +1109,7 @@ publicSiteRoutes.get("/reconhecimentos", async (c) => {
             {recognitions.map((r: any) => (
               <div class="flex items-start gap-4 p-6 rounded-xl border border-gray-100 hover:shadow-md transition">
                 <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <i class={`${r.icon ?? "ph-trophy"} text-2xl text-primary`} aria-hidden="true" />
+                  <i class={`ph ${r.icon ?? "ph-trophy"} text-2xl text-primary`} aria-hidden="true" />
                 </div>
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-secondary">{r.title}</h3>
@@ -1160,6 +1205,18 @@ publicSiteRoutes.get("/equipe/:slug", async (c) => {
     );
   }
 
+  // JSON-LD for Attorney
+  const attorneyJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Attorney",
+    name: member.public_name,
+    jobTitle: member.public_title ?? "",
+    worksFor: { "@type": "Organization", name: tenant.name },
+    ...(member.public_photo_url ? { image: member.public_photo_url } : {}),
+    ...(member.public_email ? { email: member.public_email } : {}),
+    ...(member.public_linkedin ? { sameAs: member.public_linkedin } : {}),
+  };
+
   return c.html(
     renderPublic(c, tenant, "equipe", (
       <div class="max-w-4xl mx-auto px-4 py-16">
@@ -1210,7 +1267,7 @@ publicSiteRoutes.get("/equipe/:slug", async (c) => {
           </div>
         </div>
       </div>
-    )),
+    ), `${member.public_name} — ${tenant.name}`, member.public_bio?.slice(0, 160), attorneyJsonLd),
   );
 });
 
@@ -1294,4 +1351,69 @@ publicSiteRoutes.get("/lgpd/termos", async (c) => {
       </div>
     )),
   );
+});
+
+// =========================================================================
+// GET /sitemap.xml — Dynamic sitemap per tenant
+// =========================================================================
+publicSiteRoutes.get("/sitemap.xml", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+
+  // Build base URL (prefer custom domain, then subdomain, then path-based)
+  const host = c.req.header("host") ?? "pragmaos.app";
+  const protocol = c.req.header("x-forwarded-proto") ?? "https";
+  const baseUrl = b ? `${protocol}://${host}${b}` : `${protocol}://${host}`;
+
+  const staticUrls = [
+    { loc: `${baseUrl}/`, priority: "1.0", changefreq: "weekly" },
+    { loc: `${baseUrl}/areas`, priority: "0.8", changefreq: "monthly" },
+    { loc: `${baseUrl}/equipe`, priority: "0.8", changefreq: "monthly" },
+    { loc: `${baseUrl}/artigos`, priority: "0.8", changefreq: "weekly" },
+    { loc: `${baseUrl}/sobre`, priority: "0.6", changefreq: "monthly" },
+    { loc: `${baseUrl}/contato`, priority: "0.6", changefreq: "monthly" },
+    { loc: `${baseUrl}/reconhecimentos`, priority: "0.5", changefreq: "monthly" },
+  ];
+
+  // Fetch dynamic content for sitemap
+  const [areasRes, articlesRes, teamRes] = await Promise.all([
+    supabase.from("tenant_law_areas").select("law_areas(slug)").eq("tenant_id", tenant.id),
+    supabase.from("articles").select("slug, published_at").eq("tenant_id", tenant.id).eq("status", "published"),
+    supabase.from("team_members").select("slug").eq("tenant_id", tenant.id).eq("is_published", true),
+  ]);
+
+  const areaUrls = (areasRes.data ?? []).map((a: any) => ({ loc: `${baseUrl}/areas/${a.law_areas.slug}`, priority: "0.7", changefreq: "monthly" }));
+  const articleUrls = (articlesRes.data ?? []).map((a: any) => ({ loc: `${baseUrl}/artigos/${a.slug}`, priority: "0.7", changefreq: "weekly", lastmod: a.published_at?.split("T")[0] }));
+  const teamUrls = (teamRes.data ?? []).map((m: any) => ({ loc: `${baseUrl}/equipe/${m.slug}`, priority: "0.6", changefreq: "monthly" }));
+
+  const allUrls = [...staticUrls, ...areaUrls, ...articleUrls, ...teamUrls];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allUrls.map((u) => `  <url>
+    <loc>${u.loc}</loc>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+    ${"lastmod" in u && u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}
+  </url>`).join("\n")}
+</urlset>`;
+
+  return new Response(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
+});
+
+// =========================================================================
+// GET /robots.txt — Per tenant
+// =========================================================================
+publicSiteRoutes.get("/robots.txt", (c) => {
+  const b = getBasePath(c);
+  const host = c.req.header("host") ?? "pragmaos.app";
+  const protocol = c.req.header("x-forwarded-proto") ?? "https";
+  const baseUrl = b ? `${protocol}://${host}${b}` : `${protocol}://${host}`;
+
+  const body = `User-agent: *
+Allow: /
+Disallow: /contato?error=
+
+Sitemap: ${baseUrl}/sitemap.xml`;
+  return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 });

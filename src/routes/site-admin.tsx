@@ -225,14 +225,14 @@ siteAdminRoutes.get("/areas", async (c) => {
 
   return renderPage(
     c,
-    { title: "Areas de Atuacao", active: "site-areas" },
+    { title: "Áreas de Atuação", active: "site-areas" },
     <>
-      <PageHeader title="Areas de Atuacao" icon="ph-scales" />
+      <PageHeader title="Áreas de Atuação" icon="ph-scales" />
 
       {/* Selected areas */}
-      <Panel title="Areas Selecionadas" icon="ph-check-circle">
+      <Panel title="Áreas Selecionadas" icon="ph-check-circle">
         {(!tenantAreas || tenantAreas.length === 0) ? (
-          <p class="text-gray-400 text-center py-6">Nenhuma area selecionada. Selecione areas abaixo.</p>
+          <p class="text-gray-400 text-center py-6">Nenhuma área selecionada. Selecione áreas abaixo.</p>
         ) : (
           <div class="space-y-3">
             {tenantAreas.map((ta: any) => (
@@ -254,13 +254,27 @@ siteAdminRoutes.get("/areas", async (c) => {
 
       {/* Available areas to add */}
       <div class="mt-6">
-        <Panel title="Adicionar Area" icon="ph-plus-circle">
+        <Panel title="Adicionar Área" icon="ph-plus-circle">
+          {/* Search bar with Alpine.js live filter */}
+          <div class="mb-4" {...{ "x-data": "{ q: '' }" }}>
+            <div class="relative">
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+              <input
+                type="text"
+                {...{ "x-model": "q", "@input": "$refs.grid.querySelectorAll('[data-area]').forEach(el => el.style.display = el.dataset.area.toLowerCase().includes(q.toLowerCase()) ? '' : 'none')" }}
+                placeholder="Buscar área para adicionar..."
+                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-terracota-400 focus:border-terracota-400"
+                aria-label="Buscar áreas para adicionar"
+              />
+            </div>
+          </div>
+
           {(allAreas ?? []).filter((a: any) => !selectedIds.has(a.id)).length === 0 ? (
-            <p class="text-gray-400 text-center py-4">Todas as areas disponiveis ja foram selecionadas.</p>
+            <p class="text-gray-400 text-center py-4">Todas as áreas disponíveis já foram selecionadas.</p>
           ) : (
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" {...{ "x-ref": "grid" }}>
               {(allAreas ?? []).filter((a: any) => !selectedIds.has(a.id)).map((a: any) => (
-                <form key={a.id} method="post" action="/site/areas/add" class="inline">
+                <form key={a.id} method="post" action="/site/areas/add" class="inline" data-area={a.name}>
                   <input type="hidden" name="law_area_id" value={a.id} />
                   <button type="submit" class="w-full flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:border-terracota-300 hover:bg-terracota-50 transition text-left">
                     <i class={`ph ${a.icon ?? "ph-scales"} text-h5 text-gray-500`} aria-hidden="true"></i>
@@ -1408,6 +1422,7 @@ siteAdminRoutes.get("/testimonials", async (c) => {
         <Textarea label="Depoimento" id="content" name="content" required placeholder="Excelente atendimento..." />
         <Select label="Avaliacao" id="rating" name="rating" options={[{value:"5",label:"5 estrelas"},{value:"4",label:"4"},{value:"3",label:"3"},{value:"2",label:"2"},{value:"1",label:"1"}]} />
         <Select label="Origem" id="source" name="source" options={[{value:"website",label:"Website"},{value:"google",label:"Google"},{value:"manual",label:"Manual"}]} />
+        <TextField label="Ordem" id="sort_order" name="sort_order" type="number" placeholder="0" />
       </Modal>
     )} />
     <Table columns={[{label:"Autor"},{label:"Cargo"},{label:"Avaliacao"},{label:"Origem"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum depoimento." emptyIcon="ph-quotes" ariaLabel="Depoimentos" />
@@ -1424,6 +1439,7 @@ siteAdminRoutes.post("/testimonials", async (c) => {
     content: body.content as string,
     rating: parseInt(body.rating as string) || 5,
     source: (body.source as string) || "website",
+    sort_order: body.sort_order ? parseInt(body.sort_order as string) : 0,
     is_published: true,
   });
   return c.redirect("/site/testimonials");
@@ -1507,6 +1523,7 @@ siteAdminRoutes.get("/clients", async (c) => {
         <TextField label="Nome" id="name" name="name" required placeholder="Empresa X" />
         <TextField label="Logo (URL)" id="logo_url" name="logo_url" placeholder="https://..." />
         <TextField label="Website" id="website_url" name="website_url" placeholder="https://..." />
+        <TextField label="Ordem" id="sort_order" name="sort_order" type="number" placeholder="0" />
       </Modal>
     )} />
     <Table columns={[{label:"Nome"},{label:"Logo"},{label:"Website"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum cliente cadastrado." emptyIcon="ph-handshake" ariaLabel="Clientes" />
@@ -1521,6 +1538,7 @@ siteAdminRoutes.post("/clients", async (c) => {
     name: body.name as string,
     logo_url: (body.logo_url as string) || null,
     website_url: (body.website_url as string) || null,
+    sort_order: body.sort_order ? parseInt(body.sort_order as string) : 0,
     is_published: true,
   });
   return c.redirect("/site/clients");
@@ -1601,6 +1619,7 @@ siteAdminRoutes.get("/recognitions", async (c) => {
         <TextField label="Organizacao" id="organization" name="organization" placeholder="Analise Advocacia 500" />
         <TextField label="Ano" id="year" name="year" type="number" placeholder="2025" />
         <TextField label="Posicao / Ranking" id="ranking_position" name="ranking_position" placeholder="1o lugar" />
+        <TextField label="Ícone (Phosphor)" id="icon" name="icon" placeholder="ph-trophy" />
         <Textarea label="Descricao" id="description" name="description" placeholder="..." />
       </Modal>
     )} />
@@ -1617,6 +1636,7 @@ siteAdminRoutes.post("/recognitions", async (c) => {
     organization: (body.organization as string) || null,
     year: body.year ? parseInt(body.year as string) : null,
     ranking_position: (body.ranking_position as string) || null,
+    icon: (body.icon as string) || null,
     description: (body.description as string) || null,
     is_published: true,
   });
@@ -1637,6 +1657,7 @@ siteAdminRoutes.get("/recognitions/:id", async (c) => {
           <TextField label="Organizacao" id="organization" name="organization" value={r.organization ?? ""} />
           <TextField label="Ano" id="year" name="year" type="number" value={r.year ? String(r.year) : ""} />
           <TextField label="Posicao" id="ranking_position" name="ranking_position" value={r.ranking_position ?? ""} />
+          <TextField label="Ícone (Phosphor)" id="icon" name="icon" value={r.icon ?? ""} placeholder="ph-trophy" />
           <Textarea label="Descricao" id="description" name="description" value={r.description ?? ""} />
           <Select label="Publicado?" id="is_published" name="is_published" options={[{value:"true",label:"Sim"},{value:"false",label:"Nao"}]} selected={r.is_published ? "true" : "false"} />
         </Modal>
@@ -1663,6 +1684,7 @@ siteAdminRoutes.post("/recognitions/:id", async (c) => {
     organization: (body.organization as string) || null,
     year: body.year ? parseInt(body.year as string) : null,
     ranking_position: (body.ranking_position as string) || null,
+    icon: (body.icon as string) || null,
     description: (body.description as string) || null,
     is_published: body.is_published === "true",
   }).eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
@@ -1729,6 +1751,7 @@ siteAdminRoutes.get("/offices", async (c) => {
         <TextField label="CEP" id="zip" name="zip" placeholder="01310-100" />
         <TextField label="Telefone" id="phone" name="phone" placeholder="(11) 3000-0000" />
         <TextField label="Email" id="email" name="email" type="email" placeholder="sp@escritorio.com" />
+        <TextField label="Ordem" id="sort_order" name="sort_order" type="number" placeholder="0" />
       </Modal>
     )} />
     <Table columns={[{label:"Nome"},{label:"Cidade"},{label:"Telefone"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum escritorio cadastrado." emptyIcon="ph-buildings" ariaLabel="Escritorios" />
@@ -1747,6 +1770,7 @@ siteAdminRoutes.post("/offices", async (c) => {
     zip: (body.zip as string) || null,
     phone: (body.phone as string) || null,
     email: (body.email as string) || null,
+    sort_order: body.sort_order ? parseInt(body.sort_order as string) : 0,
     is_published: true,
   });
   return c.redirect("/site/offices");

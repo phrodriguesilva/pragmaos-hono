@@ -212,25 +212,63 @@ onboardingRoutes.get("/areas", async (c) => {
     supabase.from("tenant_law_areas").select("law_area_id").eq("tenant_id", user.tenantId),
   ]);
   const selectedIds = new Set((selected ?? []).map((s) => s.law_area_id));
+  const selectedCount = selectedIds.size;
 
   const idx = ONBOARDING_STEPS.indexOf("areas");
   return c.html(
-    onboardingShell("Areas de Atuacao", idx, (
+    onboardingShell("Áreas de Atuação", idx, (
       <>
         {stepIndicator(idx)}
-        <h1 class="text-2xl font-bold mb-2">Quais areas seu escritorio atua?</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Selecione todas que se aplicam. Isso ajuda a organizar processos e aparece no seu site publico.</p>
+        <h1 class="text-2xl font-bold mb-2">Quais áreas seu escritório atua?</h1>
+        <p class="text-carvao-500 mb-6 text-sm">Selecione todas que se aplicam. Isso ajuda a organizar processos e aparece no seu site público.</p>
 
         <form method="post" action="/onboarding/areas" class="bg-white rounded-2xl border border-carvao-100 p-6">
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {/* Search bar with Alpine.js live filter */}
+          <div class="mb-4" {...{ "x-data": "{ q: '' }" }}>
+            <div class="relative">
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-carvao-400" aria-hidden="true" />
+              <input
+                type="text"
+                {...{ "x-model": "q", "@input": "$refs.grid.querySelectorAll('[data-area]').forEach(el => el.style.display = el.dataset.area.toLowerCase().includes(q.toLowerCase()) ? '' : 'none')" }}
+                placeholder="Buscar área (ex: tributário, trabalhista, civil...)"
+                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-carvao-200 text-sm focus:ring-2 focus:ring-terracota-400 focus:border-terracota-400"
+                aria-label="Buscar áreas de atuação"
+              />
+            </div>
+            <p class="text-xs text-carvao-400 mt-2">
+              <span {...{ "x-text": "(() => { const grid = document.querySelector('[data-grid]'); const visible = grid ? Array.from(grid.querySelectorAll('[data-area]')).filter(el => el.style.display !== 'none').length : 0; return visible + ' áreas visíveis' })()" }}></span>
+              {selectedCount > 0 && <span class="ml-2 text-terracota-600 font-medium">• {selectedCount} selecionada{selectedCount > 1 ? "s" : ""}</span>}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" data-grid {...{ "x-ref": "grid" }}>
             {(allAreas ?? []).map((a) => (
-              <label class={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${selectedIds.has(a.id) ? "border-terracota-500 bg-terracota-50" : "border-carvao-100 hover:border-carvao-300"}`}>
+              <label
+                data-area={a.name}
+                class={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${selectedIds.has(a.id) ? "border-terracota-500 bg-terracota-50" : "border-carvao-100 hover:border-carvao-300"}`}
+              >
                 <input type="checkbox" name="areas" value={a.id} checked={selectedIds.has(a.id)} class="accent-terracota-500" />
                 <i class={`ph ${a.icon ?? "ph-scales"} text-lg text-terracota-600`} aria-hidden="true" />
                 <span class="text-sm font-medium">{a.name}</span>
               </label>
             ))}
           </div>
+
+          {/* Selected areas summary (always visible, even when filtered out) */}
+          {selectedCount > 0 && (
+            <div class="mt-6 pt-4 border-t border-carvao-100">
+              <h3 class="text-sm font-semibold text-carvao-700 mb-2">Áreas selecionadas ({selectedCount})</h3>
+              <div class="flex flex-wrap gap-2">
+                {(allAreas ?? []).filter((a: any) => selectedIds.has(a.id)).map((a: any) => (
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-terracota-50 text-terracota-700 text-xs font-medium">
+                    <i class={`ph ${a.icon ?? "ph-scales"} text-sm`} aria-hidden="true" />
+                    {a.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-6">
             Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" />
           </button>

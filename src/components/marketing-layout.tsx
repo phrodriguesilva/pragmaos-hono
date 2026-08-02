@@ -23,8 +23,9 @@ export const MarketingLayout: FC<PropsWithChildren<{
   ogImage?: string;
   canonical?: string;
   noindex?: boolean;
-}>> = ({ title, description, active, ogImage, canonical, noindex, children }) => {
-  const desc = description ?? "PragmaOS — a plataforma de gestao juridica all-in-one para escritorios de advocacia modernos. Processos, prazos, financeiro, IA e mais.";
+  jsonLd?: object;
+}>> = ({ title, description, active, ogImage, canonical, noindex, jsonLd, children }) => {
+  const desc = description ?? "PragmaOS — a plataforma de gestão jurídica all-in-one para escritórios de advocacia modernos. Processos, prazos, financeiro, IA e mais.";
   const url = canonical ?? "https://pragmaos.app";
   const img = ogImage ?? "https://pragmaos.app/static/img/og-cover.png";
   return (
@@ -67,14 +68,12 @@ export const MarketingLayout: FC<PropsWithChildren<{
             "@type": "Offer",
             price: "199.00",
             priceCurrency: "BRL",
-            description: "Plano Starter a partir de R$ 199/mes",
-          },
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: "4.9",
-            ratingCount: "120",
+            description: "Plano Starter a partir de R$ 199/mês",
           },
         }) }} />
+
+        {/* Additional page-specific JSON-LD (e.g. FAQPage) */}
+        {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
 
         <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
@@ -85,13 +84,61 @@ export const MarketingLayout: FC<PropsWithChildren<{
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="/static/js/alpine.min.js" defer />
         <style>{`
+          html { scroll-behavior: smooth; }
           body { font-family: 'Inter', sans-serif; }
           .font-serif { font-family: 'Source Serif 4', serif; }
           .gradient-hero { background: radial-gradient(1200px 600px at 80% -10%, rgba(176,100,50,0.25), transparent), linear-gradient(180deg, #1f1d1a 0%, #2b2925 100%); }
           .gradient-cta { background: linear-gradient(135deg, #b06432 0%, #784222 100%); }
           .text-balance { text-wrap: balance; }
           .text-pretty { text-wrap: pretty; }
+          .btn:focus-visible, a:focus-visible { outline: 2px solid #b06432; outline-offset: 2px; }
+          .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+          .reveal.revealed { opacity: 1; transform: translateY(0); }
+          @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            html { scroll-behavior: auto; }
+          }
         `}</style>
+        <script>{`
+          (function() {
+            const obs = new IntersectionObserver((entries) => {
+              entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); obs.unobserve(e.target); } });
+            }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+            document.addEventListener('DOMContentLoaded', () => {
+              document.querySelectorAll('section').forEach(s => { s.classList.add('reveal'); obs.observe(s); });
+              // Animated stat counters
+              const statObs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                  if (!e.isIntersecting) return;
+                  const el = e.target;
+                  const raw = el.dataset.value || "";
+                  statObs.unobserve(el);
+                  // Parse numeric portion for count-up
+                  const m = raw.match(/(\\+?)(\\d+[\\.,]?\\d*)(.*)/);
+                  if (!m) return;
+                  const prefix = m[1] || "";
+                  const numStr = m[2];
+                  const suffix = m[3] || "";
+                  const target = parseFloat(numStr.replace(",", "."));
+                  const isFloat = numStr.includes(",") || numStr.includes(".");
+                  const duration = 1200;
+                  const start = performance.now();
+                  const step = (now) => {
+                    const p = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - p, 3);
+                    const val = target * eased;
+                    const formatted = isFloat ? val.toFixed(1).replace(".", ",") : Math.round(val).toString();
+                    el.textContent = prefix + formatted + suffix;
+                    if (p < 1) requestAnimationFrame(step);
+                    else el.textContent = raw;
+                  };
+                  requestAnimationFrame(step);
+                });
+              }, { threshold: 0.5 });
+              document.querySelectorAll('.stat-counter').forEach(el => statObs.observe(el));
+            });
+          })();
+        `}</script>
       </head>
       <body class="bg-white text-carvao-800 antialiased min-h-screen flex flex-col">
         {/* Header */}
@@ -112,7 +159,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
 
             <div class="hidden md:flex items-center gap-3">
               <a href="/login" class="text-sm font-semibold text-carvao-600 hover:text-carvao-800 transition-colors">Entrar</a>
-              <a href="/signup" class="btn btn-primary text-sm">Teste gratis</a>
+              <a href="/signup" class="btn btn-primary text-sm">Teste grátis</a>
             </div>
 
             {/* Mobile */}
@@ -124,7 +171,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
             {NAV.map((n) => <a href={n.href} class="text-sm font-medium text-carvao-600 hover:text-carvao-800">{n.label}</a>)}
             <div class="flex gap-3 pt-2 border-t border-carvao-100">
               <a href="/login" class="flex-1 text-center text-sm font-semibold text-carvao-600 py-2 rounded-lg border border-carvao-200">Entrar</a>
-              <a href="/signup" class="flex-1 text-center btn btn-primary text-sm py-2">Teste gratis</a>
+              <a href="/signup" class="flex-1 text-center btn btn-primary text-sm py-2">Teste grátis</a>
             </div>
           </div>
         </header>
@@ -142,7 +189,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
                   </div>
                   <span class="text-base font-bold text-white">PragmaOS</span>
                 </div>
-                <p class="text-sm text-carvao-300 max-w-xs">A plataforma all-in-one de gestao juridica para escritorios que querem crescer com dados, nao com planilhas.</p>
+                <p class="text-sm text-carvao-300 max-w-xs">A plataforma all-in-one de gestão jurídica para escritórios que querem crescer com dados, não com planilhas.</p>
               </div>
 
               <div>
@@ -150,8 +197,8 @@ export const MarketingLayout: FC<PropsWithChildren<{
                 <ul class="space-y-2 text-sm">
                   <li><a href="/#recursos" class="hover:text-white transition-colors">Recursos</a></li>
                   <li><a href="/#planos" class="hover:text-white transition-colors">Planos</a></li>
-                  <li><a href="/#integracoes" class="hover:text-white transition-colors">Integracoes</a></li>
-                  <li><a href="/#seguranca" class="hover:text-white transition-colors">Seguranca</a></li>
+                  <li><a href="/#integracoes" class="hover:text-white transition-colors">Integrações</a></li>
+                  <li><a href="/#seguranca" class="hover:text-white transition-colors">Segurança</a></li>
                 </ul>
               </div>
 
