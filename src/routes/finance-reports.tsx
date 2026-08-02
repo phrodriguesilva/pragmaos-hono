@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, Select, Panel, Badge } from "../components/ui";
@@ -9,6 +9,7 @@ import { PageHeader, Table, Select, Panel, Badge } from "../components/ui";
 export const financeReportsRoutes = new Hono<AppEnv>();
 
 financeReportsRoutes.use("*", requireAuth);
+financeReportsRoutes.use("*", requireRole("socio", "financeiro"));
 
 // --- Helpers ---
 
@@ -140,9 +141,9 @@ financeReportsRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scale text-h3 text-carvao-700" aria-hidden="true"></i>Lucro Bruto
+            <i class="ph ph-scale text-h3 text-terracota-700" aria-hidden="true"></i>Lucro Bruto
           </div>
-          <div class={`text-h2 font-bold ${lucro >= 0 ? "text-carvao-700" : "text-status-red"}`}>{formatCurrency(lucro)}</div>
+          <div class={`text-h2 font-bold ${lucro >= 0 ? "text-terracota-700" : "text-status-red"}`}>{formatCurrency(lucro)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">

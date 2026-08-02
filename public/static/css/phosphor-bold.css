@@ -1,0 +1,170 @@
+@font-face {
+  font-family: "Phosphor-Bold";
+  src: url("/static/fonts/Phosphor-Bold.woff2") format("woff2"),
+       url("/static/fonts/Phosphor-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: block;
+}
+
+.ph-bold {
+  font-family: "Phosphor-Bold" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: bold;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  letter-spacing: 0;
+  -webkit-font-feature-settings: "liga";
+  -moz-font-feature-settings: "liga=1";
+  -moz-font-feature-settings: "liga";
+  -ms-font-feature-settings: "liga" 1;
+  font-feature-settings: "liga";
+  -webkit-font-variant-ligatures: discretionary-ligatures;
+  font-variant-ligatures: discretionary-ligatures;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ph-bold.ph-arrow-clockwise:before { content: "\e036"; }
+.ph-bold.ph-arrow-down-left:before { content: "\e040"; }
+.ph-bold.ph-arrow-fat-line-down:before { content: "\e51c"; }
+.ph-bold.ph-arrow-fat-line-up:before { content: "\e522"; }
+.ph-bold.ph-arrow-left:before { content: "\e058"; }
+.ph-bold.ph-arrow-right:before { content: "\e06c"; }
+.ph-bold.ph-arrow-square-out:before { content: "\e5de"; }
+.ph-bold.ph-arrow-up-right:before { content: "\e092"; }
+.ph-bold.ph-arrows-clockwise:before { content: "\e094"; }
+.ph-bold.ph-arrows-left-right:before { content: "\e0a0"; }
+.ph-bold.ph-at:before { content: "\e0ac"; }
+.ph-bold.ph-bank:before { content: "\e0b4"; }
+.ph-bold.ph-bell:before { content: "\e0ce"; }
+.ph-bold.ph-bell-slash:before { content: "\e0d4"; }
+.ph-bold.ph-books:before { content: "\e758"; }
+.ph-bold.ph-building:before { content: "\e100"; }
+.ph-bold.ph-calendar:before { content: "\e108"; }
+.ph-bold.ph-calendar-plus:before { content: "\e714"; }
+.ph-bold.ph-caret-down:before { content: "\e136"; }
+.ph-bold.ph-caret-left:before { content: "\e138"; }
+.ph-bold.ph-caret-right:before { content: "\e13a"; }
+.ph-bold.ph-caret-up:before { content: "\e13c"; }
+.ph-bold.ph-chart-bar:before { content: "\e150"; }
+.ph-bold.ph-chart-line:before { content: "\e154"; }
+.ph-bold.ph-chart-line-up:before { content: "\e156"; }
+.ph-bold.ph-chart-pie:before { content: "\e158"; }
+.ph-bold.ph-chat:before { content: "\e15c"; }
+.ph-bold.ph-chat-circle:before { content: "\e168"; }
+.ph-bold.ph-chat-circle-text:before { content: "\e16e"; }
+.ph-bold.ph-chats-circle:before { content: "\e17e"; }
+.ph-bold.ph-chats-teardrop:before { content: "\e180"; }
+.ph-bold.ph-check:before { content: "\e182"; }
+.ph-bold.ph-check-circle:before { content: "\e184"; }
+.ph-bold.ph-check-square:before { content: "\e186"; }
+.ph-bold.ph-circle:before { content: "\e18a"; }
+.ph-bold.ph-circle-half:before { content: "\e18c"; }
+.ph-bold.ph-circle-notch:before { content: "\eb44"; }
+.ph-bold.ph-clock:before { content: "\e19a"; }
+.ph-bold.ph-clock-countdown:before { content: "\ed2c"; }
+.ph-bold.ph-coins:before { content: "\e78e"; }
+.ph-bold.ph-cpu:before { content: "\e610"; }
+.ph-bold.ph-currency-dollar:before { content: "\e550"; }
+.ph-bold.ph-download-simple:before { content: "\e20c"; }
+.ph-bold.ph-envelope:before { content: "\e214"; }
+.ph-bold.ph-envelope-open:before { content: "\e216"; }
+.ph-bold.ph-envelope-simple-open:before { content: "\e21a"; }
+.ph-bold.ph-eye:before { content: "\e220"; }
+.ph-bold.ph-eye-slash:before { content: "\e224"; }
+.ph-bold.ph-file:before { content: "\e230"; }
+.ph-bold.ph-file-arrow-up:before { content: "\e61e"; }
+.ph-bold.ph-file-text:before { content: "\e23a"; }
+.ph-bold.ph-files:before { content: "\e710"; }
+.ph-bold.ph-flag:before { content: "\e244"; }
+.ph-bold.ph-floppy-disk:before { content: "\e248"; }
+.ph-bold.ph-folder:before { content: "\e24a"; }
+.ph-bold.ph-folder-dashed:before { content: "\e8f8"; }
+.ph-bold.ph-folder-open:before { content: "\e256"; }
+.ph-bold.ph-folder-plus:before { content: "\e258"; }
+.ph-bold.ph-funnel:before { content: "\e266"; }
+.ph-bold.ph-gauge:before { content: "\e628"; }
+.ph-bold.ph-gavel:before { content: "\ea32"; }
+.ph-bold.ph-gear:before { content: "\e270"; }
+.ph-bold.ph-gear-six:before { content: "\e272"; }
+.ph-bold.ph-globe:before { content: "\e288"; }
+.ph-bold.ph-google-logo:before { content: "\e292"; }
+.ph-bold.ph-grid-nine:before { content: "\ec8c"; }
+.ph-bold.ph-hand-coins:before { content: "\ea8c"; }
+.ph-bold.ph-hand-tap:before { content: "\ec90"; }
+.ph-bold.ph-handshake:before { content: "\e582"; }
+.ph-bold.ph-hash:before { content: "\e2a2"; }
+.ph-bold.ph-house:before { content: "\e2c2"; }
+.ph-bold.ph-info:before { content: "\e2ce"; }
+.ph-bold.ph-invoice:before { content: "\ee42"; }
+.ph-bold.ph-kanban:before { content: "\eb54"; }
+.ph-bold.ph-key:before { content: "\e2d6"; }
+.ph-bold.ph-lightning:before { content: "\e2de"; }
+.ph-bold.ph-list:before { content: "\e2f0"; }
+.ph-bold.ph-list-checks:before { content: "\eadc"; }
+.ph-bold.ph-list-dashes:before { content: "\e2f4"; }
+.ph-bold.ph-list-numbers:before { content: "\e2f6"; }
+.ph-bold.ph-lock:before { content: "\e2fa"; }
+.ph-bold.ph-lock-key:before { content: "\e2fe"; }
+.ph-bold.ph-magnifying-glass:before { content: "\e30c"; }
+.ph-bold.ph-microsoft-outlook-logo:before { content: "\eb70"; }
+.ph-bold.ph-newspaper:before { content: "\e344"; }
+.ph-bold.ph-newspaper-clipping:before { content: "\e346"; }
+.ph-bold.ph-note:before { content: "\e348"; }
+.ph-bold.ph-paper-plane-tilt:before { content: "\e398"; }
+.ph-bold.ph-pen-nib:before { content: "\e3ac"; }
+.ph-bold.ph-pencil:before { content: "\e3ae"; }
+.ph-bold.ph-pencil-simple:before { content: "\e3b4"; }
+.ph-bold.ph-percent:before { content: "\e3b6"; }
+.ph-bold.ph-phone:before { content: "\e3b8"; }
+.ph-bold.ph-play:before { content: "\e3d0"; }
+.ph-bold.ph-plugs-connected:before { content: "\eb5a"; }
+.ph-bold.ph-plus:before { content: "\e3d4"; }
+.ph-bold.ph-plus-circle:before { content: "\e3d6"; }
+.ph-bold.ph-power:before { content: "\e3da"; }
+.ph-bold.ph-qr-code:before { content: "\e3e6"; }
+.ph-bold.ph-receipt:before { content: "\e3ec"; }
+.ph-bold.ph-robot:before { content: "\e762"; }
+.ph-bold.ph-scales:before { content: "\e750"; }
+.ph-bold.ph-shield-check:before { content: "\e40c"; }
+.ph-bold.ph-shield-slash:before { content: "\e410"; }
+.ph-bold.ph-shield-star:before { content: "\ec34"; }
+.ph-bold.ph-shield-warning:before { content: "\e412"; }
+.ph-bold.ph-sign-in:before { content: "\e428"; }
+.ph-bold.ph-sign-out:before { content: "\e42a"; }
+.ph-bold.ph-sparkle:before { content: "\e6a2"; }
+.ph-bold.ph-spinner:before { content: "\e66a"; }
+.ph-bold.ph-squares-four:before { content: "\e464"; }
+.ph-bold.ph-storefront:before { content: "\e470"; }
+.ph-bold.ph-tag:before { content: "\e478"; }
+.ph-bold.ph-target:before { content: "\e47c"; }
+.ph-bold.ph-text-aa:before { content: "\e6ee"; }
+.ph-bold.ph-timer:before { content: "\e492"; }
+.ph-bold.ph-translate:before { content: "\e4a2"; }
+.ph-bold.ph-trash:before { content: "\e4a6"; }
+.ph-bold.ph-tray:before { content: "\e4aa"; }
+.ph-bold.ph-upload-simple:before { content: "\e4c0"; }
+.ph-bold.ph-user:before { content: "\e4c2"; }
+.ph-bold.ph-user-circle:before { content: "\e4c4"; }
+.ph-bold.ph-user-circle-gear:before { content: "\e4c6"; }
+.ph-bold.ph-user-minus:before { content: "\e4ce"; }
+.ph-bold.ph-user-plus:before { content: "\e4d0"; }
+.ph-bold.ph-users:before { content: "\e4d6"; }
+.ph-bold.ph-users-four:before { content: "\e68c"; }
+.ph-bold.ph-users-three:before { content: "\e68e"; }
+.ph-bold.ph-warning:before { content: "\e4e0"; }
+.ph-bold.ph-warning-circle:before { content: "\e4e2"; }
+.ph-bold.ph-whatsapp-logo:before { content: "\e5d0"; }
+.ph-bold.ph-x:before { content: "\e4f6"; }
+.ph-bold.ph-x-circle:before { content: "\e4f8"; }
+.ph-bold.ph-arrows-right-left:before { content: "\e0a0"; }
+.ph-bold.ph-circle-fill:before { content: "\e18a"; }
+.ph-bold.ph-court:before { content: "\ea32"; }
+.ph-bold.ph-currency-circle-check:before { content: "\e588"; }
+.ph-bold.ph-id-card:before { content: "\e2c8"; }
+.ph-bold.ph-inbox:before { content: "\ec1e"; }
+.ph-bold.ph-qrcode:before { content: "\e3e6"; }
+.ph-bold.ph-scale:before { content: "\e750"; }
+.ph-bold.ph-timeline:before { content: "\e19a"; }

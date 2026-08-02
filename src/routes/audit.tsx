@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table } from "../components/ui";
@@ -9,15 +9,22 @@ import { PageHeader, Table } from "../components/ui";
 export const auditRoutes = new Hono<AppEnv>();
 
 auditRoutes.use("*", requireAuth);
+auditRoutes.use("*", requireRole("socio"));
 
 auditRoutes.get("/", async (c) => {
   const user = c.get("user");
-  const { data: logs } = await supabase
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+
+  const { data: logs, count } = await supabase
     .from("audit_log")
-    .select("id, action, entity_type, entity_id, created_at, profiles(full_name)")
+    .select("id, action, entity_type, entity_id, created_at, profiles(full_name)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .order("created_at", { ascending: false })
-    .limit(100);
+    .range(offset, offset + limit - 1);
+
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (logs ?? []).map((l) => [
     new Date(l.created_at).toLocaleString("pt-BR"),
@@ -38,6 +45,13 @@ auditRoutes.get("/", async (c) => {
         emptyMsg="Nenhum registro de auditoria."
         emptyIcon="ph-shield-check"
         ariaLabel="Log de auditoria"
+        count={count ?? 0}
+        countLabel="registro(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/audit",
+        }}
       />
     </>,
   );

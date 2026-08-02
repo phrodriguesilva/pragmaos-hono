@@ -70,6 +70,9 @@ function formatDate(value: string | null | undefined): string {
 
 cashflowRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
   const now = new Date();
   const in30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
@@ -88,15 +91,19 @@ cashflowRoutes.get("/", async (c) => {
       .order("due_date", { ascending: true }),
     supabase
       .from("bank_accounts")
-      .select("id, name, bank, agency, account, balance_cents, active")
+      .select("id, name, bank, agency, account, balance_cents, active", { count: "exact" })
       .eq("tenant_id", user.tenantId)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1),
     supabase
       .from("honorarios")
       .select("amount_cents")
       .eq("tenant_id", user.tenantId)
       .eq("status", "paid"),
   ]);
+
+  const accountsCount = accountsRes.count;
+  const accountsTotalPages = accountsCount ? Math.ceil(accountsCount / limit) : 1;
 
   const receber = (honorariosRes.data ?? []).reduce((s, h) => s + h.amount_cents, 0);
   const pagar = (expensesRes.data ?? []).reduce((s, e) => s + e.amount_cents, 0);
@@ -135,6 +142,7 @@ cashflowRoutes.get("/", async (c) => {
     ) : (
       <Badge color="gray" icon="ph-x-circle">Inativa</Badge>
     ) as unknown as string,
+    <a href={`/cashflow/accounts/${a.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -158,9 +166,9 @@ cashflowRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scale text-h3 text-carvao-700" aria-hidden="true"></i>Saldo Projetado
+            <i class="ph ph-scale text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Projetado
           </div>
-          <div class="text-h2 font-bold text-carvao-700">{formatCurrency(saldoProjetado)}</div>
+          <div class="text-h2 font-bold text-terracota-700">{formatCurrency(saldoProjetado)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
@@ -184,6 +192,8 @@ cashflowRoutes.get("/", async (c) => {
             emptyMsg="Nenhuma transacao nos proximos 30 dias."
             emptyIcon="ph-calendar"
             ariaLabel="Transacoes proximos 30 dias"
+            count={upcoming.length}
+            countLabel="transacao(oes)"
           />
         </Panel>
       </div>
@@ -197,11 +207,19 @@ cashflowRoutes.get("/", async (c) => {
             { label: "Conta" },
             { label: "Saldo", align: "right" },
             { label: "Status" },
+            { label: "Acoes" },
           ]}
           rows={accountRows}
           emptyMsg="Nenhuma conta bancaria cadastrada."
           emptyIcon="ph-bank"
           ariaLabel="Contas bancarias"
+          count={accountsCount ?? 0}
+          countLabel="transacao(oes)"
+          pagination={{
+            currentPage: page,
+            totalPages: accountsTotalPages,
+            basePath: "/cashflow",
+          }}
         />
       </Panel>
     </>,
@@ -239,6 +257,7 @@ cashflowRoutes.get("/expenses", async (c) => {
     formatCurrency(e.amount_cents),
     formatDate(e.due_date),
     <Badge color={statusColor(e.status)}>{STATUS_LABELS[e.status] ?? e.status}</Badge> as unknown as string,
+    <a href={`/cashflow/expenses/${e.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -303,6 +322,7 @@ cashflowRoutes.get("/expenses", async (c) => {
           { label: "Valor", align: "right" },
           { label: "Vencimento" },
           { label: "Status" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhuma despesa encontrada."
@@ -321,7 +341,7 @@ cashflowRoutes.post("/expenses", async (c) => {
   const rawAmount = body.amount_cents;
   const amountCents = Math.round(Number(rawAmount) * 100);
   const parsed = expenseSchema.safeParse({ ...body, amount_cents: amountCents });
-  if (!parsed.success) return c.redirect("/cashflow/expenses/new");
+  if (!parsed.success) return c.redirect("/cashflow/expenses");
 
   await supabase.from("expenses").insert({
     tenant_id: user.tenantId,
@@ -437,6 +457,7 @@ cashflowRoutes.get("/accounts", async (c) => {
     ) : (
       <Badge color="gray" icon="ph-x-circle">Inativa</Badge>
     ) as unknown as string,
+    <a href={`/cashflow/accounts/${a.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -468,6 +489,7 @@ cashflowRoutes.get("/accounts", async (c) => {
           { label: "Conta" },
           { label: "Saldo", align: "right" },
           { label: "Status" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhuma conta bancaria cadastrada."
@@ -486,7 +508,7 @@ cashflowRoutes.post("/accounts", async (c) => {
   const rawBalance = body.balance_cents;
   const balanceCents = Math.round(Number(rawBalance ?? 0) * 100);
   const parsed = accountSchema.safeParse({ ...body, balance_cents: balanceCents });
-  if (!parsed.success) return c.redirect("/cashflow/accounts/new");
+  if (!parsed.success) return c.redirect("/cashflow/accounts");
 
   await supabase.from("bank_accounts").insert({
     tenant_id: user.tenantId,
@@ -565,9 +587,9 @@ cashflowRoutes.get("/dre", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-percent text-h3 text-carvao-700" aria-hidden="true"></i>Margem
+            <i class="ph ph-percent text-h3 text-terracota-700" aria-hidden="true"></i>Margem
           </div>
-          <div class="text-h2 font-bold text-carvao-700">{margin.toFixed(1)}%</div>
+          <div class="text-h2 font-bold text-terracota-700">{margin.toFixed(1)}%</div>
         </Panel>
       </div>
 
@@ -675,9 +697,9 @@ cashflowRoutes.get("/dfc", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-storefront text-h3 text-carvao-700" aria-hidden="true"></i>Operacional
+            <i class="ph ph-storefront text-h3 text-terracota-700" aria-hidden="true"></i>Operacional
           </div>
-          <div class="text-h2 font-bold text-carvao-700">{formatCurrency(operating)}</div>
+          <div class="text-h2 font-bold text-terracota-700">{formatCurrency(operating)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">

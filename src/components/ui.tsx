@@ -19,56 +19,125 @@ export type TableColumn = {
   icon?: string;
 };
 
+export type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
+  queryParams?: Record<string, string>;
+};
+
 export type TableProps = {
   columns: TableColumn[];
   rows: (string | number)[][];
   emptyMsg?: string;
   ariaLabel?: string;
   emptyIcon?: string;
+  count?: number;
+  countLabel?: string;
+  pagination?: PaginationProps;
 };
 
-export const Table: FC<TableProps> = ({ columns, rows, emptyMsg, ariaLabel, emptyIcon }) => (
-  <table class="data-table" aria-label={ariaLabel}>
-    <thead>
-      <tr>
-        {columns.map((c) => (
-          <th class={c.align === "center" ? "text-center" : c.align === "right" ? "text-right" : ""}>
-            {c.icon ? <i class={`ph ${c.icon} mr-1`} aria-hidden="true" /> : null}
-            {c.label}
-          </th>
-        ))}
-      </tr>
-    </thead>
-    <tbody>
-      {rows.length === 0 ? (
-        <tr>
-          <td colspan={columns.length} class="text-center text-gray-500 py-4">
-            {emptyIcon ? <i class={`ph ${emptyIcon} text-h2 block mb-1 text-gray-300`} aria-hidden="true" /> : null}
-            {emptyMsg ?? "Nenhum registro encontrado."}
-          </td>
-        </tr>
-      ) : (
-        rows.map((row) => (
+function buildPageUrl(p: PaginationProps, page: number): string {
+  const params = new URLSearchParams(p.queryParams ?? {});
+  params.set("page", String(page));
+  params.set("limit", "20");
+  return `${p.basePath}?${params.toString()}`;
+}
+
+export const Table: FC<TableProps> = ({ columns, rows, emptyMsg, ariaLabel, emptyIcon, count, countLabel, pagination }) => {
+  const showCount = count !== undefined;
+  const showPagination = pagination && pagination.totalPages > 1;
+  const p = pagination;
+
+  // Build page numbers to display (show up to 5 pages around current).
+  let pages: number[] = [];
+  if (p) {
+    const start = Math.max(1, p.currentPage - 2);
+    const end = Math.min(p.totalPages, start + 4);
+    for (let i = start; i <= end; i++) pages.push(i);
+  }
+
+  return (
+    <>
+      <table class="data-table" aria-label={ariaLabel}>
+        <thead>
           <tr>
-            {row.map((cell, i) => (
-              <td
-                class={
-                  columns[i]?.align === "center"
-                    ? "text-center"
-                    : columns[i]?.align === "right"
-                      ? "text-right"
-                      : ""
-                }
-              >
-                {cell}
-              </td>
+            {columns.map((c) => (
+              <th class={c.align === "center" ? "text-center" : c.align === "right" ? "text-right" : ""}>
+                {c.icon ? <i class={`ph ${c.icon} mr-1`} aria-hidden="true" /> : null}
+                {c.label}
+              </th>
             ))}
           </tr>
-        ))
-      )}
-    </tbody>
-  </table>
-);
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td colspan={columns.length} class="text-center text-gray-500 py-4">
+                {emptyIcon ? <i class={`ph ${emptyIcon} text-h2 block mb-1 text-gray-300`} aria-hidden="true" /> : null}
+                {emptyMsg ?? "Nenhum registro encontrado."}
+              </td>
+            </tr>
+          ) : (
+            rows.map((row) => (
+              <tr>
+                {row.map((cell, i) => (
+                  <td
+                    class={
+                      columns[i]?.align === "center"
+                        ? "text-center"
+                        : columns[i]?.align === "right"
+                          ? "text-right"
+                          : ""
+                    }
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+      {showCount || showPagination ? (
+        <div class="flex items-center justify-between mt-2">
+          {showCount ? (
+            <div class="text-body-sm text-gray-500">{count} {countLabel ?? "registro(s)"}</div>
+          ) : <div />}
+          {showPagination && p ? (
+            <div class="flex items-center gap-1">
+              {p.currentPage > 1 ? (
+                <a href={buildPageUrl(p, p.currentPage - 1)} class="btn btn-secondary btn-sm" aria-label="Pagina anterior">
+                  <i class="ph ph-caret-left" aria-hidden="true"></i>
+                </a>
+              ) : null}
+              {pages[0]! > 1 ? (
+                <>
+                  <a href={buildPageUrl(p, 1)} class="btn btn-secondary btn-sm">1</a>
+                  {pages[0]! > 2 ? <span class="text-gray-400 px-1">...</span> : null}
+                </>
+              ) : null}
+              {pages.map((pg) => (
+                <a href={buildPageUrl(p, pg)} class={`btn btn-sm ${pg === p.currentPage ? "btn-primary" : "btn-secondary"}`}>{pg}</a>
+              ))}
+              {pages[pages.length - 1]! < p.totalPages ? (
+                <>
+                  {pages[pages.length - 1]! < p.totalPages - 1 ? <span class="text-gray-400 px-1">...</span> : null}
+                  <a href={buildPageUrl(p, p.totalPages)} class="btn btn-secondary btn-sm">{p.totalPages}</a>
+                </>
+              ) : null}
+              {p.currentPage < p.totalPages ? (
+                <a href={buildPageUrl(p, p.currentPage + 1)} class="btn btn-secondary btn-sm" aria-label="Proxima pagina">
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+};
 
 export const PageHeader: FC<PropsWithChildren<{ title: string; icon?: string; actions?: () => unknown }>> = ({
   title,
@@ -89,14 +158,14 @@ export const PageHeader: FC<PropsWithChildren<{ title: string; icon?: string; ac
 );
 
 export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string }>> = ({ title, icon, children }) => (
-  <div class="border border-border bg-white">
+  <div class="border border-gray-100 bg-white rounded-xl shadow-sm">
     {title ? (
-      <div class="border-b border-border-strong px-4 py-2 bg-gray-50 flex items-center gap-2">
-        {icon ? <i class={`ph ${icon} text-body text-carvao-600`} aria-hidden="true" /> : null}
+      <div class="border-b border-gray-100 px-5 py-4 flex items-center gap-2.5">
+        {icon ? <i class={`ph ${icon} text-body text-terracota-500`} aria-hidden="true" /> : null}
         <h2 class="text-h3 font-semibold text-gray-800">{title}</h2>
       </div>
     ) : null}
-    <div class="p-4">{children}</div>
+    <div class="p-5">{children}</div>
   </div>
 );
 
@@ -592,3 +661,144 @@ export const EditModal: FC<{
 export function editModalOpen(modalId: string, fetchUrl: string): string {
   return `const m = document.querySelector('[x-data]').__x.$data; ${modalId} = true; document.body.classList.add('modal-open'); fetch('${fetchUrl}').then(r => r.text()).then(h => { content = h; loading = false; })`;
 }
+
+// ---------------------------------------------------------------------------
+// FileUpload — reutilizavel para upload de arquivos via Supabase Storage.
+// Usa Alpine.js para drag-and-drop, progress bar, e preview de imagem.
+// Faz POST multipart para /upload e recebe de volta a URL publica + path.
+// ---------------------------------------------------------------------------
+
+export const FileUpload: FC<{
+  label: string;
+  id: string;
+  name: string; // nome do hidden input que guarda o path retornado
+  accept?: string; // ex: ".pdf,.jpg,.png" ou "image/*"
+  maxSize?: number; // em MB (default 10)
+  required?: boolean;
+  value?: string; // path/URL existente
+  icon?: string;
+  help?: string;
+}> = ({ label, id, name, accept = "*", maxSize = 10, required, value, icon = "ph-upload-simple", help }) => (
+  <div class="flex flex-col gap-1">
+    <label for={id} class="text-body-sm font-semibold text-gray-700">
+      {label}
+      {required ? <span class="text-status-red"> *</span> : null}
+    </label>
+    <div
+      {...{ "x-data": `{ uploading: false, progress: 0, fileName: '', fileUrl: '${(value ?? "").replace(/'/g, "\\'")}', error: '', dragOver: false }` }}
+      {...{ "@dragover.prevent": "dragOver = true" }}
+      {...{ "@dragleave.prevent": "dragOver = false" }}
+      {...{ "@drop.prevent": "if ($event.dataTransfer.files.length) { $refs.fileInput.files = $event.dataTransfer.files; $dispatch('change') }" }}
+      class={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${required ? "border-terracota-400" : "border-gray-300"}`}
+      {...{ ":class": "dragOver ? 'border-terracota-600 bg-terracota-50' : (error ? 'border-status-red bg-red-50' : 'border-gray-300')" }}
+    >
+      {/* Hidden input que guarda o path retornado pelo servidor */}
+      <input type="hidden" name={name} {...{ ":value": "fileUrl" }} />
+
+      {/* File input real (escondido) */}
+      <input
+        type="file"
+        accept={accept}
+        {...{ "x-ref": "fileInput" }}
+        class="hidden"
+        {...{ "@change": `
+          const file = $event.target.files[0];
+          if (!file) return;
+          error = '';
+          if (file.size > ${maxSize} * 1024 * 1024) {
+            error = 'Arquivo muito grande. Maximo: ${maxSize}MB.';
+            return;
+          }
+          uploading = true;
+          progress = 0;
+          fileName = file.name;
+          const formData = new FormData();
+          formData.append('file', file);
+          const xhr = new XMLHttpRequest();
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) progress = Math.round((e.loaded / e.total) * 100);
+          });
+          xhr.addEventListener('load', () => {
+            uploading = false;
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const res = JSON.parse(xhr.responseText);
+              fileUrl = res.path || res.url || '';
+              error = '';
+            } else {
+              try {
+                const res = JSON.parse(xhr.responseText);
+                error = res.error || 'Erro no upload.';
+              } catch(e) {
+                error = 'Erro no upload (status ' + xhr.status + ').';
+              }
+            }
+          });
+          xhr.addEventListener('error', () => {
+            uploading = false;
+            error = 'Erro de conexao no upload.';
+          });
+          xhr.open('POST', '/upload');
+          xhr.send(formData);
+        ` }}
+      />
+
+      {/* Estado: vazio (drag-drop area) */}
+      <div {...{ "x-show": "!uploading && !fileUrl && !error" }}>
+        <i class={`ph ${icon} text-h2 text-gray-400 block mb-2`} aria-hidden="true"></i>
+        <p class="text-body-sm text-gray-500 mb-2">Arraste um arquivo aqui ou</p>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          {...{ "@click": "$refs.fileInput.click()" }}
+        >
+          <i class="ph ph-folder-open" aria-hidden="true"></i> Selecionar arquivo
+        </button>
+        {help ? <p class="text-body-xs text-gray-400 mt-2">{help}</p> : null}
+      </div>
+
+      {/* Estado: uploading (progress bar) */}
+      <div {...{ "x-show": "uploading" }} x-cloak>
+        <i class="ph ph-spinner animate-spin text-h2 text-carvao-600 block mb-2" aria-hidden="true"></i>
+        <p class="text-body-sm text-gray-700 mb-2" {...{ "x-text": "'Enviando ' + fileName + '...'" }}></p>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div
+            class="bg-terracota-600 h-2 rounded-full transition-all"
+            {...{ ":style": `'width: ' + progress + '%'` }}
+          ></div>
+        </div>
+        <p class="text-body-xs text-gray-500 mt-1" {...{ "x-text": "progress + '%'" }}></p>
+      </div>
+
+      {/* Estado: arquivo carregado */}
+      <div {...{ "x-show": "!uploading && fileUrl && !error" }} x-cloak class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <i class="ph ph-check-circle text-h4 text-status-green" aria-hidden="true"></i>
+          <span class="text-body-sm text-gray-700 truncate" {...{ "x-text": "fileName || fileUrl" }}></span>
+        </div>
+        <div class="flex gap-1 shrink-0">
+          <button type="button" class="btn btn-secondary btn-sm" {...{ "@click": "$refs.fileInput.click()" }}>
+            <i class="ph ph-arrow-clockwise" aria-hidden="true"></i> Trocar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            {...{ "@click": "fileUrl = ''; fileName = ''; $refs.fileInput.value = ''" }}
+          >
+            <i class="ph ph-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Estado: erro */}
+      <div {...{ "x-show": "!uploading && error" }} x-cloak class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <i class="ph ph-warning-circle text-h4 text-status-red" aria-hidden="true"></i>
+          <span class="text-body-sm text-status-red" {...{ "x-text": "error" }}></span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" {...{ "@click": "error = ''; $refs.fileInput.click()" }}>
+          <i class="ph ph-arrow-clockwise" aria-hidden="true"></i> Tentar novamente
+        </button>
+      </div>
+    </div>
+  </div>
+);

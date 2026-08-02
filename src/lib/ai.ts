@@ -1,10 +1,21 @@
-// AI services for PragmaOS MVP.
+// AI services for PragmaOS.
 // - PII masking before sending to LLM (LGPD compliance).
 // - Case summary generation.
 // - Movement translation/explanation.
+// - Next steps suggestion.
+// - Shared callLLM for all modules (ai-chat, ai-summaries, cases, proceedings).
 // Uses an OpenAI-compatible API.
+// Supports per-tenant LLM config (from integrations table) with fallback to global env vars.
 
 import { AI_API_KEY, AI_BASE_URL, AI_MODEL, AI_RATE_LIMIT_PER_TENANT } from "./env";
+
+// --- LLM config type ---
+
+export interface LLMConfig {
+  apiKey: string;
+  baseUrl: string;
+  model: string;
+}
 
 // --- PII Masking ---
 
@@ -58,11 +69,12 @@ export function unmaskPII(text: string, maskMap: Map<string, string>): string {
 const rateLimitWindow = 60 * 60 * 1000; // 1 hour
 const tenantRequests = new Map<string, number[]>();
 
-function checkRateLimit(tenantId: string): boolean {
+export function checkRateLimit(tenantId: string, limit?: number): boolean {
+  const maxRequests = limit ?? AI_RATE_LIMIT_PER_TENANT;
   const now = Date.now();
   const cutoff = now - rateLimitWindow;
   const times = (tenantRequests.get(tenantId) ?? []).filter((t) => t > cutoff);
-  if (times.length >= AI_RATE_LIMIT_PER_TENANT) {
+  if (times.length >= maxRequests) {
     tenantRequests.set(tenantId, times);
     return false;
   }
@@ -71,40 +83,196 @@ function checkRateLimit(tenantId: string): boolean {
   return true;
 }
 
-// --- LLM call ---
+// --- Tenant LLM config resolution ---
 
-async function callLLM(systemPrompt: string, userPrompt: string): Promise<string> {
-  if (!AI_API_KEY) {
-    throw new Error("IA nao configurada (AI_API_KEY ausente).");
+// Cache for tenant LLM config (avoids DB query on every call).
+// TTL: 5 minutes.
+const configCache = new Map<string, { config: LLMConfig | null; expires: number }>();
+const CONFIG_CACHE_TTL = 5 * 60 * 1000;
+
+// Get the LLM config for a tenant.
+// SaaS-managed: uses global env vars only (no per-tenant integration).
+// Returns null if no config is available.
+export async function getTenantLLMConfig(tenantId: string): Promise<LLMConfig | null> {
+  // Check cache.
+  const cached = configCache.get(tenantId);
+  if (cached && cached.expires > Date.now()) {
+    return cached.config;
   }
 
-  const resp = await fetch(`${AI_BASE_URL}/chat/completions`, {
+  // Use global env vars (SaaS-managed).
+  const config = AI_API_KEY ? {
+    apiKey: AI_API_KEY,
+    baseUrl: AI_BASE_URL,
+    model: AI_MODEL,
+  } : null;
+
+  // Cache the result.
+  configCache.set(tenantId, { config, expires: Date.now() + CONFIG_CACHE_TTL });
+  return config;
+}
+
+// Clear the config cache for a tenant (call when integration is updated).
+export function clearLLMConfigCache(tenantId: string): void {
+  configCache.delete(tenantId);
+}
+
+// --- LLM call (shared by all modules) ---
+
+export async function callLLM(
+  systemPrompt: string,
+  userPrompt: string,
+  config: LLMConfig,
+): Promise<{ reply: string; tokens: number }> {
+  if (!config.apiKey) {
+    return { reply: "IA nao configurada. Configure a integracao LLM ou defina AI_API_KEY no ambiente.", tokens: 0 };
+  }
+
+  try {
+    const resp = await fetch(`${config.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    });
+
+    if (!resp.ok) {
+      const body = await resp.text();
+      return { reply: `Erro da API de IA (${resp.status}): ${body.slice(0, 200)}`, tokens: 0 };
+    }
+
+    const data = (await resp.json()) as {
+      choices?: { message: { content: string } }[];
+      usage?: { total_tokens: number };
+    };
+    if (!data.choices?.length) {
+      return { reply: "IA nao retornou resposta.", tokens: 0 };
+    }
+    return {
+      reply: data.choices[0]!.message.content,
+      tokens: data.usage?.total_tokens ?? 0,
+    };
+  } catch (err) {
+    return { reply: `Erro de conexao com IA: ${(err as Error).message}`, tokens: 0 };
+  }
+}
+
+// --- LLM streaming call (SSE) ---
+// Returns a ReadableStream that yields text chunks as they arrive.
+// The caller is responsible for inserting the user message and saving the final reply.
+
+export async function callLLMStream(
+  systemPrompt: string,
+  userPrompt: string,
+  config: LLMConfig,
+): Promise<{ stream: ReadableStream<Uint8Array>; getFullReply: () => string; getTokens: () => number }> {
+  const encoder = new TextEncoder();
+  let fullReply = "";
+  let tokens = 0;
+
+  if (!config.apiKey) {
+    const errorMsg = "IA nao configurada. Configure a integracao LLM ou defina AI_API_KEY no ambiente.";
+    fullReply = errorMsg;
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: errorMsg })}\n\n`));
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    return { stream, getFullReply: () => fullReply, getTokens: () => 0 };
+  }
+
+  const resp = await fetch(`${config.baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${AI_API_KEY}`,
+      Authorization: `Bearer ${config.apiKey}`,
     },
     body: JSON.stringify({
-      model: AI_MODEL,
+      model: config.model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
+      stream: true,
+      stream_options: { include_usage: true },
     }),
   });
 
   if (!resp.ok) {
-    const body = await resp.text();
-    throw new Error(`LLM API retornou ${resp.status}: ${body}`);
+    const errBody = await resp.text();
+    const errorMsg = `Erro da API de IA (${resp.status}): ${errBody.slice(0, 200)}`;
+    fullReply = errorMsg;
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: errorMsg })}\n\n`));
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      },
+    });
+    return { stream, getFullReply: () => fullReply, getTokens: () => 0 };
   }
 
-  const data = (await resp.json()) as {
-    choices: { message: { content: string } }[];
-  };
-  if (!data.choices?.length) {
-    throw new Error("LLM API nao retornou choices.");
-  }
-  return data.choices[0]!.message.content;
+  const stream = new ReadableStream({
+    async start(controller) {
+      const reader = resp.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data: ")) continue;
+            const data = trimmed.slice(6);
+            if (data === "[DONE]") {
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+              continue;
+            }
+            try {
+              const parsed = JSON.parse(data) as {
+                choices?: { delta?: { content?: string } }[];
+                usage?: { total_tokens?: number };
+              };
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                fullReply += content;
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+              }
+              if (parsed.usage?.total_tokens) {
+                tokens = parsed.usage.total_tokens;
+              }
+            } catch {
+              // Skip malformed JSON
+            }
+          }
+        }
+      } catch (err) {
+        const errorMsg = `Erro de stream: ${(err as Error).message}`;
+        fullReply += errorMsg;
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: errorMsg })}\n\n`));
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return { stream, getFullReply: () => fullReply, getTokens: () => tokens };
 }
 
 // --- Case summary ---
@@ -124,6 +292,11 @@ export async function generateCaseSummary(
 ): Promise<string> {
   if (!checkRateLimit(tenantId)) {
     throw new Error("Limite de requisicoes IA excedido, tente novamente mais tarde.");
+  }
+
+  const config = await getTenantLLMConfig(tenantId);
+  if (!config) {
+    throw new Error("IA nao configurada. Configure a integracao LLM em Integracoes ou defina AI_API_KEY no ambiente.");
   }
 
   let prompt = `Dados do processo:\nTitulo: ${caseData.title}\n`;
@@ -151,8 +324,8 @@ export async function generateCaseSummary(
   const systemPrompt =
     "Voce e um assistente juridico. Gere um resumo conciso e profissional do processo baseado nos eventos fornecidos. Use linguagem formal juridica em portugues.";
 
-  const summaryMasked = await callLLM(systemPrompt, maskedText);
-  return unmaskPII(summaryMasked, maskMap);
+  const { reply } = await callLLM(systemPrompt, maskedText, config);
+  return unmaskPII(reply, maskMap);
 }
 
 // --- Movement translation/explanation ---
@@ -166,6 +339,11 @@ export async function translateMovement(
     throw new Error("Limite de requisicoes IA excedido, tente novamente mais tarde.");
   }
 
+  const config = await getTenantLLMConfig(tenantId);
+  if (!config) {
+    throw new Error("IA nao configurada. Configure a integracao LLM em Integracoes ou defina AI_API_KEY no ambiente.");
+  }
+
   let prompt = `Movimento processual:\n${movementText}\n`;
   if (caseContext) {
     prompt += `\nContexto do processo:\n${caseContext}\n`;
@@ -175,7 +353,8 @@ export async function translateMovement(
   const systemPrompt =
     "Voce e um assistente juridico especializado em processo judicial brasileiro. Traduza movimentos processuais do juridico para o portugues claro, explicando o significado e os impactos praticos.";
 
-  return callLLM(systemPrompt, prompt);
+  const { reply } = await callLLM(systemPrompt, prompt, config);
+  return reply;
 }
 
 // --- Next steps suggestion ---
@@ -187,6 +366,11 @@ export async function suggestNextSteps(
 ): Promise<string> {
   if (!checkRateLimit(tenantId)) {
     throw new Error("Limite de requisicoes IA excedido, tente novamente mais tarde.");
+  }
+
+  const config = await getTenantLLMConfig(tenantId);
+  if (!config) {
+    throw new Error("IA nao configurada. Configure a integracao LLM em Integracoes ou defina AI_API_KEY no ambiente.");
   }
 
   let prompt = `Dados do processo:\nTitulo: ${caseData.title}\nTipo: ${caseData.case_type}\nStatus: ${caseData.status}\n`;
@@ -203,5 +387,6 @@ export async function suggestNextSteps(
   const systemPrompt =
     "Voce e um assistente juridico. Sugira proximos passos acionaveis para o advogado responsavel, em lista numerada, priorizando por urgencia. Linguagem formal em portugues.";
 
-  return callLLM(systemPrompt, prompt);
+  const { reply } = await callLLM(systemPrompt, prompt, config);
+  return reply;
 }

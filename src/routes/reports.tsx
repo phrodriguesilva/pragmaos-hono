@@ -5,6 +5,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Panel, Table, Badge } from "../components/ui";
+import { toCSV, csvResponse } from "../lib/export";
 
 export const reportsRoutes = new Hono<AppEnv>();
 
@@ -62,7 +63,19 @@ reportsRoutes.get("/", async (c) => {
     c,
     { title: "Relatorios", active: "reports" },
     <>
-      <PageHeader title="Relatorios" icon="ph-chart-bar" />
+      <PageHeader title="Relatorios" icon="ph-chart-bar" actions={() => (
+        <div class="flex gap-2">
+          <a href="/reports/export?type=status" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-file-csv" aria-hidden="true"></i>Status CSV
+          </a>
+          <a href="/reports/export?type=type" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-file-csv" aria-hidden="true"></i>Tipos CSV
+          </a>
+          <a href="/reports/export?type=clients" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-file-csv" aria-hidden="true"></i>Clientes CSV
+          </a>
+        </div>
+      )} />
       <div class="grid grid-cols-2 gap-4">
         <Panel title="Processos por status" icon="ph-folder-open">
           <Table
@@ -96,4 +109,56 @@ reportsRoutes.get("/", async (c) => {
       </div>
     </>,
   );
+});
+
+// GET /reports/export — export report as CSV
+reportsRoutes.get("/export", async (c) => {
+  const user = c.get("user");
+  const type = c.req.query("type") ?? "status";
+
+  if (type === "status") {
+    const { data } = await supabase
+      .from("cases")
+      .select("status")
+      .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null);
+    const counts: Record<string, number> = {};
+    for (const r of data ?? []) counts[r.status] = (counts[r.status] ?? 0) + 1;
+    const rows = Object.entries(counts).map(([s, n]) => [s, n]);
+    return csvResponse("processos_por_status.csv", toCSV(rows, ["Status", "Quantidade"]));
+  }
+
+  if (type === "type") {
+    const { data } = await supabase
+      .from("cases")
+      .select("case_type")
+      .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null);
+    const counts: Record<string, number> = {};
+    for (const r of data ?? []) counts[r.case_type] = (counts[r.case_type] ?? 0) + 1;
+    const rows = Object.entries(counts).map(([t, n]) => [t, n]);
+    return csvResponse("processos_por_tipo.csv", toCSV(rows, ["Tipo", "Quantidade"]));
+  }
+
+  if (type === "clients") {
+    const { data: clients } = await supabase
+      .from("clients")
+      .select("id, name, email, phone")
+      .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null)
+      .order("name");
+    const rows: (string | number)[][] = [];
+    for (const cl of clients ?? []) {
+      const { count } = await supabase
+        .from("cases")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", cl.id)
+        .eq("tenant_id", user.tenantId)
+        .is("deleted_at", null);
+      rows.push([cl.name, cl.email ?? "", cl.phone ?? "", count ?? 0]);
+    }
+    return csvResponse("clientes.csv", toCSV(rows, ["Nome", "Email", "Telefone", "Processos"]));
+  }
+
+  return c.text("Tipo de exportacao invalido", 400);
 });

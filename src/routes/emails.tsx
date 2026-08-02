@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sendGmailEmail, sendOutlookEmail } from "../lib/integrations";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const emailRoutes = new Hono<AppEnv>();
@@ -55,6 +56,7 @@ emailRoutes.get("/", async (c) => {
     m.received_at ? new Date(m.received_at).toLocaleString("pt-BR") : new Date(m.created_at).toLocaleString("pt-BR"),
     <Badge color={m.direction === "inbound" ? "blue" : "gray"}>{m.direction === "inbound" ? "Recebida" : "Enviada"}</Badge> as unknown as string,
     m.read ? <Badge color="green">Lida</Badge> as unknown as string : <Badge color="yellow">Nao lida</Badge> as unknown as string,
+    <a href={`/emails/${m.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -96,15 +98,15 @@ emailRoutes.get("/", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-4">
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-tray text-h3 text-carvao-600" aria-hidden="true"></i>Caixa de Entrada
+            <i class="ph ph-tray text-h3 text-terracota-600" aria-hidden="true"></i>Caixa de Entrada
           </div>
-          <div class="text-h1 font-bold text-carvao-700">{inboxCount}</div>
+          <div class="text-h1 font-bold text-terracota-700">{inboxCount}</div>
         </Panel>
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-paper-plane-tilt text-h3 text-carvao-600" aria-hidden="true"></i>Enviados
+            <i class="ph ph-paper-plane-tilt text-h3 text-terracota-600" aria-hidden="true"></i>Enviados
           </div>
-          <div class="text-h1 font-bold text-carvao-700">{sentCount}</div>
+          <div class="text-h1 font-bold text-terracota-700">{sentCount}</div>
         </Panel>
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
@@ -117,6 +119,7 @@ emailRoutes.get("/", async (c) => {
         columns={[
           { label: "De" }, { label: "Para" }, { label: "Assunto" },
           { label: "Data" }, { label: "Direcao" }, { label: "Status" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum e-mail encontrado."
@@ -191,7 +194,9 @@ emailRoutes.get("/accounts", async (c) => {
   );
 });
 
-// POST /accounts -- create account (stub).
+// POST /accounts -- create email account record.
+// Note: OAuth authentication is handled separately via the Integrations page
+// (Google/Microsoft). This endpoint creates the account registry entry.
 emailRoutes.post("/accounts", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
@@ -209,7 +214,7 @@ emailRoutes.post("/accounts", async (c) => {
   return c.redirect("/emails/accounts");
 });
 
-// POST /accounts/:id/sync -- update last_sync_at (stub).
+// POST /accounts/:id/sync -- update last_sync_at timestamp.
 emailRoutes.post("/accounts/:id/sync", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
@@ -229,23 +234,89 @@ emailRoutes.post("/accounts/:id/delete", async (c) => {
   return c.redirect("/emails/accounts");
 });
 
-// POST /send -- create outbound email message (stub).
+// POST /send -- send email via configured integration (Gmail or Outlook).
 emailRoutes.post("/send", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = composeSchema.safeParse(body);
   if (!parsed.success) return c.redirect("/emails");
 
+  const to = parsed.data.to_email;
+  const subject = parsed.data.subject ?? "";
+  const msgBody = parsed.data.body ?? "";
+
+  // Find active Google or Microsoft integration for the tenant.
+  const { data: googleInt } = await supabase
+    .from("integrations")
+    .select("config, access_token, connected_email")
+    .eq("tenant_id", user.tenantId)
+    .eq("type", "google")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+
+  const { data: msInt } = await supabase
+    .from("integrations")
+    .select("config, access_token, connected_email")
+    .eq("tenant_id", user.tenantId)
+    .eq("type", "microsoft")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+
+  let fromEmail = "";
+  let status = "draft";
+  let statusMessage = "Configure uma integracao de email em Integracoes";
+
+  const googleToken = (googleInt?.access_token as string) ?? ((googleInt?.config as Record<string, unknown>)?.access_token as string) ?? "";
+  const msToken = (msInt?.access_token as string) ?? ((msInt?.config as Record<string, unknown>)?.access_token as string) ?? "";
+
+  if (googleToken) {
+    const result = await sendGmailEmail(
+      (googleInt?.config as Record<string, unknown>) ?? {},
+      googleToken,
+      to,
+      subject,
+      msgBody,
+    );
+    fromEmail = (googleInt?.connected_email as string) ?? "";
+    if (result.success) {
+      status = "sent";
+      statusMessage = result.message;
+    } else {
+      status = "failed";
+      statusMessage = result.message;
+    }
+  } else if (msToken) {
+    const result = await sendOutlookEmail(
+      (msInt?.config as Record<string, unknown>) ?? {},
+      msToken,
+      to,
+      subject,
+      msgBody,
+    );
+    fromEmail = (msInt?.connected_email as string) ?? "";
+    if (result.success) {
+      status = "sent";
+      statusMessage = result.message;
+    } else {
+      status = "failed";
+      statusMessage = result.message;
+    }
+  }
+
   await supabase.from("email_messages").insert({
     tenant_id: user.tenantId,
     direction: "outbound",
-    from_email: "",
-    to_email: parsed.data.to_email,
-    subject: parsed.data.subject || null,
-    body: parsed.data.body || null,
+    from_email: fromEmail,
+    to_email: to,
+    subject: subject || null,
+    body: msgBody || null,
     case_id: parsed.data.case_id || null,
     client_id: parsed.data.client_id || null,
     read: true,
+    status,
+    status_message: statusMessage,
   });
 
   return c.redirect("/emails");
@@ -281,7 +352,7 @@ emailRoutes.get("/:id", async (c) => {
           {caseTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Processo:</dt><dd><a href={`/cases/${msg.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a></dd></div> : null}
           {clientName ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Cliente:</dt><dd><a href={`/clients/${msg.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a></dd></div> : null}
         </dl>
-        <div class="border-t border-border pt-4">
+        <div class="border-t border-gray-200 pt-4">
           <div class="text-body-sm font-semibold text-gray-700 mb-2">Mensagem</div>
           <div class="text-body text-gray-800 whitespace-pre-wrap">{msg.body ?? "(sem conteudo)"}</div>
         </div>

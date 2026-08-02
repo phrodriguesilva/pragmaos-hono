@@ -24,19 +24,34 @@ const commSchema = z.object({
 // GET / -- list communications with create modal.
 communicationsRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const search = c.req.query("search")?.trim() ?? "";
+
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let logsQuery = supabase
+    .from("communications_log")
+    .select("id, channel, direction, message_body, subject, sent_at, cases(title), clients(name)", { count: "exact" })
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("sent_at", { ascending: false });
+
+  if (search) logsQuery = logsQuery.ilike("message_body", `%${search}%`);
+
+  logsQuery = logsQuery.range(offset, offset + limit - 1);
+
   const [logsRes, casesRes, clientsRes] = await Promise.all([
-    supabase
-      .from("communications_log")
-      .select("id, channel, direction, message_body, subject, sent_at, cases(title), clients(name)")
-      .eq("tenant_id", user.tenantId)
-      .is("deleted_at", null)
-      .order("sent_at", { ascending: false })
-      .limit(50),
+    logsQuery,
     supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
     supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
   ]);
 
   const logs = logsRes.data ?? [];
+  const count = logsRes.count;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
   const cases = casesRes.data ?? [];
   const clients = clientsRes.data ?? [];
 
@@ -47,6 +62,11 @@ communicationsRoutes.get("/", async (c) => {
     (l.cases as unknown as { title: string } | null)?.title ?? "-",
     (l.clients as unknown as { name: string } | null)?.name ?? "-",
     l.message_body.length > 60 ? l.message_body.slice(0, 60) + "..." : l.message_body,
+    <div class="flex items-center gap-2">
+      <a href={`/communications/${l.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/communications/${l.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/communications/${l.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
   ]);
 
   return renderPage(
@@ -96,12 +116,33 @@ communicationsRoutes.get("/", async (c) => {
           </Modal>
         )}
       />
+      <div class="mb-4 p-3 border border-gray-200 bg-gray-50 flex items-start gap-2">
+        <i class="ph ph-info text-h4 text-gray-500" aria-hidden="true"></i>
+        <div class="text-body-sm text-gray-600">
+          <strong>Sincronizacao com PJe:</strong> Para importar comunicacoes processuais do PJe automaticamente,
+          e necessario convenio com o tribunal e certificado digital ICP-Brasil.
+          Configure a integracao PJe em <a href="/integrations" class="text-terracota-600 hover:underline">Integracoes</a>.
+          Por enquanto, registre comunicacoes manualmente abaixo.
+        </div>
+      </div>
+      <form method="get" action="/communications" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Mensagem..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
-        columns={[{ label: "Data" }, { label: "Canal" }, { label: "Direcao" }, { label: "Processo" }, { label: "Cliente" }, { label: "Mensagem" }]}
+        columns={[{ label: "Data" }, { label: "Canal" }, { label: "Direcao" }, { label: "Processo" }, { label: "Cliente" }, { label: "Mensagem" }, { label: "Acoes" }]}
         rows={rows}
         emptyMsg="Nenhuma comunicacao registrada."
         emptyIcon="ph-chats-circle"
         ariaLabel="Log de comunicacao"
+        count={count ?? 0}
+        countLabel="comunicacao(oes)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/communications",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );

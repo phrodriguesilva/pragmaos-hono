@@ -102,6 +102,7 @@ timesheetRoutes.get("/", async (c) => {
       e.invoiced
         ? (<Badge color="blue" icon="ph-invoice">Faturado</Badge> as unknown as string)
         : (<Badge color="yellow" icon="ph-clock">Pendente</Badge> as unknown as string),
+      <a href={`/timesheet/${e.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
     ];
   });
 
@@ -154,6 +155,7 @@ timesheetRoutes.get("/", async (c) => {
           { label: "Duracao", icon: "ph-timer" },
           { label: "Faturavel", icon: "ph-currency-circle-check" },
           { label: "Faturado", icon: "ph-invoice" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum registro de tempo."
@@ -224,6 +226,98 @@ timesheetRoutes.post("/", async (c) => {
   }
 
   return c.redirect("/timesheet");
+});
+
+// GET /timesheet/summary -- summary report: total hours per user, billable hours, billable amount.
+// MUST be registered before /:id to avoid route shadowing.
+timesheetRoutes.get("/summary", async (c) => {
+  const user = c.get("user");
+
+  const { data: entries } = await supabase
+    .from("time_entries")
+    .select("id, user_id, duration_minutes, billable, hourly_rate_cents, profiles!time_entries_user_id_fkey(full_name)")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null);
+
+  const all = entries ?? [];
+
+  const byUser = new Map<string, { full_name: string; totalMinutes: number; billableMinutes: number; billableAmountCents: number }>();
+  let totalMinutes = 0;
+  let totalBillableMinutes = 0;
+  let totalBillableAmountCents = 0;
+
+  for (const e of all) {
+    const minutes = e.duration_minutes ?? 0;
+    const userName = (e.profiles as unknown as { full_name: string } | null)?.full_name ?? "Desconhecido";
+    const key = e.user_id;
+    if (!byUser.has(key)) {
+      byUser.set(key, { full_name: userName, totalMinutes: 0, billableMinutes: 0, billableAmountCents: 0 });
+    }
+    const agg = byUser.get(key)!;
+    agg.totalMinutes += minutes;
+    totalMinutes += minutes;
+    if (e.billable) {
+      agg.billableMinutes += minutes;
+      totalBillableMinutes += minutes;
+      const rate = e.hourly_rate_cents ?? 0;
+      const amount = Math.round((minutes / 60) * rate);
+      agg.billableAmountCents += amount;
+      totalBillableAmountCents += amount;
+    }
+  }
+
+  const userRows = [...byUser.values()].map((u) => [
+    u.full_name,
+    formatDuration(u.totalMinutes),
+    formatDuration(u.billableMinutes),
+    formatBRL(u.billableAmountCents),
+  ]);
+
+  return renderPage(
+    c,
+    { title: "Resumo de Horas", active: "timesheet" },
+    <>
+      <PageHeader
+        title="Resumo de Horas"
+        icon="ph-chart-bar"
+        actions={() => (
+          <div class="flex gap-2">
+            <a href="/timesheet" class="btn btn-secondary inline-flex items-center gap-1">
+              <i class="ph ph-arrow-left" aria-hidden="true" />Voltar
+            </a>
+          </div>
+        )}
+      />
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <Panel title="Total de Horas" icon="ph-timer">
+          <div class="text-h1 font-bold text-terracota-700">{formatDuration(totalMinutes)}</div>
+          <div class="text-body-sm text-gray-500 mt-1">Todas as entradas</div>
+        </Panel>
+        <Panel title="Horas Faturaveis" icon="ph-currency-circle-check">
+          <div class="text-h1 font-bold text-green-600">{formatDuration(totalBillableMinutes)}</div>
+          <div class="text-body-sm text-gray-500 mt-1">Horas faturaveis</div>
+        </Panel>
+        <Panel title="Valor Faturavel" icon="ph-currency-dollar">
+          <div class="text-h1 font-bold text-green-700">{formatBRL(totalBillableAmountCents)}</div>
+          <div class="text-body-sm text-gray-500 mt-1">Total a faturar</div>
+        </Panel>
+      </div>
+      <Panel title="Por Usuario" icon="ph-users">
+        <Table
+          columns={[
+            { label: "Usuario", icon: "ph-user-circle" },
+            { label: "Total", icon: "ph-timer" },
+            { label: "Faturavel", icon: "ph-currency-circle-check" },
+            { label: "Valor", icon: "ph-currency-dollar" },
+          ]}
+          rows={userRows}
+          emptyMsg="Nenhum registro encontrado."
+          emptyIcon="ph-timer"
+          ariaLabel="Resumo por usuario"
+        />
+      </Panel>
+    </>,
+  );
 });
 
 // GET /timesheet/:id -- detail.
@@ -348,98 +442,6 @@ timesheetRoutes.post("/:id/delete", async (c) => {
   const id = c.req.param("id");
   await supabase.from("time_entries").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
   return c.redirect("/timesheet");
-});
-
-// GET /timesheet/summary -- summary report: total hours per user, billable hours, billable amount.
-timesheetRoutes.get("/summary", async (c) => {
-  const user = c.get("user");
-
-  const { data: entries } = await supabase
-    .from("time_entries")
-    .select("id, user_id, duration_minutes, billable, hourly_rate_cents, profiles!time_entries_user_id_fkey(full_name)")
-    .eq("tenant_id", user.tenantId)
-    .is("deleted_at", null);
-
-  const all = entries ?? [];
-
-  // Aggregate per user.
-  const byUser = new Map<string, { full_name: string; totalMinutes: number; billableMinutes: number; billableAmountCents: number }>();
-  let totalMinutes = 0;
-  let totalBillableMinutes = 0;
-  let totalBillableAmountCents = 0;
-
-  for (const e of all) {
-    const minutes = e.duration_minutes ?? 0;
-    const userName = (e.profiles as unknown as { full_name: string } | null)?.full_name ?? "Desconhecido";
-    const key = e.user_id;
-    if (!byUser.has(key)) {
-      byUser.set(key, { full_name: userName, totalMinutes: 0, billableMinutes: 0, billableAmountCents: 0 });
-    }
-    const agg = byUser.get(key)!;
-    agg.totalMinutes += minutes;
-    totalMinutes += minutes;
-    if (e.billable) {
-      agg.billableMinutes += minutes;
-      totalBillableMinutes += minutes;
-      const rate = e.hourly_rate_cents ?? 0;
-      const amount = Math.round((minutes / 60) * rate);
-      agg.billableAmountCents += amount;
-      totalBillableAmountCents += amount;
-    }
-  }
-
-  const userRows = [...byUser.values()].map((u) => [
-    u.full_name,
-    formatDuration(u.totalMinutes),
-    formatDuration(u.billableMinutes),
-    formatBRL(u.billableAmountCents),
-  ]);
-
-  return renderPage(
-    c,
-    { title: "Resumo de Horas", active: "timesheet" },
-    <>
-      <PageHeader
-        title="Resumo de Horas"
-        icon="ph-chart-bar"
-        actions={() => (
-          <div class="flex gap-2">
-            <a href="/timesheet" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-arrow-left" aria-hidden="true" />Voltar
-            </a>
-          </div>
-        )}
-      />
-      <div class="grid grid-cols-3 gap-4 mb-6">
-        <Panel title="Total de Horas" icon="ph-timer">
-          <div class="text-h1 font-bold text-carvao-700">{formatDuration(totalMinutes)}</div>
-          <div class="text-body-sm text-gray-500 mt-1">Todas as entradas</div>
-        </Panel>
-        <Panel title="Horas Faturaveis" icon="ph-currency-circle-check">
-          <div class="text-h1 font-bold text-green-600">{formatDuration(totalBillableMinutes)}</div>
-          <div class="text-body-sm text-gray-500 mt-1">Horas faturaveis</div>
-        </Panel>
-        <Panel title="Valor Faturavel" icon="ph-currency-dollar">
-          <div class="text-h1 font-bold text-green-700">{formatBRL(totalBillableAmountCents)}</div>
-          <div class="text-body-sm text-gray-500 mt-1">Total a faturar</div>
-        </Panel>
-      </div>
-      <Panel title="Por Usuario" icon="ph-users">
-        <Table
-          columns={[
-            { label: "Usuario", icon: "ph-user-circle" },
-            { label: "Total", icon: "ph-timer" },
-            { label: "Faturavel", icon: "ph-currency-circle-check" },
-            { label: "Valor", icon: "ph-currency-dollar" },
-          ]}
-          rows={userRows}
-          emptyMsg="Nenhum registro encontrado."
-          emptyIcon="ph-timer"
-          ariaLabel="Resumo por usuario"
-        />
-      </Panel>
-    </>,
-  );
 });
 
 export default timesheetRoutes;

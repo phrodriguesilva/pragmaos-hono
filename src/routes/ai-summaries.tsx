@@ -5,7 +5,8 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { callLLM, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
+import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiSummariesRoutes = new Hono<AppEnv>();
 
@@ -31,48 +32,30 @@ function formatDateTime(value: string | null | undefined): string {
   return new Date(value).toLocaleString("pt-BR");
 }
 
-// Call OpenAI chat completions API using fetch.
-async function callOpenAI(messages: { role: string; content: string }[]): Promise<{ reply: string; tokens: number }> {
-  if (!process.env.OPENAI_API_KEY) {
-    return { reply: "IA nao configurada. Defina OPENAI_API_KEY no ambiente.", tokens: 0 };
-  }
-  try {
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ model: "gpt-4o-mini", messages }),
-    });
-    if (!resp.ok) {
-      const body = await resp.text();
-      return { reply: `Erro da API de IA (${resp.status}): ${body.slice(0, 200)}`, tokens: 0 };
-    }
-    const data = (await resp.json()) as {
-      choices?: { message: { content: string } }[];
-      usage?: { total_tokens: number };
-    };
-    const reply = data.choices?.[0]?.message?.content ?? "Erro ao gerar resposta.";
-    const tokens = data.usage?.total_tokens ?? 0;
-    return { reply, tokens };
-  } catch (err) {
-    return { reply: `Erro ao chamar a API de IA: ${String(err)}`, tokens: 0 };
-  }
-}
-
 // --- GET / -- list of generated summaries ---
 
 aiSummariesRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const search = c.req.query("search")?.trim() ?? "";
+
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let summariesQuery = supabase
+    .from("ai_summaries")
+    .select("id, summary_type, summary_text, model, created_at, cases(title)", { count: "exact" })
+    .eq("tenant_id", user.tenantId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (search) summariesQuery = summariesQuery.ilike("summary_text", `%${search}%`);
 
   const [summariesRes, casesRes] = await Promise.all([
-    supabase
-      .from("ai_summaries")
-      .select("id, summary_type, summary_text, model, created_at, cases(title)")
-      .eq("tenant_id", user.tenantId)
-      .order("created_at", { ascending: false })
-      .limit(50),
+    summariesQuery,
     supabase
       .from("cases")
       .select("id, title")
@@ -81,8 +64,10 @@ aiSummariesRoutes.get("/", async (c) => {
       .order("title"),
   ]);
 
-  const { data: summaries } = summariesRes;
+  const { data: summaries, count } = summariesRes;
   const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
+
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (summaries ?? []).map((s) => {
     const caseTitle = (s.cases as unknown as { title: string } | null)?.title ?? "-";
@@ -91,9 +76,12 @@ aiSummariesRoutes.get("/", async (c) => {
       caseTitle,
       (s.summary_text ?? "").slice(0, 100),
       formatDate(s.created_at),
-      <a href={`/ai-summaries/${s.id}`} class="text-terracota-600 hover:underline inline-flex items-center gap-1">
-        <i class="ph ph-eye" aria-hidden="true"></i>Ver
-      </a> as unknown as string,
+      <div class="flex items-center gap-2">
+        <a href={`/ai-summaries/${s.id}`} class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+          <i class="ph ph-eye" aria-hidden="true"></i>Ver
+        </a>
+        <form method="post" action={`/ai-summaries/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      </div> as unknown as string,
     ];
   });
 
@@ -149,18 +137,30 @@ aiSummariesRoutes.get("/", async (c) => {
           </Modal>
         )}
       />
+      <form method="get" action="/ai-summaries" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Texto do resumo..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
         columns={[
           { label: "Tipo" },
           { label: "Processo" },
           { label: "Resumo" },
           { label: "Data" },
-          { label: "", align: "center" },
+          { label: "Acoes", align: "center" },
         ]}
         rows={rows}
         emptyMsg="Nenhum resumo gerado ainda."
         emptyIcon="ph-sparkle"
         ariaLabel="Lista de resumos com IA"
+        count={count ?? 0}
+        countLabel="resumo(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/ai-summaries",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );
@@ -225,10 +225,16 @@ aiSummariesRoutes.post("/", async (c) => {
     userPrompt = `${typeInstruction[summary_type]}\n\nDados do processo:\n${caseInfo}\n\nContexto adicional:\n${additional_context ?? "Nao informado"}`;
   }
 
-  const { reply, tokens } = await callOpenAI([
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userPrompt },
-  ]);
+  if (!checkRateLimit(user.tenantId)) {
+    return c.redirect("/ai-summaries");
+  }
+
+  const config = await getTenantLLMConfig(user.tenantId);
+  if (!config) {
+    return c.redirect("/ai-summaries");
+  }
+
+  const { reply, tokens } = await callLLM(systemPrompt, userPrompt, config);
 
   const { data, error } = await supabase
     .from("ai_summaries")
@@ -238,7 +244,7 @@ aiSummariesRoutes.post("/", async (c) => {
       case_id,
       summary_type,
       summary_text: reply,
-      model: "gpt-4o-mini",
+      model: config.model,
       tokens_used: tokens,
     })
     .select("id")
@@ -288,29 +294,29 @@ aiSummariesRoutes.get("/:id", async (c) => {
         <Panel title="Detalhes" icon="ph-info">
           <div class="flex flex-col gap-2 text-body-sm text-gray-700">
             <div class="flex items-center gap-2">
-              <i class="ph ph-tag text-carvao-600" aria-hidden="true"></i>
+              <i class="ph ph-tag text-terracota-600" aria-hidden="true"></i>
               <span class="font-semibold">Tipo:</span>
               <Badge color="blue" icon="ph-sparkle">{SUMMARY_TYPE_LABELS[summary.summary_type] ?? summary.summary_type}</Badge>
             </div>
             {caseData ? (
               <div class="flex items-center gap-2">
-                <i class="ph ph-folder text-carvao-600" aria-hidden="true"></i>
+                <i class="ph ph-folder text-terracota-600" aria-hidden="true"></i>
                 <span class="font-semibold">Processo:</span>
                 <a href={`/cases/${caseData.id}`} class="text-terracota-600 hover:underline">{caseData.title}</a>
               </div>
             ) : null}
             <div class="flex items-center gap-2">
-              <i class="ph ph-calendar text-carvao-600" aria-hidden="true"></i>
+              <i class="ph ph-calendar text-terracota-600" aria-hidden="true"></i>
               <span class="font-semibold">Data:</span>
               {formatDateTime(summary.created_at)}
             </div>
             <div class="flex items-center gap-2">
-              <i class="ph ph-cpu text-carvao-600" aria-hidden="true"></i>
+              <i class="ph ph-cpu text-terracota-600" aria-hidden="true"></i>
               <span class="font-semibold">Modelo:</span>
               {summary.model ?? "gpt-4o-mini"}
             </div>
             <div class="flex items-center gap-2">
-              <i class="ph ph-coins text-carvao-600" aria-hidden="true"></i>
+              <i class="ph ph-coins text-terracota-600" aria-hidden="true"></i>
               <span class="font-semibold">Tokens:</span>
               {summary.tokens_used ?? 0}
             </div>
@@ -320,7 +326,7 @@ aiSummariesRoutes.get("/:id", async (c) => {
 
       <div class="mb-4">
         <Panel title="Resumo Gerado" icon="ph-text-aa">
-          <div class="text-body text-gray-800" style="white-space: pre-wrap; word-break: break-word;">
+          <div class="text-body text-gray-800 font-serif leading-relaxed" style="white-space: pre-wrap; word-break: break-word;">
             {summary.summary_text}
           </div>
         </Panel>

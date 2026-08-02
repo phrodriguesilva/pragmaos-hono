@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal } from "../components/ui";
@@ -10,6 +10,66 @@ import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge,
 export const billingRoutes = new Hono<AppEnv>();
 
 billingRoutes.use("*", requireAuth);
+billingRoutes.use("*", requireRole("socio", "financeiro"));
+
+// ============================================================
+// PIX BR Code generator (EMV QR Code standard, CRC16-CCITT)
+// ============================================================
+
+function emvField(id: string, value: string): string {
+  const len = value.length.toString().padStart(2, "0");
+  return `${id}${len}${value}`;
+}
+
+function crc16(payload: string): string {
+  let crc = 0xffff;
+  for (let i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc <<= 1;
+      }
+      crc &= 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function generatePixBRCode(opts: {
+  amountCents: number;
+  merchantName: string;
+  merchantCity: string;
+  txid: string;
+}): string {
+  const amount = (opts.amountCents / 100).toFixed(2);
+  // Remove special chars, uppercase, max 25 for name, max 15 for city
+  const name = opts.merchantName.replace(/[^A-Za-z0-9 ]/g, "").slice(0, 25).toUpperCase();
+  const city = opts.merchantCity.replace(/[^A-Za-z0-9 ]/g, "").slice(0, 15).toUpperCase();
+  const txid = opts.txid.slice(0, 25);
+
+  // Build payload without CRC
+  const gui = emvField("00", "br.gov.bcb.pix");
+  const key = emvField("01", "pragmaos@pragmaos.com.br"); // PIX key
+  const merchantAccount = emvField("26", gui + key);
+  const additionalData = emvField("62", emvField("05", txid));
+
+  let payload =
+    emvField("00", "01") +                          // Payload format indicator
+    merchantAccount +                                // Merchant account info
+    emvField("52", "0000") +                         // Merchant category code
+    emvField("53", "986") +                          // Transaction currency (BRL)
+    emvField("54", amount) +                         // Transaction amount
+    emvField("58", "BR") +                           // Country code
+    emvField("59", name) +                           // Merchant name
+    emvField("60", city) +                           // Merchant city
+    additionalData +                                 // Additional data field (TXID)
+    "6304";                                          // CRC placeholder
+
+  const crc = crc16(payload);
+  return payload + crc;
+}
 
 const invoiceSchema = z.object({
   client_id: z.string().uuid("Cliente invalido"),
@@ -82,20 +142,28 @@ async function suggestInvoiceNumber(tenantId: string): Promise<string> {
 // GET /billing -- list invoices with optional status filter.
 billingRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
   const status = c.req.query("status")?.trim() ?? "";
+
+  const queryParams: Record<string, string> = {};
+  if (status) queryParams.status = status;
 
   let query = supabase
     .from("invoices")
-    .select("id, number, amount_cents, paid_amount_cents, status, due_date, payment_method, clients(name), cases(title), honorarios(description)")
+    .select("id, number, amount_cents, paid_amount_cents, status, due_date, payment_method, clients(name), cases(title), honorarios(description)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+    .order("created_at", { ascending: false });
 
   if (status) {
     query = query.eq("status", status);
   }
 
-  const { data: invoices } = await query;
+  query = query.range(offset, offset + limit - 1);
+
+  const { data: invoices, count } = await query;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   // Fetch data for the wizard modal selects.
   const [clientsRes, casesRes, honorariosRes, suggested] = await Promise.all([
@@ -118,6 +186,7 @@ billingRoutes.get("/", async (c) => {
       formatDate(inv.due_date),
       <Badge color={statusColor(inv.status)}>{STATUS_LABELS[inv.status] ?? inv.status}</Badge> as unknown as string,
       METHOD_LABELS[inv.payment_method] ?? inv.payment_method,
+      <a href={`/billing/${inv.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
     ];
   });
 
@@ -206,11 +275,20 @@ billingRoutes.get("/", async (c) => {
           { label: "Vencimento" },
           { label: "Status" },
           { label: "Metodo" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhuma cobranca encontrada."
         emptyIcon="ph-receipt"
         ariaLabel="Lista de cobrancas"
+        count={count ?? 0}
+        countLabel="cobranca(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/billing",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );
@@ -223,7 +301,7 @@ billingRoutes.post("/", async (c) => {
   const parsed = invoiceSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/billing/new");
+    return c.redirect("/billing");
   }
 
   const rawAmount = (body.amount as string) ?? "0";
@@ -244,7 +322,7 @@ billingRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return c.redirect("/billing/new");
+    return c.redirect("/billing");
   }
 
   return c.redirect("/billing");
@@ -378,12 +456,26 @@ billingRoutes.post("/:id/pay", async (c) => {
   return c.redirect(`/billing/${id}`);
 });
 
-// POST /billing/:id/pix -- generate a PIX code (stub).
+// POST /billing/:id/pix -- generate a valid PIX BR Code (copia e cola).
 billingRoutes.post("/:id/pix", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
 
-  const pixCode = `00020126360014BR.GOV.BCB.PIX0116${Math.random().toString(36).slice(2, 18).toUpperCase()}5204000053039865802BR5913PRAGMAOS6009SAOPAULO62${Date.now().toString().slice(-5)}0536304${Math.random().toString(16).slice(2, 10).toUpperCase()}`;
+  const { data: inv } = await supabase
+    .from("invoices")
+    .select("id, number, amount_cents, clients(name)")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+
+  if (!inv) return c.redirect("/billing");
+
+  const pixCode = generatePixBRCode({
+    amountCents: inv.amount_cents,
+    merchantName: "PRAGMAOS",
+    merchantCity: "SAO PAULO",
+    txid: `PRAGMA${inv.number}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 25),
+  });
 
   await supabase
     .from("invoices")

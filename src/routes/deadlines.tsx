@@ -21,16 +21,24 @@ const deadlineSchema = z.object({
 // GET /deadlines -- list all open deadlines, sorted by due_date.
 deadlinesRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
   const showAll = c.req.query("all") === "1";
+
+  const queryParams: Record<string, string> = {};
+  if (showAll) queryParams.all = "1";
 
   let query = supabase
     .from("deadlines")
-    .select("id, title, due_date, priority, completed_at, case_id, cases(title)")
+    .select("id, title, due_date, priority, completed_at, case_id, cases(title)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("due_date", { ascending: true });
 
   if (!showAll) query = query.is("completed_at", null);
+
+  query = query.range(offset, offset + limit - 1);
 
   const [deadlinesRes, casesRes] = await Promise.all([
     query,
@@ -38,6 +46,8 @@ deadlinesRoutes.get("/", async (c) => {
   ]);
 
   const deadlines = deadlinesRes.data;
+  const count = deadlinesRes.count;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
   const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
   const now = new Date();
 
@@ -55,9 +65,14 @@ deadlinesRoutes.get("/", async (c) => {
           ? <Badge color="red">Atrasado</Badge>
           : <Badge color="yellow">Pendente</Badge> as unknown as string,
       d.completed_at ? null : (
-        <form method="post" action={`/deadlines/${d.id}/complete`}>
-          <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-check" aria-hidden="true"></i>Concluir</button>
-        </form>
+        <div class="flex items-center gap-2">
+          <a href={`/deadlines/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+          <a href={`/deadlines/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+          <form method="post" action={`/deadlines/${d.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+          <form method="post" action={`/deadlines/${d.id}/complete`} class="inline">
+            <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-check" aria-hidden="true"></i>Concluir</button>
+          </form>
+        </div>
       ) as unknown as string,
     ];
   });
@@ -95,11 +110,19 @@ deadlinesRoutes.get("/", async (c) => {
         <a href="/deadlines?all=1" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-list" aria-hidden="true"></i>Todos</a>
       </div>
       <Table
-        columns={[{ label: "Processo" }, { label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }, { label: "" }]}
+        columns={[{ label: "Processo" }, { label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }, { label: "Acoes" }]}
         rows={rows}
         emptyMsg="Nenhum prazo."
         emptyIcon="ph-check-circle"
         ariaLabel="Lista de prazos"
+        count={count ?? 0}
+        countLabel="prazo(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/deadlines",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );

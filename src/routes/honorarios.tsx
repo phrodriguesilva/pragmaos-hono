@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
@@ -10,6 +10,7 @@ import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge,
 export const honorariosRoutes = new Hono<AppEnv>();
 
 honorariosRoutes.use("*", requireAuth);
+honorariosRoutes.use("*", requireRole("socio", "financeiro"));
 
 const honorarioSchema = z.object({
   client_id: z.string().uuid("Cliente invalido"),
@@ -62,14 +63,26 @@ function toDateInput(value: string | null | undefined): string {
 // GET /honorarios -- list with summary.
 honorariosRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const search = c.req.query("search")?.trim() ?? "";
+
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let honorariosQuery = supabase
+    .from("honorarios")
+    .select("id, description, type, amount_cents, status, due_date, clients(name)", { count: "exact" })
+    .eq("tenant_id", user.tenantId)
+    .order("created_at", { ascending: false });
+
+  if (search) honorariosQuery = honorariosQuery.ilike("description", `%${search}%`);
+
+  honorariosQuery = honorariosQuery.range(offset, offset + limit - 1);
 
   const [honorariosRes, totalsRes, clientsRes, casesRes] = await Promise.all([
-    supabase
-      .from("honorarios")
-      .select("id, description, type, amount_cents, status, due_date, clients(name)")
-      .eq("tenant_id", user.tenantId)
-      .order("created_at", { ascending: false })
-      .limit(50),
+    honorariosQuery,
     supabase
       .from("honorarios")
       .select("status, amount_cents")
@@ -79,6 +92,8 @@ honorariosRoutes.get("/", async (c) => {
   ]);
 
   const honorarios = honorariosRes.data;
+  const count = honorariosRes.count;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
   const totals = totalsRes.data;
 
   const sumByStatus: Record<string, number> = {};
@@ -95,6 +110,10 @@ honorariosRoutes.get("/", async (c) => {
       formatCurrency(h.amount_cents),
       formatDate(h.due_date),
       <Badge color={statusColor(h.status)}>{STATUS_LABELS[h.status] ?? h.status}</Badge> as unknown as string,
+      <div class="flex items-center gap-2">
+        <a href={`/honorarios/${h.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+        <form method="post" action={`/honorarios/${h.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      </div> as unknown as string,
     ];
   });
 
@@ -168,6 +187,10 @@ honorariosRoutes.get("/", async (c) => {
           <div class="text-h2 font-bold text-gray-500">{formatCurrency(sumByStatus.cancelled ?? 0)}</div>
         </Panel>
       </div>
+      <form method="get" action="/honorarios" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Descricao..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
         columns={[
           { label: "Descricao" },
@@ -176,11 +199,20 @@ honorariosRoutes.get("/", async (c) => {
           { label: "Valor" },
           { label: "Vencimento" },
           { label: "Status" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum honorario encontrado."
         emptyIcon="ph-hand-coins"
         ariaLabel="Lista de honorarios"
+        count={count ?? 0}
+        countLabel="honorario(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/honorarios",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );
@@ -193,7 +225,7 @@ honorariosRoutes.post("/", async (c) => {
   const parsed = honorarioSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/honorarios/new");
+    return c.redirect("/honorarios");
   }
 
   const rawAmount = (body.amount_cents as string) ?? "0";
@@ -214,7 +246,7 @@ honorariosRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return c.redirect("/honorarios/new");
+    return c.redirect("/honorarios");
   }
 
   return c.redirect("/honorarios");

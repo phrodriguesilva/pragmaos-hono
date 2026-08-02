@@ -307,10 +307,10 @@ messagesRoutes.get("/:id", async (c) => {
                   return (
                     <div class={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
                       <div
-                        class={`max-w-[75%] rounded px-3 py-2 ${isOwn ? "bg-carvao-100" : "bg-gray-100"}`}
+                        class={`max-w-[75%] rounded-xl px-4 py-2.5 ${isOwn ? "bg-terracota-600 text-white" : "bg-gray-50 text-gray-800 border border-gray-100"}`}
                       >
                         {!isOwn ? (
-                          <div class="text-body-xs font-semibold text-carvao-700 mb-1">{authorName}</div>
+                          <div class="text-body-xs font-semibold text-terracota-700 mb-1">{authorName}</div>
                         ) : null}
                         <div class="text-body-sm text-gray-800 whitespace-pre-wrap">{msg.content}</div>
                         <div class="text-body-xs text-gray-400 mt-1">{formatDateTime(msg.created_at)}</div>
@@ -340,7 +340,7 @@ messagesRoutes.get("/:id", async (c) => {
               {members.map((m) => (
                 <li class="flex items-center justify-between text-body-sm">
                   <span class="flex items-center gap-2">
-                    <i class="ph ph-user-circle text-body text-carvao-600" aria-hidden="true"></i>
+                    <i class="ph ph-user-circle text-body text-terracota-600" aria-hidden="true"></i>
                     {m.name}
                     {m.user_id === user.id ? <Badge color="blue">Voce</Badge> : null}
                   </span>

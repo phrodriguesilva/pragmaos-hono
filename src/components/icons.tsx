@@ -73,9 +73,13 @@ export const MENU: MenuItem[] = [
     label: "Documentos",
     icon: "ph-file-text",
     children: [
-      { key: "documents", label: "Arquivos", href: "/documents", icon: "ph-folder" },
+      { key: "documents", label: "Documentos", href: "/documents", icon: "ph-file-text" },
       { key: "templates", label: "Modelos", href: "/templates", icon: "ph-files" },
       { key: "signatures", label: "Assinaturas", href: "/signatures", icon: "ph-pen-nib" },
+      { key: "diario-oficial", label: "Diario Oficial", href: "/diario-oficial", icon: "ph-newspaper" },
+      { key: "intimacoes", label: "Intimacoes", href: "/intimacoes", icon: "ph-envelope-open" },
+      { key: "prazos", label: "Calc. de Prazos", href: "/prazos", icon: "ph-calendar-x" },
+      { key: "calendar", label: "Calendario", href: "/calendar", icon: "ph-calendar-blank" },
     ],
   },
   {
@@ -86,6 +90,7 @@ export const MENU: MenuItem[] = [
       { key: "whatsapp", label: "WhatsApp", href: "/whatsapp", icon: "ph-whatsapp-logo" },
       { key: "emails", label: "E-mails", href: "/emails", icon: "ph-envelope" },
       { key: "messages", label: "Mensagens", href: "/messages", icon: "ph-chat-circle" },
+      { key: "notifications", label: "Notificacoes", href: "/notifications", icon: "ph-bell" },
     ],
   },
   {
@@ -98,6 +103,7 @@ export const MENU: MenuItem[] = [
       { key: "cashflow", label: "Fluxo de Caixa", href: "/cashflow", icon: "ph-chart-line-up" },
       { key: "timesheet", label: "Timesheet", href: "/timesheet", icon: "ph-timer" },
       { key: "finance-reports", label: "Relatorios", href: "/finance-reports", icon: "ph-chart-pie" },
+      { key: "trust-accounts", label: "Contas de Clientes", href: "/trust-accounts", icon: "ph-piggy-bank" },
     ],
   },
   {
@@ -123,6 +129,7 @@ export const MENU: MenuItem[] = [
       { key: "workflows", label: "Workflows", href: "/workflows", icon: "ph-gear-six" },
       { key: "permissions", label: "Permissoes", href: "/permissions", icon: "ph-key" },
       { key: "integrations", label: "Integracoes", href: "/integrations", icon: "ph-plugs-connected" },
+      { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-code" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
     ],
   },
@@ -142,12 +149,11 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   );
 
   return (
-    <aside class="fixed inset-y-0 left-0 w-sidebar bg-carvao-600 flex flex-col z-20 overflow-y-auto">
-      <div class="h-12 flex items-center gap-2 border-b border-carvao-700 px-4 shrink-0">
-        <i class="ph-bold ph-scales text-h2 text-terracota-400" aria-hidden="true" />
-        <span class="text-h3 font-semibold text-white">PragmaOS</span>
+    <aside class="fixed inset-y-0 left-0 w-sidebar flex flex-col z-20 overflow-y-auto" style="background: linear-gradient(180deg, #2b2925 0%, #1f1d1a 100%);">
+      <div class="h-16 flex items-center px-5 shrink-0 border-b border-white/5">
+        <img src="/static/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
       </div>
-      <nav class="flex-1 flex flex-col py-1">
+      <nav class="flex-1 flex flex-col py-3 gap-0.5 px-3">
         {MENU.map((item) => {
           if (!isGroup(item)) {
             // Top-level link (Dashboard, BI, Portal)
@@ -155,8 +161,8 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
             return (
               <a
                 href={item.href}
-                class={`flex items-center gap-2 px-4 py-2 text-body-sm text-white hover:bg-carvao-700${
-                  isActive ? " bg-carvao-700 font-semibold border-l-2 border-terracota-400" : ""
+                class={`flex items-center gap-3 px-3 py-2.5 text-body-sm rounded-lg transition-all${
+                  isActive ? " bg-terracota-500/15 text-terracota-300 font-semibold" : " text-gray-400 hover:bg-white/5 hover:text-white"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -173,24 +179,24 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
             <div {...{ "x-data": `{ open: ${isExpanded ? "true" : "false"} }` }} class="flex flex-col">
               <button
                 {...{ "@click": "open = !open" }}
-                class={`flex items-center justify-between px-4 py-2 text-body-sm text-white hover:bg-carvao-700 w-full${
-                  isExpanded ? " bg-carvao-700/50" : ""
+                class={`flex items-center justify-between px-3 py-2.5 text-body-sm rounded-lg transition-all w-full${
+                  isExpanded ? " text-white" : " text-gray-400 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <span class="flex items-center gap-2">
+                <span class="flex items-center gap-3">
                   <i class={`ph ${item.icon} text-body`} aria-hidden="true" />
                   {item.label}
                 </span>
-                <i {...{ ":class": "open ? 'ph ph-caret-up' : 'ph ph-caret-down'" }} class="ph ph-caret-down text-body-sm" aria-hidden="true" />
+                <i {...{ ":class": "open ? 'ph ph-caret-up' : 'ph ph-caret-down'" }} class="ph ph-caret-down text-body-sm opacity-60" aria-hidden="true" />
               </button>
-              <div {...{ "x-show": "open", "x-transition": "" }} class="flex flex-col">
+              <div {...{ "x-show": "open", "x-transition": "" }} class="flex flex-col mt-1 gap-0.5 pl-2">
                 {item.children.map((child) => {
                   const isActive = active === child.key;
                   return (
                     <a
                       href={child.href}
-                      class={`flex items-center gap-2 pl-8 pr-4 py-1.5 text-body-sm text-carvao-200 hover:text-white hover:bg-carvao-700${
-                        isActive ? " bg-carvao-700 text-white font-semibold border-l-2 border-terracota-400" : ""
+                      class={`flex items-center gap-3 px-3 py-2 text-body-sm rounded-lg transition-all${
+                        isActive ? " bg-terracota-500/15 text-terracota-300 font-semibold" : " text-gray-500 hover:bg-white/5 hover:text-white"
                       }`}
                       aria-current={isActive ? "page" : undefined}
                     >
@@ -204,7 +210,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
           );
         })}
       </nav>
-      <div class="border-t border-carvao-700 px-4 py-2 text-body-sm text-carvao-300 shrink-0">v0.2.0</div>
+      <div class="px-5 py-4 text-body-xs text-gray-600 shrink-0 border-t border-white/5">PragmaOS v0.2.0</div>
     </aside>
   );
 };
@@ -214,38 +220,139 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   userName,
   userRole,
 }) => (
-  <header class="w-full bg-carvao-600 flex items-center justify-between px-4 py-2 sticky top-0 z-30">
-    <span class="text-h3 text-white font-semibold">{firmName ?? "PragmaOS"}</span>
-    <div class="flex items-center gap-4">
-      <div class="relative">
-        <i class="ph ph-magnifying-glass absolute left-2 top-1/2 -translate-y-1/2 text-body-sm text-carvao-300" aria-hidden="true" />
-        <input
-          type="search"
-          placeholder="Buscar..."
-          aria-label="Buscar"
-          class="border border-carvao-700 bg-carvao-800 text-body-sm text-white pl-7 pr-2 py-1 focus:shadow-focus w-48"
-        />
+  <header class="w-full bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 py-3.5 sticky top-0 z-30">
+    <span class="text-h3 text-gray-800 font-semibold">{firmName ?? "PragmaOS"}</span>
+    <div class="flex items-center gap-5">
+      {/* Global search (Cmd+K) */}
+      <div {...{ "x-data": "{ open: false, q: '', results: [], async search() { if (this.q.length < 2) { this.results = []; return; } try { const r = await fetch('/search/api?q=' + encodeURIComponent(this.q)); const d = await r.json(); this.results = d.results ?? []; } catch(e) {} } }" }}>
+        <button
+          {...{ "@click": "open = true", "@keydown.cmd.k.prevent": "open = true", "@keydown.ctrl+k.prevent": "open = true" }}
+          class="flex items-center gap-2 bg-gray-50 text-body-sm text-gray-500 px-3 py-2 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-200"
+          aria-label="Buscar (Cmd+K)"
+        >
+          <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+          <span class="hidden sm:inline">Buscar...</span>
+          <kbd class="hidden sm:inline text-body-xs text-gray-400 bg-white border border-gray-200 rounded px-1">Cmd+K</kbd>
+        </button>
+        {/* Search modal */}
+        <div
+          {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}
+          x-cloak
+          class="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/30"
+        >
+          <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden" {...{ "@click.stop": "" }}>
+            <div class="flex items-center gap-3 p-4 border-b border-gray-100">
+              <i class="ph ph-magnifying-glass text-gray-400" aria-hidden="true"></i>
+              <input
+                type="text"
+                {...{ "x-model": "q", "@input.debounce.150ms": "search()", "x-ref": "searchInput", "@keydown.enter.prevent": "results[0] && (window.location = results[0].link)" }}
+                placeholder="Buscar processos, clientes, prazos..."
+                class="flex-1 text-body outline-none placeholder:text-gray-400"
+                aria-label="Campo de busca"
+              />
+              <kbd class="text-body-xs text-gray-400 bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5">ESC</kbd>
+            </div>
+            <div class="max-h-96 overflow-y-auto">
+              <template {...{ "x-if": "q.length < 2" }}>
+                <div class="p-8 text-center text-gray-400 text-body-sm">
+                  Digite pelo menos 2 caracteres para buscar.
+                </div>
+              </template>
+              <template {...{ "x-if": "q.length >= 2 && results.length === 0" }}>
+                <div class="p-8 text-center text-gray-400 text-body-sm">
+                  Nenhum resultado encontrado.
+                </div>
+              </template>
+              <template {...{ "x-for": "(r, i) in results", ":key": "r.id" }}>
+                <a {...{ ":href": "r.link" }} class="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                  <i {...{ ":class": "r.icon" }} class="ph text-h4 text-gray-400" aria-hidden="true"></i>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-body-sm font-medium text-gray-800 truncate" {...{ "x-text": "r.title" }}></div>
+                    <div class="text-body-xs text-gray-500 truncate" {...{ "x-text": "r.subtitle" }}></div>
+                  </div>
+                  <span class="text-body-xs text-gray-400 capitalize" {...{ "x-text": "r.type" }}></span>
+                </a>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Notifications bell with badge */}
+      <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative">
+        {/* Timer widget */}
+        <div {...{ "x-data": "{ running: false, elapsed: 0, desc: '', timer: null, async check() { try { const r = await fetch('/timer/api/status'); const d = await r.json(); if (d.running) { this.running = true; this.desc = d.entry.description; this.elapsed = d.entry.elapsed_seconds; this.startTimer(); } } catch(e) {} }, startTimer() { if (this.timer) clearInterval(this.timer); this.timer = setInterval(() => this.elapsed++, 1000); }, formatTime(s) { const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60); const sec = s%60; return (h>0 ? h+':'+String(m).padStart(2,'0') : String(m)+':'+String(sec).padStart(2,'0')); }, async start() { try { await fetch('/timer/api/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({description: this.desc || 'Trabalhando...'}) }); this.running = true; this.elapsed = 0; this.startTimer(); } catch(e) {} }, async stop() { try { await fetch('/timer/api/stop', { method: 'POST' }); this.running = false; if (this.timer) { clearInterval(this.timer); this.timer = null; } this.elapsed = 0; this.desc = ''; } catch(e) {} }, init() { this.check(); } }" }} class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
+          <template {...{ "x-if": "!running" }}>
+            <button {...{ "@click": "start()" }} class="flex items-center gap-1 text-body-sm text-gray-600 hover:text-terracota-600" aria-label="Iniciar timer">
+              <i class="ph ph-play-circle text-h4" aria-hidden="true"></i>
+              <span class="hidden sm:inline">Iniciar</span>
+            </button>
+          </template>
+          <template {...{ "x-if": "running" }}>
+            <div class="flex items-center gap-2">
+              <i class="ph ph-circle text-h4 text-status-red animate-pulse" aria-hidden="true"></i>
+              <span class="text-body-sm font-mono text-gray-700" {...{ "x-text": "formatTime(elapsed)" }}></span>
+              <button {...{ "@click": "stop()" }} class="text-status-red hover:text-red-700" aria-label="Parar timer">
+                <i class="ph ph-stop-circle text-h4" aria-hidden="true"></i>
+              </button>
+            </div>
+          </template>
+        </div>
+        {/* Notifications bell */}
+        <button
+          {...{ "@click": "open = !open" }}
+          aria-label="Notificacoes"
+          class="relative p-2 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-gray-700"
+        >
+          <i class="ph ph-bell text-h4" aria-hidden="true"></i>
+          <span {...{ "x-show": "count > 0", "x-text": "count > 99 ? '99+' : count" }} x-cloak
+            class="absolute -top-0.5 -right-0.5 bg-status-red text-white text-body-xs font-bold rounded-full min-w-4 h-4 px-1 flex items-center justify-center"
+          ></span>
+        </button>
+        <div
+          {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}
+          role="menu"
+          x-cloak
+          class="absolute right-0 top-full mt-2 bg-white text-body-sm text-gray-800 min-w-64 rounded-xl border border-gray-100 shadow-xl py-2"
+          style="animation: var(--animate-fade-in);"
+        >
+          <div class="px-4 py-2 border-b border-gray-100 font-semibold text-gray-700 flex items-center justify-between">
+            <span>Notificacoes</span>
+            <span {...{ "x-show": "count > 0", "x-text": "count + ' nao lida(s)'" }} x-cloak class="text-body-xs text-status-red font-normal"></span>
+          </div>
+          <div {...{ "x-show": "count === 0" }} x-cloak class="px-4 py-6 text-center text-gray-400">
+            <i class="ph ph-bell-slash text-h3 block mb-1" aria-hidden="true"></i>
+            <span class="text-body-xs">Tudo em dia!</span>
+          </div>
+          <a href="/notifications" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 border-t border-gray-50">
+            <i class="ph ph-list-bullets text-gray-400" aria-hidden="true" />Ver todas
+          </a>
+        </div>
       </div>
       <div {...{ "x-data": "{ open: false }" }} class="relative">
         <button
           {...{ "@click": "open = !open" }}
           aria-label="Menu do usuario"
           aria-haspopup="menu"
-          class="flex items-center gap-1 text-body-sm text-white hover:text-carvao-200"
+          class="flex items-center gap-2 text-body-sm text-gray-700 hover:text-gray-900 font-medium rounded-lg px-2 py-1.5 hover:bg-gray-50"
         >
-          <i class="ph ph-user-circle text-h3" aria-hidden="true" />
-          {userName}
-          {userRole ? ` (${userRole})` : ""}
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-terracota-400 to-terracota-600 flex items-center justify-center text-white text-body-sm font-bold">
+            {userName.charAt(0).toUpperCase()}
+          </div>
+          <span class="hidden sm:flex flex-col items-start leading-tight">
+            <span>{userName}</span>
+            {userRole ? <span class="text-body-xs text-gray-400 font-normal">{userRole}</span> : null}
+          </span>
         </button>
         <div
           {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}
           role="menu"
-          class="absolute right-0 top-full mt-1 border border-border-strong bg-white text-body-sm text-gray-800 min-w-32"
+          class="absolute right-0 top-full mt-2 bg-white text-body-sm text-gray-800 min-w-40 rounded-xl border border-gray-100 shadow-xl py-1.5"
+          style="animation: var(--animate-fade-in);"
         >
-          <a href="/profile" role="menuitem" class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
-            <i class="ph ph-user" aria-hidden="true" />Perfil
+          <a href="/profile" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50">
+            <i class="ph ph-user text-gray-400" aria-hidden="true" />Perfil
           </a>
-          <a href="/logout" role="menuitem" class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+          <a href="/logout" role="menuitem" class="flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 text-status-red">
             <i class="ph ph-sign-out" aria-hidden="true" />Sair
           </a>
         </div>

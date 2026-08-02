@@ -6,6 +6,7 @@ import { AuthLayout } from "../layouts/base";
 import { supabase } from "../lib/supabase";
 import { APP_URL } from "../lib/env";
 import { generateTOTPSecret, validateTOTP, generateQRCodeDataURL, generateBackupCodes, buildTOTPUri } from "../lib/totp";
+import { getGovBrAuthUrl, getGovBrConfig, exchangeGovBrCode, getGovBrUserInfo } from "../lib/govbr";
 import { appCss } from "../generated/css";
 
 export const authRoutes = new Hono<AppEnv>();
@@ -42,10 +43,7 @@ function authShell(title: string, children: unknown, opts?: { wide?: boolean }) 
 function AuthBrand(subtitle?: string) {
   return (
     <div class="mb-6">
-      <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-scales text-h2 text-terracota-600" aria-hidden="true" />
-        <h1 class="text-h2 font-bold text-gray-900">PragmaOS</h1>
-      </div>
+      <img src="/static/pragmaos-logo-dark.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
       {subtitle ? <p class="text-body-sm text-gray-500">{subtitle}</p> : null}
     </div>
   );
@@ -129,11 +127,7 @@ const AuthButton = ({ icon, label }: { icon: string; label: string }) => (
 function loginForm(errorMsg?: string, emailValue?: string) {
   return (
     <AuthLayout title="Entrar">
-      <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-scales text-h2 text-terracota-600" aria-hidden="true" />
-        <h1 class="text-h2 font-bold text-gray-900">PragmaOS</h1>
-      </div>
-      <p class="text-body-sm text-gray-500 mb-6">Gestao juridica para escritorios.</p>
+      <p class="text-body-sm text-gray-500 mb-6 text-center">Gestao juridica para escritorios.</p>
       {errorMsg ? ErrorAlert(errorMsg) : null}
       <form method="post" action="/login" class="flex flex-col gap-4">
         <AuthInput id="email" name="email" label="Email" type="email" required icon="ph-envelope"
@@ -166,11 +160,22 @@ function loginForm(errorMsg?: string, emailValue?: string) {
         </div>
         <AuthButton icon="ph-sign-in" label="Entrar" />
         <div class="text-center">
-          <a href="/forgot-password" class="text-body-sm text-carvao-600 hover:underline">
+          <a href="/forgot-password" class="text-body-sm text-terracota-600 hover:underline">
             Esqueceu sua senha?
           </a>
         </div>
       </form>
+      {/* Gov.br OAuth login */}
+      <div class="mt-6 pt-6 border-t border-gray-100">
+        <div class="text-center text-body-xs text-gray-400 mb-3">ou</div>
+        <a href="/auth/govbr" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-body-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="20" height="20" rx="4" fill="#003B7B"/>
+            <text x="10" y="14" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="Arial">gov.br</text>
+          </svg>
+          Entrar com Gov.br
+        </a>
+      </div>
     </AuthLayout>
   );
 }
@@ -265,7 +270,7 @@ function twoFAVerifyForm(errorMsg?: string) {
   return (
     <AuthLayout title="Verificacao 2FA">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-shield-check text-h2 text-carvao-700" aria-hidden="true" />
+        <i class="ph-bold ph-shield-check text-h2 text-terracota-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Verificacao 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -371,7 +376,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
   return (
     <AuthLayout title="Configurar 2FA">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-shield-star text-h2 text-carvao-700" aria-hidden="true" />
+        <i class="ph-bold ph-shield-star text-h2 text-terracota-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Configurar 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -383,11 +388,11 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
       {qrDataUrl ? (
         <>
           <div class="text-center mb-4">
-            <img src={qrDataUrl} alt="QR Code para 2FA" class="inline-block border border-border" width="200" height="200" />
+            <img src={qrDataUrl} alt="QR Code para 2FA" class="inline-block border border-gray-200" width="200" height="200" />
           </div>
           <div class="mb-4">
             <p class="text-body-sm text-gray-600 mb-1">Ou digite o codigo manualmente:</p>
-            <div class="text-body-sm text-gray-800 border border-border bg-gray-50 p-2 break-all font-mono">
+            <div class="text-body-sm text-gray-800 border border-gray-200 bg-gray-50 p-2 break-all font-mono">
               {secret}
             </div>
           </div>
@@ -420,14 +425,14 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
       )}
 
       {backupCodes && backupCodes.length > 0 ? (
-        <div class="mt-6 border-t border-border pt-4">
+        <div class="mt-6 border-t border-gray-200 pt-4">
           <p class="text-body-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
             <i class="ph ph-key" aria-hidden="true" />Codigos de recuperacao
           </p>
           <p class="text-body-sm text-gray-500 mb-2">
             Guarde estes codigos em local seguro. Use-os se perder acesso ao seu app autenticador.
           </p>
-          <div class="grid grid-cols-2 gap-1 border border-border bg-gray-50 p-3 font-mono text-body-sm">
+          <div class="grid grid-cols-2 gap-1 border border-gray-200 bg-gray-50 p-3 font-mono text-body-sm">
             {backupCodes.map((code) => <div key={code}>{code}</div>)}
           </div>
           <p class="text-body-sm text-status-red mt-2 flex items-center gap-1">
@@ -601,7 +606,7 @@ function forgotPasswordForm(errorMsg?: string, success?: boolean) {
   return (
     <AuthLayout title="Recuperar Senha">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-envelope-simple-open text-h2 text-carvao-700" aria-hidden="true" />
+        <i class="ph-bold ph-envelope-simple-open text-h2 text-terracota-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Recuperar Senha</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -685,7 +690,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
   return (
     <AuthLayout title="Redefinir Senha">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-key text-h2 text-carvao-700" aria-hidden="true" />
+        <i class="ph-bold ph-key text-h2 text-terracota-700" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Redefinir Senha</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">Digite sua nova senha.</p>
@@ -865,4 +870,60 @@ authRoutes.get("/logout", (c) => {
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
   return c.redirect("/login");
+});
+
+// ============================================================
+// Gov.br OAuth
+// ============================================================
+
+// GET /auth/govbr — redirect to Gov.br authorization
+authRoutes.get("/govbr", (c) => {
+  const config = getGovBrConfig();
+  if (!config.enabled) {
+    return c.html(loginForm("Login via Gov.br nao configurado. Contate o administrador."));
+  }
+  const state = crypto.randomUUID();
+  setCookie(c, "govbr-oauth-state", state, { path: "/", httpOnly: true, maxAge: 600 });
+  return c.redirect(getGovBrAuthUrl(state));
+});
+
+// GET /auth/govbr/callback — handle Gov.br OAuth callback
+authRoutes.get("/govbr/callback", async (c) => {
+  const code = c.req.query("code");
+  const state = c.req.query("state");
+  const savedState = getCookie(c, "govbr-oauth-state");
+  deleteCookie(c, "govbr-oauth-state", { path: "/" });
+
+  if (!code || !state || state !== savedState) {
+    return c.html(loginForm("Erro na autenticacao Gov.br: state invalido."));
+  }
+
+  const tokenResult = await exchangeGovBrCode(code);
+  if (!tokenResult.success || !tokenResult.token) {
+    return c.html(loginForm(tokenResult.error ?? "Erro ao obter token Gov.br."));
+  }
+
+  const userInfoResult = await getGovBrUserInfo(tokenResult.token.access_token);
+  if (!userInfoResult.success || !userInfoResult.user) {
+    return c.html(loginForm(userInfoResult.error ?? "Erro ao obter dados do usuario Gov.br."));
+  }
+
+  const govUser = userInfoResult.user;
+
+  // Look up user by CPF in profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, tenant_id, full_name, role")
+    .eq("cpf", govUser.cpf.replace(/\D/g, ""))
+    .maybeSingle();
+
+  if (!profile) {
+    return c.html(loginForm(`Usuario com CPF ${govUser.cpf} nao encontrado no PragmaOS. Contate o administrador.`));
+  }
+
+  // Set session cookies (same as regular login)
+  setCookie(c, "sb-access-token", tokenResult.token.access_token, { path: "/", httpOnly: true, maxAge: 86400 });
+  setCookie(c, "auth-user-id", profile.id, { path: "/", httpOnly: true, maxAge: 86400 });
+
+  return c.redirect("/");
 });

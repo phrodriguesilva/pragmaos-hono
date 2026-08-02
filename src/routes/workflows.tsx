@@ -87,13 +87,27 @@ const num = (cfg: Record<string, unknown>, key: string): number | null => {
 // GET /workflows -- list workflows.
 workflowsRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const search = c.req.query("search")?.trim() ?? "";
 
-  const { data: workflows } = await supabase
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let query = supabase
     .from("workflows")
-    .select("id, name, trigger_type, active, created_at")
+    .select("id, name, trigger_type, active, created_at", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
+
+  if (search) query = query.ilike("name", `%${search}%`);
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data: workflows, count } = await query;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   // Fetch step counts and last execution per workflow in parallel.
   const wfList = workflows ?? [];
@@ -141,6 +155,11 @@ workflowsRoutes.get("/", async (c) => {
         ? <Badge color="green" icon="ph-check-circle">Ativo</Badge> as unknown as string
         : <Badge color="gray" icon="ph-x-circle">Inativo</Badge> as unknown as string,
       last ? new Date(last).toLocaleString("pt-BR") : "-",
+      <div class="flex items-center gap-2">
+        <a href={`/workflows/${w.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+        <a href={`/workflows/${w.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+        <form method="post" action={`/workflows/${w.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      </div> as unknown as string,
     ];
   });
 
@@ -220,6 +239,10 @@ workflowsRoutes.get("/", async (c) => {
           />
         )}
       />
+      <form method="get" action="/workflows" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Nome do workflow..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
         columns={[
           { label: "Nome", icon: "ph-text-aa" },
@@ -227,11 +250,20 @@ workflowsRoutes.get("/", async (c) => {
           { label: "Passos", icon: "ph-list-numbers" },
           { label: "Ativo", icon: "ph-power" },
           { label: "Ultima execucao", icon: "ph-clock" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum workflow configurado."
         emptyIcon="ph-gear-six"
         ariaLabel="Lista de workflows"
+        count={count ?? 0}
+        countLabel="workflow(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/workflows",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );
@@ -447,8 +479,8 @@ workflowsRoutes.get("/:id", async (c) => {
         ) : (
           <ol class="flex flex-col gap-2 mb-4">
             {stepsList.map((s, i) => (
-              <li class="border border-border bg-gray-50 p-3 flex items-center gap-3">
-                <span class="text-body font-bold text-carvao-700 w-6 text-center">{i + 1}</span>
+              <li class="border border-gray-200 bg-gray-50 p-3 flex items-center gap-3">
+                <span class="text-body font-bold text-terracota-700 w-6 text-center">{i + 1}</span>
                 <div class="flex-1">
                   <div class="text-body font-semibold text-gray-800 flex items-center gap-1">
                     <i class={`ph ${actionIcon(s.action_type)}`} aria-hidden="true" />
@@ -470,7 +502,7 @@ workflowsRoutes.get("/:id", async (c) => {
           </ol>
         )}
 
-        <form method="post" action={`/workflows/${wf.id}/steps`} class="flex flex-col gap-3 border-t border-border pt-3">
+        <form method="post" action={`/workflows/${wf.id}/steps`} class="flex flex-col gap-3 border-t border-gray-200 pt-3">
           <h3 class="text-h3 font-semibold text-gray-800 flex items-center gap-1">
             <i class="ph ph-plus-circle" aria-hidden="true" />
             Adicionar Passo
@@ -694,13 +726,13 @@ workflowsRoutes.post("/:id/execute", async (c) => {
           });
           break;
         }
-        // Stubs: just log as completed.
+        // Actions not yet implemented — record as skipped with a note.
         case "send_email":
         case "send_whatsapp":
         case "create_document":
         case "create_hearing":
         case "update_case":
-          // No-op stub: action considered completed.
+          lastError = `Acao '${step.action_type}' ainda nao implementada — passo pulado.`;
           break;
       }
       completed += 1;

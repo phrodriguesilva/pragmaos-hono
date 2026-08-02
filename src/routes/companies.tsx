@@ -31,13 +31,27 @@ const representativeSchema = z.object({
 // GET /companies -- list companies.
 companiesRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const search = c.req.query("search")?.trim() ?? "";
 
-  const { data: companies } = await supabase
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let query = supabase
     .from("companies")
-    .select("id, name, cnpj, email, phone, active")
+    .select("id, name, cnpj, email, phone, active", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
+
+  if (search) query = query.ilike("name", `%${search}%`);
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data: companies, count } = await query;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (companies ?? []).map((co) => [
     <a href={`/companies/${co.id}`} class="text-terracota-600 hover:underline">{co.name}</a> as unknown as string,
@@ -45,6 +59,11 @@ companiesRoutes.get("/", async (c) => {
     co.email ?? "-",
     co.phone ?? "-",
     co.active ? <Badge color="green">Ativo</Badge> : <Badge color="gray">Inativo</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/companies/${co.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/companies/${co.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/companies/${co.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
   ]);
 
   return renderPage(
@@ -78,6 +97,10 @@ companiesRoutes.get("/", async (c) => {
           </Modal>
         )}
       />
+      <form method="get" action="/companies" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Nome da empresa..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
         columns={[
           { label: "Nome" },
@@ -85,11 +108,20 @@ companiesRoutes.get("/", async (c) => {
           { label: "Email" },
           { label: "Telefone" },
           { label: "Status" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhuma empresa encontrada."
         emptyIcon="ph-building"
         ariaLabel="Lista de empresas"
+        count={count ?? 0}
+        countLabel="empresa(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/companies",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );

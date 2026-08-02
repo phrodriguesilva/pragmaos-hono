@@ -1,11 +1,10 @@
 @import "tailwindcss";
 
-/* PragmaOS sober theme -- "corporate 2003" / enterprise legacy.
-   Dense tables, 1px borders, no animations, no emojis, no gradients.
-   Palette: Carvao (charcoal) + Terracota (terracotta/copper).
-   Warm institutional feel for legal practice. */
+/* PragmaOS theme -- modern 2026, refined and polished.
+   Generous radius, soft shadows, filled badges, subtle gradients.
+   Palette: Carvao (charcoal) + Terracota (terracotta/copper). */
 @theme {
-  /* Gray scale -- warm neutrals (slight brown undertone, not cold blue-gray) */
+  /* Gray scale -- warm neutrals */
   --color-gray-50: #faf9f7;
   --color-gray-100: #f4f2ef;
   --color-gray-200: #e8e4df;
@@ -17,7 +16,7 @@
   --color-gray-800: #262422;
   --color-gray-900: #1a1816;
 
-  /* Carvao scale (charcoal -- primary brand color, replaces navy) */
+  /* Carvao scale (charcoal -- primary brand) */
   --color-carvao-50: #f5f4f3;
   --color-carvao-100: #e8e6e3;
   --color-carvao-200: #d1cec9;
@@ -29,24 +28,24 @@
   --color-carvao-800: #1f1d1a;
   --color-carvao-900: #141310;
 
-  /* Terracota scale (accent / copper -- for highlights, links, active states) */
-  --color-terracota-50: #fbf3ef;
-  --color-terracota-100: #f5e2d8;
-  --color-terracota-200: #e8c4b0;
-  --color-terracota-300: #d99e78;
-  --color-terracota-400: #c4764a;
-  --color-terracota-500: #a85a33;
-  --color-terracota-600: #8f4a2a;
-  --color-terracota-700: #733b22;
-  --color-terracota-800: #5a2e1a;
-  --color-terracota-900: #3d1f12;
+  /* Terracota scale (accent / copper) */
+  --color-terracota-50: #fdf6f2;
+  --color-terracota-100: #f8e6dc;
+  --color-terracota-200: #eecaa8;
+  --color-terracota-300: #e0a874;
+  --color-terracota-400: #cc8048;
+  --color-terracota-500: #b06432;
+  --color-terracota-600: #94522a;
+  --color-terracota-700: #784222;
+  --color-terracota-800: #5c331b;
+  --color-terracota-900: #3d2213;
 
-  /* Border tokens -- warm */
-  --color-border: #c9c3ba;
-  --color-border-strong: #b5aea3;
-  --color-border-subtle: #e0ddd7;
+  /* Border tokens */
+  --color-border: #e0ddd7;
+  --color-border-strong: #c9c3ba;
+  --color-border-subtle: #efece8;
 
-  /* Status colors -- sober, no neon */
+  /* Status colors */
   --color-status-green: #2e6b3e;
   --color-status-green-bg: #ecf4ee;
   --color-status-green-border: #c3d8c9;
@@ -63,161 +62,263 @@
   --color-status-gray-bg: #f4f2ef;
   --color-status-gray-border: #e0ddd7;
 
-  /* Font sizes -- dense (Tailwind v4 uses --text-* namespace) */
-  --text-table: 12px;
+  /* Font sizes -- slightly larger for readability */
+  --text-table: 13px;
   --text-body-sm: 13px;
   --text-body: 14px;
   --text-h3: 16px;
   --text-h2: 20px;
-  --text-h1: 24px;
+  --text-h1: 26px;
 
-  /* Line heights paired with font sizes */
-  --text-table--line-height: 1.4;
+  /* Line heights */
+  --text-table--line-height: 1.5;
   --text-body-sm--line-height: 1.5;
-  --text-body--line-height: 1.5;
+  --text-body--line-height: 1.6;
   --text-h3--line-height: 1.4;
   --text-h2--line-height: 1.3;
-  --text-h1--line-height: 1.25;
+  --text-h1--line-height: 1.2;
 
   /* Layout */
-  --width-sidebar: 200px;
-  --spacing-sidebar: 200px;
+  --width-sidebar: 240px;
+  --spacing-sidebar: 240px;
 
-  /* Radius -- none, sharp corners */
-  --radius-sm: 2px;
+  /* Radius -- modern, generous */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 
-  /* Focus ring -- terracota accent */
-  --shadow-focus: 0 0 0 2px #faf9f7, 0 0 0 4px #8f4a2a;
+  /* Shadows -- layered, soft, modern */
+  --shadow-xs: 0 1px 2px rgba(31, 29, 26, 0.05);
+  --shadow-sm: 0 1px 3px rgba(31, 29, 26, 0.07), 0 1px 2px rgba(31, 29, 26, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(31, 29, 26, 0.08), 0 2px 4px -1px rgba(31, 29, 26, 0.04);
+  --shadow-lg: 0 12px 20px -4px rgba(31, 29, 26, 0.1), 0 4px 8px -2px rgba(31, 29, 26, 0.05);
+  --shadow-xl: 0 24px 32px -8px rgba(31, 29, 26, 0.12), 0 8px 16px -4px rgba(31, 29, 26, 0.06);
+  --shadow-2xl: 0 32px 48px -12px rgba(31, 29, 26, 0.15);
+
+  /* Focus ring */
+  --shadow-focus: 0 0 0 3px rgba(204, 128, 72, 0.25);
 
   /* Animations */
-  --animate-spin: spin 1s linear infinite;
+  --animate-spin: spin 0.8s linear infinite;
+  --animate-fade-in: fade-in 0.2s ease-out;
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   /* Font family */
-  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
 }
 
-/* Disable all animations/transitions (no-frills principle) */
+/* Self-hosted fonts — Inter (UI) + Source Serif 4 (document content) */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/Inter-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/static/fonts/Inter-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/Inter-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/fonts/Inter-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/SourceSerif-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/SourceSerif-400-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/SourceSerif-600.woff2") format("woff2");
+}
+
+/* Smooth transitions */
 @layer base {
   *,
   ::before,
   ::after {
-    transition: none !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
   }
-  /* Hide Alpine.js elements before initialization */
   [x-cloak] {
     display: none !important;
   }
-  /* Modal overlay scroll lock helper */
   body.modal-open {
     overflow: hidden;
+  }
+  /* Custom scrollbar for a polished feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-400);
   }
 }
 
 @layer components {
+  /* Badges -- filled, pill-shaped, modern */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 text-body-sm border;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 text-body-sm font-medium rounded-full;
   }
   .badge-green {
-    @apply bg-status-green-bg text-status-green border-status-green-border;
+    @apply bg-status-green-bg text-status-green;
   }
   .badge-red {
-    @apply bg-status-red-bg text-status-red border-status-red-border;
+    @apply bg-status-red-bg text-status-red;
   }
   .badge-yellow {
-    @apply bg-status-yellow-bg text-status-yellow border-status-yellow-border;
+    @apply bg-status-yellow-bg text-status-yellow;
   }
   .badge-blue {
-    @apply bg-status-blue-bg text-status-blue border-status-blue-border;
+    @apply bg-status-blue-bg text-status-blue;
   }
   .badge-gray {
-    @apply bg-status-gray-bg text-status-gray border-status-gray-border;
+    @apply bg-gray-200 text-gray-600;
   }
-  /* Dense data table */
+
+  /* Modern data table -- no harsh borders, subtle row separators */
   .data-table {
     @apply w-full border-collapse;
     font-size: var(--text-table);
   }
   .data-table th {
-    @apply bg-gray-100 border border-border-strong px-2 py-1 text-left font-semibold sticky top-0 z-10;
+    @apply bg-gray-50 border-b-2 border-gray-200 px-4 py-3 text-left font-semibold text-gray-500 uppercase text-xs tracking-wide sticky top-0 z-10;
   }
   .data-table td {
-    @apply border border-border-subtle px-2 py-1;
+    @apply border-b border-gray-100 px-4 py-3 text-gray-700;
   }
-  .data-table tbody tr:nth-child(even) {
-    @apply bg-gray-50;
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
   }
   .data-table tbody tr:hover {
     @apply bg-terracota-50;
   }
-  /* Form inputs */
+
+  /* Form inputs -- modern, generous padding */
   .input {
-    @apply border bg-white px-2 py-1 text-body focus:outline-none;
+    @apply border bg-white px-3.5 py-2.5 text-body focus:outline-none rounded-md;
     border-color: var(--color-border);
     min-width: 200px;
     width: 100%;
   }
   .input:focus {
     box-shadow: var(--shadow-focus);
+    border-color: var(--color-terracota-400);
   }
+  .input::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  /* Buttons -- modern, with hover lift effect */
   .btn {
-    @apply border px-3 py-1 text-body-sm;
+    @apply border px-4 py-2 text-body-sm rounded-md font-medium inline-flex items-center gap-1.5;
     border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
   }
   .btn-primary {
-    @apply bg-carvao-600 text-white;
-    border-color: var(--color-carvao-700);
+    @apply bg-terracota-500 text-white;
+    border-color: var(--color-terracota-600);
   }
   .btn-primary:hover {
-    @apply bg-carvao-700;
+    @apply bg-terracota-600;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
   }
   .btn-secondary {
-    @apply bg-gray-100 text-gray-800;
+    @apply bg-white text-gray-700;
     border-color: var(--color-border);
   }
   .btn-secondary:hover {
-    @apply bg-gray-200;
+    @apply bg-gray-50 text-gray-900;
+    border-color: var(--color-border-strong);
   }
   .btn-danger {
     @apply text-status-red bg-white;
-    border-color: var(--color-status-red);
+    border-color: var(--color-status-red-border);
   }
   .btn-danger:hover {
     background-color: var(--color-status-red-bg);
   }
-  /* Modal overlay */
+  .btn-sm {
+    @apply px-3 py-1.5 text-body-sm;
+  }
+
+  /* Modal -- modern with blur and scale animation */
   .modal-overlay {
     @apply fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(20, 19, 16, 0.4);
+    backdrop-filter: blur(4px);
   }
   .modal-panel {
-    @apply bg-white border border-border-strong w-full my-8;
+    @apply bg-white border border-gray-100 w-full my-8 rounded-xl;
     max-width: 640px;
+    box-shadow: var(--shadow-2xl);
+    animation: var(--animate-fade-in);
   }
   .modal-panel.modal-lg {
     max-width: 800px;
   }
   .modal-header {
-    @apply flex items-center justify-between border-b border-border-strong px-4 py-3 bg-gray-50;
+    @apply flex items-center justify-between border-b border-gray-100 px-6 py-4;
   }
   .modal-body {
-    @apply p-4 max-h-[70vh] overflow-y-auto;
+    @apply p-6 max-h-[70vh] overflow-y-auto;
   }
   .modal-footer {
-    @apply flex items-center justify-end gap-2 border-t border-border-strong px-4 py-3 bg-gray-50;
+    @apply flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4 bg-gray-50 rounded-b-xl;
   }
-  /* Wizard step indicator */
+
+  /* Wizard steps */
   .wizard-steps {
-    @apply flex items-center gap-1 border-b border-border-subtle px-4 py-2 bg-gray-50;
+    @apply flex items-center gap-1 border-b border-gray-100 px-4 py-3 bg-gray-50;
   }
   .wizard-step {
-    @apply flex items-center gap-1 text-body-sm px-2 py-1;
+    @apply flex items-center gap-1.5 text-body-sm px-2 py-1;
   }
   .wizard-step-active {
-    @apply text-carvao-700 font-semibold;
+    @apply text-terracota-600 font-semibold;
   }
   .wizard-step-done {
     @apply text-status-green;
@@ -226,43 +327,47 @@
     @apply text-gray-400;
   }
   .wizard-step-number {
-    @apply inline-flex items-center justify-center w-5 h-5 border text-body-sm;
+    @apply inline-flex items-center justify-center w-6 h-6 rounded-full text-body-sm font-semibold;
   }
   .wizard-step-number-active {
-    @apply border-carvao-600 text-carvao-600;
+    @apply bg-terracota-500 text-white;
   }
   .wizard-step-number-done {
-    @apply border-status-green text-status-green;
+    @apply bg-status-green text-white;
   }
   .wizard-step-number-pending {
-    @apply border-gray-300 text-gray-400;
+    @apply bg-gray-200 text-gray-400;
   }
-  /* ComboBox (searchable dropdown) */
+
+  /* ComboBox -- modern */
   .combobox {
     @apply relative;
   }
   .combobox-trigger {
-    @apply border bg-white px-2 py-1 text-body flex items-center justify-between gap-2 cursor-pointer focus:outline-none;
+    @apply border bg-white px-3.5 py-2.5 text-body flex items-center justify-between gap-2 cursor-pointer focus:outline-none rounded-md;
     border-color: var(--color-border);
     min-width: 200px;
     width: 100%;
   }
   .combobox-trigger:focus {
     box-shadow: var(--shadow-focus);
+    border-color: var(--color-terracota-400);
   }
   .combobox-dropdown {
-    @apply absolute left-0 right-0 z-50 bg-white border border-border-strong max-h-60 overflow-y-auto;
+    @apply absolute left-0 right-0 z-50 bg-white border border-gray-200 max-h-60 overflow-y-auto rounded-md mt-1;
+    box-shadow: var(--shadow-lg);
+    animation: var(--animate-fade-in);
   }
   .combobox-search {
-    @apply w-full px-2 py-1 text-body border-b border-border-subtle focus:outline-none;
+    @apply w-full px-3 py-2.5 text-body border-b border-gray-100 focus:outline-none;
   }
   .combobox-option {
-    @apply px-3 py-1 text-body cursor-pointer hover:bg-terracota-50;
+    @apply px-3.5 py-2.5 text-body cursor-pointer hover:bg-terracota-50;
   }
   .combobox-option-selected {
-    @apply bg-carvao-50 text-carvao-700 font-semibold;
+    @apply bg-terracota-50 text-terracota-700 font-semibold;
   }
   .combobox-empty {
-    @apply px-3 py-2 text-body-sm text-gray-400 text-center;
+    @apply px-3.5 py-3 text-body-sm text-gray-400 text-center;
   }
 }

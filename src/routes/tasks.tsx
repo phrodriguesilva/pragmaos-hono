@@ -35,15 +35,27 @@ tasksRoutes.get("/", async (c) => {
   const user = c.get("user");
   const view = c.req.query("view") ?? "kanban";
   const mine = c.req.query("mine") === "1";
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+
+  const queryParams: Record<string, string> = {};
+  if (view) queryParams.view = view;
+  if (mine) queryParams.mine = "1";
 
   let query = supabase
     .from("tasks")
-    .select("id, title, description, status, priority, due_date, case_id, client_id, assigned_to, billable, time_spent_minutes, cases(title), clients(name), profiles(full_name)")
+    .select("id, title, description, status, priority, due_date, case_id, client_id, assigned_to, billable, time_spent_minutes, cases(title), clients(name), profiles(full_name)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("priority", { ascending: false });
 
   if (mine) query = query.eq("assigned_to", user.id);
+
+  // For list view, apply pagination; for kanban, fetch all
+  if (view === "list") {
+    query = query.range(offset, offset + limit - 1);
+  }
 
   const [tasksRes, casesRes, clientsRes, usersRes] = await Promise.all([
     query,
@@ -53,6 +65,8 @@ tasksRoutes.get("/", async (c) => {
   ]);
 
   const tasks = tasksRes.data;
+  const count = tasksRes.count;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
   const caseOptions = [{ value: "", label: "Nenhum" }, ...(casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }))];
   const clientOptions = [{ value: "", label: "Nenhum" }, ...(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))];
   const userOptions = [{ value: "", label: "Sem responsavel" }, ...(usersRes.data ?? []).map((u) => ({ value: u.id, label: u.full_name }))];
@@ -147,6 +161,14 @@ tasksRoutes.get("/", async (c) => {
           emptyMsg="Nenhuma tarefa."
           emptyIcon="ph-check-square"
           ariaLabel="Lista de tarefas"
+          count={count ?? 0}
+          countLabel="tarefa(s)"
+          pagination={{
+            currentPage: page,
+            totalPages,
+            basePath: "/tasks",
+            queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+          }}
         />
       </>,
     );
@@ -177,28 +199,28 @@ tasksRoutes.get("/", async (c) => {
           </div>
         )}
       />
-      <div class="flex gap-3 overflow-x-auto pb-4">
+      <div class="flex gap-5 overflow-x-auto pb-4">
         {COLUMNS.map((col) => {
           const colTasks = byCol(col.key);
           return (
-            <div class="w-64 shrink-0">
-              <div class="flex items-center gap-2 mb-2 px-2 py-1 bg-gray-100 border border-border-strong">
+            <div class="w-64 shrink-0 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex items-center gap-2 mb-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-xl font-semibold text-gray-700">
                 <i class={`ph ${col.icon} text-body text-gray-600`} aria-hidden="true" />
                 <span class="text-body-sm font-semibold text-gray-700">{col.label}</span>
                 <span class="text-body-sm text-gray-400 ml-auto">{colTasks.length}</span>
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-3 p-2">
                 {colTasks.map((t) => {
                   const overdue = t.due_date && new Date(t.due_date) < new Date() && t.status !== "done";
                   const assigned = (t.profiles as unknown as { full_name: string } | null)?.full_name;
                   const caseTitle = (t.cases as unknown as { title: string } | null)?.title;
                   return (
-                    <a href={`/tasks/${t.id}`} class="block border border-border bg-white p-2 hover:border-carvao-400 hover:shadow-sm">
+                    <a href={`/tasks/${t.id}`} class="block bg-white border border-gray-200 p-4 rounded-lg hover:border-terracota-300 hover:shadow-md transition-all">
                       <div class="flex items-start justify-between gap-1">
-                        <span class="text-body-sm font-semibold text-gray-800">{t.title}</span>
+                        <span class="font-medium text-gray-800">{t.title}</span>
                         <span class={`text-body-sm font-bold ${t.priority >= 4 ? "text-status-red" : t.priority >= 3 ? "text-status-yellow" : "text-gray-400"}`}>P{t.priority}</span>
                       </div>
-                      {caseTitle ? <div class="text-body-sm text-carvao-600 mt-1 flex items-center gap-1"><i class="ph ph-folder text-xs" aria-hidden="true" />{caseTitle}</div> : null}
+                      {caseTitle ? <div class="text-terracota-600 hover:underline text-body-sm mt-1 flex items-center gap-1"><i class="ph ph-folder text-xs" aria-hidden="true" />{caseTitle}</div> : null}
                       {t.due_date ? (
                         <div class={`text-body-sm mt-1 flex items-center gap-1 ${overdue ? "text-status-red font-semibold" : "text-gray-500"}`}>
                           <i class="ph ph-calendar text-xs" aria-hidden="true" />
@@ -215,7 +237,7 @@ tasksRoutes.get("/", async (c) => {
                   );
                 })}
                 {colTasks.length === 0 ? (
-                  <div class="text-body-sm text-gray-300 text-center py-4 border border-dashed border-border">
+                  <div class="border border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-400 text-body-sm">
                     <i class="ph ph-inbox text-h2 block mb-1" aria-hidden="true" />
                     Vazio
                   </div>

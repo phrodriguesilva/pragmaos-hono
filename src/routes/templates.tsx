@@ -6,6 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { WysiwygEditor } from "../components/editor";
 
 export const templatesRoutes = new Hono<AppEnv>();
 
@@ -29,19 +30,37 @@ const docTypeOptions = [
 // GET / -- list all templates with create modal.
 templatesRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const search = c.req.query("search")?.trim() ?? "";
 
-  const { data: templates } = await supabase
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let query = supabase
     .from("document_templates")
-    .select("id, name, doc_type, created_at")
+    .select("id, name, doc_type, created_at", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
+
+  if (search) query = query.ilike("name", `%${search}%`);
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data: templates, count } = await query;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (templates ?? []).map((tpl) => [
     <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline">{tpl.name}</a> as unknown as string,
     tpl.doc_type,
     new Date(tpl.created_at).toLocaleDateString("pt-BR"),
-    "",
+    <div class="flex items-center gap-2">
+      <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/templates/${tpl.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
   ]);
 
   return renderPage(
@@ -63,24 +82,34 @@ templatesRoutes.get("/", async (c) => {
           >
             <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" placeholder="Nome do modelo" />
             <Select label="Categoria" id="doc_type" name="doc_type" options={docTypeOptions} selected="contrato" required />
-            <Textarea label="Conteudo" id="content" name="content" rows={10} required>
-              {""}
-            </Textarea>
+            <WysiwygEditor id="content-new" name="content" label="Conteudo" rows={10} value="" />
             <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
           </Modal>
         )}
       />
+      <form method="get" action="/templates" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Nome do modelo..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
         columns={[
           { label: "Nome" },
           { label: "Tipo" },
           { label: "Criado em" },
-          { label: "" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum modelo encontrado."
         emptyIcon="ph-files"
         ariaLabel="Lista de modelos de documentos"
+        count={count ?? 0}
+        countLabel="modelo(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/templates",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );
@@ -180,9 +209,7 @@ templatesRoutes.get("/:id", async (c) => {
             >
               <TextField label="Nome" id="name" name="name" required icon="ph-text-aa" value={template.name} />
               <Select label="Categoria" id="doc_type" name="doc_type" options={docTypeOptions} selected={template.doc_type} required />
-              <Textarea label="Conteudo" id="content" name="content" rows={10} required>
-                {template.content}
-              </Textarea>
+              <WysiwygEditor id="content-edit" name="content" label="Conteudo" rows={10} value={template.content ?? ""} />
               <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
             </Modal>
             <form method="post" action={`/templates/${id}/delete`}>
@@ -208,7 +235,7 @@ templatesRoutes.get("/:id", async (c) => {
         ) : null}
       </div>
       <Panel title="Conteudo" icon="ph-text-aa">
-        <pre class="whitespace-pre-wrap font-mono text-body-sm text-gray-800">{template.content}</pre>
+        <pre class="whitespace-pre-wrap font-serif text-body text-gray-800 leading-relaxed">{template.content}</pre>
       </Panel>
     </>,
   );

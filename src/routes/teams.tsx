@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
@@ -10,6 +10,7 @@ import { PageHeader, Table, TextField, ComboBox, Textarea, Panel, Badge, Modal }
 export const teamsRoutes = new Hono<AppEnv>();
 
 teamsRoutes.use("*", requireAuth);
+teamsRoutes.use("*", requireRole("socio"));
 
 const teamSchema = z.object({
   name: z.string().min(1, "Nome e obrigatorio"),
@@ -20,13 +21,27 @@ const teamSchema = z.object({
 // GET /teams -- list teams.
 teamsRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const search = c.req.query("search")?.trim() ?? "";
 
-  const { data: teams } = await supabase
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+
+  let query = supabase
     .from("teams")
-    .select("id, name, description, leader_id")
+    .select("id, name, description, leader_id", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
+
+  if (search) query = query.ilike("name", `%${search}%`);
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data: teams, count } = await query;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   // Fetch leader names and member counts in parallel.
   const leaderIds = (teams ?? []).map((t) => t.leader_id).filter(Boolean) as string[];
@@ -54,6 +69,11 @@ teamsRoutes.get("/", async (c) => {
     t.leader_id ? (leaderMap.get(t.leader_id) ?? "-") : "-",
     String(memberCountMap.get(t.id) ?? 0),
     t.description ?? "-",
+    <div class="flex items-center gap-2">
+      <a href={`/teams/${t.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/teams/${t.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/teams/${t.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
   ]);
 
   return renderPage(
@@ -88,17 +108,30 @@ teamsRoutes.get("/", async (c) => {
           </Modal>
         )}
       />
+      <form method="get" action="/teams" class="mb-4 flex gap-4 items-end">
+        <TextField label="Buscar" id="search" name="search" type="text" value={search} placeholder="Nome da equipe..." icon="ph-magnifying-glass" />
+        <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
+      </form>
       <Table
         columns={[
           { label: "Nome" },
           { label: "Lider" },
           { label: "Membros", align: "center" },
           { label: "Descricao" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhuma equipe encontrada."
         emptyIcon="ph-users-four"
         ariaLabel="Lista de equipes"
+        count={count ?? 0}
+        countLabel="equipe(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/teams",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );

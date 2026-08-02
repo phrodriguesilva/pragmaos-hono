@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Textarea, Panel, Badge, Modal } from "../components/ui";
@@ -10,6 +10,7 @@ import { PageHeader, Table, TextField, Textarea, Panel, Badge, Modal } from "../
 export const permissionsRoutes = new Hono<AppEnv>();
 
 permissionsRoutes.use("*", requireAuth);
+permissionsRoutes.use("*", requireRole("socio"));
 
 const roleSchema = z.object({
   name: z.string().min(1, "Nome e obrigatorio"),
@@ -26,6 +27,7 @@ const MODULES = [
   "tasks",
   "documents",
   "templates",
+  "diario-oficial",
   "finance",
   "honorarios",
   "billing",
@@ -48,13 +50,19 @@ const MODULES = [
 // GET /permissions -- list roles.
 permissionsRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
 
-  const { data: roles } = await supabase
+  const { data: roles, count } = await supabase
     .from("roles")
-    .select("id, name, description, is_system")
+    .select("id, name, description, is_system", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   // Fetch module counts per role.
   const roleIds = (roles ?? []).map((r) => r.id);
@@ -78,6 +86,11 @@ permissionsRoutes.get("/", async (c) => {
     r.description ?? "-",
     r.is_system ? <Badge color="blue" icon="ph-lock-key">Sistema</Badge> : <Badge color="gray">Personalizado</Badge> as unknown as string,
     String(moduleCountMap.get(r.id) ?? 0),
+    <div class="flex items-center gap-2">
+      <a href={`/permissions/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/permissions/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/permissions/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
   ]);
 
   return renderPage(
@@ -108,11 +121,19 @@ permissionsRoutes.get("/", async (c) => {
           { label: "Descricao" },
           { label: "Sistema", align: "center" },
           { label: "Modulos", align: "center" },
+          { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum perfil de permissao encontrado."
         emptyIcon="ph-key"
         ariaLabel="Lista de perfis de permissao"
+        count={count ?? 0}
+        countLabel="perfil(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/permissions",
+        }}
       />
     </>,
   );

@@ -37,10 +37,47 @@ import { teamsRoutes } from "./routes/teams";
 import { permissionsRoutes } from "./routes/permissions";
 import { financeReportsRoutes } from "./routes/finance-reports";
 import { aiSummariesRoutes } from "./routes/ai-summaries";
+import { oauthRoutes } from "./routes/oauth";
+import { whatsappWebhookRoutes } from "./routes/whatsapp-webhook";
+import { uploadRoutes } from "./routes/upload";
+import { diarioRoutes } from "./routes/diario-oficial";
+import { prazosRoutes } from "./routes/prazos";
+import { notificationsRoutes } from "./routes/notifications";
+import { calendarRoutes } from "./routes/calendar";
+import { trustRoutes } from "./routes/trust-accounts";
+import { intimacoesRoutes } from "./routes/intimacoes";
+import { apiRoutes } from "./routes/api";
+import { apiKeysRoutes } from "./routes/api-keys";
+import { searchRoutes } from "./routes/search";
+import { timerRoutes } from "./routes/timer";
 
 const app = new Hono<AppEnv>();
 
 app.use("*", logger());
+
+// Security headers — applied to all responses.
+app.use("*", async (c, next) => {
+  await next();
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.header("X-XSS-Protection", "1; mode=block");
+  c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  // HSTS — only meaningful over HTTPS, tells browser to always use HTTPS.
+  c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  // CSP — allow self, unpkg (Alpine), and inline scripts/styles (needed for Hono JSX + Alpine).
+  c.header("Content-Security-Policy", [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; "));
+});
 
 // Static assets (CSS, JS).
 app.use("/static/*", serveStatic({ root: "./public" }));
@@ -97,6 +134,29 @@ app.route("/teams", teamsRoutes);
 app.route("/permissions", permissionsRoutes);
 app.route("/finance-reports", financeReportsRoutes);
 app.route("/ai-summaries", aiSummariesRoutes);
+
+// OAuth callbacks for Google Workspace and Microsoft 365.
+// Start routes are protected (requireAuth); callback routes are public.
+app.route("/oauth", oauthRoutes);
+
+// WhatsApp webhook (public -- Meta calls these without auth cookies).
+// Registered at /webhooks/whatsapp to avoid conflict with auth-protected /whatsapp routes.
+app.route("/webhooks/whatsapp", whatsappWebhookRoutes);
+
+// File upload (protected -- multipart POST to Supabase Storage).
+app.route("/upload", uploadRoutes);
+
+// Diario Oficial (protected -- Querido Diario + Digesto).
+app.route("/diario-oficial", diarioRoutes);
+app.route("/prazos", prazosRoutes);
+app.route("/notifications", notificationsRoutes);
+app.route("/calendar", calendarRoutes);
+app.route("/trust-accounts", trustRoutes);
+app.route("/intimacoes", intimacoesRoutes);
+app.route("/api", apiRoutes);
+app.route("/api-keys", apiKeysRoutes);
+app.route("/search", searchRoutes);
+app.route("/timer", timerRoutes);
 
 // 404 fallback.
 app.notFound((c) => c.html("Pagina nao encontrada.", 404));

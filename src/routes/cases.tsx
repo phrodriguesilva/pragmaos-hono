@@ -27,6 +27,7 @@ const caseSchema = z.object({
   instance: z.string().optional(),
   phase: z.string().optional(),
   opposing_party: z.string().optional(),
+  opposing_lawyer: z.string().optional(),
   case_class: z.string().optional(),
   subject: z.string().optional(),
 });
@@ -55,21 +56,30 @@ const CASE_TYPES = [
 // GET /cases -- list.
 casesRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
   const search = c.req.query("search")?.trim() ?? "";
   const status = c.req.query("status") ?? "";
   const type = c.req.query("type") ?? "";
 
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
+  if (status) queryParams.status = status;
+  if (type) queryParams.type = type;
+
   let query = supabase
     .from("cases")
-    .select("id, title, case_number, case_type, status, clients(name)")
+    .select("id, title, case_number, case_type, status, clients(name)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(26);
+    .order("created_at", { ascending: false });
 
   if (search) query = query.ilike("title", `%${search}%`);
   if (status) query = query.eq("status", status);
   if (type) query = query.eq("case_type", type);
+
+  query = query.range(offset, offset + limit - 1);
 
   const [casesRes, clientsRes] = await Promise.all([
     query,
@@ -77,9 +87,11 @@ casesRoutes.get("/", async (c) => {
   ]);
 
   const cases = casesRes.data;
+  const count = casesRes.count;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
   const clientOptions = (clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }));
 
-  const rows = (cases ?? []).slice(0, 25).map((cs) => {
+  const rows = (cases ?? []).map((cs) => {
     const clientName = (cs.clients as unknown as { name: string } | null)?.name ?? "-";
     const statusBadge =
       cs.status === "active" ? <Badge color="green">Ativo</Badge> :
@@ -91,6 +103,11 @@ casesRoutes.get("/", async (c) => {
       clientName,
       cs.case_type,
       statusBadge as unknown as string,
+      <div class="flex items-center gap-2">
+        <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+        <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+        <form method="post" action={`/cases/${cs.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      </div> as unknown as string,
     ];
   });
 
@@ -199,12 +216,20 @@ casesRoutes.get("/", async (c) => {
       <Table
         columns={[
           { label: "Titulo" }, { label: "Numero" }, { label: "Cliente" },
-          { label: "Tipo" }, { label: "Status" },
+          { label: "Tipo" }, { label: "Status" }, { label: "Acoes" },
         ]}
         rows={rows}
         emptyMsg="Nenhum processo encontrado."
         emptyIcon="ph-folder-open"
         ariaLabel="Lista de processos"
+        count={count ?? 0}
+        countLabel="caso(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/cases",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );
@@ -217,7 +242,8 @@ casesRoutes.post("/", async (c) => {
   const parsed = caseSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/cases");
+    const firstError = parsed.error.issues[0]?.message ?? "Dados invalidos";
+    return c.redirect(`/cases?error=${encodeURIComponent(firstError)}`);
   }
 
   const { data: newCase } = await supabase.from("cases").insert({
@@ -236,6 +262,7 @@ casesRoutes.post("/", async (c) => {
     instance: parsed.data.instance || "1",
     phase: parsed.data.phase || null,
     opposing_party: parsed.data.opposing_party || null,
+    opposing_lawyer: parsed.data.opposing_lawyer || null,
     case_class: parsed.data.case_class || null,
     subject: parsed.data.subject || null,
   }).select("id").single();
@@ -274,7 +301,7 @@ casesRoutes.get("/:id", async (c) => {
     supabase.from("case_summaries").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).single(),
     supabase.from("deadlines").select("id, title, due_date, completed_at, priority").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("due_date", { ascending: true }),
     supabase.from("hearings").select("id, date, location, notes").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("date", { ascending: true }),
-    supabase.from("proceedings").select("id, cnj_number, tribunal").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null),
+    supabase.from("proceedings").select("id, cnj_number, tribunal, sync_status, last_synced_at").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null),
     supabase.from("case_parties").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).is("deleted_at", null).order("party_type"),
     supabase.from("case_risk").select("*").eq("case_id", id).eq("tenant_id", user.tenantId).single(),
     supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
@@ -426,7 +453,7 @@ casesRoutes.get("/:id", async (c) => {
       <div class="grid grid-cols-2 gap-4 mb-6">
         <Panel title="Partes do processo" icon="ph-users-three">
           <Table
-            columns={[{ label: "Tipo", icon: "ph-tag" }, { label: "Nome", icon: "ph-user" }, { label: "Documento", icon: "ph-id-card" }, { label: "" }]}
+            columns={[{ label: "Tipo", icon: "ph-tag" }, { label: "Nome", icon: "ph-user" }, { label: "Documento", icon: "ph-id-card" }, { label: "Acoes" }]}
             rows={(parties.data ?? []).map((p) => [
               <Badge color={p.party_type === "autor" ? "green" : p.party_type === "reu" ? "red" : "blue"}>{p.party_type}</Badge> as unknown as string,
               p.name,
@@ -497,12 +524,13 @@ casesRoutes.get("/:id", async (c) => {
       <div class="grid grid-cols-2 gap-4 mt-6">
         <Panel title="Prazos" icon="ph-clock-countdown">
           <Table
-            columns={[{ label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }]}
+            columns={[{ label: "Prazo" }, { label: "Data" }, { label: "Prioridade" }, { label: "Status" }, { label: "Acoes" }]}
             rows={(deadlines.data ?? []).map((d) => [
               d.title,
               new Date(d.due_date).toLocaleDateString("pt-BR"),
               `P${d.priority}`,
               d.completed_at ? <Badge color="gray">Concluido</Badge> : <Badge color="yellow">Pendente</Badge> as unknown as string,
+              <a href={`/deadlines/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
             ])}
             emptyMsg="Nenhum prazo."
           />
@@ -521,12 +549,26 @@ casesRoutes.get("/:id", async (c) => {
 
       <div class="grid grid-cols-2 gap-4 mt-6">
         <Panel title="Processos (CNJ)" icon="ph-scales">
+          <div class="mb-3 flex justify-end">
+            <a href={`/proceedings/search-cnj?case_id=${caseRow.id}`} class="btn btn-secondary inline-flex items-center gap-1">
+              <i class="ph ph-download-simple" aria-hidden="true"></i>
+              Importar do DataJud
+            </a>
+          </div>
           <Table
-            columns={[{ label: "CNJ" }, { label: "Tribunal" }]}
-            rows={(proceedings.data ?? []).map((p) => [
-              <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
-              p.tribunal ?? "-",
-            ])}
+            columns={[{ label: "CNJ" }, { label: "Tribunal" }, { label: "Sync" }]}
+            rows={(proceedings.data ?? []).map((p) => {
+              const syncBadge =
+                p.sync_status === "synced" ? <Badge color="green" icon="ph-arrows-clockwise">Sincronizado</Badge> :
+                p.sync_status === "pending" ? <Badge color="yellow" icon="ph-clock">Pendente</Badge> :
+                p.sync_status === "error" ? <Badge color="red" icon="ph-warning">Erro</Badge> :
+                null;
+              return [
+                <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
+                p.tribunal ?? "-",
+                syncBadge as unknown as string,
+              ];
+            })}
             emptyMsg="Nenhum processo CNJ vinculado."
           />
         </Panel>
@@ -727,6 +769,7 @@ casesRoutes.post("/:id", async (c) => {
     instance: parsed.data.instance || "1",
     phase: parsed.data.phase || null,
     opposing_party: parsed.data.opposing_party || null,
+    opposing_lawyer: parsed.data.opposing_lawyer || null,
     case_class: parsed.data.case_class || null,
     subject: parsed.data.subject || null,
   }).eq("id", id).eq("tenant_id", user.tenantId);

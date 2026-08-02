@@ -53,30 +53,30 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{title} - Portal do Cliente - PragmaOS</title>
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
+        <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
+        <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="https://unpkg.com/alpinejs@3.14.8" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
-      <body class="bg-gray-50 text-body font-sans min-h-screen">
-        <header class="bg-carvao-600 text-white px-4 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i class="ph-bold ph-scales text-h2" aria-hidden="true" />
-            <span class="text-h3 font-semibold">PragmaOS - Portal do Cliente</span>
+      <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
+        <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #2b2925 0%, #1f1d1a 100%);">
+          <div class="flex items-center gap-3">
+            <img src="/static/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
+            <span class="text-body-sm text-gray-400 font-normal">Portal do Cliente</span>
           </div>
-          <div class="flex items-center gap-4 text-body-sm">
-            <span class="flex items-center gap-1"><i class="ph ph-user-circle" aria-hidden="true" />{clientName}</span>
-            <a href="/portal/logout" class="flex items-center gap-1 hover:text-carvao-200"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
+          <div class="flex items-center gap-5 text-body-sm">
+            <span class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-terracota-400 to-terracota-600 flex items-center justify-center text-white text-body-xs font-bold">{clientName.charAt(0).toUpperCase()}</div>{clientName}</span>
+            <a href="/portal/logout" class="flex items-center gap-1.5 hover:text-terracota-300 text-gray-300"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
           </div>
         </header>
-        <nav class="bg-carvao-700 px-4 py-2 flex gap-4 text-body-sm text-white">
-          <a href="/portal/home" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-house" aria-hidden="true" />Inicio</a>
-          <a href="/portal/cases" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</a>
-          <a href="/portal/documents" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-file-text" aria-hidden="true" />Documentos</a>
-          <a href="/portal/messages" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</a>
-          <a href="/portal/invoices" class="hover:text-carvao-200 flex items-center gap-1"><i class="ph ph-receipt" aria-hidden="true" />Faturas</a>
+        <nav class="px-8 py-3 flex gap-1 text-body-sm text-white" style="background: linear-gradient(180deg, #1f1d1a 0%, #2b2925 100%);">
+          <a href="/portal/home" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-house" aria-hidden="true" />Inicio</a>
+          <a href="/portal/cases" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-folder-open" aria-hidden="true" />Processos</a>
+          <a href="/portal/documents" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-file-text" aria-hidden="true" />Documentos</a>
+          <a href="/portal/messages" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</a>
+          <a href="/portal/invoices" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-receipt" aria-hidden="true" />Faturas</a>
         </nav>
-        <main class="max-w-4xl mx-auto p-4">{children}</main>
+        <main class="max-w-4xl mx-auto p-8">{children}</main>
       </body>
     </html>
   );
@@ -287,18 +287,15 @@ portalRoutes.get("/login", (c) => {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Portal do Cliente - PragmaOS</title>
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
+        <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
+        <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="https://unpkg.com/alpinejs@3.14.8" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">
         <div class="w-full max-w-sm border border-carvao-700 bg-white p-8">
-          <div class="flex items-center gap-2 mb-1">
-            <i class="ph-bold ph-scales text-h2 text-carvao-700" aria-hidden="true" />
-            <h1 class="text-h2 font-bold text-gray-900">Portal do Cliente</h1>
-          </div>
-          <p class="text-body-sm text-gray-500 mb-6">Acesse seus processos e documentos.</p>
+          <img src="/static/pragmaos-logo-dark.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
+          <p class="text-body-sm text-gray-500 mb-6">Portal do Cliente — acesse seus processos e documentos.</p>
           <form method="post" action="/portal/login" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
               <label for="email" class="text-body-sm font-semibold text-gray-700">Email<span class="text-status-red"> *</span></label>
@@ -389,8 +386,8 @@ portalRoutes.get("/home", async (c) => {
       <h1 class="text-h1 font-bold text-gray-900 mb-4">Ola, {client.name}</h1>
 
       <div class="grid grid-cols-3 gap-4 mb-6">
-        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</div><div class="text-h1 font-bold text-carvao-700">{casesRes.data?.length ?? 0}</div></Panel>
-        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</div><div class="text-h1 font-bold text-carvao-700">{messagesRes.data?.length ?? 0}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</div><div class="text-h1 font-bold text-terracota-700">{casesRes.data?.length ?? 0}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</div><div class="text-h1 font-bold text-terracota-700">{messagesRes.data?.length ?? 0}</div></Panel>
         <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-receipt" aria-hidden="true" />Faturas pendentes</div><div class="text-h1 font-bold text-status-yellow">{invoicesRes.data?.length ?? 0}</div></Panel>
       </div>
 
@@ -567,7 +564,7 @@ portalRoutes.get("/messages", async (c) => {
               </div>
             ) : (
               (messages ?? []).map((m) => (
-                <div class={`border-b border-border pb-2 last:border-0 ${m.direction === "inbound" ? "" : "text-right"}`}>
+                <div class={`border-b border-gray-200 pb-2 last:border-0 ${m.direction === "inbound" ? "" : "text-right"}`}>
                   <div class="text-body-sm text-gray-400 mb-1">
                     {m.direction === "inbound" ? "Voce" : "Escritorio"} - {new Date(m.created_at).toLocaleString("pt-BR")}
                   </div>

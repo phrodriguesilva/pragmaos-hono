@@ -6,6 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, BtnLink, Modal } from "../components/ui";
+import { checkConflict } from "../lib/conflict";
 
 export const clientsRoutes = new Hono<AppEnv>();
 
@@ -22,11 +23,17 @@ const clientSchema = z.object({
   notes: z.string().optional(),
 });
 
-// GET /clients -- list with search + cursor pagination.
+// GET /clients -- list with search + server-side pagination.
 clientsRoutes.get("/", async (c) => {
   const user = c.get("user");
   const search = c.req.query("search")?.trim() ?? "";
-  const limit = 26;
+
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 20;
+  const offset = (page - 1) * limit;
+
+  const queryParams: Record<string, string> = {};
+  if (search) queryParams.search = search;
 
   let query = supabase
     .from("clients")
@@ -34,7 +41,7 @@ clientsRoutes.get("/", async (c) => {
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
 
   if (search) {
     query = query.ilike("name", `%${search}%`);
@@ -42,15 +49,20 @@ clientsRoutes.get("/", async (c) => {
 
   const { data: clients, count } = await query;
 
-  const rows = (clients ?? []).slice(0, 25).map((cl) => [
+  const totalPages = count ? Math.ceil(count / limit) : 1;
+
+  const rows = (clients ?? []).map((cl) => [
     <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline">{cl.name}</a> as unknown as string,
     cl.email ?? "-",
     cl.phone ?? "-",
     cl.client_type,
     <Badge color="green">Ativo</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
   ]);
-
-  const hasMore = (clients?.length ?? 0) > 25;
 
   return renderPage(
     c,
@@ -115,26 +127,22 @@ clientsRoutes.get("/", async (c) => {
             { label: "Telefone" },
             { label: "Tipo" },
             { label: "Status" },
+            { label: "Acoes" },
           ]}
           rows={rows}
           emptyMsg="Nenhum cliente encontrado."
           emptyIcon="ph-users"
           ariaLabel="Lista de clientes"
+          count={count ?? 0}
+          countLabel="cliente(s)"
+          pagination={{
+            currentPage: page,
+            totalPages,
+            basePath: "/clients",
+            queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+          }}
         />
       </div>
-      {hasMore ? (
-        <div class="mt-4 text-center">
-          <button
-            class="btn btn-secondary"
-            hx-get={`/clients?search=${encodeURIComponent(search)}&offset=25`}
-            hx-target="#client-table"
-            hx-swap="beforeend"
-          >
-            Carregar mais
-          </button>
-        </div>
-      ) : null}
-      <div class="mt-2 text-body-sm text-gray-500">{count ?? 0} cliente(s)</div>
     </>,
   );
 });
@@ -146,7 +154,21 @@ clientsRoutes.post("/", async (c) => {
   const parsed = clientSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect("/clients");
+    const firstError = parsed.error.issues[0]?.message ?? "Dados invalidos";
+    return c.redirect(`/clients?error=${encodeURIComponent(firstError)}`);
+  }
+
+  // Conflict of interest check
+  const conflict = await checkConflict(user.tenantId, {
+    name: parsed.data.name,
+    document: parsed.data.cpf || parsed.data.cnpj || undefined,
+  });
+  if (conflict.hasConflict) {
+    const conflictMsg = conflict.conflicts
+      .map((c) => `${c.matchedName} (${c.caseTitle})`)
+      .slice(0, 3)
+      .join("; ");
+    return c.redirect(`/clients?error=${encodeURIComponent(`Possivel conflicto de interesses: ${conflictMsg}`)}`);
   }
 
   const { error } = await supabase.from("clients").insert({
@@ -162,10 +184,10 @@ clientsRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return c.redirect("/clients");
+    return c.redirect(`/clients?error=${encodeURIComponent("Erro ao salvar: " + error.message)}`);
   }
 
-  return c.redirect("/clients");
+  return c.redirect("/clients?success=Cliente cadastrado com sucesso");
 });
 
 // GET /clients/:id -- detail.
@@ -270,6 +292,7 @@ clientsRoutes.get("/:id", async (c) => {
             { label: "Numero" },
             { label: "Tipo" },
             { label: "Status" },
+            { label: "Acoes" },
           ]}
           rows={(cases ?? []).map((cs) => [
             <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
@@ -278,6 +301,7 @@ clientsRoutes.get("/:id", async (c) => {
             <Badge color={cs.status === "active" ? "green" : cs.status === "suspended" ? "yellow" : "gray"}>
               {cs.status === "active" ? "Ativo" : cs.status === "suspended" ? "Suspenso" : "Arquivado"}
             </Badge> as unknown as string,
+            <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
           ])}
           emptyMsg="Nenhum processo vinculado."
         />

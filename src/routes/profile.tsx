@@ -99,7 +99,7 @@ profileRoutes.get("/", async (c) => {
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">
-              <i class="ph ph-shield-check text-h3 text-carvao-700" aria-hidden="true" />
+              <i class="ph ph-shield-check text-h3 text-terracota-700" aria-hidden="true" />
               <h3 class="text-body font-semibold text-gray-800">Autenticacao em dois fatores (2FA)</h3>
               {twoFAEnabled ? (
                 <Badge color="green" icon="ph-check-circle">Ativo</Badge>
@@ -132,7 +132,7 @@ profileRoutes.get("/", async (c) => {
         </div>
 
         {twoFAEnabled && totp?.updated_at ? (
-          <div class="mt-4 pt-4 border-t border-border">
+          <div class="mt-4 pt-4 border-t border-gray-200">
             <p class="text-body-sm text-gray-500 flex items-center gap-1">
               <i class="ph ph-clock" aria-hidden="true" />
               2FA ativado em: {new Date(totp.updated_at).toLocaleDateString("pt-BR")}
