@@ -36,11 +36,11 @@ trustRoutes.get("/", async (c) => {
   const rows = (accounts ?? []).map((a) => {
     const clientName = (a.clients as unknown as { name: string } | null)?.name ?? "-";
     return [
-      <a href={`/trust-accounts/${a.id}`} class="text-terracota-600 hover:underline">{clientName}</a> as unknown as string,
+      <a href={`/trust-accounts/${a.id}`} class="text-[#0568ff] hover:underline">{clientName}</a> as unknown as string,
       formatCurrency(a.balance_cents),
       <Badge color={a.balance_cents > 0 ? "green" : "gray"}>{a.balance_cents > 0 ? "Saldo positivo" : "Sem saldo"}</Badge> as unknown as string,
       formatDate(a.created_at),
-      <a href={`/trust-accounts/${a.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+      <a href={`/trust-accounts/${a.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
     ];
   });
 
@@ -68,9 +68,9 @@ trustRoutes.get("/", async (c) => {
       <div class="grid grid-cols-2 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-wallet text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Total em Custodia
+            <i class="ph ph-wallet text-h3 text-[#0568ff]" aria-hidden="true"></i>Saldo Total em Custodia
           </div>
-          <div class="text-h2 font-bold text-terracota-700">{formatCurrency(totalBalance)}</div>
+          <div class="text-h2 font-bold text-[#0568ff]">{formatCurrency(totalBalance)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
@@ -183,12 +183,12 @@ trustRoutes.get("/:id", async (c) => {
 
       <div class="grid grid-cols-2 gap-4 mb-6">
         <Panel title="Saldo Atual" icon="ph-wallet">
-          <div class={`text-h1 font-bold ${account.balance_cents >= 0 ? "text-terracota-700" : "text-status-red"}`}>
+          <div class={`text-h1 font-bold ${account.balance_cents >= 0 ? "text-[#0568ff]" : "text-status-red"}`}>
             {formatCurrency(account.balance_cents)}
           </div>
         </Panel>
         <Panel title="Cliente" icon="ph-user">
-          <a href={`/clients/${account.client_id}`} class="text-terracota-600 hover:underline text-body">{clientName}</a>
+          <a href={`/clients/${account.client_id}`} class="text-[#0568ff] hover:underline text-body">{clientName}</a>
           <div class="text-body-sm text-gray-500 mt-1">Conta criada em {formatDate(account.created_at)}</div>
         </Panel>
       </div>

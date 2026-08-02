@@ -28,7 +28,7 @@ export function renderErrorPage({ code, title, message, detail }: ErrorPageOpts)
     <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
     <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
   </head>
-  <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased">
+  <body class="bg-[#232856] text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased">
     <div class="w-full max-w-md text-center">
       <div class="flex items-center justify-center gap-2.5 mb-8">
         <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-10 w-auto brightness-0 invert" />

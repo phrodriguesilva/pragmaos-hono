@@ -77,14 +77,14 @@ documentsRoutes.get("/", async (c) => {
   const templates = templatesRes.data ?? [];
 
   const rows = docs.map((d) => [
-    <a href={`/documents/${d.id}`} class="text-terracota-600 hover:underline">{d.title}</a> as unknown as string,
+    <a href={`/documents/${d.id}`} class="text-[#0568ff] hover:underline">{d.title}</a> as unknown as string,
     docTypeLabels[d.doc_type] ?? d.doc_type,
     (d.cases as unknown as { title: string } | null)?.title ?? "-",
     (d.clients as unknown as { name: string } | null)?.name ?? "-",
     new Date(d.created_at).toLocaleDateString("pt-BR"),
     <div class="flex items-center gap-2">
-      <a href={`/documents/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/documents/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/documents/${d.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/documents/${d.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/documents/${d.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -117,9 +117,9 @@ documentsRoutes.get("/", async (c) => {
                     <p class="text-body-sm text-gray-500 mb-2">Como voce quer criar este documento?</p>
                     <div class="grid grid-cols-2 gap-4">
                       <button type="button" id="modeUploadBtn"
-                        class="border-2 border-terracota-500 bg-terracota-50 rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer"
-                        onclick="document.getElementById('mode').value='upload'; document.getElementById('modeUploadBtn').classList.add('border-terracota-500','bg-terracota-50'); document.getElementById('modeUploadBtn').classList.remove('border-gray-200','bg-white'); document.getElementById('modeTemplateBtn').classList.add('border-gray-200','bg-white'); document.getElementById('modeTemplateBtn').classList.remove('border-terracota-500','bg-terracota-50');">
-                        <div class="w-12 h-12 rounded-xl bg-terracota-500 flex items-center justify-center">
+                        class="border-2 border-[#0568ff] bg-[#e6efff] rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer"
+                        onclick="document.getElementById('mode').value='upload'; document.getElementById('modeUploadBtn').classList.add('border-[#0568ff]','bg-[#e6efff]'); document.getElementById('modeUploadBtn').classList.remove('border-gray-200','bg-white'); document.getElementById('modeTemplateBtn').classList.add('border-gray-200','bg-white'); document.getElementById('modeTemplateBtn').classList.remove('border-[#0568ff]','bg-[#e6efff]');">
+                        <div class="w-12 h-12 rounded-xl bg-[#0568ff] flex items-center justify-center">
                           <i class="ph ph-upload-simple text-h2 text-white" aria-hidden="true"></i>
                         </div>
                         <span class="text-h3 font-semibold text-gray-800">Enviar arquivo</span>
@@ -127,7 +127,7 @@ documentsRoutes.get("/", async (c) => {
                       </button>
                       <button type="button" id="modeTemplateBtn"
                         class="border-2 border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer"
-                        onclick="document.getElementById('mode').value='template'; document.getElementById('modeTemplateBtn').classList.add('border-terracota-500','bg-terracota-50'); document.getElementById('modeTemplateBtn').classList.remove('border-gray-200','bg-white'); document.getElementById('modeUploadBtn').classList.add('border-gray-200','bg-white'); document.getElementById('modeUploadBtn').classList.remove('border-terracota-500','bg-terracota-50');">
+                        onclick="document.getElementById('mode').value='template'; document.getElementById('modeTemplateBtn').classList.add('border-[#0568ff]','bg-[#e6efff]'); document.getElementById('modeTemplateBtn').classList.remove('border-gray-200','bg-white'); document.getElementById('modeUploadBtn').classList.add('border-gray-200','bg-white'); document.getElementById('modeUploadBtn').classList.remove('border-[#0568ff]','bg-[#e6efff]');">
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #4d8bff 0%, #0568ff 100%);">
                           <i class="ph ph-files text-h2 text-white" aria-hidden="true"></i>
                         </div>
@@ -159,7 +159,7 @@ documentsRoutes.get("/", async (c) => {
                       <input type="hidden" id="template_content" name="template_content" value="" />
                       <script dangerouslySetInnerHTML={{ __html: `
                         (function() {
-                          var templates = ${JSON.stringify(templates.map((t) => ({ id: t.id, name: t.name, doc_type: t.doc_type, content: t.content })))};
+                          var templates = ${JSON.stringify(templates.map((t) => ({ id: t.id, name: t.name, doc_type: t.doc_type, content: t.content }))).replace(/</g, "\\u003c")};
                           var sel = document.getElementById('template_id');
                           var preview = document.getElementById('templatePreview');
                           var previewContent = document.getElementById('templatePreviewContent');
@@ -370,8 +370,8 @@ documentsRoutes.get("/:id", async (c) => {
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Titulo: </dt><dd class="inline">{doc.title}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{docTypeLabels[doc.doc_type] ?? doc.doc_type}</dd></div>
-            {caseTitle ? <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${doc.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a></dd></div> : null}
-            {clientName ? <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${doc.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a></dd></div> : null}
+            {caseTitle ? <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${doc.case_id}`} class="text-[#0568ff] hover:underline">{caseTitle}</a></dd></div> : null}
+            {clientName ? <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${doc.client_id}`} class="text-[#0568ff] hover:underline">{clientName}</a></dd></div> : null}
             <div><dt class="font-semibold text-gray-700 inline">Criado em: </dt><dd class="inline">{new Date(doc.created_at).toLocaleDateString("pt-BR")}</dd></div>
           </dl>
         </Panel>
@@ -384,7 +384,7 @@ documentsRoutes.get("/:id", async (c) => {
       {(fileViewUrl || doc.storage_path) ? (
         <Panel title="Arquivo" icon="ph-file">
           {fileViewUrl ? (
-            <a href={fileViewUrl} class="text-terracota-600 hover:underline inline-flex items-center gap-1" target="_blank" rel="noopener noreferrer">
+            <a href={fileViewUrl} class="text-[#0568ff] hover:underline inline-flex items-center gap-1" target="_blank" rel="noopener noreferrer">
               <i class="ph ph-download-simple" aria-hidden="true"></i> Baixar / Visualizar arquivo
             </a>
           ) : (
@@ -584,7 +584,7 @@ documentsRoutes.get("/:id/versions", async (c) => {
                 </div>
                 <div class="flex items-center gap-2 ml-4">
                   <a href={`/documents/${id}/versions/${v.versionNumber}/download`}
-                    class="text-sm text-terracota-600 hover:underline">Baixar</a>
+                    class="text-sm text-[#0568ff] hover:underline">Baixar</a>
                   {v.versionNumber !== versions[0]!.versionNumber && (
                     <form method="post" action={`/documents/${id}/versions/${v.versionNumber}/restore`} class="inline">
                       <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
@@ -615,7 +615,7 @@ documentsRoutes.get("/:id/versions", async (c) => {
             <input type="text" name="change_summary" placeholder="Ex: Revisao apos correcao"
               class="w-full px-3 py-2 border border-gray-200 rounded-lg" />
           </div>
-          <button type="submit" class="bg-terracota-600 hover:bg-terracota-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+          <button type="submit" class="bg-[#0568ff] hover:bg-[#4d8bff] text-white px-4 py-2 rounded-lg text-sm font-medium">
             Upload Nova Versao
           </button>
         </form>

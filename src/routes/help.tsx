@@ -12,6 +12,7 @@ import {
   type HelpArticle,
 } from "../lib/help-content";
 import { PageHeader, Panel, Badge } from "../components/ui";
+import { sanitizeHtml } from "../lib/sanitize";
 
 export const helpRoutes = new Hono<AppEnv>();
 
@@ -38,7 +39,7 @@ helpRoutes.get("/", async (c) => {
               name="q"
               value={q}
               placeholder="Buscar na ajuda..."
-              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500"
+              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0568ff]"
               autofocus
             />
           </div>
@@ -50,7 +51,7 @@ helpRoutes.get("/", async (c) => {
 
         <div class="space-y-3">
           {results.map((article) => (
-            <a href={`/help/${article.slug}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-terracota-300 hover:shadow-sm transition">
+            <a href={`/help/${article.slug}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-[#b0ccff] hover:shadow-sm transition">
               <div class="font-medium text-gray-800">{article.title}</div>
               <div class="text-sm text-gray-600 mt-1">{article.excerpt}</div>
             </a>
@@ -81,7 +82,7 @@ helpRoutes.get("/", async (c) => {
             type="text"
             name="q"
             placeholder="Buscar na ajuda..."
-            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500"
+            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0568ff]"
           />
         </div>
       </form>
@@ -90,9 +91,9 @@ helpRoutes.get("/", async (c) => {
         {helpCategories.map((cat: HelpCategory) => {
           const articles = getArticlesByCategory(cat.slug);
           return (
-            <a href={`/help/c/${cat.slug}`} class="block p-5 bg-white rounded-lg border border-gray-100 hover:border-terracota-300 hover:shadow-sm transition">
+            <a href={`/help/c/${cat.slug}`} class="block p-5 bg-white rounded-lg border border-gray-100 hover:border-[#b0ccff] hover:shadow-sm transition">
               <div class="flex items-start gap-3">
-                <i class={`ph ${cat.icon} text-h3 text-terracota-600`} aria-hidden="true"></i>
+                <i class={`ph ${cat.icon} text-h3 text-[#0568ff]`} aria-hidden="true"></i>
                 <div class="flex-1">
                   <div class="font-medium text-gray-800">{cat.name}</div>
                   <div class="text-sm text-gray-500 mt-1">{cat.description}</div>
@@ -126,7 +127,7 @@ helpRoutes.get("/c/:category", async (c) => {
 
       <div class="max-w-3xl space-y-3">
         {articles.map((article: HelpArticle) => (
-          <a href={`/help/${article.slug}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-terracota-300 hover:shadow-sm transition">
+          <a href={`/help/${article.slug}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-[#b0ccff] hover:shadow-sm transition">
             <div class="font-medium text-gray-800">{article.title}</div>
             <div class="text-sm text-gray-600 mt-1">{article.excerpt}</div>
           </a>
@@ -163,11 +164,11 @@ helpRoutes.get("/:slug", async (c) => {
       <div class="max-w-3xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <a href="/help" class="hover:text-terracota-600">Ajuda</a>
+          <a href="/help" class="hover:text-[#0568ff]">Ajuda</a>
           <i class="ph ph-caret-right text-xs" aria-hidden="true"></i>
           {category && (
             <>
-              <a href={`/help/c/${category.slug}`} class="hover:text-terracota-600">{category.name}</a>
+              <a href={`/help/c/${category.slug}`} class="hover:text-[#0568ff]">{category.name}</a>
               <i class="ph ph-caret-right text-xs" aria-hidden="true"></i>
             </>
           )}
@@ -177,7 +178,7 @@ helpRoutes.get("/:slug", async (c) => {
         <h1 class="text-h1 font-bold text-gray-800 mb-4">{article.title}</h1>
         <p class="text-gray-600 mb-8">{article.excerpt}</p>
 
-        <div class="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: article.body }} />
+        <div class="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.body) }} />
 
         {/* Related articles */}
         {related.length > 0 && (
@@ -185,7 +186,7 @@ helpRoutes.get("/:slug", async (c) => {
             <h2 class="text-lg font-semibold mb-4">Artigos relacionados</h2>
             <div class="space-y-2">
               {related.map((r) => (
-                <a href={`/help/${r.slug}`} class="block text-sm text-terracota-600 hover:underline">
+                <a href={`/help/${r.slug}`} class="block text-sm text-[#0568ff] hover:underline">
                   {r.title}
                 </a>
               ))}

@@ -103,8 +103,8 @@ export const MENU: MenuItem[] = [
     children: [
       { key: "ai-assistant", label: "Assistente Juridico", href: "/ai-assistant", icon: "ph-chats-teardrop" },
       { key: "ai-summaries", label: "Resumos", href: "/ai-summaries", icon: "ph-notebook" },
-      { key: "ai-jurisprudence", label: "Jurisprudencia", href: "/ai-jurisprudence", icon: "ph-books" },
-      { key: "ai-petitions", label: "Gerar Peticoes", href: "/ai-petitions", icon: "ph-scroll" },
+      { key: "ai-jurisprudence", label: "Jurisprudencia", href: "/ai-assistant/jurisprudence", icon: "ph-books" },
+      { key: "ai-petitions", label: "Gerar Peticoes", href: "/ai-assistant/petitions", icon: "ph-scroll" },
     ],
   },
   { key: "reports", label: "BI e Relatorios", href: "/reports", icon: "ph-presentation-chart" },

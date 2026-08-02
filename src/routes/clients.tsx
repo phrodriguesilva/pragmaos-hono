@@ -53,14 +53,14 @@ clientsRoutes.get("/", async (c) => {
   const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (clients ?? []).map((cl) => [
-    <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline">{cl.name}</a> as unknown as string,
+    <a href={`/clients/${cl.id}`} class="text-[#0568ff] hover:underline">{cl.name}</a> as unknown as string,
     cl.email ?? "-",
     cl.phone ?? "-",
     cl.client_type,
     <Badge color="green">Ativo</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/clients/${cl.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/clients/${cl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/clients/${cl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -296,13 +296,13 @@ clientsRoutes.get("/:id", async (c) => {
             { label: "Acoes" },
           ]}
           rows={(cases ?? []).map((cs) => [
-            <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
+            <a href={`/cases/${cs.id}`} class="text-[#0568ff] hover:underline">{cs.title}</a> as unknown as string,
             cs.case_number ?? "-",
             cs.case_type,
             <Badge color={cs.status === "active" ? "green" : cs.status === "suspended" ? "yellow" : "gray"}>
               {cs.status === "active" ? "Ativo" : cs.status === "suspended" ? "Suspenso" : "Arquivado"}
             </Badge> as unknown as string,
-            <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+            <a href={`/cases/${cs.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
           ])}
           emptyMsg="Nenhum processo vinculado."
         />

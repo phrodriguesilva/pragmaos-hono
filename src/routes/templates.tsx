@@ -53,12 +53,12 @@ templatesRoutes.get("/", async (c) => {
   const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (templates ?? []).map((tpl) => [
-    <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline">{tpl.name}</a> as unknown as string,
+    <a href={`/templates/${tpl.id}`} class="text-[#0568ff] hover:underline">{tpl.name}</a> as unknown as string,
     tpl.doc_type,
     new Date(tpl.created_at).toLocaleDateString("pt-BR"),
     <div class="flex items-center gap-2">
-      <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/templates/${tpl.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/templates/${tpl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/templates/${tpl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/templates/${tpl.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);

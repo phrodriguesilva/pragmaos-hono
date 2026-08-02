@@ -98,7 +98,7 @@ jurimetryRoutes.get("/", async (c) => {
 
   return renderPage(
     c,
-    { title: "Jurimetria Interna", active: "jurimetry" },
+    { title: "Jurimetria Interna", active: "jurimetria" },
     <>
       <PageHeader title="Jurimetria Interna" icon="ph-chart-scatter" />
 
@@ -142,7 +142,7 @@ jurimetryRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500">Taxa de Recuperacao</div>
-          <div class="text-h2 font-bold text-terracota-700">{formatPercent(report.valueAnalysis.recoveryRate)}</div>
+          <div class="text-h2 font-bold text-[#0568ff]">{formatPercent(report.valueAnalysis.recoveryRate)}</div>
           <div class="text-xs text-gray-400 mt-1">
             {formatCurrency(report.valueAnalysis.totalRecovered)} / {formatCurrency(report.valueAnalysis.totalClaimed)}
           </div>

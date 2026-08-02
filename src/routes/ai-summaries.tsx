@@ -77,7 +77,7 @@ aiSummariesRoutes.get("/", async (c) => {
       (s.summary_text ?? "").slice(0, 100),
       formatDate(s.created_at),
       <div class="flex items-center gap-2">
-        <a href={`/ai-summaries/${s.id}`} class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+        <a href={`/ai-summaries/${s.id}`} class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
           <i class="ph ph-eye" aria-hidden="true"></i>Ver
         </a>
         <form method="post" action={`/ai-summaries/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
@@ -294,29 +294,29 @@ aiSummariesRoutes.get("/:id", async (c) => {
         <Panel title="Detalhes" icon="ph-info">
           <div class="flex flex-col gap-2 text-body-sm text-gray-700">
             <div class="flex items-center gap-2">
-              <i class="ph ph-tag text-terracota-600" aria-hidden="true"></i>
+              <i class="ph ph-tag text-[#0568ff]" aria-hidden="true"></i>
               <span class="font-semibold">Tipo:</span>
               <Badge color="blue" icon="ph-sparkle">{SUMMARY_TYPE_LABELS[summary.summary_type] ?? summary.summary_type}</Badge>
             </div>
             {caseData ? (
               <div class="flex items-center gap-2">
-                <i class="ph ph-folder text-terracota-600" aria-hidden="true"></i>
+                <i class="ph ph-folder text-[#0568ff]" aria-hidden="true"></i>
                 <span class="font-semibold">Processo:</span>
-                <a href={`/cases/${caseData.id}`} class="text-terracota-600 hover:underline">{caseData.title}</a>
+                <a href={`/cases/${caseData.id}`} class="text-[#0568ff] hover:underline">{caseData.title}</a>
               </div>
             ) : null}
             <div class="flex items-center gap-2">
-              <i class="ph ph-calendar text-terracota-600" aria-hidden="true"></i>
+              <i class="ph ph-calendar text-[#0568ff]" aria-hidden="true"></i>
               <span class="font-semibold">Data:</span>
               {formatDateTime(summary.created_at)}
             </div>
             <div class="flex items-center gap-2">
-              <i class="ph ph-cpu text-terracota-600" aria-hidden="true"></i>
+              <i class="ph ph-cpu text-[#0568ff]" aria-hidden="true"></i>
               <span class="font-semibold">Modelo:</span>
               {summary.model ?? "gpt-4o-mini"}
             </div>
             <div class="flex items-center gap-2">
-              <i class="ph ph-coins text-terracota-600" aria-hidden="true"></i>
+              <i class="ph ph-coins text-[#0568ff]" aria-hidden="true"></i>
               <span class="font-semibold">Tokens:</span>
               {summary.tokens_used ?? 0}
             </div>

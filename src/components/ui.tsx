@@ -202,7 +202,7 @@ export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string; hover?
   <div class={`border border-gray-100 bg-white rounded-xl shadow-sm ${hover ? "card-hover" : ""}`}>
     {title ? (
       <div class="border-b border-gray-100 px-5 py-4 flex items-center gap-2.5">
-        {icon ? <i class={`ph ${icon} text-body text-terracota-500`} aria-hidden="true" /> : null}
+        {icon ? <i class={`ph ${icon} text-body text-[#0568ff]`} aria-hidden="true" /> : null}
         <h2 class="text-h3 font-semibold text-gray-800">{title}</h2>
       </div>
     ) : null}
@@ -752,8 +752,8 @@ export const FileUpload: FC<{
       {...{ "@dragover.prevent": "dragOver = true" }}
       {...{ "@dragleave.prevent": "dragOver = false" }}
       {...{ "@drop.prevent": "if ($event.dataTransfer.files.length) { $refs.fileInput.files = $event.dataTransfer.files; $dispatch('change') }" }}
-      class={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${required ? "border-terracota-400" : "border-gray-300"}`}
-      {...{ ":class": "dragOver ? 'border-terracota-600 bg-terracota-50' : (error ? 'border-status-red bg-red-50' : 'border-gray-300')" }}
+      class={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${required ? "border-[#4d8bff]" : "border-gray-300"}`}
+      {...{ ":class": "dragOver ? 'border-[#0568ff] bg-[#e6efff]' : (error ? 'border-status-red bg-red-50' : 'border-gray-300')" }}
     >
       {/* Hidden input que guarda o path retornado pelo servidor */}
       <input type="hidden" name={name} {...{ ":value": "fileUrl" }} />
@@ -821,11 +821,11 @@ export const FileUpload: FC<{
 
       {/* Estado: uploading (progress bar) */}
       <div {...{ "x-show": "uploading" }} x-cloak>
-        <i class="ph ph-spinner animate-spin text-h2 text-carvao-600 block mb-2" aria-hidden="true"></i>
+        <i class="ph ph-spinner animate-spin text-h2 text-gray-600 block mb-2" aria-hidden="true"></i>
         <p class="text-body-sm text-gray-700 mb-2" {...{ "x-text": "'Enviando ' + fileName + '...'" }}></p>
         <div class="w-full bg-gray-200 rounded-full h-2">
           <div
-            class="bg-terracota-600 h-2 rounded-full transition-all"
+            class="bg-[#0568ff] h-2 rounded-full transition-all"
             {...{ ":style": `'width: ' + progress + '%'` }}
           ></div>
         </div>

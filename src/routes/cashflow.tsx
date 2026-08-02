@@ -142,7 +142,7 @@ cashflowRoutes.get("/", async (c) => {
     ) : (
       <Badge color="gray" icon="ph-x-circle">Inativa</Badge>
     ) as unknown as string,
-    <a href={`/cashflow/accounts/${a.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+    <a href={`/cashflow/accounts/${a.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -166,9 +166,9 @@ cashflowRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scales text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Projetado
+            <i class="ph ph-scales text-h3 text-[#0568ff]" aria-hidden="true"></i>Saldo Projetado
           </div>
-          <div class="text-h2 font-bold text-terracota-700">{formatCurrency(saldoProjetado)}</div>
+          <div class="text-h2 font-bold text-[#0568ff]">{formatCurrency(saldoProjetado)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
@@ -257,7 +257,7 @@ cashflowRoutes.get("/expenses", async (c) => {
     formatCurrency(e.amount_cents),
     formatDate(e.due_date),
     <Badge color={statusColor(e.status)}>{STATUS_LABELS[e.status] ?? e.status}</Badge> as unknown as string,
-    <a href={`/cashflow/expenses/${e.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+    <a href={`/cashflow/expenses/${e.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -457,7 +457,7 @@ cashflowRoutes.get("/accounts", async (c) => {
     ) : (
       <Badge color="gray" icon="ph-x-circle">Inativa</Badge>
     ) as unknown as string,
-    <a href={`/cashflow/accounts/${a.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+    <a href={`/cashflow/accounts/${a.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -587,9 +587,9 @@ cashflowRoutes.get("/dre", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-percent text-h3 text-terracota-700" aria-hidden="true"></i>Margem
+            <i class="ph ph-percent text-h3 text-[#0568ff]" aria-hidden="true"></i>Margem
           </div>
-          <div class="text-h2 font-bold text-terracota-700">{margin.toFixed(1)}%</div>
+          <div class="text-h2 font-bold text-[#0568ff]">{margin.toFixed(1)}%</div>
         </Panel>
       </div>
 
@@ -697,9 +697,9 @@ cashflowRoutes.get("/dfc", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-storefront text-h3 text-terracota-700" aria-hidden="true"></i>Operacional
+            <i class="ph ph-storefront text-h3 text-[#0568ff]" aria-hidden="true"></i>Operacional
           </div>
-          <div class="text-h2 font-bold text-terracota-700">{formatCurrency(operating)}</div>
+          <div class="text-h2 font-bold text-[#0568ff]">{formatCurrency(operating)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">

@@ -181,7 +181,7 @@ signupRoutes.get("/signup", async (c) => {
           <SignupInput id="phone" name="phone" label="Telefone (opcional)" type="tel" placeholder="(11) 99999-9999" icon="ph-phone" autocomplete="tel" />
 
           {/* Trial info banner */}
-          <div class="bg-terracota-50 border border-terracota-200 rounded-lg p-3 flex items-center gap-2 text-body-sm text-terracota-700">
+          <div class="bg-[#e6efff] border border-[#b0ccff] rounded-lg p-3 flex items-center gap-2 text-body-sm text-[#0568ff]">
             <i class="ph ph-gift text-h5" aria-hidden="true" />
             <span>Você terá <strong>14 dias grátis</strong> para testar. Escolha seu plano depois, sem pressa.</span>
           </div>
@@ -189,7 +189,7 @@ signupRoutes.get("/signup", async (c) => {
           {/* Terms checkbox */}
           <label class="flex items-start gap-2 text-body-sm text-gray-600 cursor-pointer">
             <input type="checkbox" name="accept_terms" required class="mt-0.5" />
-            <span>Aceito os <a href="/termos" class="text-terracota-600 hover:underline" target="_blank">Termos de Uso</a> e a <a href="/privacidade" class="text-terracota-600 hover:underline" target="_blank">Política de Privacidade</a> (LGPD). <span class="text-status-red">*</span></span>
+            <span>Aceito os <a href="/termos" class="text-[#0568ff] hover:underline" target="_blank">Termos de Uso</a> e a <a href="/privacidade" class="text-[#0568ff] hover:underline" target="_blank">Política de Privacidade</a> (LGPD). <span class="text-status-red">*</span></span>
           </label>
 
           {/* Submit with loading state */}
@@ -201,7 +201,7 @@ signupRoutes.get("/signup", async (c) => {
         </form>
 
         <div class="text-center mt-6 text-body-sm text-gray-500">
-          Já tem uma conta? <a href="/login" class="text-terracota-600 font-semibold hover:underline">Entrar</a>
+          Já tem uma conta? <a href="/login" class="text-[#0568ff] font-semibold hover:underline">Entrar</a>
         </div>
       </>
     )),

@@ -93,7 +93,7 @@ intakeAdminRoutes.get("/", async (c) => {
       <div class="space-y-6">
         {/* Create form button */}
         <div class="flex justify-end">
-          <a href="/intake/new" class="bg-terracota-600 hover:bg-terracota-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+          <a href="/intake/new" class="bg-[#0568ff] hover:bg-[#4d8bff] text-white px-4 py-2 rounded-lg text-sm font-medium">
             Novo Formulario
           </a>
         </div>
@@ -111,7 +111,7 @@ intakeAdminRoutes.get("/", async (c) => {
                   </div>
                   <div class="flex items-center gap-3">
                     <Badge color={f.isActive ? "green" : "gray"}>{f.isActive ? "Ativo" : "Inativo"}</Badge>
-                    <a href={`/intake/f/${f.slug}`} target="_blank" class="text-sm text-terracota-600 hover:underline">
+                    <a href={`/intake/f/${f.slug}`} target="_blank" class="text-sm text-[#0568ff] hover:underline">
                       Abrir
                     </a>
                   </div>
@@ -149,7 +149,7 @@ intakeAdminRoutes.get("/", async (c) => {
                           </button>
                         </form>
                       )}
-                      <a href={`/intake/${s.id}`} class="text-sm text-terracota-600 hover:underline">Ver</a>
+                      <a href={`/intake/${s.id}`} class="text-sm text-[#0568ff] hover:underline">Ver</a>
                     </div>
                   </div>
                 );
@@ -236,12 +236,12 @@ intakeAdminRoutes.get("/new", async (c) => {
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Titulo do formulario</label>
               <input type="text" name="title" required placeholder="Ex: Intake de Novos Clientes"
-                class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500" />
+                class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0568ff]" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Descricao</label>
               <textarea name="description" {...{ rows: 2 }} placeholder="Breve descricao mostrada no formulario"
-                class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500"></textarea>
+                class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0568ff]"></textarea>
             </div>
           </div>
         </Panel>
@@ -286,7 +286,7 @@ intakeAdminRoutes.get("/new", async (c) => {
             </div>
           </div>
 
-          <button type="button" id="add-field" class="mt-4 text-sm text-terracota-600 hover:underline">
+          <button type="button" id="add-field" class="mt-4 text-sm text-[#0568ff] hover:underline">
             + Adicionar campo
           </button>
 
@@ -294,7 +294,7 @@ intakeAdminRoutes.get("/new", async (c) => {
         </Panel>
 
         <div class="flex justify-end">
-          <button type="submit" class="bg-terracota-600 hover:bg-terracota-700 text-white px-6 py-2 rounded-lg font-medium">
+          <button type="submit" class="bg-[#0568ff] hover:bg-[#4d8bff] text-white px-6 py-2 rounded-lg font-medium">
             Criar Formulario
           </button>
         </div>
@@ -412,13 +412,13 @@ intakeAdminRoutes.get("/:id", async (c) => {
 
           {submission.status === "converted" && submission.client_id && (
             <div class="text-sm">
-              <a href={`/clients/${submission.client_id}`} class="text-terracota-600 hover:underline">
+              <a href={`/clients/${submission.client_id}`} class="text-[#0568ff] hover:underline">
                 Ver cliente criado →
               </a>
               {submission.case_id && (
                 <>
                   <br />
-                  <a href={`/cases/${submission.case_id}`} class="text-terracota-600 hover:underline">
+                  <a href={`/cases/${submission.case_id}`} class="text-[#0568ff] hover:underline">
                     Ver caso criado →
                   </a>
                 </>

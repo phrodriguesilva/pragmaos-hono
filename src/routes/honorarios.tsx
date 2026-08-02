@@ -104,14 +104,14 @@ honorariosRoutes.get("/", async (c) => {
   const rows = (honorarios ?? []).map((h) => {
     const clientName = (h.clients as unknown as { name: string } | null)?.name ?? "-";
     return [
-      <a href={`/honorarios/${h.id}`} class="text-terracota-600 hover:underline">{h.description}</a> as unknown as string,
+      <a href={`/honorarios/${h.id}`} class="text-[#0568ff] hover:underline">{h.description}</a> as unknown as string,
       clientName,
       TYPE_LABELS[h.type] ?? h.type,
       formatCurrency(h.amount_cents),
       formatDate(h.due_date),
       <Badge color={statusColor(h.status)}>{STATUS_LABELS[h.status] ?? h.status}</Badge> as unknown as string,
       <div class="flex items-center gap-2">
-        <a href={`/honorarios/${h.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+        <a href={`/honorarios/${h.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
         <form method="post" action={`/honorarios/${h.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
       </div> as unknown as string,
     ];
@@ -331,8 +331,8 @@ honorariosRoutes.get("/:id", async (c) => {
         <Panel title="Dados do honorario" icon="ph-hand-coins">
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Descricao: </dt><dd class="inline">{h.description}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${h.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{h.case_id ? <a href={`/cases/${h.case_id}`} class="text-terracota-600 hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${h.client_id}`} class="text-[#0568ff] hover:underline">{client?.name ?? "-"}</a></dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{h.case_id ? <a href={`/cases/${h.case_id}`} class="text-[#0568ff] hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{TYPE_LABELS[h.type] ?? h.type}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Valor: </dt><dd class="inline">{formatCurrency(h.amount_cents)}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Status: </dt><dd class="inline">

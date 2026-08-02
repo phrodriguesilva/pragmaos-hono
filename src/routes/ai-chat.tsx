@@ -70,12 +70,12 @@ aiChatRoutes.get("/", async (c) => {
   const rows = (conversations ?? []).map((cv) => {
     const caseTitle = (cv.cases as unknown as { title: string } | null)?.title;
     return [
-      <a href={`/ai-assistant/${cv.id}`} class="text-terracota-600 hover:underline">{cv.title}</a> as unknown as string,
+      <a href={`/ai-assistant/${cv.id}`} class="text-[#0568ff] hover:underline">{cv.title}</a> as unknown as string,
       cv.model ?? "unknown",
       (lastByConv.get(cv.id) ?? "-").slice(0, 80),
       caseTitle ? <Badge color="blue" icon="ph-folder">{caseTitle}</Badge> as unknown as string : "-",
       formatDate(cv.created_at),
-      <a href={`/ai-assistant/${cv.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+      <a href={`/ai-assistant/${cv.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
     ];
   });
 
@@ -187,7 +187,7 @@ aiChatRoutes.get("/jurisprudence", async (c) => {
     r.query,
     r.tribunal ?? "-",
     formatDate(r.created_at),
-    <a href={`/ai-assistant/jurisprudence/result/${r.id}`} class="text-terracota-600 hover:underline">Ver resultado</a> as unknown as string,
+    <a href={`/ai-assistant/jurisprudence/result/${r.id}`} class="text-[#0568ff] hover:underline">Ver resultado</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -390,7 +390,7 @@ aiChatRoutes.get("/petitions", async (c) => {
       typeLabels[p.petition_type] ?? p.petition_type,
       caseTitle,
       formatDate(p.created_at),
-      <a href={`/ai-assistant/petitions/result/${p.id}`} class="text-terracota-600 hover:underline">Ver peticao</a> as unknown as string,
+      <a href={`/ai-assistant/petitions/result/${p.id}`} class="text-[#0568ff] hover:underline">Ver peticao</a> as unknown as string,
     ];
   });
 
@@ -675,7 +675,7 @@ aiChatRoutes.get("/:id", async (c) => {
             (messages ?? []).map((m) => (
               <div class={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  class={`max-w-[75%] px-4 py-2.5 rounded-xl ${m.role === "user" ? "bg-terracota-600 text-white" : "bg-gray-50 text-gray-800 border border-gray-100"}`}
+                  class={`max-w-[75%] px-4 py-2.5 rounded-xl ${m.role === "user" ? "bg-[#0568ff] text-white" : "bg-gray-50 text-gray-800 border border-gray-100"}`}
                   style="white-space: pre-wrap; word-break: break-word;"
                 >
                   <div class="text-body-sm font-semibold mb-1">
@@ -722,7 +722,7 @@ aiChatRoutes.get("/:id", async (c) => {
               // Add user message bubble immediately.
               var userBubble = document.createElement('div');
               userBubble.className = 'flex justify-end';
-              userBubble.innerHTML = '<div class="max-w-[75%] px-4 py-2.5 rounded-xl bg-terracota-600 text-white" style="white-space: pre-wrap; word-break: break-word;"><div class="text-body-sm font-semibold mb-1">Voce</div>' + content.replace(/</g, '&lt;') + '</div>';
+              userBubble.innerHTML = '<div class="max-w-[75%] px-4 py-2.5 rounded-xl bg-[#0568ff] text-white" style="white-space: pre-wrap; word-break: break-word;"><div class="text-body-sm font-semibold mb-1">Voce</div>' + content.replace(/</g, '&lt;') + '</div>';
               messagesDiv.appendChild(userBubble);
               scrollDiv.scrollTop = scrollDiv.scrollHeight;
 

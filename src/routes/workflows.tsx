@@ -145,7 +145,7 @@ workflowsRoutes.get("/", async (c) => {
     const steps = stepCounts.get(w.id) ?? 0;
     const last = lastExec.get(w.id);
     return [
-      <a href={`/workflows/${w.id}`} class="text-terracota-600 hover:underline">{w.name}</a> as unknown as string,
+      <a href={`/workflows/${w.id}`} class="text-[#0568ff] hover:underline">{w.name}</a> as unknown as string,
       <span class="inline-flex items-center gap-1">
         <i class={`ph ${triggerIcon(w.trigger_type)}`} aria-hidden="true" />
         {triggerLabel(w.trigger_type)}
@@ -156,8 +156,8 @@ workflowsRoutes.get("/", async (c) => {
         : <Badge color="gray" icon="ph-x-circle">Inativo</Badge> as unknown as string,
       last ? new Date(last).toLocaleString("pt-BR") : "-",
       <div class="flex items-center gap-2">
-        <a href={`/workflows/${w.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-        <a href={`/workflows/${w.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+        <a href={`/workflows/${w.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+        <a href={`/workflows/${w.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
         <form method="post" action={`/workflows/${w.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
       </div> as unknown as string,
     ];
@@ -480,7 +480,7 @@ workflowsRoutes.get("/:id", async (c) => {
           <ol class="flex flex-col gap-2 mb-4">
             {stepsList.map((s, i) => (
               <li class="border border-gray-200 bg-gray-50 p-3 flex items-center gap-3">
-                <span class="text-body font-bold text-terracota-700 w-6 text-center">{i + 1}</span>
+                <span class="text-body font-bold text-[#0568ff] w-6 text-center">{i + 1}</span>
                 <div class="flex-1">
                   <div class="text-body font-semibold text-gray-800 flex items-center gap-1">
                     <i class={`ph ${actionIcon(s.action_type)}`} aria-hidden="true" />

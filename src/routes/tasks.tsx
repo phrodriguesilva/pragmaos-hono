@@ -118,7 +118,7 @@ tasksRoutes.get("/", async (c) => {
       const col = COLUMNS.find((c2) => c2.key === t.status);
       const overdue = t.due_date && new Date(t.due_date) < new Date() && t.status !== "done";
       return [
-        <a href={`/tasks/${t.id}`} class="text-terracota-600 hover:underline">{t.title}</a> as unknown as string,
+        <a href={`/tasks/${t.id}`} class="text-[#0568ff] hover:underline">{t.title}</a> as unknown as string,
         (t.cases as unknown as { title: string } | null)?.title ?? "-",
         (t.profiles as unknown as { full_name: string } | null)?.full_name ?? "-",
         `P${t.priority}`,
@@ -216,12 +216,12 @@ tasksRoutes.get("/", async (c) => {
                   const assigned = (t.profiles as unknown as { full_name: string } | null)?.full_name;
                   const caseTitle = (t.cases as unknown as { title: string } | null)?.title;
                   return (
-                    <a href={`/tasks/${t.id}`} class="block bg-white border border-gray-200 p-4 rounded-lg hover:border-terracota-300 hover:shadow-md transition-all">
+                    <a href={`/tasks/${t.id}`} class="block bg-white border border-gray-200 p-4 rounded-lg hover:border-[#b0ccff] hover:shadow-md transition-all">
                       <div class="flex items-start justify-between gap-1">
                         <span class="font-medium text-gray-800">{t.title}</span>
                         <span class={`text-body-sm font-bold ${t.priority >= 4 ? "text-status-red" : t.priority >= 3 ? "text-status-yellow" : "text-gray-400"}`}>P{t.priority}</span>
                       </div>
-                      {caseTitle ? <div class="text-terracota-600 hover:underline text-body-sm mt-1 flex items-center gap-1"><i class="ph ph-folder text-xs" aria-hidden="true" />{caseTitle}</div> : null}
+                      {caseTitle ? <div class="text-[#0568ff] hover:underline text-body-sm mt-1 flex items-center gap-1"><i class="ph ph-folder text-xs" aria-hidden="true" />{caseTitle}</div> : null}
                       {t.due_date ? (
                         <div class={`text-body-sm mt-1 flex items-center gap-1 ${overdue ? "text-status-red font-semibold" : "text-gray-500"}`}>
                           <i class="ph ph-calendar text-xs" aria-hidden="true" />
@@ -373,7 +373,7 @@ tasksRoutes.get("/:id", async (c) => {
             <div><dt class="font-semibold text-gray-700 inline">Prioridade: </dt><dd class="inline">P{task.priority}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Responsavel: </dt><dd class="inline">{assignedName ?? "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Prazo: </dt><dd class="inline">{task.due_date ? new Date(task.due_date).toLocaleDateString("pt-BR") : "-"}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{caseTitle ? <a href={`/cases/${task.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{caseTitle ? <a href={`/cases/${task.case_id}`} class="text-[#0568ff] hover:underline">{caseTitle}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline">{clientName ?? "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Faturavel: </dt><dd class="inline">{task.billable ? "Sim" : "Nao"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tempo gasto: </dt><dd class="inline">{Math.floor(task.time_spent_minutes / 60)}h {task.time_spent_minutes % 60}min</dd></div>

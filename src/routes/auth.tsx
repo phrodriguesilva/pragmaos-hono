@@ -180,7 +180,7 @@ function loginForm(errorMsg?: string, emailValue?: string) {
           <span {...{ "x-show": "loading", "x-cloak": "" }}>Entrando...</span>
         </button>
         <div class="text-center">
-          <a href="/forgot-password" class="text-body-sm text-terracota-600 hover:underline">
+          <a href="/forgot-password" class="text-body-sm text-[#0568ff] hover:underline">
             Esqueceu sua senha?
           </a>
         </div>
@@ -196,7 +196,7 @@ function loginForm(errorMsg?: string, emailValue?: string) {
           Entrar com Gov.br
         </a>
         <div class="text-center mt-4">
-          <a href="/signup" class="text-body-sm text-terracota-600 hover:underline">
+          <a href="/signup" class="text-body-sm text-[#0568ff] hover:underline">
             Não tem conta? Cadastre-se (14 dias grátis)
           </a>
         </div>
@@ -303,7 +303,7 @@ function twoFAVerifyForm(errorMsg?: string) {
   return (
     <AuthLayout title="Verificação 2FA">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-shield-check text-h2 text-terracota-700" aria-hidden="true" />
+        <i class="ph-bold ph-shield-check text-h2 text-[#0568ff]" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Verificação 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -409,7 +409,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
   return (
     <AuthLayout title="Configurar 2FA">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-shield-star text-h2 text-terracota-700" aria-hidden="true" />
+        <i class="ph-bold ph-shield-star text-h2 text-[#0568ff]" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Configurar 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -639,7 +639,7 @@ function forgotPasswordForm(errorMsg?: string, success?: boolean) {
   return (
     <AuthLayout title="Recuperar Senha">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-envelope-simple-open text-h2 text-terracota-700" aria-hidden="true" />
+        <i class="ph-bold ph-envelope-simple-open text-h2 text-[#0568ff]" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Recuperar Senha</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
@@ -724,7 +724,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
   return (
     <AuthLayout title="Redefinir Senha">
       <div class="flex items-center gap-2 mb-1">
-        <i class="ph-bold ph-key text-h2 text-terracota-700" aria-hidden="true" />
+        <i class="ph-bold ph-key text-h2 text-[#0568ff]" aria-hidden="true" />
         <h1 class="text-h2 font-bold text-gray-900">Redefinir Senha</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">Digite sua nova senha.</p>

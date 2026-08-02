@@ -82,8 +82,8 @@ apiKeysRoutes.get("/", async (c) => {
 
       {/* Tabs */}
       <div class="flex gap-2 mb-6 border-b border-gray-100">
-        <a href="/api-keys?tab=keys" class={`px-4 py-2 text-body-sm font-medium ${tab === "keys" ? "text-terracota-600 border-b-2 border-terracota-600" : "text-gray-500 hover:text-gray-700"}`}>Chaves de API</a>
-        <a href="/api-keys?tab=webhooks" class={`px-4 py-2 text-body-sm font-medium ${tab === "webhooks" ? "text-terracota-600 border-b-2 border-terracota-600" : "text-gray-500 hover:text-gray-700"}`}>Webhooks</a>
+        <a href="/api-keys?tab=keys" class={`px-4 py-2 text-body-sm font-medium ${tab === "keys" ? "text-[#0568ff] border-b-2 border-[#0568ff]" : "text-gray-500 hover:text-gray-700"}`}>Chaves de API</a>
+        <a href="/api-keys?tab=webhooks" class={`px-4 py-2 text-body-sm font-medium ${tab === "webhooks" ? "text-[#0568ff] border-b-2 border-[#0568ff]" : "text-gray-500 hover:text-gray-700"}`}>Webhooks</a>
       </div>
 
       {tab === "keys" ? (

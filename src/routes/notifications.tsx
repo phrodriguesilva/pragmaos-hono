@@ -80,9 +80,9 @@ notificationsRoutes.get("/", async (c) => {
             {(notifications ?? []).map((n) => (
               <li
                 key={n.id}
-                class={`flex items-start gap-3 p-3 rounded-lg border ${n.read ? "border-gray-100 bg-white" : "border-terracota-200 bg-terracota-50"}`}
+                class={`flex items-start gap-3 p-3 rounded-lg border ${n.read ? "border-gray-100 bg-white" : "border-[#b0ccff] bg-[#e6efff]"}`}
               >
-                <i class={`ph ${typeIcon[n.type] ?? "ph-info"} text-h4 ${n.read ? "text-gray-400" : "text-terracota-600"}`} aria-hidden="true"></i>
+                <i class={`ph ${typeIcon[n.type] ?? "ph-info"} text-h4 ${n.read ? "text-gray-400" : "text-[#0568ff]"}`} aria-hidden="true"></i>
                 <div class="flex-1">
                   <div class="flex items-center gap-2">
                     <span class={`text-body-sm font-medium ${n.read ? "text-gray-600" : "text-gray-900"}`}>{n.title}</span>
@@ -91,12 +91,12 @@ notificationsRoutes.get("/", async (c) => {
                   {n.body ? <p class="text-body-xs text-gray-500 mt-1">{n.body}</p> : null}
                   <div class="text-body-xs text-gray-400 mt-1">
                     {new Date(n.created_at).toLocaleString("pt-BR")}
-                    {n.link ? <a href={n.link} class="ml-2 text-terracota-600 hover:underline">Ver detalhes</a> : null}
+                    {n.link ? <a href={n.link} class="ml-2 text-[#0568ff] hover:underline">Ver detalhes</a> : null}
                   </div>
                 </div>
                 {!n.read ? (
                   <form method="post" action={`/notifications/${n.id}/read`}>
-                    <button type="submit" class="text-body-xs text-terracota-600 hover:underline">Marcar lida</button>
+                    <button type="submit" class="text-body-xs text-[#0568ff] hover:underline">Marcar lida</button>
                   </form>
                 ) : null}
               </li>

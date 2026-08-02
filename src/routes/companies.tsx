@@ -54,14 +54,14 @@ companiesRoutes.get("/", async (c) => {
   const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (companies ?? []).map((co) => [
-    <a href={`/companies/${co.id}`} class="text-terracota-600 hover:underline">{co.name}</a> as unknown as string,
+    <a href={`/companies/${co.id}`} class="text-[#0568ff] hover:underline">{co.name}</a> as unknown as string,
     co.cnpj ?? "-",
     co.email ?? "-",
     co.phone ?? "-",
     co.active ? <Badge color="green">Ativo</Badge> : <Badge color="gray">Inativo</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/companies/${co.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/companies/${co.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/companies/${co.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/companies/${co.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/companies/${co.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);

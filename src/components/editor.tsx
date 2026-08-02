@@ -68,7 +68,7 @@ export const WysiwygEditor: FC<EditorProps> = ({
       {label ? <label for={id} class="text-body-sm font-semibold text-gray-700 block mb-2">{label}</label> : null}
       <div
         {...{ "x-data": `{ content: ${JSON.stringify(value)}, exec(cmd, val) { document.execCommand(cmd, false, val || null); this.syncHidden(); }, syncHidden() { this.content = document.getElementById('${id}-editor').innerHTML; document.getElementById('${id}-hidden').value = this.content; } }` }}
-        class="border border-gray-200 rounded-xl overflow-hidden focus-within:border-terracota-300 focus-within:ring-2 focus-within:ring-terracota-400/20"
+        class="border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#b0ccff] focus-within:ring-2 focus-within:ring-[#4d8bff]/20"
       >
         {/* Toolbar */}
         <div class="flex items-center gap-1 p-2 border-b border-gray-100 bg-gray-50 flex-wrap">
@@ -82,7 +82,7 @@ export const WysiwygEditor: FC<EditorProps> = ({
                 {...{ "@click": `exec('${btn.cmd}'${btn.value ? `, '${btn.value}'` : ""})` }}
                 title={btn.label}
                 aria-label={btn.label}
-                class="p-1.5 rounded hover:bg-white text-gray-600 hover:text-terracota-600 transition-colors"
+                class="p-1.5 rounded hover:bg-white text-gray-600 hover:text-[#0568ff] transition-colors"
               >
                 <i class={`ph ${btn.icon} text-body`} aria-hidden="true"></i>
               </button>

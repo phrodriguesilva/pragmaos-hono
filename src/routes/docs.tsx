@@ -28,9 +28,9 @@ docsRoutes.get("/", async (c) => {
 
       {/* Tabs / sections */}
       <div class="flex gap-2 mb-6 border-b border-gray-200">
-        <a href="#routes" class="px-4 py-2 text-sm font-medium text-terracota-600 border-b-2 border-terracota-600">Rotas</a>
-        <a href="#tables" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-terracota-600">Banco de Dados</a>
-        <a href="#libs" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-terracota-600">Bibliotecas</a>
+        <a href="#routes" class="px-4 py-2 text-sm font-medium text-[#0568ff] border-b-2 border-[#0568ff]">Rotas</a>
+        <a href="#tables" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-[#0568ff]">Banco de Dados</a>
+        <a href="#libs" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-[#0568ff]">Bibliotecas</a>
       </div>
 
       {/* Routes section */}
@@ -119,7 +119,7 @@ docsRoutes.get("/", async (c) => {
           <div class="space-y-2">
             {data.integrations.map((lib) => (
               <div class="flex items-start gap-3 border-b border-gray-100 py-3">
-                <i class="ph ph-package text-h4 text-terracota-600 mt-0.5" aria-hidden="true"></i>
+                <i class="ph ph-package text-h4 text-[#0568ff] mt-0.5" aria-hidden="true"></i>
                 <div class="flex-1">
                   <div class="font-mono text-sm font-medium">{lib.name}</div>
                   <div class="text-sm text-gray-600">{lib.description}</div>

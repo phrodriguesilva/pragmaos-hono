@@ -99,7 +99,7 @@ whatsappRoutes.get("/", async (c) => {
       ? <Badge color="red">Opt-out</Badge> as unknown as string
       : <Badge color="gray">-</Badge> as unknown as string,
     new Date(m.created_at).toLocaleString("pt-BR"),
-    <a href={`/whatsapp/${m.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+    <a href={`/whatsapp/${m.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -182,21 +182,21 @@ whatsappRoutes.get("/", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-4">
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-paper-plane-tilt text-h3 text-terracota-600" aria-hidden="true"></i>Total Enviadas
+            <i class="ph ph-paper-plane-tilt text-h3 text-[#0568ff]" aria-hidden="true"></i>Total Enviadas
           </div>
-          <div class="text-h1 font-bold text-terracota-700">{sentCount}</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{sentCount}</div>
         </Panel>
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-tray text-h3 text-terracota-600" aria-hidden="true"></i>Total Recebidas
+            <i class="ph ph-tray text-h3 text-[#0568ff]" aria-hidden="true"></i>Total Recebidas
           </div>
-          <div class="text-h1 font-bold text-terracota-700">{receivedCount}</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{receivedCount}</div>
         </Panel>
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-check-circle text-h3 text-terracota-600" aria-hidden="true"></i>Taxa de Entrega
+            <i class="ph ph-check-circle text-h3 text-[#0568ff]" aria-hidden="true"></i>Taxa de Entrega
           </div>
-          <div class="text-h1 font-bold text-terracota-600">{deliveryRate}%</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{deliveryRate}%</div>
         </Panel>
       </div>
       <Table
@@ -395,7 +395,7 @@ whatsappRoutes.get("/:id", async (c) => {
       <PageHeader title="Detalhes da Mensagem" icon="ph-whatsapp-logo" />
       <Panel title="Mensagem" icon="ph-whatsapp-logo">
         <dl class="flex flex-col gap-2 mb-4">
-          <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Cliente:</dt><dd class="text-gray-900">{clientName ? <a href={`/clients/${msg.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a> : "-"}</dd></div>
+          <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Cliente:</dt><dd class="text-gray-900">{clientName ? <a href={`/clients/${msg.client_id}`} class="text-[#0568ff] hover:underline">{clientName}</a> : "-"}</dd></div>
           <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Telefone:</dt><dd class="text-gray-900">{msg.phone ?? "-"}</dd></div>
           <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Direcao:</dt><dd><Badge color={msg.direction === "inbound" ? "blue" : "gray"}>{msg.direction === "inbound" ? "Recebida" : "Enviada"}</Badge></dd></div>
           <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Status:</dt><dd><Badge color={msg.status === "sent" ? "green" : msg.status === "failed" ? "red" : "yellow"}>{msg.status}</Badge></dd></div>

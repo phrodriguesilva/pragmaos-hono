@@ -180,14 +180,14 @@ billingRoutes.get("/", async (c) => {
     const honDesc = (inv.honorarios as unknown as { description: string } | null)?.description;
     const reference = caseTitle ?? honDesc ?? "-";
     return [
-      <a href={`/billing/${inv.id}`} class="text-terracota-600 hover:underline">{inv.number}</a> as unknown as string,
+      <a href={`/billing/${inv.id}`} class="text-[#0568ff] hover:underline">{inv.number}</a> as unknown as string,
       clientName,
       reference,
       formatCurrency(inv.amount_cents),
       formatDate(inv.due_date),
       <Badge color={statusColor(inv.status)}>{STATUS_LABELS[inv.status] ?? inv.status}</Badge> as unknown as string,
       METHOD_LABELS[inv.payment_method] ?? inv.payment_method,
-      <a href={`/billing/${inv.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+      <a href={`/billing/${inv.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
     ];
   });
 
@@ -393,8 +393,8 @@ billingRoutes.get("/:id", async (c) => {
         <Panel title="Dados da cobrança" icon="ph-receipt">
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Número: </dt><dd class="inline">{inv.number}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${inv.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{inv.case_id ? <a href={`/cases/${inv.case_id}`} class="text-terracota-600 hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${inv.client_id}`} class="text-[#0568ff] hover:underline">{client?.name ?? "-"}</a></dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{inv.case_id ? <a href={`/cases/${inv.case_id}`} class="text-[#0568ff] hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Honorario: </dt><dd class="inline">{hon ? hon.description : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Valor: </dt><dd class="inline">{formatCurrency(inv.amount_cents)}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Valor pago: </dt><dd class="inline">{formatCurrency(inv.paid_amount_cents ?? 0)}</dd></div>
@@ -403,7 +403,7 @@ billingRoutes.get("/:id", async (c) => {
             <div><dt class="font-semibold text-gray-700 inline">Vencimento: </dt><dd class="inline">{formatDate(inv.due_date)}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Pago em: </dt><dd class="inline">{formatDate(inv.paid_at)}</dd></div>
             {inv.pix_code ? <div><dt class="font-semibold text-gray-700 inline">Codigo PIX: </dt><dd class="inline text-body-xs font-mono break-all">{inv.pix_code}</dd></div> : null}
-            {inv.boleto_url ? <div><dt class="font-semibold text-gray-700 inline">Boleto: </dt><dd class="inline"><a href={inv.boleto_url} class="text-terracota-600 hover:underline" target="_blank" rel="noopener">Abrir boleto</a></dd></div> : null}
+            {inv.boleto_url ? <div><dt class="font-semibold text-gray-700 inline">Boleto: </dt><dd class="inline"><a href={inv.boleto_url} class="text-[#0568ff] hover:underline" target="_blank" rel="noopener">Abrir boleto</a></dd></div> : null}
             <div><dt class="font-semibold text-gray-700 inline">Criado em: </dt><dd class="inline">{formatDate(inv.created_at)}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Atualizado em: </dt><dd class="inline">{formatDate(inv.updated_at)}</dd></div>
           </dl>

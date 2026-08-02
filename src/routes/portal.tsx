@@ -292,7 +292,7 @@ portalRoutes.get("/login", (c) => {
         <script src="/static/js/alpine.min.js" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
-      <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">
+      <body class="bg-[#232856] text-body font-sans min-h-screen flex items-center justify-center">
         <div class="w-full max-w-sm border border-carvao-700 bg-white p-8">
           <div class="flex flex-col items-center mb-2">
             <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
@@ -388,8 +388,8 @@ portalRoutes.get("/home", async (c) => {
       <h1 class="text-h1 font-bold text-gray-900 mb-4">Ola, {client.name}</h1>
 
       <div class="grid grid-cols-3 gap-4 mb-6">
-        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</div><div class="text-h1 font-bold text-terracota-700">{casesRes.data?.length ?? 0}</div></Panel>
-        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</div><div class="text-h1 font-bold text-terracota-700">{messagesRes.data?.length ?? 0}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-folder-open" aria-hidden="true" />Processos</div><div class="text-h1 font-bold text-[#0568ff]">{casesRes.data?.length ?? 0}</div></Panel>
+        <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-chats-circle" aria-hidden="true" />Mensagens</div><div class="text-h1 font-bold text-[#0568ff]">{messagesRes.data?.length ?? 0}</div></Panel>
         <Panel><div class="text-body-sm text-gray-500 flex items-center gap-1"><i class="ph ph-receipt" aria-hidden="true" />Faturas pendentes</div><div class="text-h1 font-bold text-status-yellow">{invoicesRes.data?.length ?? 0}</div></Panel>
       </div>
 
@@ -397,7 +397,7 @@ portalRoutes.get("/home", async (c) => {
         <Table
           columns={[{ label: "Titulo", icon: "ph-text-aa" }, { label: "Numero", icon: "ph-hash" }, { label: "Tipo", icon: "ph-tag" }, { label: "Status", icon: "ph-circle-half" }]}
           rows={(casesRes.data ?? []).map((cs) => [
-            <a href={`/portal/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
+            <a href={`/portal/cases/${cs.id}`} class="text-[#0568ff] hover:underline">{cs.title}</a> as unknown as string,
             cs.case_number ?? "-",
             cs.case_type,
             <Badge color={cs.status === "active" ? "green" : cs.status === "suspended" ? "yellow" : "gray"}>{cs.status === "active" ? "Ativo" : cs.status === "suspended" ? "Suspenso" : "Arquivado"}</Badge> as unknown as string,
@@ -445,7 +445,7 @@ portalRoutes.get("/cases", async (c) => {
         <Table
           columns={[{ label: "Titulo", icon: "ph-text-aa" }, { label: "Numero", icon: "ph-hash" }, { label: "Tipo", icon: "ph-tag" }, { label: "Tribunal", icon: "ph-building" }, { label: "Status", icon: "ph-circle-half" }]}
           rows={(cases ?? []).map((cs) => [
-            <a href={`/portal/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
+            <a href={`/portal/cases/${cs.id}`} class="text-[#0568ff] hover:underline">{cs.title}</a> as unknown as string,
             cs.case_number ?? "-",
             cs.case_type,
             cs.tribunal ?? "-",

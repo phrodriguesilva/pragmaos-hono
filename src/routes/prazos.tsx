@@ -113,9 +113,9 @@ prazosRoutes.get("/", async (c) => {
           </form>
 
           {resultado ? (
-            <div class="mt-6 p-4 bg-terracota-50 border border-terracota-200 rounded-xl">
+            <div class="mt-6 p-4 bg-[#e6efff] border border-[#b0ccff] rounded-xl">
               <div class="text-body-sm text-gray-600 mb-1">Data de vencimento:</div>
-              <div class="text-h2 font-bold text-terracota-700">{formatDataCompletaBR(resultado.dataVencimento)}</div>
+              <div class="text-h2 font-bold text-[#0568ff]">{formatDataCompletaBR(resultado.dataVencimento)}</div>
               <div class="text-body-sm text-gray-500 mt-2">
                 {tipoCalculo === "dias_uteis"
                   ? `${resultado.diasUteisContados} dias úteis contados`
@@ -150,7 +150,7 @@ prazosRoutes.get("/", async (c) => {
                 return (
                   <li key={p.id} class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
                     <div>
-                      <a href={`/deadlines/${p.id}`} class="text-body-sm font-medium text-gray-800 hover:text-terracota-600">
+                      <a href={`/deadlines/${p.id}`} class="text-body-sm font-medium text-gray-800 hover:text-[#0568ff]">
                         {p.title}
                       </a>
                       {caseTitle ? <div class="text-body-xs text-gray-500">{caseTitle}</div> : null}

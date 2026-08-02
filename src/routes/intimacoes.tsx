@@ -89,7 +89,7 @@ intimacoesRoutes.get("/", async (c) => {
           {(intimacoes.intimacoes ?? []).map((int) => (
             <div
               key={int.id}
-              class={`bg-white border rounded-xl p-4 ${int.lida ? "border-gray-100" : "border-terracota-200 bg-terracota-50/30"}`}
+              class={`bg-white border rounded-xl p-4 ${int.lida ? "border-gray-100" : "border-[#b0ccff] bg-[#e6efff]/30"}`}
             >
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">

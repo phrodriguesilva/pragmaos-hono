@@ -49,14 +49,14 @@ leadsRoutes.get("/", async (c) => {
       const stage = PIPELINE_STAGES.find((s) => s.key === l.status);
       const assigned = (l.profiles as unknown as { full_name: string } | null)?.full_name ?? "-";
       return [
-        <a href={`/leads/${l.id}`} class="text-terracota-600 hover:underline">{l.name}</a> as unknown as string,
+        <a href={`/leads/${l.id}`} class="text-[#0568ff] hover:underline">{l.name}</a> as unknown as string,
         l.email ?? "-",
         l.phone ?? "-",
         l.origin,
         l.area_of_interest ?? "-",
         assigned,
         <Badge color={stage?.color ?? "gray"} icon={stage?.icon}>{stage?.label ?? l.status}</Badge> as unknown as string,
-        <a href={`/leads/${l.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+        <a href={`/leads/${l.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
       ];
     });
 
@@ -199,7 +199,7 @@ leadsRoutes.get("/", async (c) => {
               </div>
               <div class="flex flex-col gap-3 p-3">
                 {stageLeads.map((l) => (
-                  <a href={`/leads/${l.id}`} class="block bg-white border border-gray-200 p-4 rounded-lg hover:border-terracota-300 hover:shadow-md transition-all">
+                  <a href={`/leads/${l.id}`} class="block bg-white border border-gray-200 p-4 rounded-lg hover:border-[#b0ccff] hover:shadow-md transition-all">
                     <div class="font-medium text-gray-800">{l.name}</div>
                     {l.area_of_interest ? (
                       <div class="text-body-sm text-gray-500">{l.area_of_interest}</div>

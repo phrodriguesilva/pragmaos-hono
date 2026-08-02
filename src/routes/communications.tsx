@@ -63,8 +63,8 @@ communicationsRoutes.get("/", async (c) => {
     (l.clients as unknown as { name: string } | null)?.name ?? "-",
     l.message_body.length > 60 ? l.message_body.slice(0, 60) + "..." : l.message_body,
     <div class="flex items-center gap-2">
-      <a href={`/communications/${l.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/communications/${l.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/communications/${l.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/communications/${l.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/communications/${l.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -121,7 +121,7 @@ communicationsRoutes.get("/", async (c) => {
         <div class="text-body-sm text-gray-600">
           <strong>Sincronizacao com PJe:</strong> Para importar comunicacoes processuais do PJe automaticamente,
           e necessario convenio com o tribunal e certificado digital ICP-Brasil.
-          Configure a integracao PJe em <a href="/integrations" class="text-terracota-600 hover:underline">Integracoes</a>.
+          Configure a integracao PJe em <a href="/integrations" class="text-[#0568ff] hover:underline">Integracoes</a>.
           Por enquanto, registre comunicacoes manualmente abaixo.
         </div>
       </div>
@@ -246,8 +246,8 @@ communicationsRoutes.get("/:id", async (c) => {
             <div><dt class="font-semibold text-gray-700 inline">Direcao: </dt><dd class="inline">{log.direction === "inbound" ? "Recebida" : "Enviada"}</dd></div>
             {log.subject ? <div><dt class="font-semibold text-gray-700 inline">Assunto: </dt><dd class="inline">{log.subject}</dd></div> : null}
             <div><dt class="font-semibold text-gray-700 inline">Data: </dt><dd class="inline">{new Date(log.sent_at).toLocaleString("pt-BR")}</dd></div>
-            {caseTitle ? <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${log.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a></dd></div> : null}
-            {clientName ? <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${log.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a></dd></div> : null}
+            {caseTitle ? <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${log.case_id}`} class="text-[#0568ff] hover:underline">{caseTitle}</a></dd></div> : null}
+            {clientName ? <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${log.client_id}`} class="text-[#0568ff] hover:underline">{clientName}</a></dd></div> : null}
           </dl>
         </Panel>
         <Panel title="Conteudo" icon="ph-text-aa">

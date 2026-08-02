@@ -104,8 +104,8 @@ function LineChart({ data, height = 140 }: {
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
       <defs>
         <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="var(--color-terracota-400)" stop-opacity="0.25" />
-          <stop offset="100%" stop-color="var(--color-terracota-400)" stop-opacity="0" />
+          <stop offset="0%" stop-color="var(--color-carvao-400)" stop-opacity="0.25" />
+          <stop offset="100%" stop-color="var(--color-carvao-400)" stop-opacity="0" />
         </linearGradient>
       </defs>
       {/* Horizontal grid lines */}
@@ -119,11 +119,11 @@ function LineChart({ data, height = 140 }: {
       {/* Area fill */}
       <path d={areaPath} fill="url(#revGrad)" />
       {/* Line */}
-      <path d={linePath} fill="none" stroke="var(--color-terracota-500)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
+      <path d={linePath} fill="none" stroke="var(--color-carvao-500)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
       {/* Points */}
       {points.map((p) => (
         <g>
-          <circle cx={p.x} cy={p.y} r="3.5" fill="var(--color-terracota-500)" />
+          <circle cx={p.x} cy={p.y} r="3.5" fill="var(--color-carvao-500)" />
           <text x={p.x} y={p.y - 8} text-anchor="middle" class="fill-gray-600" style="font-size:10px;font-weight:600">
             {fmtK(p.value)}
           </text>
@@ -332,7 +332,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
                     <li class="text-body-sm text-gray-700 flex items-center gap-2">
                       <i class="ph ph-clock text-xs text-gray-400" aria-hidden="true" />
                       {new Date(h.date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                      <a href={`/cases/${h.case_id}`} class="text-terracota-600 hover:underline">
+                      <a href={`/cases/${h.case_id}`} class="text-[#0568ff] hover:underline">
                         {(h.cases as unknown as { title: string } | null)?.title ?? "-"}
                       </a>
                       {h.location ? <span class="text-gray-400">- {h.location}</span> : null}
@@ -353,7 +353,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
                     <li class="text-body-sm text-gray-700 flex items-center gap-2">
                       <i class="ph ph-calendar text-xs text-gray-400" aria-hidden="true" />
                       {new Date(d.due_date).toLocaleDateString("pt-BR")}
-                      <a href={`/cases/${d.case_id}`} class="text-terracota-600 hover:underline">{d.title}</a>
+                      <a href={`/cases/${d.case_id}`} class="text-[#0568ff] hover:underline">{d.title}</a>
                     </li>
                   ))}
                 </ul>
@@ -375,7 +375,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
                   <div class="flex items-center gap-2 text-gray-400 mb-1">
                     <i class="ph ph-calendar text-xs" aria-hidden="true" />
                     {new Date(m.movement_date).toLocaleDateString("pt-BR")}
-                    <span class="text-carvao-600 font-semibold">
+                    <span class="text-gray-600 font-semibold">
                       {(m.proceedings as unknown as { cnj_number: string } | null)?.cnj_number ?? ""}
                     </span>
                   </div>

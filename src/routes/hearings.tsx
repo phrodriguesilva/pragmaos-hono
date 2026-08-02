@@ -58,12 +58,12 @@ hearingsRoutes.get("/", async (c) => {
   const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
 
   const rows = (hearings ?? []).map((h) => [
-    <a href={`/hearings/${h.id}`} class="text-terracota-600 hover:underline">{(h.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
-    <a href={`/hearings/${h.id}`} class="text-terracota-600 hover:underline">{new Date(h.date).toLocaleString("pt-BR")}</a> as unknown as string,
+    <a href={`/hearings/${h.id}`} class="text-[#0568ff] hover:underline">{(h.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
+    <a href={`/hearings/${h.id}`} class="text-[#0568ff] hover:underline">{new Date(h.date).toLocaleString("pt-BR")}</a> as unknown as string,
     h.location ?? "-",
     <div class="flex items-center gap-2">
-      <a href={`/hearings/${h.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/hearings/${h.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/hearings/${h.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/hearings/${h.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/hearings/${h.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -280,7 +280,7 @@ hearingsRoutes.get("/:id", async (c) => {
               <div>
                 <dt class="font-semibold text-gray-700 inline">Processo: </dt>
                 <dd class="inline">
-                  <a href={`/cases/${hearing.case_id}`} class="text-terracota-600 hover:underline">{linkedCase.title}</a>
+                  <a href={`/cases/${hearing.case_id}`} class="text-[#0568ff] hover:underline">{linkedCase.title}</a>
                   {linkedCase.case_number ? <span class="text-gray-500"> ({linkedCase.case_number})</span> : null}
                 </dd>
               </div>

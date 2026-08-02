@@ -102,14 +102,14 @@ signatureRoutes.get("/", async (c) => {
   };
 
   const rows = requests.map((r) => [
-    <a href={`/signatures/${r.id}`} class="text-terracota-600 hover:underline">{r.title}</a> as unknown as string,
+    <a href={`/signatures/${r.id}`} class="text-[#0568ff] hover:underline">{r.title}</a> as unknown as string,
     r.signer_name ?? r.signer_email,
     providerLabel(r.provider),
     statusBadge(r.status) as unknown as string,
     r.sent_at ? new Date(r.sent_at).toLocaleDateString("pt-BR") : "-",
     r.signed_at ? new Date(r.signed_at).toLocaleDateString("pt-BR") : "-",
     <div class="flex items-center gap-2">
-      <a href={`/signatures/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+      <a href={`/signatures/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
       <form method="post" action={`/signatures/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -279,9 +279,9 @@ signatureRoutes.get("/:id", async (c) => {
             <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Provedor:</dt><dd class="text-gray-900">{providerLabel(req.provider)}</dd></div>
             <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Status:</dt><dd>{statusBadge(req.status)}</dd></div>
             <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Expira em:</dt><dd class="text-gray-900">{req.expires_at ? new Date(req.expires_at).toLocaleDateString("pt-BR") : "-"}</dd></div>
-            {caseTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Processo:</dt><dd><a href={`/cases/${req.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a></dd></div> : null}
-            {clientName ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Cliente:</dt><dd><a href={`/clients/${req.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a></dd></div> : null}
-            {docTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Documento:</dt><dd><a href={`/documents/${req.document_id}`} class="text-terracota-600 hover:underline">{docTitle}</a></dd></div> : null}
+            {caseTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Processo:</dt><dd><a href={`/cases/${req.case_id}`} class="text-[#0568ff] hover:underline">{caseTitle}</a></dd></div> : null}
+            {clientName ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Cliente:</dt><dd><a href={`/clients/${req.client_id}`} class="text-[#0568ff] hover:underline">{clientName}</a></dd></div> : null}
+            {docTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Documento:</dt><dd><a href={`/documents/${req.document_id}`} class="text-[#0568ff] hover:underline">{docTitle}</a></dd></div> : null}
             {req.external_envelope_id ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Envelope ID:</dt><dd class="text-gray-900 font-mono text-body-xs">{req.external_envelope_id}</dd></div> : null}
             {req.sync_status ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Sincronizacao:</dt><dd>{syncBadge(req.sync_status)}</dd></div> : null}
             {req.last_synced_at ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-28">Ult. Sync:</dt><dd class="text-gray-900">{new Date(req.last_synced_at).toLocaleString("pt-BR")}</dd></div> : null}
@@ -298,7 +298,7 @@ signatureRoutes.get("/:id", async (c) => {
       <Panel title="Linha do Tempo" icon="ph-list-dashes">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2 text-body-sm">
-            <i class="ph-bold ph-circle text-terracota-600 text-body-sm" aria-hidden="true"></i>
+            <i class="ph-bold ph-circle text-[#0568ff] text-body-sm" aria-hidden="true"></i>
             <span class="font-semibold text-gray-700">Criada em:</span>
             <span class="text-gray-900">{new Date(req.created_at).toLocaleString("pt-BR")}</span>
           </div>
@@ -691,7 +691,7 @@ signatureRoutes.post("/:id/check-status", async (c) => {
       updateData.signed_at = new Date().toISOString();
     }
 
-    await supabase.from("signature_requests").update(updateData).eq("id", id);
+    await supabase.from("signature_requests").update(updateData).eq("id", id).eq("tenant_id", user.tenantId);
 
     return c.redirect(`/signatures/${id}?success=${encodeURIComponent(`Status atualizado: ${mappedStatus}`)}`);
   } catch (err) {

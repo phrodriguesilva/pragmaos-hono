@@ -297,7 +297,7 @@
     @apply bg-gray-200 text-gray-600;
   }
   .badge-terracota {
-    @apply bg-carvao-50 text-carvao-600;
+    @apply bg-[#e6efff] text-[#0568ff];
   }
 
   /* Modern data table -- no harsh borders, subtle row separators */

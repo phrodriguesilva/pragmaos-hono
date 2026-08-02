@@ -122,11 +122,11 @@ calendarRoutes.get("/", async (c) => {
           {cells.map((cell, i) => (
             <div
               key={i}
-              class={`min-h-28 border-b border-r border-gray-50 p-1.5 ${cell.day === null ? "bg-gray-50/50" : ""} ${cell.isToday ? "bg-terracota-50" : ""}`}
+              class={`min-h-28 border-b border-r border-gray-50 p-1.5 ${cell.day === null ? "bg-gray-50/50" : ""} ${cell.isToday ? "bg-[#e6efff]" : ""}`}
             >
               {cell.day !== null ? (
                 <>
-                  <div class={`text-body-xs font-medium mb-1 ${cell.isToday ? "text-terracota-700" : "text-gray-500"}`}>
+                  <div class={`text-body-xs font-medium mb-1 ${cell.isToday ? "text-[#0568ff]" : "text-gray-500"}`}>
                     {cell.day}
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -171,7 +171,7 @@ calendarRoutes.get("/", async (c) => {
                 return (
                   <li key={h.id} class="flex items-center justify-between p-2 border border-gray-50 rounded-lg">
                     <div>
-                      <a href={`/hearings/${h.id}`} class="text-body-sm font-medium text-gray-800 hover:text-terracota-600">{h.title}</a>
+                      <a href={`/hearings/${h.id}`} class="text-body-sm font-medium text-gray-800 hover:text-[#0568ff]">{h.title}</a>
                       {caseTitle ? <div class="text-body-xs text-gray-500">{caseTitle}</div> : null}
                     </div>
                     <span class="text-body-xs text-gray-500">{new Date(h.hearing_date).toLocaleDateString("pt-BR")}</span>
@@ -192,7 +192,7 @@ calendarRoutes.get("/", async (c) => {
                 return (
                   <li key={d.id} class="flex items-center justify-between p-2 border border-gray-50 rounded-lg">
                     <div>
-                      <a href={`/deadlines/${d.id}`} class="text-body-sm font-medium text-gray-800 hover:text-terracota-600">{d.title}</a>
+                      <a href={`/deadlines/${d.id}`} class="text-body-sm font-medium text-gray-800 hover:text-[#0568ff]">{d.title}</a>
                       {caseTitle ? <div class="text-body-xs text-gray-500">{caseTitle}</div> : null}
                     </div>
                     <div class="flex items-center gap-2">

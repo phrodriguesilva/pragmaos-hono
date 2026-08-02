@@ -38,20 +38,20 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="/static/js/alpine.min.js" defer />
       </head>
-      <body class="bg-carvao-50 text-gray-800 font-sans min-h-screen antialiased">
+      <body class="bg-gray-50 text-gray-800 font-sans min-h-screen antialiased">
         <div class="min-h-screen flex flex-col">
           {/* Top bar */}
-          <header class="bg-white border-b border-carvao-100">
+          <header class="bg-white border-b border-gray-100">
             <div class="max-w-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
               </div>
-              <a href="/dashboard" class="text-sm text-carvao-400 hover:text-carvao-600 transition">Pular por agora</a>
-              {skipHref && <a href={skipHref} class="text-sm text-carvao-600 hover:text-gray-800 transition ml-3">Pular esta etapa →</a>}
+              <a href="/dashboard" class="text-sm text-gray-400 hover:text-gray-600 transition">Pular por agora</a>
+              {skipHref && <a href={skipHref} class="text-sm text-gray-600 hover:text-gray-800 transition ml-3">Pular esta etapa →</a>}
             </div>
             {/* Progress bar */}
-            <div class="h-1 bg-carvao-100">
-              <div class="h-full bg-carvao-800 transition-all duration-300" style={`width: ${pct}%`} />
+            <div class="h-1 bg-gray-100">
+              <div class="h-full bg-[#232856] transition-all duration-300" style={`width: ${pct}%`} />
             </div>
           </header>
 
@@ -79,11 +79,11 @@ function stepIndicator(currentIdx: number) {
     <div class="flex items-center gap-2 mb-8 text-sm">
       {ONBOARDING_STEPS.slice(0, -1).map((s, i) => (
         <div class="flex items-center gap-2">
-          <div class={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i < currentIdx ? "bg-terracota-500 text-white" : i === currentIdx ? "bg-terracota-500 text-white ring-4 ring-terracota-100" : "bg-carvao-100 text-carvao-400"}`}>
+          <div class={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i < currentIdx ? "bg-[#0568ff] text-white" : i === currentIdx ? "bg-[#0568ff] text-white ring-4 ring-[#cce0ff]" : "bg-gray-100 text-gray-400"}`}>
             {i < currentIdx ? <i class="ph-bold ph-check" aria-hidden="true" /> : i + 1}
           </div>
-          <span class={`hidden sm:inline ${i === currentIdx ? "font-semibold text-gray-800" : "text-carvao-400"}`}>{STEP_LABELS[s]}</span>
-          {i < ONBOARDING_STEPS.length - 2 && <div class={`w-6 h-px ${i < currentIdx ? "bg-terracota-500" : "bg-carvao-200"}`} />}
+          <span class={`hidden sm:inline ${i === currentIdx ? "font-semibold text-gray-800" : "text-gray-400"}`}>{STEP_LABELS[s]}</span>
+          {i < ONBOARDING_STEPS.length - 2 && <div class={`w-6 h-px ${i < currentIdx ? "bg-[#0568ff]" : "bg-gray-200"}`} />}
         </div>
       ))}
     </div>
@@ -121,9 +121,9 @@ onboardingRoutes.get("/company", async (c) => {
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Conte-nos sobre seu escritório</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Estes dados aparecem em documentos, cobranças e no seu site público. Você poderá editá-los depois.</p>
+        <p class="text-gray-500 mb-6 text-sm">Estes dados aparecem em documentos, cobranças e no seu site público. Você poderá editá-los depois.</p>
 
-        <form method="post" action="/onboarding/company" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+        <form method="post" action="/onboarding/company" class="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           <div>
             <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nome do escritório *</label>
             <input id="name" name="name" type="text" required value={tenant?.name ?? ""} class="input w-full" />
@@ -220,24 +220,24 @@ onboardingRoutes.get("/areas", async (c) => {
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Quais áreas seu escritório atua?</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Selecione todas que se aplicam. Isso ajuda a organizar processos e aparece no seu site público.</p>
+        <p class="text-gray-500 mb-6 text-sm">Selecione todas que se aplicam. Isso ajuda a organizar processos e aparece no seu site público.</p>
 
-        <form method="post" action="/onboarding/areas" class="bg-white rounded-2xl border border-carvao-100 p-6" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+        <form method="post" action="/onboarding/areas" class="bg-white rounded-2xl border border-gray-100 p-6" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           {/* Search bar with Alpine.js live filter */}
           <div class="mb-4" {...{ "x-data": "{ q: '' }" }}>
             <div class="relative">
-              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-carvao-400" aria-hidden="true" />
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
               <input
                 type="text"
                 {...{ "x-model": "q", "@input": "$refs.grid.querySelectorAll('[data-area]').forEach(el => el.style.display = el.dataset.area.toLowerCase().includes(q.toLowerCase()) ? '' : 'none')" }}
                 placeholder="Buscar área (ex: tributário, trabalhista, civil...)"
-                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-carvao-200 text-sm focus:ring-2 focus:ring-terracota-400 focus:border-terracota-400"
+                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-[#4d8bff] focus:border-[#4d8bff]"
                 aria-label="Buscar áreas de atuação"
               />
             </div>
-            <p class="text-xs text-carvao-400 mt-2">
+            <p class="text-xs text-gray-400 mt-2">
               <span {...{ "x-text": "(() => { const grid = document.querySelector('[data-grid]'); const visible = grid ? Array.from(grid.querySelectorAll('[data-area]')).filter(el => el.style.display !== 'none').length : 0; return visible + ' áreas visíveis' })()" }}></span>
-              {selectedCount > 0 && <span class="ml-2 text-terracota-600 font-medium">• {selectedCount} selecionada{selectedCount > 1 ? "s" : ""}</span>}
+              {selectedCount > 0 && <span class="ml-2 text-[#0568ff] font-medium">• {selectedCount} selecionada{selectedCount > 1 ? "s" : ""}</span>}
             </p>
           </div>
 
@@ -245,10 +245,10 @@ onboardingRoutes.get("/areas", async (c) => {
             {(allAreas ?? []).map((a) => (
               <label
                 data-area={a.name}
-                class={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${selectedIds.has(a.id) ? "border-terracota-500 bg-terracota-50" : "border-carvao-100 hover:border-carvao-300"}`}
+                class={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${selectedIds.has(a.id) ? "border-[#0568ff] bg-[#e6efff]" : "border-gray-100 hover:border-carvao-300"}`}
               >
                 <input type="checkbox" name="areas" value={a.id} checked={selectedIds.has(a.id)} class="accent-terracota-500" />
-                <i class={`ph ${a.icon ?? "ph-scales"} text-lg text-terracota-600`} aria-hidden="true" />
+                <i class={`ph ${a.icon ?? "ph-scales"} text-lg text-[#0568ff]`} aria-hidden="true" />
                 <span class="text-sm font-medium">{a.name}</span>
               </label>
             ))}
@@ -256,11 +256,11 @@ onboardingRoutes.get("/areas", async (c) => {
 
           {/* Selected areas summary (always visible, even when filtered out) */}
           {selectedCount > 0 && (
-            <div class="mt-6 pt-4 border-t border-carvao-100">
+            <div class="mt-6 pt-4 border-t border-gray-100">
               <h3 class="text-sm font-semibold text-gray-700 mb-2">Áreas selecionadas ({selectedCount})</h3>
               <div class="flex flex-wrap gap-2">
                 {(allAreas ?? []).filter((a: any) => selectedIds.has(a.id)).map((a: any) => (
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-terracota-50 text-terracota-700 text-xs font-medium">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6efff] text-[#0568ff] text-xs font-medium">
                     <i class={`ph ${a.icon ?? "ph-scales"} text-sm`} aria-hidden="true" />
                     {a.name}
                   </span>
@@ -314,29 +314,29 @@ onboardingRoutes.get("/team", async (c) => {
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Convide sua equipe</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Adicione membros agora ou pule para fazer depois. Cada convite cria um usuário no seu escritório.</p>
+        <p class="text-gray-500 mb-6 text-sm">Adicione membros agora ou pule para fazer depois. Cada convite cria um usuário no seu escritório.</p>
 
-        <div class="bg-white rounded-2xl border border-carvao-100 p-6 mb-4">
+        <div class="bg-white rounded-2xl border border-gray-100 p-6 mb-4">
           <h3 class="font-semibold mb-3 text-sm">Membros atuais</h3>
           <ul class="space-y-2">
             {(members ?? []).map((m) => (
               <li class="flex items-center justify-between py-2 border-b border-carvao-50 last:border-0">
                 <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full bg-carvao-100 flex items-center justify-center text-sm font-bold text-carvao-600">
+                  <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600">
                     {m.full_name.charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <div class="text-sm font-medium">{m.full_name}</div>
-                    <div class="text-xs text-carvao-400">{m.email}</div>
+                    <div class="text-xs text-gray-400">{m.email}</div>
                   </div>
                 </div>
-                <span class="text-xs px-2 py-1 rounded-full bg-carvao-50 text-carvao-500 capitalize">{m.role}</span>
+                <span class="text-xs px-2 py-1 rounded-full bg-gray-50 text-gray-500 capitalize">{m.role}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <form method="post" action="/onboarding/team" class="bg-white rounded-2xl border border-carvao-100 p-6" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+        <form method="post" action="/onboarding/team" class="bg-white rounded-2xl border border-gray-100 p-6" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           <h3 class="font-semibold mb-3 text-sm">Adicionar membro (opcional)</h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <input name="invite_name" type="text" placeholder="Nome" class="input w-full" />
@@ -349,7 +349,7 @@ onboardingRoutes.get("/team", async (c) => {
               <option value="recepcao">Recepção</option>
             </select>
           </div>
-          <p class="text-xs text-carvao-400 mb-4">O membro receberá um e-mail para definir a senha. Você pode adicionar mais depois.</p>
+          <p class="text-xs text-gray-400 mb-4">O membro receberá um e-mail para definir a senha. Você pode adicionar mais depois.</p>
           <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2" {...{ ":disabled": "loading" }}>
             <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
             <span {...{ "x-show": "!loading" }}>Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" /></span>
@@ -418,17 +418,17 @@ onboardingRoutes.get("/branding", async (c) => {
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Personalize sua identidade</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Cores e tagline aparecem no seu site público e nos documentos. Você pode mudar tudo depois.</p>
+        <p class="text-gray-500 mb-6 text-sm">Cores e tagline aparecem no seu site público e nos documentos. Você pode mudar tudo depois.</p>
 
-        <form method="post" action="/onboarding/branding" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+        <form method="post" action="/onboarding/branding" class="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           {/* Logo URL */}
           <div>
             <label for="logo_url" class="block text-sm font-semibold text-gray-700 mb-1">URL do Logo (opcional)</label>
             <div class="flex items-center gap-3">
-              {tenant?.logo_url && <img src={tenant.logo_url} alt="Logo atual" class="h-10 w-auto max-w-24 object-contain border border-carvao-100 rounded p-1" />}
+              {tenant?.logo_url && <img src={tenant.logo_url} alt="Logo atual" class="h-10 w-auto max-w-24 object-contain border border-gray-100 rounded p-1" />}
               <input id="logo_url" name="logo_url" type="url" placeholder="https://... (PNG ou SVG)" value={tenant?.logo_url ?? ""} class="input flex-1" />
             </div>
-            <p class="text-xs text-carvao-400 mt-1">Cole a URL do seu logo. Você pode fazer upload depois nas configurações.</p>
+            <p class="text-xs text-gray-400 mt-1">Cole a URL do seu logo. Você pode fazer upload depois nas configurações.</p>
           </div>
           <div>
             <label for="tagline" class="block text-sm font-semibold text-gray-700 mb-1">Slogan / Tagline</label>
@@ -442,14 +442,14 @@ onboardingRoutes.get("/branding", async (c) => {
             <div>
               <label for="primary_color" class="block text-sm font-semibold text-gray-700 mb-1">Cor primária</label>
               <div class="flex items-center gap-2">
-                <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#0568ff"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
+                <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#0568ff"} class="w-12 h-10 rounded cursor-pointer border border-gray-200" />
                 <input type="text" value={tenant?.primary_color ?? "#0568ff"} readonly class="input flex-1 text-sm" />
               </div>
             </div>
             <div>
               <label for="secondary_color" class="block text-sm font-semibold text-gray-700 mb-1">Cor secundária</label>
               <div class="flex items-center gap-2">
-                <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#4d8bff"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
+                <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#4d8bff"} class="w-12 h-10 rounded cursor-pointer border border-gray-200" />
                 <input type="text" value={tenant?.secondary_color ?? "#4d8bff"} readonly class="input flex-1 text-sm" />
               </div>
             </div>
@@ -458,9 +458,9 @@ onboardingRoutes.get("/branding", async (c) => {
             <label for="subdomain" class="block text-sm font-semibold text-gray-700 mb-1">Subdomínio do seu site público</label>
             <div class="flex items-center gap-1">
               <input id="subdomain" name="subdomain" type="text" placeholder="meu-escritorio" value={tenant?.subdomain ?? ""} class="input flex-1" />
-              <span class="text-sm text-carvao-400">.pragmaos.app</span>
+              <span class="text-sm text-gray-400">.pragmaos.app</span>
             </div>
-            <p class="text-xs text-carvao-400 mt-1">Seu site ficará em <strong>subdominio.pragmaos.app</strong>. Você pode usar domínio próprio depois.</p>
+            <p class="text-xs text-gray-400 mt-1">Seu site ficará em <strong>subdominio.pragmaos.app</strong>. Você pode usar domínio próprio depois.</p>
           </div>
           <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2" {...{ ":disabled": "loading" }}>
             <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
@@ -553,7 +553,7 @@ onboardingRoutes.get("/done", async (c) => {
           <i class="ph-bold ph-check-circle text-4xl text-status-green" aria-hidden="true" />
         </div>
         <h1 class="text-3xl font-bold mb-3">Tudo pronto!</h1>
-        <p class="text-carvao-500 mb-8 max-w-md mx-auto">
+        <p class="text-gray-500 mb-8 max-w-md mx-auto">
           Seu escritório está configurado. Agora você pode começar a usar o PragmaOS — adicionar processos, clientes e explorar todos os recursos.
         </p>
         <a href="/dashboard" class="btn btn-primary inline-flex items-center gap-2 px-8 py-3">

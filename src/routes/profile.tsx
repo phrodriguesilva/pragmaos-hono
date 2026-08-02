@@ -124,7 +124,7 @@ profileRoutes.get("/", async (c) => {
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">
-              <i class="ph ph-shield-check text-h3 text-terracota-700" aria-hidden="true" />
+              <i class="ph ph-shield-check text-h3 text-[#0568ff]" aria-hidden="true" />
               <h3 class="text-body font-semibold text-gray-800">Autenticacao em dois fatores (2FA)</h3>
               {twoFAEnabled ? (
                 <Badge color="green" icon="ph-check-circle">Ativo</Badge>

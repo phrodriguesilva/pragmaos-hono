@@ -99,14 +99,14 @@ casesRoutes.get("/", async (c) => {
       cs.status === "suspended" ? <Badge color="yellow">Suspenso</Badge> :
       <Badge color="gray">Arquivado</Badge>;
     return [
-      <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline">{cs.title}</a> as unknown as string,
+      <a href={`/cases/${cs.id}`} class="text-[#0568ff] hover:underline">{cs.title}</a> as unknown as string,
       cs.case_number ?? "-",
       clientName,
       cs.case_type,
       statusBadge as unknown as string,
       <div class="flex items-center gap-2">
-        <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-        <a href={`/cases/${cs.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+        <a href={`/cases/${cs.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+        <a href={`/cases/${cs.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
         <form method="post" action={`/cases/${cs.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
       </div> as unknown as string,
     ];
@@ -409,7 +409,7 @@ casesRoutes.get("/:id", async (c) => {
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Panel title="Dados do processo" icon="ph-folder">
           <dl class="flex flex-col gap-1 text-body-sm">
-            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${caseRow.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${caseRow.client_id}`} class="text-[#0568ff] hover:underline">{client?.name ?? "-"}</a></dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Numero: </dt><dd class="inline">{caseRow.case_number ?? "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tipo: </dt><dd class="inline">{caseRow.case_type}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Tribunal: </dt><dd class="inline">{caseRow.tribunal ?? "-"}</dd></div>
@@ -532,7 +532,7 @@ casesRoutes.get("/:id", async (c) => {
               new Date(d.due_date).toLocaleDateString("pt-BR"),
               `P${d.priority}`,
               d.completed_at ? <Badge color="gray">Concluido</Badge> : <Badge color="yellow">Pendente</Badge> as unknown as string,
-              <a href={`/deadlines/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+              <a href={`/deadlines/${d.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
             ])}
             emptyMsg="Nenhum prazo."
           />
@@ -566,7 +566,7 @@ casesRoutes.get("/:id", async (c) => {
                 p.sync_status === "error" ? <Badge color="red" icon="ph-warning">Erro</Badge> :
                 null;
               return [
-                <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
+                <a href={`/proceedings/${p.id}`} class="text-[#0568ff] hover:underline">{p.cnj_number}</a> as unknown as string,
                 p.tribunal ?? "-",
                 syncBadge as unknown as string,
               ];

@@ -56,7 +56,7 @@ emailRoutes.get("/", async (c) => {
     m.received_at ? new Date(m.received_at).toLocaleString("pt-BR") : new Date(m.created_at).toLocaleString("pt-BR"),
     <Badge color={m.direction === "inbound" ? "blue" : "gray"}>{m.direction === "inbound" ? "Recebida" : "Enviada"}</Badge> as unknown as string,
     m.read ? <Badge color="green">Lida</Badge> as unknown as string : <Badge color="yellow">Nao lida</Badge> as unknown as string,
-    <a href={`/emails/${m.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+    <a href={`/emails/${m.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -98,21 +98,21 @@ emailRoutes.get("/", async (c) => {
       <div class="grid grid-cols-3 gap-4 mb-4">
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-tray text-h3 text-terracota-600" aria-hidden="true"></i>Caixa de Entrada
+            <i class="ph ph-tray text-h3 text-[#0568ff]" aria-hidden="true"></i>Caixa de Entrada
           </div>
-          <div class="text-h1 font-bold text-terracota-700">{inboxCount}</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{inboxCount}</div>
         </Panel>
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-paper-plane-tilt text-h3 text-terracota-600" aria-hidden="true"></i>Enviados
+            <i class="ph ph-paper-plane-tilt text-h3 text-[#0568ff]" aria-hidden="true"></i>Enviados
           </div>
-          <div class="text-h1 font-bold text-terracota-700">{sentCount}</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{sentCount}</div>
         </Panel>
         <Panel>
           <div class="flex items-center gap-2 text-body-sm text-gray-500 mb-1">
-            <i class="ph ph-envelope-simple-open text-h3 text-terracota-600" aria-hidden="true"></i>Nao Lidas
+            <i class="ph ph-envelope-simple-open text-h3 text-[#0568ff]" aria-hidden="true"></i>Nao Lidas
           </div>
-          <div class="text-h1 font-bold text-terracota-600">{unreadCount}</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{unreadCount}</div>
         </Panel>
       </div>
       <Table
@@ -349,8 +349,8 @@ emailRoutes.get("/:id", async (c) => {
           <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Assunto:</dt><dd class="text-gray-900">{msg.subject ?? "-"}</dd></div>
           <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Data:</dt><dd class="text-gray-900">{msg.received_at ? new Date(msg.received_at).toLocaleString("pt-BR") : new Date(msg.created_at).toLocaleString("pt-BR")}</dd></div>
           <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Direcao:</dt><dd><Badge color={msg.direction === "inbound" ? "blue" : "gray"}>{msg.direction === "inbound" ? "Recebida" : "Enviada"}</Badge></dd></div>
-          {caseTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Processo:</dt><dd><a href={`/cases/${msg.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a></dd></div> : null}
-          {clientName ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Cliente:</dt><dd><a href={`/clients/${msg.client_id}`} class="text-terracota-600 hover:underline">{clientName}</a></dd></div> : null}
+          {caseTitle ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Processo:</dt><dd><a href={`/cases/${msg.case_id}`} class="text-[#0568ff] hover:underline">{caseTitle}</a></dd></div> : null}
+          {clientName ? <div class="flex gap-2 text-body-sm"><dt class="font-semibold text-gray-700 w-24">Cliente:</dt><dd><a href={`/clients/${msg.client_id}`} class="text-[#0568ff] hover:underline">{clientName}</a></dd></div> : null}
         </dl>
         <div class="border-t border-gray-200 pt-4">
           <div class="text-body-sm font-semibold text-gray-700 mb-2">Mensagem</div>

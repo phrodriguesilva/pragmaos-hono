@@ -290,7 +290,7 @@ subscriptionRoutes.post("/assinar/:plan", async (c) => {
   }
 
   // Fetch plan from DB
-  const { data: plan } = await supabase.from("plans").select("*").eq("id", planId).single();
+  const { data: plan } = await supabase.from("plans").select("id, name, tagline, price_monthly_cents, price_yearly_cents, max_users, max_cases, has_ai, has_whatsapp, has_public_site, has_api, has_integrations").eq("id", planId).single();
   if (!plan) return c.redirect("/assinatura");
 
   const amount = billingCycle === "yearly" ? plan.price_yearly_cents : plan.price_monthly_cents;

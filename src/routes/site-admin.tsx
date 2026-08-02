@@ -237,7 +237,7 @@ siteAdminRoutes.get("/areas", async (c) => {
           <div class="space-y-3">
             {tenantAreas.map((ta: any) => (
               <div key={ta.id} class="flex items-center gap-3 p-3 rounded-lg border border-gray-100">
-                <i class={`ph ${ta.law_areas.icon ?? "ph-scales"} text-h4 text-terracota-600`} aria-hidden="true"></i>
+                <i class={`ph ${ta.law_areas.icon ?? "ph-scales"} text-h4 text-[#0568ff]`} aria-hidden="true"></i>
                 <div class="flex-1">
                   <div class="font-semibold text-gray-800">{ta.law_areas.name}</div>
                   {ta.description && <div class="text-body-xs text-gray-500 mt-0.5">{ta.description}</div>}
@@ -263,7 +263,7 @@ siteAdminRoutes.get("/areas", async (c) => {
                 type="text"
                 {...{ "x-model": "q", "@input": "$refs.grid.querySelectorAll('[data-area]').forEach(el => el.style.display = el.dataset.area.toLowerCase().includes(q.toLowerCase()) ? '' : 'none')" }}
                 placeholder="Buscar área para adicionar..."
-                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-terracota-400 focus:border-terracota-400"
+                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#4d8bff] focus:border-[#4d8bff]"
                 aria-label="Buscar áreas para adicionar"
               />
             </div>
@@ -276,10 +276,10 @@ siteAdminRoutes.get("/areas", async (c) => {
               {(allAreas ?? []).filter((a: any) => !selectedIds.has(a.id)).map((a: any) => (
                 <form key={a.id} method="post" action="/site/areas/add" class="inline" data-area={a.name}>
                   <input type="hidden" name="law_area_id" value={a.id} />
-                  <button type="submit" class="w-full flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:border-terracota-300 hover:bg-terracota-50 transition text-left">
+                  <button type="submit" class="w-full flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:border-[#b0ccff] hover:bg-[#e6efff] transition text-left">
                     <i class={`ph ${a.icon ?? "ph-scales"} text-h5 text-gray-500`} aria-hidden="true"></i>
                     <span class="text-body-sm font-medium text-gray-700">{a.name}</span>
-                    <i class="ph ph-plus text-body-xs text-terracota-600 ml-auto" aria-hidden="true"></i>
+                    <i class="ph ph-plus text-body-xs text-[#0568ff] ml-auto" aria-hidden="true"></i>
                   </button>
                 </form>
               ))}
@@ -758,7 +758,7 @@ siteAdminRoutes.get("/contacts/:id", async (c) => {
             </div>
             <div>
               <div class="text-body-xs text-gray-400">E-mail</div>
-              <a href={`mailto:${contact.email}`} class="font-semibold text-terracota-600">{contact.email}</a>
+              <a href={`mailto:${contact.email}`} class="font-semibold text-[#0568ff]">{contact.email}</a>
             </div>
             {contact.phone && (
               <div>
@@ -794,7 +794,7 @@ siteAdminRoutes.get("/contacts/:id", async (c) => {
             {contact.lead_id && (
               <div>
                 <div class="text-body-xs text-gray-400">Lead criado</div>
-                <a href={`/leads`} class="font-semibold text-terracota-600">Ver no CRM →</a>
+                <a href={`/leads`} class="font-semibold text-[#0568ff]">Ver no CRM →</a>
               </div>
             )}
           </div>
@@ -861,7 +861,7 @@ siteAdminRoutes.get("/settings", async (c) => {
                   name="subdomain"
                   value={tenant.subdomain ?? tenant.slug ?? ""}
                   placeholder="seu-escritorio"
-                  class="flex-1 px-4 py-2.5 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-terracota-500 focus:border-terracota-500"
+                  class="flex-1 px-4 py-2.5 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-[#0568ff] focus:border-[#0568ff]"
                 />
                 <span class="px-4 py-2.5 bg-gray-100 border border-l-0 border-gray-200 rounded-r-lg text-gray-500 text-body-sm">.pragmaos-hono.vercel.app/site/...</span>
               </div>
@@ -875,7 +875,7 @@ siteAdminRoutes.get("/settings", async (c) => {
                 name="custom_domain"
                 value={tenant.custom_domain ?? ""}
                 placeholder="www.seuescritorio.com.br"
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500 focus:border-terracota-500"
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0568ff] focus:border-[#0568ff]"
               />
               <p class="text-body-xs text-gray-400 mt-1">
                 Para usar um dominio proprio, aponte o DNS para <code class="bg-gray-100 px-1 rounded">cname.vercel-dns.com</code> e informe o dominio acima.
@@ -983,7 +983,7 @@ siteAdminRoutes.get("/team", async (c) => {
     m.is_featured ? <Badge color="yellow">Destaque</Badge> : <Badge color="gray">Normal</Badge> as unknown as string,
     m.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/site/team/${m.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/site/team/${m.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/team/${m.id}/delete`} class="inline" onsubmit="return confirm('Remover este membro do site?')">
         <button type="submit" class="text-status-red hover:underline text-body-sm">Remover</button>
       </form>
@@ -1155,7 +1155,7 @@ siteAdminRoutes.get("/team/:id", async (c) => {
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Slug: </dt><dd class="inline">/equipe/{member.slug}</dd></div>
             {member.public_email && <div><dt class="font-semibold text-gray-700 inline">Email: </dt><dd class="inline">{member.public_email}</dd></div>}
-            {member.public_linkedin && <div><dt class="font-semibold text-gray-700 inline">LinkedIn: </dt><dd class="inline"><a href={member.public_linkedin} target="_blank" rel="noopener" class="text-terracota-600 hover:underline">Ver</a></dd></div>}
+            {member.public_linkedin && <div><dt class="font-semibold text-gray-700 inline">LinkedIn: </dt><dd class="inline"><a href={member.public_linkedin} target="_blank" rel="noopener" class="text-[#0568ff] hover:underline">Ver</a></dd></div>}
             <div><dt class="font-semibold text-gray-700 inline">Ordem: </dt><dd class="inline">{member.sort_order}</dd></div>
           </dl>
         </Panel>
@@ -1229,7 +1229,7 @@ siteAdminRoutes.get("/stats", async (c) => {
     s.sort_order,
     s.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/site/stats/${s.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/site/stats/${s.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/stats/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir esta estatistica?')">
         <button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button>
       </form>
@@ -1409,7 +1409,7 @@ siteAdminRoutes.get("/testimonials", async (c) => {
     t.source,
     t.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/site/testimonials/${t.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/site/testimonials/${t.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/testimonials/${t.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -1509,10 +1509,10 @@ siteAdminRoutes.get("/clients", async (c) => {
   const rows = (items ?? []).map((cl: any) => [
     cl.name,
     cl.logo_url ? <img src={cl.logo_url} alt={cl.name} class="h-8 w-auto max-w-32 object-contain" /> : "—" as unknown as string,
-    cl.website_url ? <a href={cl.website_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline text-body-sm">Visitar</a> : "—" as unknown as string,
+    cl.website_url ? <a href={cl.website_url} target="_blank" rel="noopener" class="text-[#0568ff] hover:underline text-body-sm">Visitar</a> : "—" as unknown as string,
     cl.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/site/clients/${cl.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/site/clients/${cl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -1567,7 +1567,7 @@ siteAdminRoutes.get("/clients/:id", async (c) => {
       {cl.logo_url && <img src={cl.logo_url} alt={cl.name} class="h-20 w-auto max-w-48 object-contain mb-4" />}
       <dl class="flex flex-col gap-1 text-body-sm">
         <div><dt class="font-semibold inline">Nome: </dt><dd class="inline">{cl.name}</dd></div>
-        {cl.website_url && <div><dt class="font-semibold inline">Website: </dt><dd class="inline"><a href={cl.website_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline">{cl.website_url}</a></dd></div>}
+        {cl.website_url && <div><dt class="font-semibold inline">Website: </dt><dd class="inline"><a href={cl.website_url} target="_blank" rel="noopener" class="text-[#0568ff] hover:underline">{cl.website_url}</a></dd></div>}
         <div><dt class="font-semibold inline">Status: </dt><dd class="inline">{cl.is_published ? "Publicado" : "Oculto"}</dd></div>
       </dl>
     </Panel>
@@ -1607,7 +1607,7 @@ siteAdminRoutes.get("/recognitions", async (c) => {
     r.ranking_position ?? "—",
     r.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/site/recognitions/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/site/recognitions/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/recognitions/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -1734,7 +1734,7 @@ siteAdminRoutes.get("/offices", async (c) => {
     o.phone ?? "—",
     o.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/site/offices/${o.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/site/offices/${o.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/offices/${o.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);

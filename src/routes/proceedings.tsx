@@ -93,12 +93,12 @@ proceedingsRoutes.get("/", async (c) => {
   const caseOptions = (casesRes.data ?? []).map((cs) => ({ value: cs.id, label: cs.title }));
 
   const rows = (proceedings ?? []).map((p) => [
-    <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline">{p.cnj_number}</a> as unknown as string,
+    <a href={`/proceedings/${p.id}`} class="text-[#0568ff] hover:underline">{p.cnj_number}</a> as unknown as string,
     (p.cases as unknown as { title: string } | null)?.title ?? "-",
     p.tribunal ?? "-",
     <div class="flex items-center gap-2">
-      <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/proceedings/${p.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/proceedings/${p.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/proceedings/${p.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/proceedings/${p.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -405,7 +405,7 @@ proceedingsRoutes.get("/:id", async (c) => {
       />
       <Panel title="Dados do processo CNJ" icon="ph-scales">
         <dl class="flex flex-col gap-1 text-body-sm">
-          <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${proceeding.case_id}`} class="text-terracota-600 hover:underline">{caseData?.title ?? "-"}</a></dd></div>
+          <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline"><a href={`/cases/${proceeding.case_id}`} class="text-[#0568ff] hover:underline">{caseData?.title ?? "-"}</a></dd></div>
           <div><dt class="font-semibold text-gray-700 inline">Tribunal: </dt><dd class="inline">{proceeding.tribunal ?? "-"}</dd></div>
           <div><dt class="font-semibold text-gray-700 inline">Comarca: </dt><dd class="inline">{proceeding.district ?? "-"}</dd></div>
           <div class="flex items-center gap-2">

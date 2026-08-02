@@ -94,18 +94,18 @@ financeRoutes.get("/", async (c) => {
   ]);
 
   const rows = (invoices ?? []).map((inv) => [
-    <a href={`/finance/${inv.id}`} class="text-terracota-600 hover:underline">{inv.number}</a> as unknown as string,
+    <a href={`/finance/${inv.id}`} class="text-[#0568ff] hover:underline">{inv.number}</a> as unknown as string,
     (inv.clients as unknown as { name: string } | null)?.name ?? "-",
     formatCurrency(inv.amount_cents),
     formatDate(inv.issued_at),
     formatDate(inv.due_date),
     <Badge color={statusColor(inv.status)}>{STATUS_LABELS[inv.status] ?? inv.status}</Badge> as unknown as string,
-    <a href={`/finance/${inv.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+    <a href={`/finance/${inv.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
   ]);
 
   return renderPage(
     c,
-    { title: "Financeiro", active: "finance" },
+    { title: "Financeiro", active: "honorarios" },
     <>
       <PageHeader title="Financeiro" icon="ph-hand-coins" actions={() => (
         <Modal id="new-invoice" title="Nova Fatura" icon="ph-currency-dollar" triggerText="Nova Fatura" triggerIcon="ph-plus" action="/finance" submitLabel="Salvar" large>
@@ -274,8 +274,8 @@ financeRoutes.get("/:id", async (c) => {
         <Panel title="Dados da fatura" icon="ph-currency-dollar">
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Numero: </dt><dd class="inline">{inv.number}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${inv.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{inv.case_id ? <a href={`/cases/${inv.case_id}`} class="text-terracota-600 hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${inv.client_id}`} class="text-[#0568ff] hover:underline">{client?.name ?? "-"}</a></dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{inv.case_id ? <a href={`/cases/${inv.case_id}`} class="text-[#0568ff] hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Valor: </dt><dd class="inline">{formatCurrency(inv.amount_cents)}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Status: </dt><dd class="inline"><Badge color={statusColor(inv.status)}>{STATUS_LABELS[inv.status] ?? inv.status}</Badge></dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Emissao: </dt><dd class="inline">{formatDate(inv.issued_at)}</dd></div>

@@ -82,13 +82,13 @@ permissionsRoutes.get("/", async (c) => {
   }
 
   const rows = (roles ?? []).map((r) => [
-    <a href={`/permissions/${r.id}`} class="text-terracota-600 hover:underline">{r.name}</a> as unknown as string,
+    <a href={`/permissions/${r.id}`} class="text-[#0568ff] hover:underline">{r.name}</a> as unknown as string,
     r.description ?? "-",
     r.is_system ? <Badge color="blue" icon="ph-lock-key">Sistema</Badge> : <Badge color="gray">Personalizado</Badge> as unknown as string,
     String(moduleCountMap.get(r.id) ?? 0),
     <div class="flex items-center gap-2">
-      <a href={`/permissions/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/permissions/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/permissions/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/permissions/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/permissions/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);

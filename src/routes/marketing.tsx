@@ -1024,7 +1024,7 @@ marketingRoutes.get("/termos", (c) => {
 
           <section>
             <h2 class="text-xl font-semibold text-gray-800 mb-2">6. Dados e Privacidade</h2>
-            <p>Seus dados são tratados conforme nossa <a href="/privacidade" class="text-terracota-600 hover:underline">Política de Privacidade</a> e a LGPD (Lei 13.709/2018). Você é titular dos dados inseridos no Serviço e pode solicitá-los ou excluí-los a qualquer momento.</p>
+            <p>Seus dados são tratados conforme nossa <a href="/privacidade" class="text-[#0568ff] hover:underline">Política de Privacidade</a> e a LGPD (Lei 13.709/2018). Você é titular dos dados inseridos no Serviço e pode solicitá-los ou excluí-los a qualquer momento.</p>
           </section>
 
           <section>
@@ -1049,7 +1049,7 @@ marketingRoutes.get("/termos", (c) => {
 
           <section>
             <h2 class="text-xl font-semibold text-gray-800 mb-2">11. Contato</h2>
-            <p>Em caso de dúvidas: <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a></p>
+            <p>Em caso de dúvidas: <a href="mailto:contato@pragmaos.com.br" class="text-[#0568ff] hover:underline">contato@pragmaos.com.br</a></p>
           </section>
         </div>
 
@@ -1119,7 +1119,7 @@ marketingRoutes.get("/privacidade", (c) => {
           <section>
             <h2 class="text-xl font-semibold text-gray-800 mb-2">6. Seus Direitos (LGPD)</h2>
             <p>Você tem direito a: confirmar a existência de tratamento, acessar os dados, corrigi-los, anonimizá-los, bloqueá-los, eliminá-los, portar os dados, revogar consentimento e opor-se ao tratamento.</p>
-            <p>Para exercer seus direitos, envie e-mail para <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a>.</p>
+            <p>Para exercer seus direitos, envie e-mail para <a href="mailto:contato@pragmaos.com.br" class="text-[#0568ff] hover:underline">contato@pragmaos.com.br</a>.</p>
           </section>
 
           <section>
@@ -1139,7 +1139,7 @@ marketingRoutes.get("/privacidade", (c) => {
 
           <section>
             <h2 class="text-xl font-semibold text-gray-800 mb-2">10. Encarregado de Dados (DPO)</h2>
-            <p>Para questões de privacidade: <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a></p>
+            <p>Para questões de privacidade: <a href="mailto:contato@pragmaos.com.br" class="text-[#0568ff] hover:underline">contato@pragmaos.com.br</a></p>
           </section>
 
           <section>
@@ -1149,7 +1149,7 @@ marketingRoutes.get("/privacidade", (c) => {
         </div>
 
         <div class="mt-12 pt-8 border-t border-gray-200">
-          <a href="/termos" class="text-terracota-600 hover:underline">Ver Termos de Uso →</a>
+          <a href="/termos" class="text-[#0568ff] hover:underline">Ver Termos de Uso →</a>
         </div>
       </div>
     </MarketingLayout>,

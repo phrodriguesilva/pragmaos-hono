@@ -190,7 +190,7 @@ searchRoutes.get("/documents", async (c) => {
             name="q"
             value={q}
             placeholder="Buscar no conteudo dos documentos..."
-            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500 focus:border-terracota-500"
+            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#0568ff] focus:border-[#0568ff]"
             autofocus
           />
         </div>
@@ -208,9 +208,9 @@ searchRoutes.get("/documents", async (c) => {
           const clientName = doc.clients?.[0]?.name;
           const snippet = generateSnippet(doc.extracted_text, q);
           return (
-            <a href={`/documents/${doc.id}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-terracota-300 hover:shadow-sm transition">
+            <a href={`/documents/${doc.id}`} class="block p-4 bg-white rounded-lg border border-gray-100 hover:border-[#b0ccff] hover:shadow-sm transition">
               <div class="flex items-start gap-3">
-                <i class="ph ph-file-text text-h3 text-terracota-600 mt-1" aria-hidden="true"></i>
+                <i class="ph ph-file-text text-h3 text-[#0568ff] mt-1" aria-hidden="true"></i>
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-gray-800">{doc.title}</div>
                   <div class="text-xs text-gray-400 mt-0.5">

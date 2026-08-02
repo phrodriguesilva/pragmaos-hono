@@ -100,7 +100,7 @@ timesheetRoutes.get("/", async (c) => {
     return [
       e.start_time ? new Date(e.start_time).toLocaleDateString("pt-BR") : "-",
       all ? userName : "-",
-      <a href={`/timesheet/${e.id}`} class="text-terracota-600 hover:underline">{e.description}</a> as unknown as string,
+      <a href={`/timesheet/${e.id}`} class="text-[#0568ff] hover:underline">{e.description}</a> as unknown as string,
       caseTitle ?? "-",
       taskTitle ?? "-",
       formatDuration(e.duration_minutes),
@@ -110,7 +110,7 @@ timesheetRoutes.get("/", async (c) => {
       e.invoiced
         ? (<Badge color="blue" icon="ph-invoice">Faturado</Badge> as unknown as string)
         : (<Badge color="yellow" icon="ph-clock">Pendente</Badge> as unknown as string),
-      <a href={`/timesheet/${e.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a> as unknown as string,
+      <a href={`/timesheet/${e.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a> as unknown as string,
     ];
   });
 
@@ -306,7 +306,7 @@ timesheetRoutes.get("/summary", async (c) => {
       />
       <div class="grid grid-cols-3 gap-4 mb-6">
         <Panel title="Total de Horas" icon="ph-timer">
-          <div class="text-h1 font-bold text-terracota-700">{formatDuration(totalMinutes)}</div>
+          <div class="text-h1 font-bold text-[#0568ff]">{formatDuration(totalMinutes)}</div>
           <div class="text-body-sm text-gray-500 mt-1">Todas as entradas</div>
         </Panel>
         <Panel title="Horas Faturaveis" icon="ph-currency-circle-dollar">
@@ -406,8 +406,8 @@ timesheetRoutes.get("/:id", async (c) => {
           <dl class="flex flex-col gap-2 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Descricao: </dt><dd class="inline">{entry.description}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Usuario: </dt><dd class="inline">{userName}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{caseTitle ? <a href={`/cases/${entry.case_id}`} class="text-terracota-600 hover:underline">{caseTitle}</a> : "-"}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Tarefa: </dt><dd class="inline">{taskTitle ? <a href={`/tasks/${entry.task_id}`} class="text-terracota-600 hover:underline">{taskTitle}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{caseTitle ? <a href={`/cases/${entry.case_id}`} class="text-[#0568ff] hover:underline">{caseTitle}</a> : "-"}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Tarefa: </dt><dd class="inline">{taskTitle ? <a href={`/tasks/${entry.task_id}`} class="text-[#0568ff] hover:underline">{taskTitle}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Inicio: </dt><dd class="inline">{entry.start_time ? new Date(entry.start_time).toLocaleString("pt-BR") : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Fim: </dt><dd class="inline">{entry.end_time ? new Date(entry.end_time).toLocaleString("pt-BR") : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Duracao: </dt><dd class="inline">{formatDuration(entry.duration_minutes)}</dd></div>

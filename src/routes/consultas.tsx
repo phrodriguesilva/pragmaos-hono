@@ -237,7 +237,7 @@ consultasRoutes.get("/termos", async (c) => {
     <>
       <div class="max-w-2xl mx-auto">
         <div class="text-center mb-8">
-          <div class="w-16 h-16 rounded-2xl bg-carvao-800 flex items-center justify-center mx-auto mb-4">
+          <div class="w-16 h-16 rounded-2xl bg-[#232856] flex items-center justify-center mx-auto mb-4">
             <i class="ph-bold ph-shield-check text-white text-3xl" aria-hidden="true"></i>
           </div>
           <h1 class="text-h2 font-extrabold text-gray-800 mb-2">Termos de Uso — Consultas Legais</h1>
@@ -250,7 +250,7 @@ consultasRoutes.get("/termos", async (c) => {
             especializada em dados publicos e regulada pela LGPD (Lei nº 13.709/2018).
           </p>
 
-          <div class="border-l-4 border-carvao-800 bg-carvao-50 rounded-r-lg p-4">
+          <div class="border-l-4 border-[#232856] bg-gray-50 rounded-r-lg p-4">
             <p class="font-semibold text-gray-800 mb-1">Base legal</p>
             <p class="text-gray-600">
               O tratamento de dados pessoais nas Consultas Legais esta fundamentado no
@@ -291,8 +291,8 @@ consultasRoutes.get("/termos", async (c) => {
             </li>
           </ol>
 
-          <div class="border-l-4 border-terracota-500 bg-terracota-50 rounded-r-lg p-4">
-            <p class="font-semibold text-terracota-700 mb-1">Importante</p>
+          <div class="border-l-4 border-[#0568ff] bg-[#e6efff] rounded-r-lg p-4">
+            <p class="font-semibold text-[#0568ff] mb-1">Importante</p>
             <p class="text-gray-600">
               O PragmaOS atua como <strong>operador de dados</strong> (art. 5º, XI, LGPD), processando as
               consultas em nome do advogado usuario, que e o <strong>controlador</strong> responsavel pelas
@@ -315,7 +315,7 @@ consultasRoutes.get("/termos", async (c) => {
               name="accept"
               value="1"
               required
-              class="mt-1 w-5 h-5 rounded border-gray-300 text-gray-800 focus:ring-carvao-800"
+              class="mt-1 w-5 h-5 rounded border-gray-300 text-gray-800 focus:ring-[#0568ff]"
             />
             <span class="text-body-sm text-gray-700">
               Li e estou de acordo com os termos acima. Declaro que utilizarei as Consultas Legais
@@ -398,7 +398,7 @@ consultasRoutes.get("/", async (c) => {
       </PageHeader>
 
       {/* Credit balance banner */}
-      <div class="bg-gradient-to-r from-carvao-800 to-carvao-700 rounded-xl p-5 mb-6 text-white">
+      <div class="bg-gradient-to-r from-[#232856] to-[#2d3258] rounded-xl p-5 mb-6 text-white">
         <div class="flex items-center justify-between flex-wrap gap-4">
           <div class="flex items-center gap-3">
             <i class="ph-bold ph-coins text-h1 text-amber-400" aria-hidden="true"></i>
@@ -447,17 +447,17 @@ consultasRoutes.get("/", async (c) => {
       {Object.entries(byCategory).map(([category, items]) => (
         <div class="mb-6">
           <h2 class="text-h3 font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <i class={`ph ${CATEGORY_ICONS[category] ?? "ph-circle"} text-terracota-500`} aria-hidden="true"></i>
+            <i class={`ph ${CATEGORY_ICONS[category] ?? "ph-circle"} text-[#0568ff]`} aria-hidden="true"></i>
             {CATEGORY_LABELS[category] ?? category}
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {items.map((t) => (
               <a
                 href={`/consultas/${t.id}`}
-                class={`block p-5 bg-white rounded-xl border border-gray-100 hover:border-terracota-300 hover:shadow-md transition ${!configured ? "opacity-50 pointer-events-none" : ""}`}
+                class={`block p-5 bg-white rounded-xl border border-gray-100 hover:border-[#b0ccff] hover:shadow-md transition ${!configured ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <div class="flex items-start justify-between mb-3">
-                  <div class="w-11 h-11 rounded-lg bg-carvao-50 flex items-center justify-center">
+                  <div class="w-11 h-11 rounded-lg bg-gray-50 flex items-center justify-center">
                     <i class={`ph ${t.icon} text-h3 text-gray-700`} aria-hidden="true"></i>
                   </div>
                   <span class="badge badge-gray text-body-xs">{t.credits_cost} credito{t.credits_cost !== 1 ? "s" : ""}</span>
@@ -482,7 +482,7 @@ consultasRoutes.get("/", async (c) => {
                   href={`/consultas/resultado/${r.id}`}
                   class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition border border-gray-50"
                 >
-                  <i class={`ph ${ct?.icon ?? "ph-magnifying-glass"} text-h4 text-carvao-600`} aria-hidden="true"></i>
+                  <i class={`ph ${ct?.icon ?? "ph-magnifying-glass"} text-h4 text-gray-600`} aria-hidden="true"></i>
                   <div class="flex-1 min-w-0">
                     <div class="font-medium text-gray-800 truncate">
                       {ct?.label ?? r.type_id}: {r.input_label ?? formatDoc(r.input_value)}
@@ -572,7 +572,7 @@ consultasRoutes.get("/historico", async (c) => {
                   <tr>
                     <td>
                       <div class="flex items-center gap-2">
-                        <i class={`ph ${ct?.icon ?? "ph-magnifying-glass"} text-carvao-600`} aria-hidden="true"></i>
+                        <i class={`ph ${ct?.icon ?? "ph-magnifying-glass"} text-gray-600`} aria-hidden="true"></i>
                         <span class="font-medium">{ct?.label ?? r.type_id}</span>
                       </div>
                     </td>
@@ -582,7 +582,7 @@ consultasRoutes.get("/historico", async (c) => {
                     <td class="text-center">{r.credits_used}</td>
                     <td class="text-body-sm">{formatDateTime(r.created_at)}</td>
                     <td>
-                      <a href={`/consultas/resultado/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
+                      <a href={`/consultas/resultado/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
                     </td>
                   </tr>
                 );
@@ -941,7 +941,7 @@ consultasRoutes.post("/lote", async (c) => {
                   <td><Badge color={statusCfg.color} icon={statusCfg.icon}>{statusCfg.label}</Badge></td>
                   <td>
                     {r.consultaId ? (
-                      <a href={`/consultas/resultado/${r.consultaId}`} class="text-terracota-600 hover:underline text-body-sm">Ver detalhes</a>
+                      <a href={`/consultas/resultado/${r.consultaId}`} class="text-[#0568ff] hover:underline text-body-sm">Ver detalhes</a>
                     ) : <span class="text-gray-300">-</span>}
                   </td>
                 </tr>
@@ -1094,7 +1094,7 @@ function RecentSameType({ tenantId, typeId }: { tenantId: string; typeId: string
   // Instead, we'll render a placeholder link to the history filtered by type.
   return (
     <div class="mt-4 text-body-sm">
-      <a href={`/consultas/historico`} class="text-terracota-600 hover:underline">
+      <a href={`/consultas/historico`} class="text-[#0568ff] hover:underline">
         Ver historico de consultas
       </a>
     </div>
@@ -1313,7 +1313,7 @@ consultasRoutes.get("/resultado/:id", async (c) => {
         </form>
         {r.cases && (
           <div class="mt-2 text-body-sm text-gray-500">
-            Vinculado a: <a href={`/cases/${r.cases.id}`} class="text-terracota-600 hover:underline">{r.cases.title}</a>
+            Vinculado a: <a href={`/cases/${r.cases.id}`} class="text-[#0568ff] hover:underline">{r.cases.title}</a>
           </div>
         )}
       </div>
@@ -1401,7 +1401,7 @@ consultasRoutes.get("/resultado/:id/pdf", async (c) => {
   const dark = rgb(0.05, 0.07, 0.12);
   const gray = rgb(0.4, 0.4, 0.4);
   const lightGray = rgb(0.9, 0.9, 0.9);
-  const terracota = rgb(0.69, 0.39, 0.2);
+  const terracota = rgb(0.02, 0.41, 1.0); // #0568ff blue
 
   const left = 50;
   const right = 545;

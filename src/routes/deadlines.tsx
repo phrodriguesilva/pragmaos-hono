@@ -56,7 +56,7 @@ deadlinesRoutes.get("/", async (c) => {
     const due = new Date(d.due_date);
     const overdue = due < now && !d.completed_at;
     return [
-      <a href={`/cases/${d.case_id}`} class="text-terracota-600 hover:underline">{(d.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
+      <a href={`/cases/${d.case_id}`} class="text-[#0568ff] hover:underline">{(d.cases as unknown as { title: string } | null)?.title ?? "-"}</a> as unknown as string,
       d.title,
       new Date(d.due_date).toLocaleDateString("pt-BR"),
       `P${d.priority}`,
@@ -67,8 +67,8 @@ deadlinesRoutes.get("/", async (c) => {
           : <Badge color="yellow">Pendente</Badge> as unknown as string,
       d.completed_at ? null : (
         <div class="flex items-center gap-2">
-          <a href={`/deadlines/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-          <a href={`/deadlines/${d.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+          <a href={`/deadlines/${d.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+          <a href={`/deadlines/${d.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
           <form method="post" action={`/deadlines/${d.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
           <form method="post" action={`/deadlines/${d.id}/complete`} class="inline">
             <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-check" aria-hidden="true"></i>Concluir</button>

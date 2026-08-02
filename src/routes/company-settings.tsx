@@ -53,7 +53,7 @@ companySettingsRoutes.get("/", async (c) => {
 
   return renderPage(
     c,
-    { title: "Configuracoes da Empresa", active: "settings" },
+    { title: "Configuracoes da Empresa", active: "company-settings" },
     <>
       <PageHeader title="Configuracoes da Empresa" icon="ph-gear" />
 
@@ -122,7 +122,7 @@ companySettingsRoutes.get("/", async (c) => {
           <div class="mt-4 flex items-center gap-3">
             <span class="text-body-sm text-gray-600">Status do site:</span>
             {tenant?.site_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Nao publicado</Badge>}
-            <a href="/site/settings" class="text-body-sm text-terracota-600 hover:underline ml-2">Gerenciar site</a>
+            <a href="/site/settings" class="text-body-sm text-[#0568ff] hover:underline ml-2">Gerenciar site</a>
           </div>
         </Panel>
 

@@ -112,7 +112,7 @@ diarioRoutes.get("/", async (c) => {
     r.publishing_date ? new Date(r.publishing_date).toLocaleDateString("pt-BR") : "-",
     r.section ?? "-",
     r.excerpt ? `${r.excerpt.slice(0, 100)}...` : "-",
-    r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" class="text-terracota-600 hover:underline">Ver</a> as unknown as string : "-",
+    r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" class="text-[#0568ff] hover:underline">Ver</a> as unknown as string : "-",
   ]);
 
   // Saved searches rows.
@@ -122,7 +122,7 @@ diarioRoutes.get("/", async (c) => {
     s.provider === "digesto" ? "Digesto" : "Querido Diario",
     s.is_monitoring ? <Badge color="green" icon="ph-bell">Monitorando</Badge> as unknown as string : <Badge color="gray">Unica</Badge> as unknown as string,
     s.last_checked_at ? new Date(s.last_checked_at).toLocaleDateString("pt-BR") : "-",
-    <a href={`/diario-oficial/${s.id}`} class="text-terracota-600 hover:underline">Ver resultados</a> as unknown as string,
+    <a href={`/diario-oficial/${s.id}`} class="text-[#0568ff] hover:underline">Ver resultados</a> as unknown as string,
   ]);
 
   return renderPage(
@@ -258,7 +258,7 @@ diarioRoutes.get("/:id", async (c) => {
     r.section ?? "-",
     r.excerpt ? `${r.excerpt.slice(0, 100)}...` : "-",
     r.is_read ? <Badge color="gray">Lido</Badge> as unknown as string : <Badge color="blue">Novo</Badge> as unknown as string,
-    r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" class="text-terracota-600 hover:underline">Ver</a> as unknown as string : "-",
+    r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" class="text-[#0568ff] hover:underline">Ver</a> as unknown as string : "-",
   ]);
 
   return renderPage(

@@ -196,13 +196,13 @@ integrationsRoutes.get("/", async (c) => {
   const totalPages = count ? Math.ceil(count / limit) : 1;
 
   const rows = (integrations ?? []).map((int) => [
-    <a href={`/integrations/${int.id}`} class="text-terracota-600 hover:underline">{int.name}</a> as unknown as string,
+    <a href={`/integrations/${int.id}`} class="text-[#0568ff] hover:underline">{int.name}</a> as unknown as string,
     TYPE_LABELS[int.type] ?? int.type,
     <Badge color={int.active ? "green" : "gray"}>{int.active ? "Ativo" : "Inativo"}</Badge> as unknown as string,
     formatDate(int.last_sync_at),
     <div class="flex items-center gap-2">
-      <a href={`/integrations/${int.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/integrations/${int.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/integrations/${int.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/integrations/${int.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/integrations/${int.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);

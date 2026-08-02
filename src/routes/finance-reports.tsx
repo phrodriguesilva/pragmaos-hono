@@ -141,9 +141,9 @@ financeReportsRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scales text-h3 text-terracota-700" aria-hidden="true"></i>Lucro Bruto
+            <i class="ph ph-scales text-h3 text-[#0568ff]" aria-hidden="true"></i>Lucro Bruto
           </div>
-          <div class={`text-h2 font-bold ${lucro >= 0 ? "text-terracota-700" : "text-status-red"}`}>{formatCurrency(lucro)}</div>
+          <div class={`text-h2 font-bold ${lucro >= 0 ? "text-[#0568ff]" : "text-status-red"}`}>{formatCurrency(lucro)}</div>
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
@@ -157,32 +157,32 @@ financeReportsRoutes.get("/", async (c) => {
         <Panel title="Relatorios" icon="ph-files">
           <ul class="flex flex-col gap-2">
             <li>
-              <a href="/finance-reports/dre" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+              <a href="/finance-reports/dre" class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
                 <i class="ph ph-chart-bar" aria-hidden="true"></i>DRE Simplificado
               </a>
             </li>
             <li>
-              <a href="/finance-reports/dfc" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+              <a href="/finance-reports/dfc" class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
                 <i class="ph ph-chart-line-up" aria-hidden="true"></i>DFC Simplificado
               </a>
             </li>
             <li>
-              <a href="/finance-reports/cost-centers" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+              <a href="/finance-reports/cost-centers" class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
                 <i class="ph ph-tag" aria-hidden="true"></i>Analise de Custos
               </a>
             </li>
             <li>
-              <a href="/finance-reports/revenue" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+              <a href="/finance-reports/revenue" class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
                 <i class="ph ph-currency-dollar" aria-hidden="true"></i>Analise de Receita
               </a>
             </li>
             <li>
-              <a href="/finance-reports/productivity" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+              <a href="/finance-reports/productivity" class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
                 <i class="ph ph-clock-countdown" aria-hidden="true"></i>Produtividade
               </a>
             </li>
             <li>
-              <a href="/finance-reports/profitability" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+              <a href="/finance-reports/profitability" class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
                 <i class="ph ph-chart-line-up" aria-hidden="true"></i>Rentabilidade por Processo
               </a>
             </li>
@@ -728,7 +728,7 @@ financeReportsRoutes.get("/profitability", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500">Lucro Liquido</div>
-          <div class={`text-h2 font-bold ${totals.profit >= 0 ? "text-terracota-700" : "text-status-red"}`}>
+          <div class={`text-h2 font-bold ${totals.profit >= 0 ? "text-[#0568ff]" : "text-status-red"}`}>
             {formatCurrency(totals.profit)}
           </div>
         </Panel>

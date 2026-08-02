@@ -65,13 +65,13 @@ teamsRoutes.get("/", async (c) => {
   const profiles = profilesRes.data ?? [];
 
   const rows = (teams ?? []).map((t) => [
-    <a href={`/teams/${t.id}`} class="text-terracota-600 hover:underline">{t.name}</a> as unknown as string,
+    <a href={`/teams/${t.id}`} class="text-[#0568ff] hover:underline">{t.name}</a> as unknown as string,
     t.leader_id ? (leaderMap.get(t.leader_id) ?? "-") : "-",
     String(memberCountMap.get(t.id) ?? 0),
     t.description ?? "-",
     <div class="flex items-center gap-2">
-      <a href={`/teams/${t.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/teams/${t.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/teams/${t.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/teams/${t.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/teams/${t.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);

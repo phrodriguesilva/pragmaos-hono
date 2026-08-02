@@ -84,15 +84,15 @@ usersRoutes.get("/", async (c) => {
           {u.full_name?.charAt(0)?.toUpperCase() ?? "?"}
         </div>
       )}
-      <a href={`/users/${u.id}`} class="text-terracota-600 hover:underline">{u.full_name}</a>
+      <a href={`/users/${u.id}`} class="text-[#0568ff] hover:underline">{u.full_name}</a>
     </div> as unknown as string,
     u.email,
     <Badge color="blue">{roleLabels[u.role] ?? u.role}</Badge> as unknown as string,
     u.oab_number ? `OAB/${u.oab_state ?? ""} ${u.oab_number}` : "—" as unknown as string,
     u.active ? <Badge color="green">Ativo</Badge> : <Badge color="gray">Inativo</Badge> as unknown as string,
     <div class="flex items-center gap-2">
-      <a href={`/users/${u.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
-      <a href={`/users/${u.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <a href={`/users/${u.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
+      <a href={`/users/${u.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/users/${u.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
     </div> as unknown as string,
   ]);
@@ -288,7 +288,7 @@ usersRoutes.get("/:id", async (c) => {
               <div><dt class="font-semibold text-gray-700 inline">Admissao: </dt><dd class="inline">{fmtDate(profile.admission_date)}</dd></div>
             )}
             {profile.linkedin_url && (
-              <div><dt class="font-semibold text-gray-700 inline">LinkedIn: </dt><dd class="inline"><a href={profile.linkedin_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline">Ver perfil</a></dd></div>
+              <div><dt class="font-semibold text-gray-700 inline">LinkedIn: </dt><dd class="inline"><a href={profile.linkedin_url} target="_blank" rel="noopener" class="text-[#0568ff] hover:underline">Ver perfil</a></dd></div>
             )}
           </dl>
         </Panel>

@@ -162,8 +162,8 @@ function daysUntil(iso: string | null): number {
 const StatCard: FC<{ label: string; value: string; icon: string; trend?: string; trendUp?: boolean }> = ({ label, value, icon, trend, trendUp }) => (
   <div class="bg-white rounded-xl border border-gray-200 p-5">
     <div class="flex items-start justify-between mb-3">
-      <div class="w-10 h-10 rounded-lg bg-terracota-50 flex items-center justify-center">
-        <i class={`ph-bold ${icon} text-xl text-terracota-600`} aria-hidden="true" />
+      <div class="w-10 h-10 rounded-lg bg-[#e6efff] flex items-center justify-center">
+        <i class={`ph-bold ${icon} text-xl text-[#0568ff]`} aria-hidden="true" />
       </div>
       {trend && (
         <span class={`text-xs font-medium flex items-center gap-1 ${trendUp ? "text-green-600" : "text-red-600"}`}>
@@ -278,7 +278,7 @@ backOfficeRoutes.get("/", async (c) => {
             {Object.entries(planCounts).sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0)).map(([plan, count]) => {
               const total = allPlans.length || 1;
               const pct = Math.round(((count as number) / total) * 100);
-              const colors: Record<string, string> = { trial: "bg-gray-400", starter: "bg-blue-500", pro: "bg-terracota-500", enterprise: "bg-purple-500" };
+              const colors: Record<string, string> = { trial: "bg-gray-400", starter: "bg-blue-500", pro: "bg-[#0568ff]", enterprise: "bg-purple-500" };
               return (
                 <div>
                   <div class="flex items-center justify-between text-sm mb-1">
@@ -299,7 +299,7 @@ backOfficeRoutes.get("/", async (c) => {
           <div class="space-y-3">
             {((recentTenants.data as any[]) ?? []).map((t) => (
               <div class="flex items-center justify-between">
-                <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-gray-700 hover:text-terracota-600">
+                <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-gray-700 hover:text-[#0568ff]">
                   {t.name}
                 </a>
                 <div class="flex items-center gap-2">
@@ -323,7 +323,7 @@ backOfficeRoutes.get("/", async (c) => {
               const days = daysUntil(t.trial_ends_at);
               return (
                 <div class="flex items-center justify-between">
-                  <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-gray-700 hover:text-terracota-600">
+                  <a href={`/back-office/tenants/${t.id}`} class="text-sm font-medium text-gray-700 hover:text-[#0568ff]">
                     {t.name}
                   </a>
                   <Badge color={days <= 3 ? "red" : days <= 7 ? "yellow" : "green"}>
@@ -381,7 +381,7 @@ backOfficeRoutes.get("/tenants", async (c) => {
   const totalPages = Math.ceil((count ?? 0) / limit);
 
   const rows = ((tenants as any[]) ?? []).map((t) => [
-    <a href={`/back-office/tenants/${t.id}`} class="text-terracota-600 hover:underline font-medium">{t.name}</a>,
+    <a href={`/back-office/tenants/${t.id}`} class="text-[#0568ff] hover:underline font-medium">{t.name}</a>,
     t.cnpj ?? "—",
     <Badge color={t.subscription_status === "active" ? "green" : t.subscription_status === "trialing" ? "yellow" : t.subscription_status === "suspended" || t.subscription_status === "canceled" ? "red" : "gray"}>
       {t.subscription_status}
@@ -481,7 +481,7 @@ backOfficeRoutes.get("/tenants/:id", async (c) => {
       {(() => { const f = getFlash(c); return f && f.type === "success" ? <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 mb-6 text-sm">{f.message}</div> : null; })()}
 
       {/* Back link */}
-      <a href="/back-office/tenants" class="text-sm text-gray-500 hover:text-terracota-600 mb-4 inline-flex items-center gap-1">
+      <a href="/back-office/tenants" class="text-sm text-gray-500 hover:text-[#0568ff] mb-4 inline-flex items-center gap-1">
         <i class="ph ph-arrow-left" aria-hidden="true" /> Voltar para lista
       </a>
 
@@ -755,7 +755,7 @@ backOfficeRoutes.get("/subscriptions", async (c) => {
 
   // Active subscriptions table
   const activeRows = ((active.data as any[]) ?? []).map((t) => [
-    <a href={`/back-office/tenants/${t.id}`} class="text-terracota-600 hover:underline">{t.name}</a>,
+    <a href={`/back-office/tenants/${t.id}`} class="text-[#0568ff] hover:underline">{t.name}</a>,
     <span class="capitalize">{t.subscription_plan}</span>,
     formatBRL(planPrices[t.subscription_plan] ?? 0),
     formatDate(t.created_at),
@@ -763,7 +763,7 @@ backOfficeRoutes.get("/subscriptions", async (c) => {
 
   // Trialing table
   const trialingRows = ((trialing.data as any[]) ?? []).map((t) => [
-    <a href={`/back-office/tenants/${t.id}`} class="text-terracota-600 hover:underline">{t.name}</a>,
+    <a href={`/back-office/tenants/${t.id}`} class="text-[#0568ff] hover:underline">{t.name}</a>,
     <span class="capitalize">{t.subscription_plan}</span>,
     formatDate(t.trial_ends_at),
     daysUntil(t.trial_ends_at) > 0 ? <Badge color={daysUntil(t.trial_ends_at) <= 3 ? "red" : "yellow"}>{daysUntil(t.trial_ends_at)} dias</Badge> : <Badge color="red">Expirado</Badge>,
@@ -866,7 +866,7 @@ backOfficeRoutes.get("/revenue", async (c) => {
             <div class="flex-1 flex flex-col items-center gap-2">
               <div class="text-xs text-gray-500 font-medium">{formatBRL(m.revenue)}</div>
               <div class="w-full bg-gray-100 rounded-t-lg relative flex-1 flex items-end">
-                <div class="w-full bg-terracota-500 rounded-t-lg transition-all" style={`height: ${Math.max((m.revenue / maxRevenue) * 100, 2)}%`} />
+                <div class="w-full bg-[#0568ff] rounded-t-lg transition-all" style={`height: ${Math.max((m.revenue / maxRevenue) * 100, 2)}%`} />
               </div>
               <div class="text-xs text-gray-500 capitalize">{m.label}</div>
             </div>
@@ -878,7 +878,7 @@ backOfficeRoutes.get("/revenue", async (c) => {
       <div class="mt-6">
         <Panel title="CAC — Custo de Aquisição" icon="ph-target">
           <p class="text-sm text-gray-500 mb-4">O CAC é calculado dividindo o total investido em marketing/vendas pelo número de novos clientes adquiridos no período.</p>
-          <div class="bg-terracota-50 border border-terracota-200 rounded-lg p-4 text-sm text-terracota-700">
+          <div class="bg-[#e6efff] border border-[#b0ccff] rounded-lg p-4 text-sm text-[#0568ff]">
             <i class="ph ph-info" aria-hidden="true" /> Para calcular o CAC automaticamente, integre suas despesas de marketing (Google Ads, Meta Ads, etc.) ou insira manualmente o gasto mensal.
           </div>
         </Panel>
@@ -945,7 +945,7 @@ backOfficeRoutes.get("/audit", async (c) => {
   const rows = ((logs as any[]) ?? []).map((l) => [
     l.profiles?.full_name ?? "—",
     actionLabels[l.action] ?? l.action,
-    l.target_tenant_id ? <a href={`/back-office/tenants/${l.target_tenant_id}`} class="text-terracota-600 hover:underline">Ver escritório</a> : "—",
+    l.target_tenant_id ? <a href={`/back-office/tenants/${l.target_tenant_id}`} class="text-[#0568ff] hover:underline">Ver escritório</a> : "—",
     l.details ? <code class="text-xs bg-gray-100 px-1.5 py-0.5 rounded">{JSON.stringify(l.details)}</code> : "—",
     l.ip_address ?? "—",
     formatDate(l.created_at),
