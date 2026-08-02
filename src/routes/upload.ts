@@ -87,6 +87,11 @@ uploadRoutes.post("/", async (c) => {
   }
 
   // Generate a unique path: tenant_id/timestamp-filename
+  // Validate tenantId is a UUID to prevent path traversal
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(user.tenantId)) {
+    return c.json({ error: "Tenant invalido." }, 400);
+  }
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const filePath = `${user.tenantId}/${Date.now()}-${safeName}`;
 

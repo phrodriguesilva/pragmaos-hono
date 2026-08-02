@@ -43,7 +43,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         <meta property="og:locale" content="pt_BR" />
 
         {/* Twitter */}
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content={tenant.logo_url ? "summary_large_image" : "summary"} />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         {tenant.logo_url && <meta name="twitter:image" content={tenant.logo_url} />}
@@ -66,6 +66,8 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <style dangerouslySetInnerHTML={{ __html: `@font-face{font-family:"Phosphor";src:url("/static/fonts/Phosphor.woff2") format("woff2");font-display:swap}@font-face{font-family:"Phosphor-Bold";src:url("/static/fonts/Phosphor-Bold.woff2") format("woff2");font-display:swap}` }} />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />

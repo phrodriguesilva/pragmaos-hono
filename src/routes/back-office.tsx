@@ -709,7 +709,7 @@ backOfficeRoutes.get("/users", async (c) => {
     <span class="capitalize">{u.role}</span>,
     u.tenants?.name ?? "—",
     <Badge color={u.active ? "green" : "gray"}>{u.active ? "Ativo" : "Inativo"}</Badge>,
-    u.is_platform_admin ? <Badge color="terracota">Admin</Badge> : "—",
+    u.is_platform_admin ? <Badge color="blue">Admin</Badge> : "—",
     formatDate(u.created_at),
   ]);
 

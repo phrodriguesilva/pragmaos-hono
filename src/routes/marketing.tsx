@@ -994,7 +994,7 @@ marketingRoutes.get("/termos", (c) => {
     <MarketingLayout title="Termos de Uso — PragmaOS" active="" description="Termos de uso da plataforma PragmaOS.">
       <div class="max-w-3xl mx-auto px-4 py-16">
         <h1 class="text-4xl font-serif font-bold text-gray-800 mb-2">Termos de Uso</h1>
-        <p class="text-sm text-gray-500 mb-8">Última atualização: 02 de agosto de 2026</p>
+        <p class="text-sm text-gray-500 mb-8">Última atualização: 15 de janeiro de 2025</p>
 
         <div class="prose prose-lg max-w-none text-gray-700 space-y-6">
           <section>
@@ -1069,7 +1069,7 @@ marketingRoutes.get("/privacidade", (c) => {
     <MarketingLayout title="Política de Privacidade — PragmaOS" active="" description="Política de privacidade e proteção de dados da plataforma PragmaOS (LGPD).">
       <div class="max-w-3xl mx-auto px-4 py-16">
         <h1 class="text-4xl font-serif font-bold text-gray-800 mb-2">Política de Privacidade</h1>
-        <p class="text-sm text-gray-500 mb-8">Última atualização: 02 de agosto de 2026</p>
+        <p class="text-sm text-gray-500 mb-8">Última atualização: 15 de janeiro de 2025</p>
 
         <div class="prose prose-lg max-w-none text-gray-700 space-y-6">
           <section>

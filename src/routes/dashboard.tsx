@@ -187,7 +187,7 @@ function KpiCard({ icon, label, value, color, sub }: {
         </div>
         <div class="min-w-0">
           <div class="text-body-xs text-gray-500 font-medium uppercase tracking-wide truncate">{label}</div>
-          <div class="text-h2 font-bold text-gray-800 leading-tight">{value}</div>
+          <div class="text-h2 font-bold text-gray-800 leading-tight">{value ?? 0}</div>
           {sub ? <div class="text-body-xs text-gray-400">{sub}</div> : null}
         </div>
       </div>

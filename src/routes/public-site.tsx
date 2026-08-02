@@ -868,7 +868,7 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
         {/* Hero */}
         {articleData.cover_image_url && (
           <div class="w-full h-64 md:h-96 bg-gray-100 overflow-hidden">
-            <img src={articleData.cover_image_url} alt={articleData.title} class="w-full h-full object-cover" />
+            <img src={articleData.cover_image_url} alt={articleData.title} class="w-full h-full object-cover" loading="lazy" decoding="async" />
           </div>
         )}
 
@@ -1271,7 +1271,7 @@ publicSiteRoutes.get("/equipe", async (c) => {
               <a href={`${b}/equipe/${m.slug}`} class="group text-center">
                 <div class="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-100 group-hover:border-primary transition mb-4">
                   {m.public_photo_url ? (
-                    <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" />
+                    <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" loading="lazy" decoding="async" />
                   ) : (
                     <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-4xl font-semibold">
                       {m.public_name?.charAt(0)?.toUpperCase() ?? "?"}
@@ -1343,7 +1343,7 @@ publicSiteRoutes.get("/equipe/:slug", async (c) => {
           <div class="text-center">
             <div class="w-48 h-48 mx-auto rounded-full overflow-hidden border-4 border-gray-100 mb-4">
               {member.public_photo_url ? (
-                <img src={member.public_photo_url} alt={member.public_name} class="w-full h-full object-cover" />
+                <img src={member.public_photo_url} alt={member.public_name} class="w-full h-full object-cover" loading="lazy" decoding="async" />
               ) : (
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-6xl font-semibold">
                   {member.public_name?.charAt(0)?.toUpperCase() ?? "?"}

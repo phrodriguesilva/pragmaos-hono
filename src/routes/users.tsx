@@ -58,13 +58,17 @@ usersRoutes.get("/", async (c) => {
   const user = c.get("user");
   const search = c.req.query("search")?.trim() ?? "";
   const roleFilter = c.req.query("role")?.trim() ?? "";
+  const page = Math.max(1, Number(c.req.query("page") ?? "1"));
+  const limit = 20;
+  const offset = (page - 1) * limit;
 
   let query = supabase
     .from("profiles")
     .select("id, email, full_name, role, active, photo_url, oab_number, oab_state, created_at", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .order("full_name");
+    .order("full_name")
+    .range(offset, offset + limit - 1);
 
   if (search) {
     query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
@@ -74,6 +78,7 @@ usersRoutes.get("/", async (c) => {
   }
 
   const { data: users, count } = await query;
+  const totalPages = Math.ceil((count ?? 0) / limit);
 
   const rows = (users ?? []).map((u) => [
     <div class="flex items-center gap-2">
@@ -139,11 +144,18 @@ usersRoutes.get("/", async (c) => {
       <Table
         columns={[{ label: "Nome" }, { label: "Email" }, { label: "Papel" }, { label: "OAB" }, { label: "Status" }, { label: "Acoes" }]}
         rows={rows}
-        emptyMsg="Nenhum profissional cadastrado."
+        emptyMsg={search || roleFilter ? "Nenhum profissional encontrado com esses filtros." : "Nenhum profissional cadastrado."}
         emptyIcon="ph-users"
         ariaLabel="Lista de profissionais"
+        count={count ?? 0}
+        countLabel="profissional(is)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/users",
+          queryParams: { search, role: roleFilter },
+        }}
       />
-      <div class="mt-2 text-body-sm text-gray-500">{count ?? 0} profissional(is)</div>
     </>,
   );
 });
@@ -327,6 +339,29 @@ usersRoutes.post("/:id", async (c) => {
     return c.redirect(`/users/${id}`);
   }
 
+  // Prevent removing role from the last socio (would lock admin access)
+  if (parsed.data.role !== "socio") {
+    const { data: target } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", id)
+      .eq("tenant_id", user.tenantId)
+      .single();
+
+    if (target?.role === "socio") {
+      const { count } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", user.tenantId)
+        .eq("role", "socio")
+        .is("deleted_at", null);
+
+      if ((count ?? 0) <= 1) {
+        return c.html("Nao e possivel alterar o papel do unico socio do escritorio.", 400);
+      }
+    }
+  }
+
   // Parse specialties from comma-separated string to array
   const specialties = parsed.data.specialties
     ? parsed.data.specialties.split(",").map((s) => s.trim()).filter(Boolean)
@@ -358,6 +393,25 @@ usersRoutes.post("/:id", async (c) => {
 usersRoutes.post("/:id/delete", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
+
+  // Prevent self-deletion
+  if (id === user.id) {
+    return c.html("Voce nao pode excluir sua propria conta.", 400);
+  }
+
+  // Prevent deleting the last socio (would lock admin access)
+  if (user.role === "socio") {
+    const { count } = await supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", user.tenantId)
+      .eq("role", "socio")
+      .is("deleted_at", null);
+
+    if ((count ?? 0) <= 1) {
+      return c.html("Nao e possivel excluir o unico socio do escritorio.", 400);
+    }
+  }
 
   await supabase
     .from("profiles")

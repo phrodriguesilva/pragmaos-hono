@@ -11,6 +11,7 @@ import { log } from "../lib/logger";
 import { getSubscriptionState, shouldBlockAccess, type SubscriptionState } from "../lib/subscription";
 import { createCustomer, createSubscription, cancelSubscription, isConfigured as asaasConfigured, type AsaasWebhookEvent } from "../lib/asaas";
 import { ASAAS_WEBHOOK_TOKEN } from "../lib/env";
+import { timingSafeEqual } from "node:crypto";
 import { PageHeader, Panel, Badge, Select } from "../components/ui";
 
 export const subscriptionRoutes = new Hono<AppEnv>();
@@ -428,15 +429,28 @@ subscriptionRoutes.post("/cancelar", async (c) => {
 // ============================================================
 subscriptionRoutes.post("/webhook", async (c) => {
   try {
-    // Validate Asaas webhook signature/token
+    // Validate Asaas webhook signature/token (timing-safe comparison)
     const asaasToken = c.req.header("asaas-access-token");
-    if (!ASAAS_WEBHOOK_TOKEN || !asaasToken || asaasToken !== ASAAS_WEBHOOK_TOKEN) {
+    if (!ASAAS_WEBHOOK_TOKEN || !asaasToken) {
       log.warn("Asaas webhook: invalid or missing token", { hasToken: !!asaasToken });
+      return c.json({ ok: false, error: "unauthorized" }, 401);
+    }
+    const tokenBuf = Buffer.from(asaasToken);
+    const expectedBuf = Buffer.from(ASAAS_WEBHOOK_TOKEN);
+    if (tokenBuf.length !== expectedBuf.length || !timingSafeEqual(tokenBuf, expectedBuf)) {
+      log.warn("Asaas webhook: token mismatch");
       return c.json({ ok: false, error: "unauthorized" }, 401);
     }
 
     const event = (await c.req.json()) as AsaasWebhookEvent;
     log.info("Asaas webhook received", { event: event.event, paymentId: event.payment?.id });
+
+    // Validate event type — only process known payment events
+    const validEvents = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_OVERDUE", "PAYMENT_REFUNDED", "PAYMENT_DELETED"];
+    if (!event.event || !validEvents.includes(event.event)) {
+      log.warn("Asaas webhook: unknown event type", { event: event.event });
+      return c.json({ ok: true });
+    }
 
     if (!event.payment?.subscription) {
       return c.json({ ok: true });

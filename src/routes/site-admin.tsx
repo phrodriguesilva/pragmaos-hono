@@ -3,7 +3,7 @@
 
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { supabase } from "../lib/supabase";
 import { renderPage } from "../lib/render"; // render.tsx
 import { PageHeader, Panel, TextField, Textarea, Select, Modal, Table, Badge } from "../components/ui";
@@ -12,6 +12,7 @@ import { log } from "../lib/logger";
 export const siteAdminRoutes = new Hono<AppEnv>();
 
 siteAdminRoutes.use("*", requireAuth);
+siteAdminRoutes.use("*", requireRole("socio", "admin"));
 
 // =========================================================================
 // GET /site/appearance — Branding & appearance settings
