@@ -6,7 +6,7 @@ import type { AppEnv } from "../lib/types";
 import { supabase } from "../lib/supabase";
 import { log } from "../lib/logger";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
-import { resolveTenantByHost } from "../lib/tenant-resolver";
+import { resolveTenantByHost, resolveTenantBySlug } from "../lib/tenant-resolver";
 import { PublicLayout } from "../components/public-layout";
 
 export const publicSiteRoutes = new Hono<AppEnv>();
@@ -20,13 +20,25 @@ publicSiteRoutes.use("*", async (c, next) => {
     return next();
   }
 
+  // Try host-based resolution first (subdomain or custom domain)
   const host = c.req.header("host") ?? "";
   const tenant = await resolveTenantByHost(host);
-  if (!tenant) {
-    return c.notFound();
+  if (tenant) {
+    c.set("publicTenant", tenant);
+    return next();
   }
-  c.set("publicTenant", tenant);
-  await next();
+
+  // Try path-based: slug passed via header by the main app
+  const slug = c.req.header("x-public-slug");
+  if (slug) {
+    const slugTenant = await resolveTenantBySlug(slug);
+    if (slugTenant) {
+      c.set("publicTenant", slugTenant);
+      return next();
+    }
+  }
+
+  return c.notFound();
 });
 
 // Extend context to carry the resolved tenant
@@ -45,12 +57,12 @@ function getTenant(c: any): ResolvedTenant {
 // In subdomain mode: "" (links are /sobre, /areas, etc.)
 // In path-based mode: "/site/:slug" (links are /site/:slug/sobre, etc.)
 function getBasePath(c: any): string {
-  const path = c.req.path;
-  // If the path starts with /site/:slug, we're in path-based mode
-  const match = path.match(/^\/site\/([^/]+)/);
-  if (match) {
-    return `/site/${match[1]}`;
+  // Path-based mode: slug is passed via header
+  const slug = c.req.header("x-public-slug");
+  if (slug) {
+    return `/site/${slug}`;
   }
+  // Subdomain mode: no prefix needed
   return "";
 }
 

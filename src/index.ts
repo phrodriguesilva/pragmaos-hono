@@ -142,35 +142,28 @@ const ADMIN_SITE_PATHS = ["/appearance", "/areas", "/articles", "/contacts", "/s
 
 app.get("/site/:slug", async (c, next) => {
   const slug = c.req.param("slug");
-  // If slug is an admin path, let siteAdminRoutes handle it
   if (ADMIN_SITE_PATHS.includes(`/${slug}`)) return next();
 
-  const tenant = await resolveTenantBySlug(slug);
-  if (!tenant) return next();
-
-  c.set("publicTenant", tenant);
-  // Rewrite path to "/" for the public site sub-app
+  // Rewrite path to "/" and pass slug via header for the public site sub-app
   const url = new URL(c.req.url);
   url.pathname = "/";
-  const res = await publicSiteRoutes.fetch(new Request(url.toString(), c.req.raw), c.env);
+  const req = new Request(url.toString(), c.req.raw);
+  req.headers.set("x-public-slug", slug);
+  const res = await publicSiteRoutes.fetch(req, c.env);
   return res;
 });
 
 app.get("/site/:slug/*", async (c, next) => {
   const slug = c.req.param("slug");
-  const rest = c.req.path.replace(`/site/${slug}/`, "");
-
-  // If slug is an admin path, let siteAdminRoutes handle it
   if (ADMIN_SITE_PATHS.includes(`/${slug}`)) return next();
 
-  const tenant = await resolveTenantBySlug(slug);
-  if (!tenant) return next();
-
-  c.set("publicTenant", tenant);
-  // Rewrite path for the public site sub-app
+  // Rewrite path (strip /site/:slug prefix) and pass slug via header
+  const rest = c.req.path.replace(`/site/${slug}/`, "");
   const url = new URL(c.req.url);
   url.pathname = `/${rest}`;
-  const res = await publicSiteRoutes.fetch(new Request(url.toString(), c.req.raw), c.env);
+  const req = new Request(url.toString(), c.req.raw);
+  req.headers.set("x-public-slug", slug);
+  const res = await publicSiteRoutes.fetch(req, c.env);
   return res;
 });
 app.get("/health/ready", async (c) => {
