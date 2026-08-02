@@ -102,7 +102,7 @@ export async function provisionTenant(req: SignupRequest): Promise<SignupResult>
       tenant_id: tenantId,
       email: req.adminEmail,
       full_name: req.adminName,
-      role: "admin",
+      role: "socio",
       phone: req.phone ?? null,
       active: true,
     });
