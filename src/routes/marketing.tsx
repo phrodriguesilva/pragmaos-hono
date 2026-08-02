@@ -137,18 +137,24 @@ const STATS = [
 const TESTIMONIALS = [
   {
     quote: "O monitoramento automático pela OAB mudou minha rotina. Não preciso mais abrir o tribunal todo dia — os andamentos chegam sozinhos.",
-    author: "Advogada autônoma",
-    role: "Cível e família · plano Starter",
+    author: "Mariana Costa",
+    role: "Advogada autônoma · Cível e família · plano Starter",
+    initials: "MC",
+    color: "#05111e",
   },
   {
     quote: "O portal do cliente virou diferencial competitivo. Meus clientes acompanham processos sem me ligar. O WhatsApp ficou livre para o que importa.",
-    author: "Sócio de pequeno escritório",
-    role: "Empresarial · 4 advogados · plano Pro",
+    author: "Rafael Mendes",
+    role: "Sócio · Empresarial · 4 advogados · plano Pro",
+    initials: "RM",
+    color: "#1a2634",
   },
   {
     quote: "A IA resume andamentos em 1 clique e traduz o juridiquês para o cliente. Economizo pelo menos 2 horas por dia. Só isso já paga a mensalidade.",
-    author: "Advogado de escritório em crescimento",
-    role: "Trabalhista · 8 advogados · plano Pro",
+    author: "Juliana Alves",
+    role: "Advogada · Trabalhista · 8 advogados · plano Pro",
+    initials: "JA",
+    color: "#2a3a4e",
   },
 ];
 
@@ -222,17 +228,13 @@ marketingRoutes.get("/", (c) => {
         <canvas id="aurora-hero" class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true" />
         <div class="noise-overlay absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" />
         <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 pointer-events-none" />
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-20 md:py-28 lg:py-32 relative">
-          <div class="max-w-3xl">
-            <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs sm:text-sm mb-6 backdrop-blur-sm">
-              <i class="ph-fill ph-sparkle text-[#bbc7da]" aria-hidden="true" />
-              <span>Novo: IA jurídica com jurisprudência em tempo real</span>
-            </div>
-            <h1 class="reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-[-0.02em] text-balance mb-6">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-24 md:py-32 lg:py-40 relative">
+          <div class="max-w-2xl">
+            <h1 class="reveal text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.05] tracking-[-0.02em] text-balance mb-6">
               A gestão jurídica do seu escritório, <span class="text-[#bbc7da] italic font-serif font-normal">finalmente</span> em um só lugar.
             </h1>
-            <p class="reveal text-base sm:text-lg md:text-xl text-[#bbc7da]/80 text-pretty mb-8 max-w-2xl leading-relaxed">
-              Processos, prazos, financeiro, clientes, IA jurídica e WhatsApp — tudo integrado. Pare de perder tempo com planilhas e ferramentas avulsas. Comece grátis em 2 minutos.
+            <p class="reveal text-lg md:text-xl text-[#bbc7da]/80 text-pretty mb-10 leading-relaxed">
+              Processos, prazos, financeiro e IA jurídica — tudo integrado. Comece grátis em 2 minutos.
             </p>
             <div class="reveal flex flex-col sm:flex-row gap-4">
               <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#05111e] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#bbc7da] transition-all hover:gap-4">
@@ -247,22 +249,7 @@ marketingRoutes.get("/", (c) => {
                 Agendar demonstração
               </a>
             </div>
-            <p class="reveal text-xs sm:text-sm text-[#818d9f] mt-5">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Logos / social proof — trust signals */}
-      <section class="border-b border-[#c4c6cc] py-8 bg-[#f7fafc]">
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <p class="reveal text-center text-xs uppercase tracking-wider text-[#75777c] font-semibold mb-6">Tecnologia jurídica confiável, feita no Brasil</p>
-          <div class="reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[#75777c]">
-            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-shield-check text-[#05111e] text-lg" aria-hidden="true" /> Conformidade LGPD</span>
-            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-database text-[#05111e] text-lg" aria-hidden="true" /> DataJud CNJ integrado</span>
-            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-identification-card text-[#05111e] text-lg" aria-hidden="true" /> Login com Gov.br</span>
-            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-signature text-[#05111e] text-lg" aria-hidden="true" /> Clicksign integrado</span>
-            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-whatsapp-logo text-[#05111e] text-lg" aria-hidden="true" /> WhatsApp Business</span>
-            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-map-pin text-[#05111e] text-lg" aria-hidden="true" /> 100% Brasil</span>
+            <p class="reveal text-sm text-[#818d9f] mt-6">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
           </div>
         </div>
       </section>
@@ -449,75 +436,6 @@ marketingRoutes.get("/", (c) => {
         </div>
       </section>
 
-      {/* PWA / Mobile — acesse de qualquer lugar */}
-      <section class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
-        <div class="max-w-5xl mx-auto">
-          <div class="reveal grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#05111e] text-white text-xs sm:text-sm mb-5">
-                <i class="ph-bold ph-device-mobile" aria-hidden="true" /> App nativo no seu bolso
-              </div>
-              <h2 class="text-3xl md:text-4xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
-                Acesse de qualquer lugar. Até offline.
-              </h2>
-              <p class="text-[#44474c] mb-6 text-pretty leading-relaxed">
-                O PragmaOS é um PWA (Progressive Web App). Instale no celular ou use no navegador — same experience. Funciona offline, envia notificações de prazos e sincroniza quando você volta online.
-              </p>
-              <ul class="space-y-3 text-sm">
-                <li class="flex items-center gap-3"><i class="ph-bold ph-bell-ringing text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Notificações push de prazos e audiências</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-wifi-slash text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Funciona offline (consultas, anotações, documentos)</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-install text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Instale na tela inicial — sem loja de apps</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-sync text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Sincronização automática entre dispositivos</span></li>
-              </ul>
-              <div class="flex gap-3 mt-6">
-                <a href="/signup" class="inline-flex items-center gap-2 bg-[#05111e] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-[#1a2634] transition">
-                  <i class="ph-bold ph-rocket-launch" aria-hidden="true" /> Começar grátis
-                </a>
-              </div>
-            </div>
-            <div class="reveal-stagger flex justify-center">
-              <div class="relative">
-                <div class="w-[260px] h-[520px] rounded-[2.5rem] border-4 border-[#05111e] bg-white shadow-2xl shadow-black/20 overflow-hidden relative">
-                  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#05111e] rounded-b-2xl z-10" />
-                  <div class="gradient-hero-navy h-32 px-5 pt-10 flex flex-col justify-end pb-4">
-                    <div class="flex items-center gap-2 text-white">
-                      <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                        <i class="ph-bold ph-scales text-white text-sm" aria-hidden="true" />
-                      </div>
-                      <span class="font-bold text-sm">PragmaOS</span>
-                    </div>
-                  </div>
-                  <div class="p-4 space-y-3">
-                    <div class="bg-[#f1f4f6] rounded-xl p-3">
-                      <div class="text-xs text-[#75777c] mb-1">Processos ativos</div>
-                      <div class="text-2xl font-extrabold text-[#05111e]">47</div>
-                    </div>
-                    <div class="bg-[#ffdad6]/30 rounded-xl p-3 border border-[#e6caca]">
-                      <div class="flex items-center gap-2 mb-1">
-                        <i class="ph-bold ph-clock-countdown text-[#ba1a1a] text-sm" aria-hidden="true" />
-                        <div class="text-xs font-semibold text-[#ba1a1a]">Prazo crítico</div>
-                      </div>
-                      <div class="text-sm font-bold text-[#181c1e]">Audiência amanhã 14h</div>
-                    </div>
-                    <div class="bg-[#d9e3f2]/40 rounded-xl p-3 border border-[#bbc7da]">
-                      <div class="flex items-center gap-2 mb-1">
-                        <i class="ph-bold ph-robot text-[#05111e] text-sm" aria-hidden="true" />
-                        <div class="text-xs font-semibold text-[#05111e]">IA Jurídica</div>
-                      </div>
-                      <div class="text-xs text-[#44474c]">Resumo do processo pronto</div>
-                    </div>
-                    <div class="bg-[#f1f4f6] rounded-xl p-3">
-                      <div class="text-xs text-[#75777c] mb-1">A receber</div>
-                      <div class="text-lg font-bold text-[#05111e]">R$ 28.450</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Consultas Legais — localização de bens e pessoas */}
       <section id="consultas" class="py-20 px-4 sm:px-6">
         <div class="max-w-5xl mx-auto">
@@ -610,62 +528,25 @@ marketingRoutes.get("/", (c) => {
           </div>
           <div class="reveal-stagger grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t) => (
-              <figure class="card-lexis p-6">
+              <figure class="card-lexis p-6 flex flex-col">
                 <div class="flex gap-0.5 text-[#05111e] mb-4">
                   {[1, 2, 3, 4, 5].map(() => <i class="ph-fill ph-star" aria-hidden="true" />)}
                 </div>
-                <blockquote class="text-[#181c1e] text-pretty mb-5 leading-relaxed text-sm">"{t.quote}"</blockquote>
-                <figcaption>
-                  <div class="font-bold text-[#05111e] text-sm">{t.author}</div>
-                  <div class="text-xs text-[#75777c]">{t.role}</div>
+                <blockquote class="text-[#181c1e] text-pretty mb-6 leading-relaxed text-sm flex-1">"{t.quote}"</blockquote>
+                <figcaption class="flex items-center gap-3 pt-4 border-t border-[#e0e3e5]">
+                  <div
+                    class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                    style={`background:${t.color}`}
+                  >
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div class="font-bold text-[#05111e] text-sm">{t.author}</div>
+                    <div class="text-xs text-[#75777c]">{t.role}</div>
+                  </div>
                 </figcaption>
               </figure>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Diferenciais únicos — por que PragmaOS */}
-      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
-        <div class="max-w-[1200px] mx-auto">
-          <div class="reveal text-center mb-14">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Por que PragmaOS</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em] mb-4">
-              Diferenciais que você não encontra em outro lugar.
-            </h2>
-            <p class="text-base md:text-lg text-[#44474c] text-pretty max-w-2xl mx-auto leading-relaxed">
-              Construído do zero para o Brasil. Não adaptamos um produto gringo.
-            </p>
-          </div>
-          <div class="reveal-stagger grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="card-lexis p-6">
-              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
-                <i class="ph-bold ph-globe text-2xl text-white" aria-hidden="true" />
-              </div>
-              <h3 class="font-bold text-[#05111e] mb-2">Site público multi-tenant</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed">Cada escritório tem seu próprio site público dentro da plataforma. Processos, áreas de atuação, equipe e artigos — sem contratar um desenvolvedor.</p>
-            </div>
-            <div class="card-lexis p-6">
-              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
-                <i class="ph-bold ph-identification-card text-2xl text-white" aria-hidden="true" />
-              </div>
-              <h3 class="font-bold text-[#05111e] mb-2">Login com Gov.br</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed">Autenticação oficial do governo brasileiro. Seus clientes e equipe fazem login com a mesma conta que acessam serviços federais.</p>
-            </div>
-            <div class="card-lexis p-6">
-              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
-                <i class="ph-bold ph-signature text-2xl text-white" aria-hidden="true" />
-              </div>
-              <h3 class="font-bold text-[#05111e] mb-2">Clicksign integrado</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed">Assinaturas digitais com validade jurídica diretamente da plataforma. Documentos assinados em minutos, sem imprimir, sem escanear.</p>
-            </div>
-            <div class="card-lexis p-6">
-              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
-                <i class="ph-bold ph-plugs-connected text-2xl text-white" aria-hidden="true" />
-              </div>
-              <h3 class="font-bold text-[#05111e] mb-2">API aberta</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed">Integre com seus sistemas existentes. Webhooks, REST API e documentação completa. Seus dados, sua regra.</p>
-            </div>
           </div>
         </div>
       </section>
@@ -748,46 +629,24 @@ marketingRoutes.get("/", (c) => {
 
       {/* Security */}
       <section id="seguranca" class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
-        <div class="max-w-5xl mx-auto">
-          <div class="reveal grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <div class="w-14 h-14 rounded-2xl bg-[#05111e] flex items-center justify-center mb-5">
-                <i class="ph-bold ph-shield-check text-3xl text-white" aria-hidden="true" />
-              </div>
-              <h2 class="text-3xl md:text-4xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
-                Segurança de nível bancário. Conformidade com a LGPD.
-              </h2>
-              <p class="text-[#44474c] mb-6 text-pretty leading-relaxed">
-                Seus dados são o seu negócio. Por isso tratamos segurança como prioridade absoluta — não como recurso.
-              </p>
-              <ul class="space-y-3 text-sm">
-                <li class="flex items-center gap-3"><i class="ph-bold ph-lock-key text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Criptografia AES-256 em repouso e TLS 1.3 em trânsito</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-user-circle-check text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Autenticação de dois fatores (2FA) e login com Gov.br</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-database text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Backup automático diário com retenção de 30 dias</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-map-pin text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Dados hospedados em datacenters no Brasil</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-file-text text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Conformidade plena com a LGPD</span></li>
-              </ul>
+        <div class="max-w-3xl mx-auto">
+          <div class="reveal">
+            <div class="w-14 h-14 rounded-2xl bg-[#05111e] flex items-center justify-center mb-5">
+              <i class="ph-bold ph-shield-check text-3xl text-white" aria-hidden="true" />
             </div>
-            <div class="reveal-stagger bg-[#f1f4f6] rounded-2xl p-8 border border-[#e0e3e5]">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
-                  <i class="ph-bold ph-shield-check text-3xl text-[#05111e] mb-2" aria-hidden="true" />
-                  <div class="text-xs font-bold text-[#44474c]">LGPD</div>
-                </div>
-                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
-                  <i class="ph-bold ph-lock text-3xl text-[#05111e] mb-2" aria-hidden="true" />
-                  <div class="text-xs font-bold text-[#44474c]">AES-256</div>
-                </div>
-                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
-                  <i class="ph-bold ph-clock-countdown text-3xl text-[#05111e] mb-2" aria-hidden="true" />
-                  <div class="text-xs font-bold text-[#44474c]">99,9% uptime</div>
-                </div>
-                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
-                  <i class="ph-bold ph-flag-banner text-3xl text-[#05111e] mb-2" aria-hidden="true" />
-                  <div class="text-xs font-bold text-[#44474c]">100% Brasil</div>
-                </div>
-              </div>
-            </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+              Segurança de nível bancário. Conformidade com a LGPD.
+            </h2>
+            <p class="text-[#44474c] mb-6 text-pretty leading-relaxed">
+              Seus dados são o seu negócio. Por isso tratamos segurança como prioridade absoluta — não como recurso.
+            </p>
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-center gap-3"><i class="ph-bold ph-lock-key text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Criptografia AES-256 em repouso e TLS 1.3 em trânsito</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-user-circle-check text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Autenticação de dois fatores (2FA) e login com Gov.br</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-database text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Backup automático diário com retenção de 30 dias</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-map-pin text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Dados hospedados em datacenters no Brasil</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-file-text text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Conformidade plena com a LGPD</span></li>
+            </ul>
           </div>
         </div>
       </section>
