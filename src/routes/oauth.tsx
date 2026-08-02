@@ -6,6 +6,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { Panel } from "../components/ui";
 import { SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
+import { encrypt, decrypt } from "../lib/crypto";
 
 export const oauthRoutes = new Hono<AppEnv>();
 
@@ -206,8 +207,8 @@ oauthRoutes.get("/google/callback", async (c) => {
     await supabase
       .from("integrations")
       .update({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
+        access_token: encrypt(tokens.access_token),
+        refresh_token: tokens.refresh_token ? encrypt(tokens.refresh_token) : null,
         token_expires_at: new Date(
           Date.now() + tokens.expires_in * 1000,
         ).toISOString(),
@@ -370,8 +371,8 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
     await supabase
       .from("integrations")
       .update({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
+        access_token: encrypt(tokens.access_token),
+        refresh_token: tokens.refresh_token ? encrypt(tokens.refresh_token) : null,
         token_expires_at: new Date(
           Date.now() + tokens.expires_in * 1000,
         ).toISOString(),
@@ -523,8 +524,8 @@ oauthRoutes.get("/docusign/callback", async (c) => {
     await supabase
       .from("integrations")
       .update({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
+        access_token: encrypt(tokens.access_token),
+        refresh_token: tokens.refresh_token ? encrypt(tokens.refresh_token) : null,
         token_expires_at: new Date(
           Date.now() + tokens.expires_in * 1000,
         ).toISOString(),

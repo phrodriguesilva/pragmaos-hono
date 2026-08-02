@@ -4,6 +4,7 @@ import type { AppEnv } from "./lib/types";
 import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
 import { supabase } from "./lib/supabase";
+import { csrfProtection } from "./lib/csrf";
 import { authRoutes } from "./routes/auth";
 import { dashboardRoutes } from "./routes/dashboard";
 import { clientsRoutes } from "./routes/clients";
@@ -55,6 +56,10 @@ import { timerRoutes } from "./routes/timer";
 const app = new Hono<AppEnv>();
 
 app.use("*", logger());
+
+// CSRF protection — reject state-changing requests with invalid Origin.
+// Applied after logger, before routes. Skips /api/ and /webhooks/ (Bearer auth).
+app.use("*", csrfProtection);
 
 // Security headers — applied to all responses.
 app.use("*", async (c, next) => {

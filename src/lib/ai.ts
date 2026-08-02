@@ -299,6 +299,16 @@ export async function generateCaseSummary(
     throw new Error("IA nao configurada. Configure a integracao LLM em Integracoes ou defina AI_API_KEY no ambiente.");
   }
 
+  // Build prompt with PII tokens directly (never put raw PII in the prompt string).
+  // This prevents accidental PII leakage via logging or error handling.
+  const maskMap = new Map<string, string>();
+  if (clientPII.name) maskMap.set("[NOME_CLIENTE]", clientPII.name);
+  if (clientPII.cpf) maskMap.set("[CPF_CLIENTE]", clientPII.cpf);
+  if (clientPII.cnpj) maskMap.set("[CNPJ_CLIENTE]", clientPII.cnpj);
+  if (clientPII.email) maskMap.set("[EMAIL_CLIENTE]", clientPII.email);
+  if (clientPII.phone) maskMap.set("[TELEFONE_CLIENTE]", clientPII.phone);
+  if (clientPII.address) maskMap.set("[ENDERECO_CLIENTE]", clientPII.address);
+
   let prompt = `Dados do processo:\nTitulo: ${caseData.title}\n`;
   if (caseData.case_number) prompt += `Numero: ${caseData.case_number}\n`;
   prompt += `Tipo: ${caseData.case_type}\n`;
@@ -306,20 +316,26 @@ export async function generateCaseSummary(
   prompt += `Status: ${caseData.status}\n`;
   if (caseData.description) prompt += `Descricao: ${caseData.description}\n`;
 
-  prompt += `\nDados do cliente:\nNome: ${clientPII.name}\n`;
-  if (clientPII.cpf) prompt += `CPF: ${clientPII.cpf}\n`;
-  if (clientPII.cnpj) prompt += `CNPJ: ${clientPII.cnpj}\n`;
+  // Use tokens instead of raw PII.
+  prompt += `\nDados do cliente:\nNome: [NOME_CLIENTE]\n`;
+  if (clientPII.cpf) prompt += `CPF: [CPF_CLIENTE]\n`;
+  if (clientPII.cnpj) prompt += `CNPJ: [CNPJ_CLIENTE]\n`;
 
   prompt += `\nEventos do processo:\n`;
   for (const e of events) {
     const date = new Date(e.created_at).toLocaleDateString("pt-BR");
-    prompt += `- [${date}] ${e.event_type}: ${e.description}\n`;
+    // Mask any PII that might appear in event descriptions.
+    let eventDesc = e.description;
+    for (const [token, original] of maskMap) {
+      eventDesc = eventDesc.replaceAll(original, token);
+    }
+    prompt += `- [${date}] ${e.event_type}: ${eventDesc}\n`;
   }
 
   prompt += `\nGere um resumo conciso do processo baseado nas informacoes acima.`;
 
-  // Mask PII before sending.
-  const { maskedText, maskMap } = maskPII(prompt, clientPII);
+  // The prompt is already masked — no need to call maskPII again.
+  const maskedText = prompt;
 
   const systemPrompt =
     "Voce e um assistente juridico. Gere um resumo conciso e profissional do processo baseado nos eventos fornecidos. Use linguagem formal juridica em portugues.";
