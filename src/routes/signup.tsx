@@ -5,147 +5,267 @@ import { z } from "zod";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { provisionTenant, isSignupEnabled } from "../lib/tenant-provisioning";
+import { rateLimit } from "../lib/rate-limit";
+import { getSessionUser } from "../lib/session";
+import { appCss } from "../generated/css";
 
 export const signupRoutes = new Hono<AppEnv>();
 
+// Rate limit: 5 signups per minute per IP (prevents mass account creation)
+const signupRateLimit = rateLimit(5, 60_000);
+
 const signupSchema = z.object({
-  firm_name: z.string().min(2, "Nome do escritorio e obrigatorio"),
-  admin_name: z.string().min(2, "Nome e obrigatorio"),
-  admin_email: z.string().email("E-mail invalido"),
-  admin_password: z.string().min(8, "Senha deve ter no minimo 8 caracteres"),
+  firm_name: z.string().min(2, "Nome do escritório é obrigatório"),
+  admin_name: z.string().min(2, "Nome é obrigatório"),
+  admin_email: z.string().email("E-mail inválido"),
+  admin_password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
+  admin_password_confirm: z.string().min(8, "Confirme sua senha"),
   plan: z.enum(["trial", "starter", "pro", "enterprise"]).default("trial"),
   phone: z.string().optional(),
+  accept_terms: z.string().refine((v) => v === "on", "Você deve aceitar os Termos de Uso e a Política de Privacidade"),
+  // Honeypot — should be empty
+  website: z.string().max(0, "spam detected").optional(),
+}).refine((data) => data.admin_password === data.admin_password_confirm, {
+  message: "As senhas não coincidem",
+  path: ["admin_password_confirm"],
 });
 
-// GET /signup — signup form.
+// ============================================================
+// Shared UI helpers (mirrors auth.tsx patterns)
+// ============================================================
+
+function signupShell(title: string, children: unknown) {
+  return (
+    <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title} — PragmaOS</title>
+        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
+        <script src="/static/js/alpine.min.js" defer />
+        <style dangerouslySetInnerHTML={{ __html: appCss }} />
+      </head>
+      <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md border border-carvao-700 bg-white p-8">
+          {children}
+        </div>
+      </body>
+    </html>
+  );
+}
+
+function SignupBrand(subtitle?: string) {
+  return (
+    <div class="mb-6">
+      <div class="flex items-center gap-2.5 mb-2">
+        <div class="w-10 h-10 rounded-xl bg-terracota-500 flex items-center justify-center">
+          <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
+        </div>
+        <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
+      </div>
+      {subtitle ? <p class="text-body-sm text-gray-500">{subtitle}</p> : null}
+    </div>
+  );
+}
+
+function ErrorAlert(msg: string) {
+  return (
+    <div class="border border-status-red bg-status-red-bg text-status-red text-body-sm px-3 py-2 mb-4 flex items-center gap-2">
+      <i class="ph ph-warning-circle" aria-hidden="true" />
+      {msg}
+    </div>
+  );
+}
+
+function SignupInput(opts: {
+  id: string;
+  name: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  icon?: string;
+  value?: string;
+  autofocus?: boolean;
+  minlength?: number;
+  autocomplete?: string;
+}) {
+  const { id, name, label, type = "text", placeholder, required, icon, value, autofocus, minlength, autocomplete } = opts;
+  return (
+    <div class="flex flex-col gap-1">
+      <label for={id} class="text-body-sm font-semibold text-gray-700">
+        {label}{required ? <span class="text-status-red"> *</span> : null}
+      </label>
+      <div class="relative">
+        {icon ? <i class={`ph ${icon} absolute left-2 top-1/2 -translate-y-1/2 text-body text-gray-400`} aria-hidden="true" /> : null}
+        <input
+          id={id}
+          name={name}
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          required={required}
+          minlength={minlength}
+          autocomplete={autocomplete}
+          autofocus={autofocus}
+          class={`input w-full${icon ? " pl-7" : ""}`}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// GET /signup — redirect to dashboard if already authenticated.
 signupRoutes.get("/signup", async (c) => {
+  const user = await getSessionUser(c);
+  if (user) return c.redirect("/dashboard");
   const enabled = await isSignupEnabled();
   if (!enabled) {
     return c.html(
-      `<html><body style="font-family: sans-serif; text-align: center; padding: 4rem;">
-        <h1>Cadastro temporariamente indisponivel</h1>
-        <p>Entre em contato pelo e-mail contato@pragmaos.com.br</p>
-      </body></html>`,
+      signupShell("Cadastro indisponível", (
+        <>
+          {SignupBrand()}
+          <div class="text-center py-8">
+            <i class="ph-bold ph-lock text-h1 text-gray-400 mb-4 block" aria-hidden="true" />
+            <h1 class="text-h3 font-bold text-carvao-800 mb-2">Cadastro temporariamente indisponível</h1>
+            <p class="text-body-sm text-gray-500 mb-6">Entre em contato pelo e-mail contato@pragmaos.com.br</p>
+            <a href="/login" class="btn btn-secondary inline-flex items-center gap-2">
+              <i class="ph ph-arrow-left" aria-hidden="true" /> Voltar para login
+            </a>
+          </div>
+        </>
+      )),
     );
   }
 
-  return c.html(`
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Cadastro — PragmaOS</title>
-      <style>
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f3f4f6; margin: 0; padding: 2rem; }
-        .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 2.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .logo { text-align: center; margin-bottom: 1.5rem; }
-        .logo h1 { font-size: 1.75rem; color: #1f2937; margin: 0; }
-        .logo p { color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0; }
-        .field { margin-bottom: 1rem; }
-        .field label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
-        .field input, .field select { width: 100%; padding: 0.625rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; }
-        .field input:focus, .field select:focus { outline: none; border-color: #c2410c; box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.2); }
-        .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
-        .plan { border: 2px solid #e5e7eb; border-radius: 0.5rem; padding: 0.75rem; cursor: pointer; text-align: center; }
-        .plan.selected { border-color: #c2410c; background: #fff7ed; }
-        .plan-name { font-weight: 600; font-size: 0.875rem; }
-        .plan-price { font-size: 0.75rem; color: #6b7280; }
-        button { background: #c2410c; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 0.5rem; }
-        button:hover { background: #9a3412; }
-        .flash { padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; }
-        .flash.error { background: #fee2e2; color: #991b1b; }
-        .flash.success { background: #d1fae5; color: #065f46; }
-        .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: #6b7280; }
-        .login-link a { color: #c2410c; text-decoration: none; }
-        .login-link a:hover { text-decoration: underline; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="logo">
-          <h1>PragmaOS</h1>
-          <p>Crie sua conta — 14 dias gratis</p>
-        </div>
+  const flashType = parseFlash(c.req.header("cookie") ?? "").type;
+  const flashMsg = parseFlash(c.req.header("cookie") ?? "").message;
 
-        ${(parseFlash(c.req.header("cookie") ?? "").type === "error" || parseFlash(c.req.header("cookie") ?? "").type === "success") ?
-          `<div class="flash ${parseFlash(c.req.header("cookie") ?? "").type}">${parseFlash(c.req.header("cookie") ?? "").message}</div>` : ""}
+  return c.html(
+    signupShell("Cadastro", (
+      <>
+        {SignupBrand("Crie sua conta — 14 dias grátis, sem cartão")}
 
-        <form method="post" action="/signup">
-          <div class="field">
-            <label>Nome do escritorio</label>
-            <input type="text" name="firm_name" required placeholder="Ex: Silva & Associados Advocacia" />
+        {flashType === "error" && flashMsg ? ErrorAlert(flashMsg) : null}
+        {flashType === "success" && flashMsg ? (
+          <div class="border border-status-green bg-status-green-bg text-status-green text-body-sm px-3 py-2 mb-4 flex items-center gap-2">
+            <i class="ph ph-check-circle" aria-hidden="true" />
+            {flashMsg}
           </div>
-          <div class="field">
-            <label>Seu nome</label>
-            <input type="text" name="admin_name" required placeholder="Nome completo" />
-          </div>
-          <div class="field">
-            <label>E-mail</label>
-            <input type="email" name="admin_email" required placeholder="voce@escritorio.com" />
-          </div>
-          <div class="field">
-            <label>Senha</label>
-            <input type="password" name="admin_password" required minlength="8" placeholder="Minimo 8 caracteres" />
-          </div>
-          <div class="field">
-            <label>Telefone (opcional)</label>
-            <input type="tel" name="phone" placeholder="(11) 99999-9999" />
+        ) : null}
+
+        <form method="post" action="/signup" class="flex flex-col gap-4" {...{ "x-data": "{ loading: false, pwd: '', confirm: '' }", "@submit": "loading = true" }}>
+          {/* Honeypot field — hidden from users, bots fill it */}
+          <div class="absolute -left-[9999px] opacity-0" aria-hidden="true">
+            <label for="website">Não preencha este campo</label>
+            <input type="text" id="website" name="website" tabIndex={-1} autocomplete="off" />
           </div>
 
-          <label style="font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; display: block;">Plano</label>
-          <div class="plans">
-            <div class="plan selected" onclick="document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected')); this.classList.add('selected'); document.getElementById('plan-input').value = 'trial';">
-              <div class="plan-name">Trial</div>
-              <div class="plan-price">14 dias gratis</div>
+          <SignupInput id="firm_name" name="firm_name" label="Nome do escritório" required placeholder="Ex: Silva & Associados" icon="ph-buildings" autofocus autocomplete="organization" />
+
+          <SignupInput id="admin_name" name="admin_name" label="Seu nome" required placeholder="Nome completo" icon="ph-user" autocomplete="name" />
+
+          <SignupInput id="admin_email" name="admin_email" label="E-mail" type="email" required placeholder="voce@escritorio.com" icon="ph-envelope" autocomplete="email" />
+
+          <SignupInput id="admin_password" name="admin_password" label="Senha" type="password" required placeholder="Mínimo 8 caracteres" icon="ph-lock" minlength={8} autocomplete="new-password" />
+
+          {/* Password strength indicator */}
+          <div {...{ "x-show": "pwd.length > 0" }} x-cloak class="-mt-2">
+            <div class="flex gap-1 h-1">
+              <div class="flex-1 rounded-full transition-all" {...{ ":class": "pwd.length >= 8 ? 'bg-status-green' : 'bg-gray-200'" }} />
+              <div class="flex-1 rounded-full transition-all" {...{ ":class": "pwd.length >= 12 ? 'bg-status-green' : 'bg-gray-200'" }} />
+              <div class="flex-1 rounded-full transition-all" {...{ ":class": "pwd.match(/[A-Z]/) && pwd.match(/[0-9]/) && pwd.match(/[^a-zA-Z0-9]/) ? 'bg-status-green' : 'bg-gray-200'" }} />
             </div>
-            <div class="plan" onclick="document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected')); this.classList.add('selected'); document.getElementById('plan-input').value = 'starter';">
-              <div class="plan-name">Starter</div>
-              <div class="plan-price">R$ 199/mes</div>
-            </div>
-            <div class="plan" onclick="document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected')); this.classList.add('selected'); document.getElementById('plan-input').value = 'pro';">
-              <div class="plan-name">Pro</div>
-              <div class="plan-price">R$ 499/mes</div>
-            </div>
-            <div class="plan" onclick="document.querySelectorAll('.plan').forEach(p => p.classList.remove('selected')); this.classList.add('selected'); document.getElementById('plan-input').value = 'enterprise';">
-              <div class="plan-name">Enterprise</div>
-              <div class="plan-price">Sob consulta</div>
+            <p class="text-xs text-gray-400 mt-1">Use 8+ caracteres com maiúsculas, números e símbolos</p>
+          </div>
+
+          <SignupInput id="admin_password_confirm" name="admin_password_confirm" label="Confirmar senha" type="password" required placeholder="Repita sua senha" icon="ph-lock" minlength={8} autocomplete="new-password" />
+
+          <SignupInput id="phone" name="phone" label="Telefone (opcional)" type="tel" placeholder="(11) 99999-9999" icon="ph-phone" autocomplete="tel" />
+
+          {/* Plan selection */}
+          <div>
+            <label class="text-body-sm font-semibold text-gray-700 mb-2 block">Plano</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="border-2 border-terracota-500 bg-terracota-50 rounded-lg p-3 cursor-pointer text-center has-[:checked]:border-terracota-500">
+                <input type="radio" name="plan" value="trial" checked class="sr-only" />
+                <div class="font-semibold text-body-sm text-carvao-800">Trial</div>
+                <div class="text-xs text-gray-500">14 dias grátis</div>
+              </label>
+              <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer text-center hover:border-terracota-300 transition has-[:checked]:border-terracota-500 has-[:checked]:bg-terracota-50">
+                <input type="radio" name="plan" value="starter" class="sr-only" />
+                <div class="font-semibold text-body-sm text-carvao-800">Starter</div>
+                <div class="text-xs text-gray-500">R$ 199/mês</div>
+              </label>
+              <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer text-center hover:border-terracota-300 transition has-[:checked]:border-terracota-500 has-[:checked]:bg-terracota-50">
+                <input type="radio" name="plan" value="pro" class="sr-only" />
+                <div class="font-semibold text-body-sm text-carvao-800">Pro</div>
+                <div class="text-xs text-gray-500">R$ 499/mês</div>
+              </label>
+              <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer text-center hover:border-terracota-300 transition has-[:checked]:border-terracota-500 has-[:checked]:bg-terracota-50">
+                <input type="radio" name="plan" value="enterprise" class="sr-only" />
+                <div class="font-semibold text-body-sm text-carvao-800">Enterprise</div>
+                <div class="text-xs text-gray-500">Sob consulta</div>
+              </label>
             </div>
           </div>
-          <input type="hidden" id="plan-input" name="plan" value="trial" />
 
-          <button type="submit">Criar Conta</button>
+          {/* Terms checkbox */}
+          <label class="flex items-start gap-2 text-body-sm text-gray-600 cursor-pointer">
+            <input type="checkbox" name="accept_terms" required class="mt-0.5" />
+            <span>Aceito os <a href="/termos" class="text-terracota-600 hover:underline" target="_blank">Termos de Uso</a> e a <a href="/privacidade" class="text-terracota-600 hover:underline" target="_blank">Política de Privacidade</a> (LGPD). <span class="text-status-red">*</span></span>
+          </label>
+
+          {/* Submit with loading state */}
+          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2" {...{ ":disabled": "loading" }}>
+            <i class="ph ph-rocket-launch" {...{ ":class": "loading ? 'ph-spinner animate-spin' : ''" }} aria-hidden="true" />
+            <span {...{ "x-show": "!loading" }}>Criar Conta Grátis</span>
+            <span {...{ "x-show": "loading", "x-cloak": "" }}>Criando sua conta...</span>
+          </button>
         </form>
 
-        <div class="login-link">
-          Ja tem uma conta? <a href="/login">Entrar</a>
+        <div class="text-center mt-6 text-body-sm text-gray-500">
+          Já tem uma conta? <a href="/login" class="text-terracota-600 font-semibold hover:underline">Entrar</a>
         </div>
-      </div>
-    </body>
-    </html>
-  `);
+      </>
+    )),
+  );
 });
 
-// POST /signup — create tenant.
-signupRoutes.post("/signup", async (c) => {
+// ============================================================
+// POST /signup — create tenant (with rate limiting + honeypot)
+// ============================================================
+signupRoutes.post("/signup", signupRateLimit, async (c) => {
   const enabled = await isSignupEnabled();
   if (!enabled) {
     return c.redirect("/login");
   }
 
   const body = await c.req.formData();
+
+  // Honeypot check — if filled, silently reject
+  const honeypot = String(body.get("website") ?? "").trim();
+  if (honeypot) {
+    setFlash(c, "success", "Conta criada com sucesso! Faça login para começar.");
+    return c.redirect("/login");
+  }
+
   const parsed = signupSchema.safeParse({
     firm_name: body.get("firm_name"),
     admin_name: body.get("admin_name"),
     admin_email: body.get("admin_email"),
     admin_password: body.get("admin_password"),
+    admin_password_confirm: body.get("admin_password_confirm"),
     plan: body.get("plan") ?? "trial",
     phone: body.get("phone") || undefined,
+    accept_terms: body.get("accept_terms") ?? "",
+    website: body.get("website") ?? "",
   });
 
   if (!parsed.success) {
-    setFlash(c, "error", parsed.error.issues[0]?.message ?? "Dados invalidos");
+    setFlash(c, "error", parsed.error.issues[0]?.message ?? "Dados inválidos");
     return c.redirect("/signup");
   }
 
@@ -159,7 +279,7 @@ signupRoutes.post("/signup", async (c) => {
   });
 
   if (result.success) {
-    setFlash(c, "success", "Conta criada com sucesso! Faca login para comecar.");
+    setFlash(c, "success", "Conta criada com sucesso! Faça login para começar.");
     return c.redirect("/login");
   } else {
     setFlash(c, "error", result.error ?? "Erro ao criar conta");

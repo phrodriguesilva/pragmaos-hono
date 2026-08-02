@@ -69,11 +69,11 @@ function onboardingShell(title: string, stepIdx: number, children: unknown) {
 
 // Step labels for the indicator
 const STEP_LABELS: Record<string, string> = {
-  company: "Dados do escritorio",
-  areas: "Areas de atuacao",
+  company: "Dados do escritório",
+  areas: "Áreas de atuação",
   team: "Equipe",
   branding: "Identidade",
-  done: "Concluido",
+  done: "Concluído",
 };
 
 function stepIndicator(currentIdx: number) {
@@ -122,12 +122,12 @@ onboardingRoutes.get("/company", async (c) => {
     onboardingShell("Dados do Escritorio", idx, (
       <>
         {stepIndicator(idx)}
-        <h1 class="text-2xl font-bold mb-2">Conte-nos sobre seu escritorio</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Estes dados aparecem em documentos, cobrancas e no seu site publico. Voce podera edita-los depois.</p>
+        <h1 class="text-2xl font-bold mb-2">Conte-nos sobre seu escritório</h1>
+        <p class="text-carvao-500 mb-6 text-sm">Estes dados aparecem em documentos, cobranças e no seu site público. Você poderá editá-los depois.</p>
 
         <form method="post" action="/onboarding/company" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4">
           <div>
-            <label for="name" class="block text-sm font-semibold text-carvao-700 mb-1">Nome do escritorio *</label>
+            <label for="name" class="block text-sm font-semibold text-carvao-700 mb-1">Nome do escritório *</label>
             <input id="name" name="name" type="text" required value={tenant?.name ?? ""} class="input w-full" />
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -141,7 +141,7 @@ onboardingRoutes.get("/company", async (c) => {
             </div>
           </div>
           <div>
-            <label for="address" class="block text-sm font-semibold text-carvao-700 mb-1">Endereco</label>
+            <label for="address" class="block text-sm font-semibold text-carvao-700 mb-1">Endereço</label>
             <input id="address" name="address" type="text" placeholder="Av. Paulista, 1000 - Sao Paulo/SP" value={tenant?.address ?? ""} class="input w-full" />
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -150,12 +150,12 @@ onboardingRoutes.get("/company", async (c) => {
               <input id="phone" name="phone" type="tel" placeholder="(11) 3000-0000" value={tenant?.phone ?? ""} class="input w-full" />
             </div>
             <div>
-              <label for="email_public" class="block text-sm font-semibold text-carvao-700 mb-1">E-mail publico</label>
+              <label for="email_public" class="block text-sm font-semibold text-carvao-700 mb-1">E-mail público</label>
               <input id="email_public" name="email_public" type="email" placeholder="contato@escritorio.com" value={tenant?.email_public ?? ""} class="input w-full" />
             </div>
           </div>
           <div>
-            <label for="founded_year" class="block text-sm font-semibold text-carvao-700 mb-1">Ano de fundacao</label>
+            <label for="founded_year" class="block text-sm font-semibold text-carvao-700 mb-1">Ano de fundação</label>
             <input id="founded_year" name="founded_year" type="number" min="1900" max="2099" placeholder="2010" value={tenant?.founded_year ?? ""} class="input w-full" />
           </div>
           <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2">
@@ -312,7 +312,7 @@ onboardingRoutes.get("/team", async (c) => {
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Convide sua equipe</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Adicione membros agora ou pule para fazer depois. Cada convite cria um usuario no seu escritorio.</p>
+        <p class="text-carvao-500 mb-6 text-sm">Adicione membros agora ou pule para fazer depois. Cada convite cria um usuário no seu escritório.</p>
 
         <div class="bg-white rounded-2xl border border-carvao-100 p-6 mb-4">
           <h3 class="font-semibold mb-3 text-sm">Membros atuais</h3>
@@ -341,13 +341,13 @@ onboardingRoutes.get("/team", async (c) => {
             <input name="invite_email" type="email" placeholder="E-mail" class="input w-full" />
             <select name="invite_role" class="input w-full">
               <option value="advogado">Advogado(a)</option>
-              <option value="socio">Socio(a)</option>
-              <option value="estagiario">Estagiario(a)</option>
+              <option value="socio">Sócio(a)</option>
+              <option value="estagiario">Estagiário(a)</option>
               <option value="financeiro">Financeiro</option>
-              <option value="recepcao">Recepcao</option>
+              <option value="recepcao">Recepção</option>
             </select>
           </div>
-          <p class="text-xs text-carvao-400 mb-4">O membro recebera um e-mail para definir a senha. Voce pode adicionar mais depois.</p>
+          <p class="text-xs text-carvao-400 mb-4">O membro receberá um e-mail para definir a senha. Você pode adicionar mais depois.</p>
           <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2">
             Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" />
           </button>
@@ -414,7 +414,7 @@ onboardingRoutes.get("/branding", async (c) => {
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Personalize sua identidade</h1>
-        <p class="text-carvao-500 mb-6 text-sm">Cores e tagline aparecem no seu site publico e nos documentos. Voce pode mudar tudo depois.</p>
+        <p class="text-carvao-500 mb-6 text-sm">Cores e tagline aparecem no seu site público e nos documentos. Você pode mudar tudo depois.</p>
 
         <form method="post" action="/onboarding/branding" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4">
           <div>
@@ -422,19 +422,19 @@ onboardingRoutes.get("/branding", async (c) => {
             <input id="tagline" name="tagline" type="text" placeholder="Ex: Advocacia estrategica para empresas" value={tenant?.tagline ?? ""} class="input w-full" />
           </div>
           <div>
-            <label for="description" class="block text-sm font-semibold text-carvao-700 mb-1">Descricao curta</label>
+            <label for="description" class="block text-sm font-semibold text-carvao-700 mb-1">Descrição curta</label>
             <textarea id="description" name="description" rows={2} placeholder="Em 1-2 frases, o que seu escritorio faz." class="input w-full">{tenant?.description ?? ""}</textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="primary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor primaria</label>
+              <label for="primary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor primária</label>
               <div class="flex items-center gap-2">
                 <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#c8553d"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
                 <input type="text" value={tenant?.primary_color ?? "#c8553d"} readonly class="input flex-1 text-sm" />
               </div>
             </div>
             <div>
-              <label for="secondary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor secundaria</label>
+              <label for="secondary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor secundária</label>
               <div class="flex items-center gap-2">
                 <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#2b2925"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
                 <input type="text" value={tenant?.secondary_color ?? "#2b2925"} readonly class="input flex-1 text-sm" />
@@ -442,7 +442,7 @@ onboardingRoutes.get("/branding", async (c) => {
             </div>
           </div>
           <div>
-            <label for="subdomain" class="block text-sm font-semibold text-carvao-700 mb-1">Subdominio do seu site publico</label>
+            <label for="subdomain" class="block text-sm font-semibold text-carvao-700 mb-1">Subdomínio do seu site público</label>
             <div class="flex items-center gap-1">
               <input id="subdomain" name="subdomain" type="text" placeholder="meu-escritorio" value={tenant?.subdomain ?? ""} class="input flex-1" />
               <span class="text-sm text-carvao-400">.pragmaos.app</span>

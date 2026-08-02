@@ -73,10 +73,10 @@ function generatePixBRCode(opts: {
 }
 
 const invoiceSchema = z.object({
-  client_id: z.string().uuid("Cliente invalido"),
+  client_id: z.string().uuid("Cliente inválido"),
   case_id: z.string().optional(),
   honorario_id: z.string().optional(),
-  number: z.string().min(1, "Numero e obrigatorio"),
+  number: z.string().min(1, "Número é obrigatório"),
   amount: z.coerce.number().positive("Valor deve ser positivo"),
   due_date: z.string().optional(),
   payment_method: z.enum(["pix", "boleto", "card", "transfer", "cash"]),
@@ -95,8 +95,8 @@ const STATUS_LABELS: Record<string, string> = {
 const METHOD_LABELS: Record<string, string> = {
   pix: "PIX",
   boleto: "Boleto",
-  card: "Cartao",
-  transfer: "Transferencia",
+  card: "Cartão",
+  transfer: "Transferência",
   cash: "Dinheiro",
 };
 
@@ -193,16 +193,16 @@ billingRoutes.get("/", async (c) => {
 
   return renderPage(
     c,
-    { title: "Cobrancas", active: "billing" },
+    { title: "Cobranças", active: "billing" },
     <>
       <PageHeader
-        title="Cobrancas"
+        title="Cobranças"
         icon="ph-receipt"
         actions={() => (
-          <WizardModal id="new-billing" title="Nova Cobranca" icon="ph-receipt" triggerText="Nova Cobranca" triggerIcon="ph-plus" action="/billing" large
+          <WizardModal id="new-billing" title="Nova Cobrança" icon="ph-receipt" triggerText="Nova Cobrança" triggerIcon="ph-plus" action="/billing" large
             steps={[
               {
-                label: "Cliente e Referencia",
+                label: "Cliente e Referência",
                 icon: "ph-user",
                 fields: (
                   <>
@@ -230,8 +230,8 @@ billingRoutes.get("/", async (c) => {
                       options={[
                         { value: "pix", label: "PIX" },
                         { value: "boleto", label: "Boleto" },
-                        { value: "card", label: "Cartao" },
-                        { value: "transfer", label: "Transferencia" },
+                        { value: "card", label: "Cartão" },
+                        { value: "transfer", label: "Transferência" },
                         { value: "cash", label: "Dinheiro" },
                       ]}
                     />
@@ -239,10 +239,10 @@ billingRoutes.get("/", async (c) => {
                 ),
               },
               {
-                label: "Observacoes",
+                label: "Observações",
                 icon: "ph-note",
                 fields: (
-                  <Textarea label="Observacoes" id="notes" name="notes" rows={3} />
+                  <Textarea label="Observações" id="notes" name="notes" rows={3} />
                 ),
               },
             ]}
@@ -271,7 +271,7 @@ billingRoutes.get("/", async (c) => {
         columns={[
           { label: "Numero" },
           { label: "Cliente" },
-          { label: "Descricao/Referencia" },
+          { label: "Descrição/Referência" },
           { label: "Valor" },
           { label: "Vencimento" },
           { label: "Status" },
@@ -279,7 +279,7 @@ billingRoutes.get("/", async (c) => {
           { label: "Acoes" },
         ]}
         rows={rows}
-        emptyMsg="Nenhuma cobranca encontrada."
+        emptyMsg="Nenhuma cobrança encontrada."
         emptyIcon="ph-receipt"
         ariaLabel="Lista de cobrancas"
         count={count ?? 0}
@@ -341,7 +341,7 @@ billingRoutes.get("/:id", async (c) => {
     .eq("tenant_id", user.tenantId)
     .single();
 
-  if (!inv) return c.html("Cobranca nao encontrada.", 404);
+  if (!inv) return c.html("Cobrança não encontrada.", 404);
 
   const client = inv.clients as { name: string } | null;
   const caseRow = inv.cases as { title: string } | null;
@@ -362,7 +362,7 @@ billingRoutes.get("/:id", async (c) => {
             {!isCancelled && !isPaid ? (
               <form method="post" action={`/billing/${id}/cancel`}>
                 <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobranca?')">
-                  <i class="ph ph-x-circle" aria-hidden="true"></i>Cancelar Cobranca
+                  <i class="ph ph-x-circle" aria-hidden="true"></i>Cancelar Cobrança
                 </button>
               </form>
             ) : null}
@@ -406,7 +406,7 @@ billingRoutes.get("/:id", async (c) => {
           </dl>
         </Panel>
         {inv.notes ? (
-          <Panel title="Observacoes" icon="ph-note">
+          <Panel title="Observações" icon="ph-note">
             <p class="text-body-sm text-gray-700 whitespace-pre-wrap">{inv.notes}</p>
           </Panel>
         ) : null}
@@ -441,7 +441,7 @@ billingRoutes.post("/:id/pay", async (c) => {
     .eq("tenant_id", user.tenantId)
     .single();
 
-  if (!inv) return c.html("Cobranca nao encontrada.", 404);
+  if (!inv) return c.html("Cobrança não encontrada.", 404);
 
   await supabase
     .from("invoices")

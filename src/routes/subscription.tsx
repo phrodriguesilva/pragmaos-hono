@@ -10,6 +10,7 @@ import { supabase } from "../lib/supabase";
 import { log } from "../lib/logger";
 import { getSubscriptionState, shouldBlockAccess, type SubscriptionState } from "../lib/subscription";
 import { createCustomer, createSubscription, cancelSubscription, isConfigured as asaasConfigured, type AsaasWebhookEvent } from "../lib/asaas";
+import { ASAAS_WEBHOOK_TOKEN } from "../lib/env";
 import { PageHeader, Panel, Badge, Select } from "../components/ui";
 
 export const subscriptionRoutes = new Hono<AppEnv>();
@@ -20,9 +21,9 @@ subscriptionRoutes.use("*", requireAuth);
 // Plan catalog (mirrors plans table)
 // ============================================================
 const PLAN_INFO: Record<string, { name: string; price: number; tagline: string }> = {
-  trial: { name: "Trial", price: 0, tagline: "14 dias gratis" },
-  starter: { name: "Starter", price: 19900, tagline: "Para escritorios iniciantes" },
-  pro: { name: "Pro", price: 49900, tagline: "Para escritorios em crescimento" },
+  trial: { name: "Trial", price: 0, tagline: "14 dias grátis" },
+  starter: { name: "Starter", price: 19900, tagline: "Para escritórios iniciantes" },
+  pro: { name: "Pro", price: 49900, tagline: "Para escritórios em crescimento" },
   enterprise: { name: "Enterprise", price: 0, tagline: "Sob consulta" },
 };
 
@@ -95,7 +96,7 @@ subscriptionRoutes.get("/", async (c) => {
                 </div>
                 <div class="text-body-sm text-gray-600">
                   {state.daysLeft > 0
-                    ? "Escolha um plano para continuar usando o PragmaOS apos o trial."
+                    ? "Escolha um plano para continuar usando o PragmaOS após o trial."
                     : "Assine um plano para reativar seu acesso."}
                 </div>
               </div>
@@ -110,11 +111,11 @@ subscriptionRoutes.get("/", async (c) => {
               <div>
                 <div class="font-semibold text-status-red text-body-sm">Acesso restrito</div>
                 <div class="text-body-sm text-status-red">
-                  {reason === "trial_expired" && "Seu periodo de teste expirou. Assine um plano para continuar."}
-                  {reason === "past_due" && "Ha um pagamento pendente. Regularize para continuar usando."}
-                  {reason === "suspended" && "Sua assinatura esta suspensa. Assine um plano para reativar."}
+                  {reason === "trial_expired" && "Seu período de teste expirou. Assine um plano para continuar."}
+                  {reason === "past_due" && "Há um pagamento pendente. Regularize para continuar usando."}
+                  {reason === "suspended" && "Sua assinatura está suspensa. Assine um plano para reativar."}
                   {reason === "canceled" && "Sua assinatura foi cancelada. Assine um plano para voltar."}
-                  {reason === "no_subscription" && "Voce nao tem uma assinatura ativa. Escolha um plano abaixo."}
+                  {reason === "no_subscription" && "Você não tem uma assinatura ativa. Escolha um plano abaixo."}
                 </div>
               </div>
             </div>
@@ -135,16 +136,16 @@ subscriptionRoutes.get("/", async (c) => {
                 <p class="text-body-sm text-gray-500 mb-3">{p.tagline}</p>
                 <div class="mb-4">
                   <span class="text-h2 font-bold">{formatCurrency(p.price_monthly_cents)}</span>
-                  <span class="text-body-sm text-gray-400">/mes</span>
+                  <span class="text-body-sm text-gray-400">/mês</span>
                 </div>
                 <ul class="space-y-2 text-body-sm mb-6 flex-1">
                   <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_users} usuarios</li>
                   <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_cases ? `${p.max_cases} processos` : "Processos ilimitados"}</li>
-                  {p.has_ai && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> IA juridica</li>}
+                  {p.has_ai && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> IA jurídica</li>}
                   {p.has_whatsapp && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> WhatsApp integrado</li>}
-                  {p.has_public_site && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> Site publico</li>}
+                  {p.has_public_site && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> Site público</li>}
                   {p.has_api && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> API</li>}
-                  {p.has_integrations && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> Integracoes</li>}
+                  {p.has_integrations && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> Integrações</li>}
                 </ul>
                 {isCurrent ? (
                   <span class="btn btn-secondary w-full text-center cursor-default">Plano atual</span>
@@ -187,7 +188,7 @@ subscriptionRoutes.get("/", async (c) => {
             <table class="w-full text-body-sm">
               <thead class="bg-gray-50 text-left">
                 <tr>
-                  <th class="px-4 py-3 font-semibold text-gray-600">Numero</th>
+                  <th class="px-4 py-3 font-semibold text-gray-600">Número</th>
                   <th class="px-4 py-3 font-semibold text-gray-600">Valor</th>
                   <th class="px-4 py-3 font-semibold text-gray-600">Vencimento</th>
                   <th class="px-4 py-3 font-semibold text-gray-600">Status</th>
@@ -216,7 +217,7 @@ subscriptionRoutes.get("/", async (c) => {
       {/* Cancel (only if active) */}
       {state.status === "active" && (
         <div class="mt-8">
-          <form method="post" action="/assinatura/cancelar" onsubmit="return confirm('Tem certeza? Seu acesso sera suspenso ao fim do periodo ja pago.')">
+          <form method="post" action="/assinatura/cancelar" onsubmit="return confirm('Tem certeza? Seu acesso será suspenso ao fim do período já pago.')">
             <button type="submit" class="text-body-sm text-status-red hover:underline">Cancelar assinatura</button>
           </form>
         </div>
@@ -377,6 +378,13 @@ subscriptionRoutes.post("/cancelar", async (c) => {
 // ============================================================
 subscriptionRoutes.post("/webhook", async (c) => {
   try {
+    // Validate Asaas webhook signature/token
+    const asaasToken = c.req.header("asaas-access-token");
+    if (!ASAAS_WEBHOOK_TOKEN || !asaasToken || asaasToken !== ASAAS_WEBHOOK_TOKEN) {
+      log.warn("Asaas webhook: invalid or missing token", { hasToken: !!asaasToken });
+      return c.json({ ok: false, error: "unauthorized" }, 401);
+    }
+
     const event = (await c.req.json()) as AsaasWebhookEvent;
     log.info("Asaas webhook received", { event: event.event, paymentId: event.payment?.id });
 

@@ -69,6 +69,7 @@ import { onboardingRoutes } from "./routes/onboarding";
 import { subscriptionRoutes } from "./routes/subscription";
 import { companySettingsRoutes } from "./routes/company-settings";
 import { resolveTenantByHost, resolveTenantBySlug, isPublicSiteRequest } from "./lib/tenant-resolver";
+import { renderNotFound, renderServerError } from "./lib/error-pages";
 
 const app = new Hono<AppEnv>();
 
@@ -282,10 +283,10 @@ app.route("/docs", docsRoutes);
 app.route("/help", helpRoutes);
 app.route("/site", siteAdminRoutes);
 
-// 404 fallback.
-app.notFound((c) => c.html("Pagina nao encontrada.", 404));
+// 404 fallback — full HTML page with branding.
+app.notFound((c) => c.html(renderNotFound(process.env.NODE_ENV === "development" ? c.req.path : undefined), 404));
 
-// Global error handler — log structured error, capture to Sentry, return 500.
+// Global error handler — log structured error, capture to Sentry, return branded 500 page.
 app.onError(async (err, c) => {
   log.error("Unhandled error", {
     error: err.message,
@@ -299,11 +300,11 @@ app.onError(async (err, c) => {
     tags: { path: c.req.path, method: c.req.method },
   });
 
-  const isProd = process.env.NODE_ENV === "production";
-  if (isProd) {
-    return c.html("Erro interno do servidor.", 500);
-  }
-  return c.html(`Erro interno: ${err.message}`, 500);
+  const isDev = process.env.NODE_ENV !== "production";
+  return c.html(
+    renderServerError(isDev ? `${err.message}\n\n${err.stack ?? ""}` : undefined),
+    500,
+  );
 });
 
 // Log startup.

@@ -8,6 +8,7 @@ import { log } from "../lib/logger";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
 import { resolveTenantByHost, resolveTenantBySlug } from "../lib/tenant-resolver";
 import { PublicLayout } from "../components/public-layout";
+import DOMPurify from "isomorphic-dompurify";
 
 export const publicSiteRoutes = new Hono<AppEnv>();
 
@@ -798,7 +799,7 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
             <p class="text-xl text-gray-600 font-serif italic mb-8 leading-relaxed">{articleData.excerpt}</p>
           )}
 
-          <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: articleData.content }} />
+          <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(articleData.content) }} />
 
           {/* CTA */}
           <div class="mt-12 p-6 bg-gray-50 rounded-xl text-center">

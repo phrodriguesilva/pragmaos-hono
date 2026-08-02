@@ -36,6 +36,7 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().url().or(z.literal("")).default(""),
   // Asaas (optional — SaaS subscription billing).
   ASAAS_API_KEY: z.string().or(z.literal("")).default(""),
+  ASAAS_WEBHOOK_TOKEN: z.string().or(z.literal("")).default(""),
 });
 
 const parsed = envSchema.safeParse(env);
@@ -81,6 +82,7 @@ type EnvValues = {
   UPSTASH_REDIS_REST_TOKEN: string;
   SENTRY_DSN: string;
   ASAAS_API_KEY: string;
+  ASAAS_WEBHOOK_TOKEN: string;
 };
 
 const e: EnvValues = parsed.success ? parsed.data : {
@@ -111,6 +113,7 @@ const e: EnvValues = parsed.success ? parsed.data : {
   UPSTASH_REDIS_REST_TOKEN: env.UPSTASH_REDIS_REST_TOKEN ?? "",
   SENTRY_DSN: env.SENTRY_DSN ?? "",
   ASAAS_API_KEY: env.ASAAS_API_KEY ?? "",
+  ASAAS_WEBHOOK_TOKEN: env.ASAAS_WEBHOOK_TOKEN ?? "",
 };
 
 export const SUPABASE_URL = e.SUPABASE_URL;
@@ -157,3 +160,4 @@ export const SENTRY_DSN = e.SENTRY_DSN;
 
 // Asaas (optional — SaaS subscription billing)
 export const ASAAS_API_KEY = e.ASAAS_API_KEY;
+export const ASAAS_WEBHOOK_TOKEN = e.ASAAS_WEBHOOK_TOKEN;

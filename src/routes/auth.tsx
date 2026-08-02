@@ -5,6 +5,7 @@ import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import { AuthLayout } from "../layouts/base";
 import { supabase } from "../lib/supabase";
 import { APP_URL } from "../lib/env";
+import { getSessionUser } from "../lib/session";
 import { generateTOTPSecret, validateTOTP, generateQRCodeDataURL, generateBackupCodes, buildTOTPUri } from "../lib/totp";
 import { getGovBrAuthUrl, getGovBrConfig, exchangeGovBrCode, getGovBrUserInfo } from "../lib/govbr";
 import { appCss } from "../generated/css";
@@ -141,9 +142,9 @@ const AuthButton = ({ icon, label }: { icon: string; label: string }) => (
 function loginForm(errorMsg?: string, emailValue?: string) {
   return (
     <AuthLayout title="Entrar">
-      <p class="text-body-sm text-gray-500 mb-6 text-center">Gestao juridica para escritorios.</p>
+      <p class="text-body-sm text-gray-500 mb-6 text-center">Gestão jurídica para escritórios.</p>
       {errorMsg ? ErrorAlert(errorMsg) : null}
-      <form method="post" action="/login" class="flex flex-col gap-4">
+      <form method="post" action="/login" class="flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
         <AuthInput id="email" name="email" label="Email" type="email" required icon="ph-envelope"
           placeholder="voce@escritorio.com" value={emailValue} autocomplete="email" />
         <div class="flex flex-col gap-1">
@@ -172,7 +173,11 @@ function loginForm(errorMsg?: string, emailValue?: string) {
             </button>
           </div>
         </div>
-        <AuthButton icon="ph-sign-in" label="Entrar" />
+        <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2" {...{ ":disabled": "loading" }}>
+          <i class={`ph ${"loading ? 'ph-spinner animate-spin' : 'ph-sign-in'"}`} aria-hidden="true" />
+          <span {...{ "x-show": "!loading" }}>Entrar</span>
+          <span {...{ "x-show": "loading", "x-cloak": "" }}>Entrando...</span>
+        </button>
         <div class="text-center">
           <a href="/forgot-password" class="text-body-sm text-terracota-600 hover:underline">
             Esqueceu sua senha?
@@ -191,7 +196,7 @@ function loginForm(errorMsg?: string, emailValue?: string) {
         </a>
         <div class="text-center mt-4">
           <a href="/signup" class="text-body-sm text-terracota-600 hover:underline">
-            Nao tem conta? Cadastre-se (14 dias gratis)
+            Não tem conta? Cadastre-se (14 dias grátis)
           </a>
         </div>
       </div>
@@ -199,8 +204,12 @@ function loginForm(errorMsg?: string, emailValue?: string) {
   );
 }
 
-// GET /login
-authRoutes.get("/login", (c) => c.html(loginForm()));
+// GET /login — redirect to dashboard if already authenticated.
+authRoutes.get("/login", async (c) => {
+  const user = await getSessionUser(c);
+  if (user) return c.redirect("/dashboard");
+  return c.html(loginForm());
+});
 
 // POST /login -- authenticate, check 2FA, redirect accordingly.
 authRoutes.post("/login", loginRateLimit, async (c) => {
@@ -209,13 +218,13 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   const password = String(body.password ?? "");
 
   if (!email || !password) {
-    return c.html(loginForm("Email e senha sao obrigatorios.", email));
+    return c.html(loginForm("Email e senha são obrigatórios.", email));
   }
 
   // Authenticate via Supabase Auth.
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error || !data.session) {
-    return c.html(loginForm("Credenciais invalidas.", email));
+    return c.html(loginForm("Credenciais inválidas.", email));
   }
 
   // Look up the user's profile to get tenant_id and check 2FA status.
@@ -293,13 +302,13 @@ function twoFAVerifyForm(errorMsg?: string) {
         <h1 class="text-h2 font-bold text-gray-900">Verificacao 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
-        Digite o codigo de 6 digitos do seu app autenticador.
+        Digite o código de 6 dígitos do seu app autenticador.
       </p>
       {errorMsg ? ErrorAlert(errorMsg) : null}
       <form method="post" action="/2fa/verify" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">
           <label for="code" class="text-body-sm font-semibold text-gray-700">
-            Codigo de verificacao<span class="text-status-red"> *</span>
+            Código de verificação<span class="text-status-red"> *</span>
           </label>
           <input
             id="code"
@@ -342,7 +351,7 @@ authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
   const code = String(body.code ?? "").trim();
 
   if (!code || code.length !== 6) {
-    return c.html(twoFAVerifyForm("O codigo deve ter 6 digitos."));
+    return c.html(twoFAVerifyForm("O código deve ter 6 dígitos."));
   }
 
   // Fetch the user's TOTP secret.
@@ -368,7 +377,7 @@ authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
       user_agent: c.req.header("user-agent") ?? null,
       success: false,
     });
-    return c.html(twoFAVerifyForm("Codigo invalido. Tente novamente."));
+    return c.html(twoFAVerifyForm("Código inválido. Tente novamente."));
   }
 
   // Log successful 2FA.
@@ -410,7 +419,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
             <img src={qrDataUrl} alt="QR Code para 2FA" class="inline-block border border-gray-200" width="200" height="200" />
           </div>
           <div class="mb-4">
-            <p class="text-body-sm text-gray-600 mb-1">Ou digite o codigo manualmente:</p>
+            <p class="text-body-sm text-gray-600 mb-1">Ou digite o código manualmente:</p>
             <div class="text-body-sm text-gray-800 border border-gray-200 bg-gray-50 p-2 break-all font-mono">
               {secret}
             </div>
@@ -418,7 +427,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
           <form method="post" action="/2fa/setup" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
               <label for="code" class="text-body-sm font-semibold text-gray-700">
-                Digite o codigo de 6 digitos<span class="text-status-red"> *</span>
+                Digite o código de 6 dígitos<span class="text-status-red"> *</span>
               </label>
               <input
                 id="code"
@@ -446,7 +455,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
       {backupCodes && backupCodes.length > 0 ? (
         <div class="mt-6 border-t border-gray-200 pt-4">
           <p class="text-body-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-            <i class="ph ph-key" aria-hidden="true" />Codigos de recuperacao
+            <i class="ph ph-key" aria-hidden="true" />Códigos de recuperação
           </p>
           <p class="text-body-sm text-gray-500 mb-2">
             Guarde estes codigos em local seguro. Use-os se perder acesso ao seu app autenticador.
@@ -455,7 +464,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
             {backupCodes.map((code) => <div key={code}>{code}</div>)}
           </div>
           <p class="text-body-sm text-status-red mt-2 flex items-center gap-1">
-            <i class="ph ph-warning" aria-hidden="true" />Estes codigos nao serao exibidos novamente.
+            <i class="ph ph-warning" aria-hidden="true" />Estes códigos não serão exibidos novamente.
           </p>
         </div>
       ) : null}
@@ -573,7 +582,7 @@ authRoutes.post("/2fa/setup", async (c) => {
   }
 
   if (code.length !== 6) {
-    return c.html(await twoFASetupForm(undefined, undefined, undefined, "O codigo deve ter 6 digitos."));
+    return c.html(await twoFASetupForm(undefined, undefined, undefined, "O código deve ter 6 dígitos."));
   }
 
   // Fetch stored secret.
@@ -588,7 +597,7 @@ authRoutes.post("/2fa/setup", async (c) => {
   }
 
   if (!validateTOTP(code, totpRow.secret)) {
-    return c.html(await twoFASetupForm(undefined, totpRow.secret, undefined, "Codigo invalido. Tente novamente."));
+    return c.html(await twoFASetupForm(undefined, totpRow.secret, undefined, "Código inválido. Tente novamente."));
   }
 
   // Generate backup codes.
@@ -654,7 +663,7 @@ authRoutes.post("/forgot-password", passwordResetRateLimit, async (c) => {
   const email = String(body.email ?? "").trim().toLowerCase();
 
   if (!email) {
-    return c.html(forgotPasswordForm("Email e obrigatorio."));
+    return c.html(forgotPasswordForm("Email é obrigatório."));
   }
 
   // Check if user exists.
@@ -786,8 +795,8 @@ authRoutes.get("/reset-password", async (c) => {
   if (!token) {
     return c.html(
       <AuthLayout title="Link Invalido">
-        {AuthBrand("Redefinicao de senha")}
-        {ErrorAlert("Link de recuperacao invalido ou ausente.")}
+        {AuthBrand("Redefinição de senha")}
+        {ErrorAlert("Link de recuperação inválido ou ausente.")}
         <a href="/forgot-password" class="btn btn-secondary w-full flex items-center justify-center gap-2">
           <i class="ph ph-arrow-left" aria-hidden="true" />Solicitar novo link
         </a>
@@ -806,7 +815,7 @@ authRoutes.get("/reset-password", async (c) => {
   if (!resetRow || resetRow.used || new Date(resetRow.expires_at) < new Date()) {
     return c.html(
       <AuthLayout title="Link Expirado">
-        {AuthBrand("Redefinicao de senha")}
+        {AuthBrand("Redefinição de senha")}
         {ErrorAlert("Este link de recuperacao expirou ou ja foi usado.")}
         <a href="/forgot-password" class="btn btn-secondary w-full flex items-center justify-center gap-2">
           <i class="ph ph-arrow-left" aria-hidden="true" />Solicitar novo link
