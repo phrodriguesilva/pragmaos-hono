@@ -66,6 +66,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <style dangerouslySetInnerHTML={{ __html: `@font-face{font-family:"Phosphor";src:url("/static/fonts/Phosphor.woff2") format("woff2");font-display:swap}@font-face{font-family:"Phosphor-Bold";src:url("/static/fonts/Phosphor-Bold.woff2") format("woff2");font-display:swap}` }} />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
