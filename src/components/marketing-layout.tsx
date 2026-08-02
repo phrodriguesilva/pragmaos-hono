@@ -77,15 +77,15 @@ export const MarketingLayout: FC<PropsWithChildren<{
 
         <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
-        <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font/woff2" crossorigin="" />
-        <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
-        <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="/static/js/alpine.min.js" defer />
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           /* === Lexis Modern marketing styles === */
           .mkt-body {
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -192,8 +192,8 @@ export const MarketingLayout: FC<PropsWithChildren<{
             outline: 2px solid #1a2634;
             outline-offset: 2px;
           }
-        `}</style>
-        <script>{`
+        ` }} />
+        <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             // IntersectionObserver for reveal animations
             const revealObs = new IntersectionObserver((entries) => {
@@ -274,7 +274,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
               setupScrollText();
             });
           })();
-        `}</script>
+        ` }} />
       </head>
       <body class="mkt-body bg-[#f7fafc] text-[#181c1e] antialiased min-h-screen flex flex-col">
         {/* Header — sticky, tonal, minimal */}

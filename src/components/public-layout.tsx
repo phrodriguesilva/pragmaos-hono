@@ -64,13 +64,13 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         {/* Additional page-specific JSON-LD (Article, Attorney, etc.) */}
         {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
 
-        <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
-        <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="/static/js/alpine.min.js" defer />
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           :root {
             --color-primary: ${primary};
             --color-secondary: ${secondary};
@@ -95,9 +95,9 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
             .reveal { opacity: 1; transform: none; transition: none; }
             html { scroll-behavior: auto; }
           }
-        `}</style>
+        ` }} />
         {/* Scroll reveal + back-to-top + stat counter script */}
-        <script>{`
+        <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             // Scroll reveal with IntersectionObserver
             const obs = new IntersectionObserver((entries) => {
@@ -141,7 +141,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
               if (btn) btn.style.opacity = window.scrollY > 400 ? '1' : '0';
             });
           })();
-        `}</script>
+        ` }} />
       </head>
       <body class="bg-white text-gray-900 min-h-screen flex flex-col">
         {/* Header */}

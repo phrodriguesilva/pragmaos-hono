@@ -30,10 +30,10 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
       <link rel="manifest" href="/manifest.json" />
       <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
-      <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
-      <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
-      <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
-      <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+      <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
@@ -84,10 +84,10 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
       <link rel="manifest" href="/manifest.json" />
       <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
-      <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
-      <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
-      <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
-      <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+      <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
