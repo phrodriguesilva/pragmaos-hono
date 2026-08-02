@@ -221,7 +221,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
       </nav>
       <div class="px-3 py-3 shrink-0 border-t border-white/5 flex items-center justify-between">
         <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-gray-500 hover:bg-white/5 hover:text-white transition-colors">
-          <i class="ph ph-info" aria-hidden="true" />
+          <i class="ph ph-chats-teardrop" aria-hidden="true" />
           Central de Ajuda
         </a>
         <span class="text-body-xs text-gray-700">v0.2.0</span>
@@ -244,7 +244,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
         aria-label="Central de Ajuda"
         class="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-terracota-600 transition-colors"
       >
-        <i class="ph ph-info text-h4" aria-hidden="true"></i>
+        <i class="ph ph-chats-teardrop text-h4" aria-hidden="true"></i>
       </a>
       {/* Notifications bell with badge */}
       <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative flex items-center">
@@ -295,7 +295,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
           </span>
         </button>
         <a href="/help" aria-label="Ajuda" class="ml-1 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-terracota-600 hover:bg-gray-50 rounded-lg transition" title="Ajuda">
-          <i class="ph ph-info text-h4" aria-hidden="true"></i>
+          <i class="ph ph-chats-teardrop text-h4" aria-hidden="true"></i>
         </a>
         <div
           {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}

@@ -28,7 +28,7 @@ helpRoutes.get("/", async (c) => {
       c,
       { title: "Ajuda", active: "help" },
       <>
-        <PageHeader title="Ajuda" icon="ph-info" />
+        <PageHeader title="Ajuda" icon="ph-chats-teardrop" />
 
         <form method="get" action="/help" class="mb-6">
           <div class="relative max-w-xl">
@@ -72,7 +72,7 @@ helpRoutes.get("/", async (c) => {
     c,
     { title: "Ajuda", active: "help" },
     <>
-      <PageHeader title="Central de Ajuda" icon="ph-info" />
+      <PageHeader title="Central de Ajuda" icon="ph-chats-teardrop" />
 
       <form method="get" action="/help" class="mb-8">
         <div class="relative max-w-xl">

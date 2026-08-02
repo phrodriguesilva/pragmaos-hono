@@ -23,7 +23,7 @@ export const helpCategories: HelpCategory[] = [
   {
     slug: "primeiros-passos",
     name: "Primeiros Passos",
-    icon: "ph-rocket",
+    icon: "ph-flag",
     description: "Onboarding e configuracao inicial do escritorio.",
   },
   {
@@ -53,7 +53,7 @@ export const helpCategories: HelpCategory[] = [
   {
     slug: "ia",
     name: "Inteligencia Artificial",
-    icon: "ph-brain",
+    icon: "ph-sparkle",
     description: "Chat juridico, resumos e analises com IA.",
   },
   {
