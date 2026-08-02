@@ -163,9 +163,9 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   );
 
   return (
-    <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #006382 0%, #00b3e6 100%);">
-      <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-white/5">
-        <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto brightness-0 invert" />
+    <aside class="h-full w-sidebar flex flex-col overflow-y-auto bg-white">
+      <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-gray-100">
+        <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
       </div>
       <nav class="flex-1 flex flex-col py-3 gap-0.5 px-3">
         {MENU.map((item) => {
@@ -176,7 +176,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <a
                 href={item.href}
                 class={`flex items-center gap-3 px-3 py-2.5 text-body-sm rounded-lg transition-all${
-                  isActive ? " bg-white/15 text-white font-semibold" : " text-white/70 hover:bg-white/10 hover:text-white"
+                  isActive ? " bg-[#006382] text-white font-semibold" : " text-gray-600 hover:bg-gray-100 hover:text-[#006382]"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -194,7 +194,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <button
                 {...{ "@click": "open = !open" }}
                 class={`flex items-center justify-between px-3 py-2.5 text-body-sm rounded-lg transition-all w-full${
-                  isExpanded ? " text-white" : " text-white/70 hover:bg-white/10 hover:text-white"
+                  isExpanded ? " text-[#006382] font-semibold" : " text-gray-600 hover:bg-gray-100 hover:text-[#006382]"
                 }`}
               >
                 <span class="flex items-center gap-3">
@@ -210,7 +210,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
                     <a
                       href={child.href}
                       class={`flex items-center gap-3 px-3 py-2 text-body-sm rounded-lg transition-all${
-                        isActive ? " bg-white/15 text-white font-semibold" : " text-white/60 hover:bg-white/10 hover:text-white"
+                        isActive ? " bg-[#006382] text-white font-semibold" : " text-gray-500 hover:bg-gray-100 hover:text-[#006382]"
                       }`}
                       aria-current={isActive ? "page" : undefined}
                     >
@@ -224,12 +224,12 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
           );
         })}
       </nav>
-      <div class="px-3 py-3 shrink-0 border-t border-white/10 flex items-center justify-between">
-        <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-white/60 hover:bg-white/10 hover:text-white transition-colors">
+      <div class="px-3 py-3 shrink-0 border-t border-gray-100 flex items-center justify-between">
+        <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-gray-500 hover:bg-gray-100 hover:text-[#006382] transition-colors">
           <i class="ph ph-lifebuoy" aria-hidden="true" />
           Central de Ajuda
         </a>
-        <span class="text-body-xs text-white/40">v0.2.0</span>
+        <span class="text-body-xs text-gray-400">v0.2.0</span>
       </div>
     </aside>
   );
@@ -240,8 +240,8 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   userName,
   userRole,
 }) => (
-  <header class="w-full h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-30">
-    <span class="text-h3 text-gray-800 font-semibold">{firmName ?? "PragmaOS"}</span>
+  <header class="w-full h-16 flex items-center justify-between px-6 sticky top-0 z-30" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);">
+    <span class="text-h3 text-white font-semibold">{firmName ?? "PragmaOS"}</span>
     <div class="flex items-center gap-4">
       {/* Notifications bell with badge */}
       <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative flex items-center">
@@ -249,7 +249,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
         <button
           {...{ "@click": "open = !open" }}
           aria-label="Notificacoes"
-          class="relative p-2 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-gray-700 flex items-center justify-center"
+          class="relative p-2 rounded-lg hover:bg-white/15 text-white/80 hover:text-white flex items-center justify-center"
         >
           <i class="ph ph-bell text-h4" aria-hidden="true"></i>
           <span {...{ "x-show": "count > 0", "x-text": "count > 99 ? '99+' : count" }} x-cloak
@@ -281,14 +281,14 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
           {...{ "@click": "open = !open" }}
           aria-label="Menu do usuario"
           aria-haspopup="menu"
-          class="flex items-center gap-2 text-body-sm text-gray-700 hover:text-gray-900 font-medium rounded-lg px-2 py-1.5 hover:bg-gray-50"
+          class="flex items-center gap-2 text-body-sm text-white font-medium rounded-lg px-2 py-1.5 hover:bg-white/15"
         >
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-terracota-400 to-terracota-600 flex items-center justify-center text-white text-body-sm font-bold">
+          <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-body-sm font-bold">
             {userName.charAt(0).toUpperCase()}
           </div>
           <span class="hidden sm:flex flex-col items-start leading-tight">
-            <span>{userName}</span>
-            {userRole ? <span class="text-body-xs text-gray-400 font-normal">{userRole}</span> : null}
+            <span class="text-white">{userName}</span>
+            {userRole ? <span class="text-body-xs text-white/60 font-normal">{userRole}</span> : null}
           </span>
         </button>
         <div
