@@ -262,7 +262,7 @@ clientsRoutes.get("/:id", async (c) => {
               </Textarea>
             </Modal>
             <form method="post" action={`/clients/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este cliente?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este cliente?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>

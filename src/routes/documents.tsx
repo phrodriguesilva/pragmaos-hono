@@ -358,7 +358,7 @@ documentsRoutes.get("/:id", async (c) => {
               <input type="hidden" name="document_name" value={doc.title} />
             </Modal>
             <form method="post" action={`/documents/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este documento?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este documento?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>

@@ -400,7 +400,7 @@ casesRoutes.get("/:id", async (c) => {
               ]}
             />
             <form method="post" action={`/cases/${id}/delete`}>
-              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
+              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo?')" aria-label="Excluir"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
             </form>
           </div>
         )}
@@ -461,7 +461,7 @@ casesRoutes.get("/:id", async (c) => {
               p.name,
               p.document ?? "-",
               <form method="post" action={`/cases/${id}/parties/${p.id}/delete`}>
-                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Remover esta parte?')">
+                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Remover esta parte?')" aria-label="Excluir">
                   <i class="ph ph-trash" aria-hidden="true"></i>
                 </button>
               </form> as unknown as string,

@@ -279,7 +279,7 @@ diarioRoutes.get("/:id", async (c) => {
               </button>
             </form>
             <form method="post" action={`/diario-oficial/${id}/delete`} class="inline">
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta busca e todos os resultados?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta busca e todos os resultados?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i> Excluir
               </button>
             </form>

@@ -244,7 +244,7 @@ siteAdminRoutes.get("/areas", async (c) => {
                 </div>
                 <a href={`/site/areas/${ta.id}`} class="btn btn-secondary text-body-xs">Editar</a>
                 <form method="post" action={`/site/areas/${ta.id}/delete`} class="inline" onsubmit="return confirm('Remover esta area?')">
-                  <button type="submit" class="btn btn-secondary text-body-xs text-status-red">Remover</button>
+                  <button type="submit" class="btn btn-secondary text-body-xs text-status-red" aria-label="Remover area">Remover</button>
                 </form>
               </div>
             ))}
@@ -985,7 +985,7 @@ siteAdminRoutes.get("/team", async (c) => {
     <div class="flex items-center gap-2">
       <a href={`/site/team/${m.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/team/${m.id}/delete`} class="inline" onsubmit="return confirm('Remover este membro do site?')">
-        <button type="submit" class="text-status-red hover:underline text-body-sm">Remover</button>
+        <button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Remover membro">Remover</button>
       </form>
     </div> as unknown as string,
   ]);

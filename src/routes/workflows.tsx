@@ -492,7 +492,7 @@ workflowsRoutes.get("/:id", async (c) => {
                   </div>
                 </div>
                 <form method="post" action={`/workflows/${wf.id}/steps/${s.id}/delete`} class="inline">
-                  <button type="submit" class="btn btn-danger inline-flex items-center gap-1">
+                  <button type="submit" class="btn btn-danger inline-flex items-center gap-1" aria-label="Excluir">
                     <i class="ph ph-trash" aria-hidden="true" />
                     Remover
                   </button>

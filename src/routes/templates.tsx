@@ -213,7 +213,7 @@ templatesRoutes.get("/:id", async (c) => {
               <p class="text-body-sm text-gray-500 -mt-2">Use a sintaxe <code class="bg-gray-100 px-1">{"{{variavel}}"}</code> para inserir variaveis no conteudo.</p>
             </Modal>
             <form method="post" action={`/templates/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este modelo?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este modelo?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>

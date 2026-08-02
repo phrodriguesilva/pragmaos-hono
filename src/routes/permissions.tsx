@@ -207,7 +207,7 @@ permissionsRoutes.get("/:id", async (c) => {
           <div class="flex gap-2">
             {role.is_system ? null : (
               <form method="post" action={`/permissions/${id}/delete`}>
-                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este perfil?')">
+                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este perfil?')" aria-label="Excluir">
                   <i class="ph ph-trash" aria-hidden="true"></i>Excluir
                 </button>
               </form>

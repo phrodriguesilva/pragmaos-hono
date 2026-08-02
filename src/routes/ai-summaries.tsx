@@ -335,7 +335,7 @@ aiSummariesRoutes.get("/:id", async (c) => {
       <Panel>
         <form method="post" action={`/ai-summaries/${id}/delete`} class="flex gap-2">
           <button type="submit" class="btn btn-danger inline-flex items-center gap-1"
-            onclick="return confirm('Excluir este resumo?')">
+            onclick="return confirm('Excluir este resumo?')" aria-label="Excluir">
             <i class="ph ph-trash" aria-hidden="true"></i>Excluir
           </button>
           <a href="/ai-summaries" class="btn btn-secondary inline-flex items-center gap-1">

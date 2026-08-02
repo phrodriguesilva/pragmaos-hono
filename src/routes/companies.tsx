@@ -214,7 +214,7 @@ companiesRoutes.get("/:id", async (c) => {
               </Textarea>
             </Modal>
             <form method="post" action={`/companies/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta empresa?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta empresa?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>
@@ -275,7 +275,7 @@ companiesRoutes.get("/:id", async (c) => {
             rep.phone ?? "-",
             rep.role ?? "-",
             <form method="post" action={`/companies/${id}/representatives/${rep.id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este representante?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este representante?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form> as unknown as string,

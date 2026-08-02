@@ -140,7 +140,7 @@ profileRoutes.get("/", async (c) => {
             {twoFAEnabled ? (
               <div class="flex gap-2">
                 <form method="post" action="/profile/2fa/disable" onsubmit="return confirm('Tem certeza que deseja desativar 2FA? Sua conta ficara menos segura.')">
-                  <button type="submit" class="btn btn-danger inline-flex items-center gap-1">
+                  <button type="submit" class="btn btn-danger inline-flex items-center gap-1" aria-label="Excluir">
                     <i class="ph ph-shield-slash" aria-hidden="true" />Desativar 2FA
                   </button>
                 </form>

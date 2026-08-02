@@ -292,7 +292,7 @@ messagesRoutes.get("/:id", async (c) => {
         actions={() => (
           <div class="flex gap-2">
             <form method="post" action={`/messages/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este canal?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este canal?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir Canal
               </button>
             </form>
@@ -355,7 +355,7 @@ messagesRoutes.get("/:id", async (c) => {
                   </span>
                   {m.user_id !== user.id ? (
                     <form method="post" action={`/messages/${id}/members/${m.id}/remove`}>
-                      <button type="submit" class="text-status-red hover:underline text-body-xs inline-flex items-center gap-1" onclick="return confirm('Remover este membro?')">
+                      <button type="submit" class="text-status-red hover:underline text-body-xs inline-flex items-center gap-1" onclick="return confirm('Remover este membro?')" aria-label="Remover membro">
                         <i class="ph ph-x" aria-hidden="true"></i>Remover
                       </button>
                     </form>

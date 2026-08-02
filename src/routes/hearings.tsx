@@ -258,7 +258,7 @@ hearingsRoutes.get("/:id", async (c) => {
               </Textarea>
             </Modal>
             <form method="post" action={`/hearings/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta audiencia?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta audiencia?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>

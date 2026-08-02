@@ -283,7 +283,7 @@ teamsRoutes.get("/:id", async (c) => {
               profile.email ?? "-",
               <Badge color="blue">{profile.role}</Badge> as unknown as string,
               <form method="post" action={`/teams/${id}/members/${m.id}/remove`}>
-                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Remover este membro?')">
+                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Remover este membro?')" aria-label="Excluir">
                   <i class="ph ph-user-minus" aria-hidden="true"></i>Remover
                 </button>
               </form> as unknown as string,

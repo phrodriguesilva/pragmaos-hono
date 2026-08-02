@@ -268,7 +268,7 @@ subscriptionRoutes.get("/", async (c) => {
       {state.status === "active" && (
         <div class="mt-8">
           <form method="post" action="/assinatura/cancelar" onsubmit="return confirm('Tem certeza? Seu acesso será suspenso ao fim do período já pago.')">
-            <button type="submit" class="text-body-sm text-status-red hover:underline">Cancelar assinatura</button>
+            <button type="submit" class="text-body-sm text-status-red hover:underline" aria-label="Cancelar assinatura">Cancelar assinatura</button>
           </form>
         </div>
       )}

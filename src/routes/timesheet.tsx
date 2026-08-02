@@ -394,7 +394,7 @@ timesheetRoutes.get("/:id", async (c) => {
               </div>
             </Modal>
             <form method="post" action={`/timesheet/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este registro?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este registro?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true" />Excluir
               </button>
             </form>

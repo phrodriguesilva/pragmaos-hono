@@ -46,7 +46,7 @@ apiKeysRoutes.get("/", async (c) => {
     formatDate(k.expires_at),
     k.active ? (
       <form method="post" action={`/api-keys/${k.id}/revoke`}>
-        <button type="submit" class="text-body-xs text-status-red hover:underline" onclick="return confirm('Revogar esta chave?')">Revogar</button>
+        <button type="submit" class="text-body-xs text-status-red hover:underline" onclick="return confirm('Revogar esta chave?')" aria-label="Revogar">Revogar</button>
       </form>
     ) : null,
   ]);
@@ -57,7 +57,7 @@ apiKeysRoutes.get("/", async (c) => {
     <Badge color={w.active ? "green" : "gray"}>{w.active ? "Ativo" : "Inativo"}</Badge> as unknown as string,
     formatDate(w.created_at),
     <form method="post" action={`/api-keys/webhooks/${w.id}/delete`}>
-      <button type="submit" class="text-body-xs text-status-red hover:underline" onclick="return confirm('Remover webhook?')">Remover</button>
+      <button type="submit" class="text-body-xs text-status-red hover:underline" onclick="return confirm('Remover webhook?')" aria-label="Remover webhook">Remover</button>
     </form>,
   ]);
 

@@ -398,7 +398,7 @@ proceedingsRoutes.get("/:id", async (c) => {
               <Textarea label="Texto do movimento" id="movement_text" name="movement_text" rows={6} required />
             </Modal>
             <form method="post" action={`/proceedings/${id}/delete`}>
-              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo CNJ?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
+              <button type="submit" class="btn btn-danger" onclick="return confirm('Excluir este processo CNJ?')" aria-label="Excluir"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button>
             </form>
           </div>
         )}

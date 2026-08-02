@@ -232,7 +232,7 @@ communicationsRoutes.get("/:id", async (c) => {
               <TextField label="Data" id="sent_at" name="sent_at" type="date" value={toDateInput(log.sent_at)} />
             </Modal>
             <form method="post" action={`/communications/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta comunicacao?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir esta comunicacao?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>

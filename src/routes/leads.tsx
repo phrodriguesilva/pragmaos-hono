@@ -314,7 +314,7 @@ leadsRoutes.get("/:id", async (c) => {
               <Textarea label="Observacoes" id="notes" name="notes" rows={3}>{lead.notes ?? ""}</Textarea>
             </Modal>
             <form method="post" action={`/leads/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este lead?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este lead?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true" />Excluir
               </button>
             </form>

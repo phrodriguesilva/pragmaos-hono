@@ -511,7 +511,7 @@ integrationsRoutes.get("/:id", async (c) => {
               </button>
             </form>
             <form method="post" action={`/integrations/${id}/delete`} onsubmit="return confirm('Excluir esta integracao?')">
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>

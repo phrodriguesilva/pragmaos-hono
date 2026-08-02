@@ -241,7 +241,7 @@ usersRoutes.get("/:id", async (c) => {
               <Textarea label="Biografia" id="bio" name="bio" placeholder="Breve biografia profissional..." value={profile.bio ?? ""} />
             </Modal>
             <form method="post" action={`/users/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este profissional?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este profissional?')" aria-label="Excluir">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>
