@@ -35,7 +35,6 @@ const APP_DOMAINS = [
   "127.0.0.1",
   "pragmaos.app",
   "pragmaos-hono.vercel.app",
-  "pragmaos-hono.vercel.app", // preview URLs
 ];
 
 // Vercel preview domains: pragmaos-hono-*.vercel.app
@@ -52,6 +51,14 @@ function extractSubdomain(host: string): string | null {
   if (hostname.endsWith(".pragmaos.app") && hostname !== "pragmaos.app") {
     const sub = hostname.slice(0, -".pragmaos.app".length);
     // Avoid www being treated as a subdomain
+    if (sub !== "www" && sub.length > 0) {
+      return sub;
+    }
+  }
+
+  // Check if it's a subdomain of pragmaos-hono.vercel.app
+  if (hostname.endsWith(".pragmaos-hono.vercel.app") && hostname !== "pragmaos-hono.vercel.app") {
+    const sub = hostname.slice(0, -".pragmaos-hono.vercel.app".length);
     if (sub !== "www" && sub.length > 0) {
       return sub;
     }
@@ -76,7 +83,8 @@ function isCustomDomain(host: string): boolean {
   if (APP_DOMAINS.includes(hostname)) return false;
   if (isVercelPreview(hostname)) return false;
   if (hostname.endsWith(".pragmaos.app")) return false; // subdomain
-  if (hostname.endsWith(".vercel.app")) return false;
+  if (hostname.endsWith(".pragmaos-hono.vercel.app")) return false; // subdomain
+  if (hostname.endsWith(".vercel.app")) return false; // preview URLs
   if (hostname === "localhost" || hostname.endsWith(".localhost")) return false;
 
   return true;
