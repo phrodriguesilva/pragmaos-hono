@@ -176,7 +176,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <a
                 href={item.href}
                 class={`flex items-center gap-3 px-3 py-2.5 text-body-sm rounded-lg transition-all${
-                  isActive ? " bg-white/10 text-white font-semibold" : " text-gray-400 hover:bg-white/5 hover:text-white"
+                  isActive ? " bg-white/15 text-white font-semibold" : " text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -194,7 +194,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <button
                 {...{ "@click": "open = !open" }}
                 class={`flex items-center justify-between px-3 py-2.5 text-body-sm rounded-lg transition-all w-full${
-                  isExpanded ? " text-white" : " text-gray-400 hover:bg-white/5 hover:text-white"
+                  isExpanded ? " text-white" : " text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <span class="flex items-center gap-3">
@@ -210,7 +210,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
                     <a
                       href={child.href}
                       class={`flex items-center gap-3 px-3 py-2 text-body-sm rounded-lg transition-all${
-                        isActive ? " bg-white/10 text-white font-semibold" : " text-gray-500 hover:bg-white/5 hover:text-white"
+                        isActive ? " bg-white/15 text-white font-semibold" : " text-white/60 hover:bg-white/10 hover:text-white"
                       }`}
                       aria-current={isActive ? "page" : undefined}
                     >
@@ -224,12 +224,12 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
           );
         })}
       </nav>
-      <div class="px-3 py-3 shrink-0 border-t border-white/5 flex items-center justify-between">
-        <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-gray-500 hover:bg-white/5 hover:text-white transition-colors">
+      <div class="px-3 py-3 shrink-0 border-t border-white/10 flex items-center justify-between">
+        <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-white/60 hover:bg-white/10 hover:text-white transition-colors">
           <i class="ph ph-lifebuoy" aria-hidden="true" />
           Central de Ajuda
         </a>
-        <span class="text-body-xs text-gray-700">v0.2.0</span>
+        <span class="text-body-xs text-white/40">v0.2.0</span>
       </div>
     </aside>
   );

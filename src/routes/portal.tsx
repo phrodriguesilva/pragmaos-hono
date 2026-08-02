@@ -62,11 +62,11 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);">
           <div class="flex items-center gap-2.5">
             <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
-            <span class="text-body-sm text-gray-300 font-normal">Portal do Cliente</span>
+            <span class="text-body-sm text-white/80 font-normal">Portal do Cliente</span>
           </div>
           <div class="flex items-center gap-5 text-body-sm">
             <span class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-body-xs font-bold">{clientName.charAt(0).toUpperCase()}</div>{clientName}</span>
-            <a href="/portal/logout" class="flex items-center gap-1.5 hover:text-white text-gray-300"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
+            <a href="/portal/logout" class="flex items-center gap-1.5 hover:text-white text-white/80"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
           </div>
         </header>
         <nav class="px-8 py-3 flex gap-1 text-body-sm text-white" style="background: linear-gradient(180deg, #00b3e6 0%, #006382 100%);">

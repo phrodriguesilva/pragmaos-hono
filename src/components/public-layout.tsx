@@ -213,7 +213,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         )}
 
         {/* Footer */}
-        <footer class="bg-secondary text-gray-300 mt-auto">
+        <footer class="bg-white border-t border-[#dce2e7] text-[#425563] mt-auto">
           <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Brand */}
@@ -224,31 +224,31 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
                   ) : (
                     <img src="/static/img/pragmaos-icon.png" alt="PragmaOS" class="h-8 w-8 rounded-lg object-cover" />
                   )}
-                  <span class="text-base font-semibold text-white">{tenant.name}</span>
+                  <span class="text-base font-semibold text-[#006382]">{tenant.name}</span>
                 </div>
-                {tenant.tagline && <p class="text-sm text-gray-300">{tenant.tagline}</p>}
-                {tenant.oab_number && <p class="text-xs text-gray-400 mt-2">OAB: {tenant.oab_number}</p>}
+                {tenant.tagline && <p class="text-sm text-[#7a8893]">{tenant.tagline}</p>}
+                {tenant.oab_number && <p class="text-xs text-[#7a8893] mt-2">OAB: {tenant.oab_number}</p>}
               </div>
 
               {/* Contact */}
               <div>
-                <h4 class="text-sm font-semibold text-white mb-3">Contato</h4>
+                <h4 class="text-sm font-semibold text-[#006382] mb-3">Contato</h4>
                 <ul class="space-y-2 text-sm">
                   {tenant.email_public && (
                     <li class="flex items-center gap-2">
-                      <i class="ph ph-envelope text-gray-400" aria-hidden="true" />
-                      <a href={`mailto:${tenant.email_public}`} class="hover:text-white">{tenant.email_public}</a>
+                      <i class="ph ph-envelope text-[#7a8893]" aria-hidden="true" />
+                      <a href={`mailto:${tenant.email_public}`} class="hover:text-[#006382]">{tenant.email_public}</a>
                     </li>
                   )}
                   {tenant.phone && (
                     <li class="flex items-center gap-2">
-                      <i class="ph ph-phone text-gray-400" aria-hidden="true" />
-                      <a href={`tel:${tenant.phone}`} class="hover:text-white">{tenant.phone}</a>
+                      <i class="ph ph-phone text-[#7a8893]" aria-hidden="true" />
+                      <a href={`tel:${tenant.phone}`} class="hover:text-[#006382]">{tenant.phone}</a>
                     </li>
                   )}
                   {tenant.address && (
                     <li class="flex items-start gap-2">
-                      <i class="ph ph-map-pin text-gray-400 mt-0.5" aria-hidden="true" />
+                      <i class="ph ph-map-pin text-[#7a8893] mt-0.5" aria-hidden="true" />
                       <span>{tenant.address}</span>
                     </li>
                   )}
@@ -257,31 +257,31 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
               {/* Social + Links */}
               <div>
-                <h4 class="text-sm font-semibold text-white mb-3">Navegação</h4>
+                <h4 class="text-sm font-semibold text-[#006382] mb-3">Navegação</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href={`${b}/`} class="hover:text-white">Início</a></li>
-                  <li><a href={`${b}/areas`} class="hover:text-white">Áreas de Atuação</a></li>
-                  <li><a href={`${b}/equipe`} class="hover:text-white">Equipe</a></li>
-                  <li><a href={`${b}/artigos`} class="hover:text-white">Artigos</a></li>
-                  <li><a href={`${b}/reconhecimentos`} class="hover:text-white">Reconhecimentos</a></li>
-                  <li><a href={`${b}/sobre`} class="hover:text-white">Sobre</a></li>
-                  <li><a href={`${b}/contato`} class="hover:text-white">Contato</a></li>
+                  <li><a href={`${b}/`} class="hover:text-[#006382]">Início</a></li>
+                  <li><a href={`${b}/areas`} class="hover:text-[#006382]">Áreas de Atuação</a></li>
+                  <li><a href={`${b}/equipe`} class="hover:text-[#006382]">Equipe</a></li>
+                  <li><a href={`${b}/artigos`} class="hover:text-[#006382]">Artigos</a></li>
+                  <li><a href={`${b}/reconhecimentos`} class="hover:text-[#006382]">Reconhecimentos</a></li>
+                  <li><a href={`${b}/sobre`} class="hover:text-[#006382]">Sobre</a></li>
+                  <li><a href={`${b}/contato`} class="hover:text-[#006382]">Contato</a></li>
                 </ul>
                 {(tenant.social_facebook || tenant.social_instagram || tenant.social_linkedin) && (
                   <div class="flex gap-3 mt-4">
-                    {tenant.social_facebook && <a href={tenant.social_facebook} class="text-gray-300 hover:text-white" aria-label="Facebook"><i class="ph ph-facebook-logo text-lg" aria-hidden="true" /></a>}
-                    {tenant.social_instagram && <a href={tenant.social_instagram} class="text-gray-300 hover:text-white" aria-label="Instagram"><i class="ph ph-instagram-logo text-lg" aria-hidden="true" /></a>}
-                    {tenant.social_linkedin && <a href={tenant.social_linkedin} class="text-gray-300 hover:text-white" aria-label="LinkedIn"><i class="ph ph-linkedin-logo text-lg" aria-hidden="true" /></a>}
+                    {tenant.social_facebook && <a href={tenant.social_facebook} class="text-[#7a8893] hover:text-[#006382]" aria-label="Facebook"><i class="ph ph-facebook-logo text-lg" aria-hidden="true" /></a>}
+                    {tenant.social_instagram && <a href={tenant.social_instagram} class="text-[#7a8893] hover:text-[#006382]" aria-label="Instagram"><i class="ph ph-instagram-logo text-lg" aria-hidden="true" /></a>}
+                    {tenant.social_linkedin && <a href={tenant.social_linkedin} class="text-[#7a8893] hover:text-[#006382]" aria-label="LinkedIn"><i class="ph ph-linkedin-logo text-lg" aria-hidden="true" /></a>}
                   </div>
                 )}
               </div>
             </div>
 
-            <div class="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
+            <div class="border-t border-[#dce2e7] mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#7a8893]">
               <span>&copy; {new Date().getFullYear()} {tenant.name}. Todos os direitos reservados.</span>
               <div class="flex gap-4">
-                <a href={`${b}/lgpd`} class="hover:text-white transition">Política de Privacidade</a>
-                <a href={`${b}/lgpd/termos`} class="hover:text-white transition">Termos de Uso</a>
+                <a href={`${b}/lgpd`} class="hover:text-[#006382] transition">Política de Privacidade</a>
+                <a href={`${b}/lgpd/termos`} class="hover:text-[#006382] transition">Termos de Uso</a>
               </div>
               <span>Powered by PragmaOS</span>
             </div>

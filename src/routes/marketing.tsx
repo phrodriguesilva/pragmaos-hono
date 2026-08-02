@@ -249,7 +249,7 @@ marketingRoutes.get("/", (c) => {
                 Agendar demonstração
               </a>
             </div>
-            <p class="reveal text-sm text-[#6b7b8a] mt-6">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
+            <p class="reveal text-sm text-white/60 mt-6">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
           </div>
         </div>
       </section>
@@ -584,11 +584,11 @@ marketingRoutes.get("/", (c) => {
                   ))}
                 </ul>
                 {p.footnote && (
-                  <p class={`text-xs mb-4 ${p.highlight ? "text-[#6b7b8a]" : "text-[#7a8893]"}`}>{p.footnote}</p>
+                  <p class={`text-xs mb-4 ${p.highlight ? "text-white/70" : "text-[#7a8893]"}`}>{p.footnote}</p>
                 )}
                 <a
                   href={p.href}
-                  class={`text-center py-2.5 rounded-lg font-semibold text-sm transition ${p.highlight ? "bg-white text-[#006382] hover:bg-[#00b3e6]" : "border border-[#c5cdd3] text-[#006382] hover:border-[#006382] hover:bg-[#eef2f5]"}`}
+                  class={`text-center py-2.5 rounded-lg font-semibold text-sm transition ${p.highlight ? "bg-white text-[#006382] hover:bg-[#00b3e6] hover:text-white" : "border border-[#c5cdd3] text-[#006382] hover:border-[#006382] hover:bg-[#eef2f5]"}`}
                 >
                   {p.cta}
                 </a>

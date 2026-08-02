@@ -333,46 +333,46 @@ export const MarketingLayout: FC<PropsWithChildren<{
         <main class="flex-1">{children}</main>
 
         {/* Footer — dark navy, cinematic */}
-        <footer class="bg-[#006382] text-[#00b3e6] mt-auto">
+        <footer class="bg-white border-t border-[#dce2e7] text-[#425563] mt-auto">
           <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div class="col-span-2 md:col-span-1">
                 <div class="flex items-center gap-2.5 mb-3">
-                  <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
+                  <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto" />
                 </div>
-                <p class="text-sm text-[#6b7b8a] max-w-xs">A plataforma all-in-one de gestão jurídica para escritórios que querem crescer com dados, não com planilhas.</p>
+                <p class="text-sm text-[#7a8893] max-w-xs">A plataforma all-in-one de gestão jurídica para escritórios que querem crescer com dados, não com planilhas.</p>
               </div>
 
               <div>
-                <h4 class="text-sm font-semibold text-white mb-3">Produto</h4>
+                <h4 class="text-sm font-semibold text-[#006382] mb-3">Produto</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href="/#recursos" class="hover:text-white transition-colors">Recursos</a></li>
-                  <li><a href="/#planos" class="hover:text-white transition-colors">Planos</a></li>
-                  <li><a href="/#integracoes" class="hover:text-white transition-colors">Integrações</a></li>
-                  <li><a href="/#seguranca" class="hover:text-white transition-colors">Segurança</a></li>
+                  <li><a href="/#recursos" class="hover:text-[#006382] transition-colors">Recursos</a></li>
+                  <li><a href="/#planos" class="hover:text-[#006382] transition-colors">Planos</a></li>
+                  <li><a href="/#integracoes" class="hover:text-[#006382] transition-colors">Integrações</a></li>
+                  <li><a href="/#seguranca" class="hover:text-[#006382] transition-colors">Segurança</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 class="text-sm font-semibold text-white mb-3">Empresa</h4>
+                <h4 class="text-sm font-semibold text-[#006382] mb-3">Empresa</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href="/sobre" class="hover:text-white transition-colors">Sobre</a></li>
-                  <li><a href="/contato" class="hover:text-white transition-colors">Fale com o comercial</a></li>
-                  <li><a href="/login" class="hover:text-white transition-colors">Entrar</a></li>
-                  <li><a href="/signup" class="hover:text-white transition-colors">Criar conta</a></li>
+                  <li><a href="/sobre" class="hover:text-[#006382] transition-colors">Sobre</a></li>
+                  <li><a href="/contato" class="hover:text-[#006382] transition-colors">Fale com o comercial</a></li>
+                  <li><a href="/login" class="hover:text-[#006382] transition-colors">Entrar</a></li>
+                  <li><a href="/signup" class="hover:text-[#006382] transition-colors">Criar conta</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 class="text-sm font-semibold text-white mb-3">Contato</h4>
+                <h4 class="text-sm font-semibold text-[#006382] mb-3">Contato</h4>
                 <ul class="space-y-2 text-sm">
-                  <li class="flex items-center gap-2"><i class="ph ph-envelope text-[#6b7b8a]" aria-hidden="true" /><a href="mailto:comercial@pragmaos.com.br" class="hover:text-white">comercial@pragmaos.com.br</a></li>
-                  <li class="flex items-center gap-2"><i class="ph ph-whatsapp-logo text-[#6b7b8a]" aria-hidden="true" /><a href="https://wa.me/5535984641515" class="hover:text-white">WhatsApp comercial</a></li>
+                  <li class="flex items-center gap-2"><i class="ph ph-envelope text-[#7a8893]" aria-hidden="true" /><a href="mailto:comercial@pragmaos.com.br" class="hover:text-[#006382]">comercial@pragmaos.com.br</a></li>
+                  <li class="flex items-center gap-2"><i class="ph ph-whatsapp-logo text-[#7a8893]" aria-hidden="true" /><a href="https://wa.me/5535984641515" class="hover:text-[#006382]">WhatsApp comercial</a></li>
                 </ul>
               </div>
             </div>
 
-            <div class="border-t border-[#00b3e6] mt-10 pt-6 flex flex-col md:flex-row justify-between gap-4 text-xs text-[#6b7b8a]">
+            <div class="border-t border-[#dce2e7] mt-10 pt-6 flex flex-col md:flex-row justify-between gap-4 text-xs text-[#7a8893]">
               <p>&copy; {new Date().getFullYear()} PragmaOS. Todos os direitos reservados.</p>
               <p>Feito no Brasil para advogados brasileiros.</p>
             </div>
