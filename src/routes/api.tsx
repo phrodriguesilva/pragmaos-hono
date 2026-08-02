@@ -4,6 +4,7 @@
 
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
+import { z } from "zod";
 
 import { apiKeyAuth, requireScope } from "../lib/api-auth";
 import { supabase } from "../lib/supabase";
@@ -73,25 +74,40 @@ apiRoutes.get("/v1/clients", requireScope("clients:read"), async (c) => {
 });
 
 // POST /api/v1/clients — create client
+const createClientSchema = z.object({
+  name: z.string().min(1, "name is required"),
+  client_type: z.enum(["individual", "company"]).optional().default("individual"),
+  cpf: z.string().optional().nullable(),
+  cnpj: z.string().optional().nullable(),
+  email: z.string().email("invalid email").optional().nullable(),
+  phone: z.string().optional().nullable(),
+});
+
 apiRoutes.post("/v1/clients", requireScope("clients:write"), async (c) => {
   const tenantId = c.get("apiTenantId") as string;
-  const body = await c.req.json();
+  const raw = await c.req.json().catch(() => null);
+  if (!raw) return c.json({ error: "Invalid JSON body" }, 400);
+
+  const parsed = createClientSchema.safeParse(raw);
+  if (!parsed.success) {
+    return c.json({ error: "Validation failed", details: parsed.error.issues }, 400);
+  }
 
   const { data, error } = await supabase
     .from("clients")
     .insert({
       tenant_id: tenantId,
-      name: body.name,
-      client_type: body.client_type ?? "individual",
-      cpf: body.cpf ?? null,
-      cnpj: body.cnpj ?? null,
-      email: body.email ?? null,
-      phone: body.phone ?? null,
+      name: parsed.data.name,
+      client_type: parsed.data.client_type,
+      cpf: parsed.data.cpf ?? null,
+      cnpj: parsed.data.cnpj ?? null,
+      email: parsed.data.email ?? null,
+      phone: parsed.data.phone ?? null,
     })
     .select("id, name")
     .single();
 
-  if (error) return c.json({ error: error.message }, 400);
+  if (error) return c.json({ error: "Failed to create client" }, 500);
   return c.json({ data }, 201);
 });
 
@@ -115,23 +131,36 @@ apiRoutes.get("/v1/deadlines", requireScope("deadlines:read"), async (c) => {
 });
 
 // POST /api/v1/deadlines — create deadline
+const createDeadlineSchema = z.object({
+  title: z.string().min(1, "title is required"),
+  due_date: z.string().min(1, "due_date is required"),
+  priority: z.number().min(1).max(5).optional().default(3),
+  case_id: z.string().uuid().optional().nullable(),
+});
+
 apiRoutes.post("/v1/deadlines", requireScope("deadlines:write"), async (c) => {
   const tenantId = c.get("apiTenantId") as string;
-  const body = await c.req.json();
+  const raw = await c.req.json().catch(() => null);
+  if (!raw) return c.json({ error: "Invalid JSON body" }, 400);
+
+  const parsed = createDeadlineSchema.safeParse(raw);
+  if (!parsed.success) {
+    return c.json({ error: "Validation failed", details: parsed.error.issues }, 400);
+  }
 
   const { data, error } = await supabase
     .from("deadlines")
     .insert({
       tenant_id: tenantId,
-      title: body.title,
-      due_date: body.due_date,
-      priority: body.priority ?? 3,
-      case_id: body.case_id ?? null,
+      title: parsed.data.title,
+      due_date: parsed.data.due_date,
+      priority: parsed.data.priority,
+      case_id: parsed.data.case_id ?? null,
     })
     .select("id, title, due_date")
     .single();
 
-  if (error) return c.json({ error: error.message }, 400);
+  if (error) return c.json({ error: "Failed to create deadline" }, 500);
   return c.json({ data }, 201);
 });
 

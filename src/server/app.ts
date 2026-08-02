@@ -44,6 +44,7 @@ import { financeReportsRoutes } from "../routes/finance-reports";
 import { aiSummariesRoutes } from "../routes/ai-summaries";
 import { oauthRoutes } from "../routes/oauth";
 import { whatsappWebhookRoutes } from "../routes/whatsapp-webhook";
+import { signatureWebhookRoutes } from "../routes/signature-webhooks";
 import { uploadRoutes } from "../routes/upload";
 import { diarioRoutes } from "../routes/diario-oficial";
 import { prazosRoutes } from "../routes/prazos";
@@ -274,6 +275,9 @@ app.route("/oauth", oauthRoutes);
 // WhatsApp webhook (public -- Meta calls these without auth cookies).
 // Registered at /webhooks/whatsapp to avoid conflict with auth-protected /whatsapp routes.
 app.route("/webhooks/whatsapp", whatsappWebhookRoutes);
+
+// Signature provider webhooks (public -- ClickSign/DocuSign call these with HMAC signatures).
+app.route("/webhooks/signatures", signatureWebhookRoutes);
 
 // File upload (protected -- multipart POST to Supabase Storage).
 app.route("/upload", uploadRoutes);

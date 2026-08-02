@@ -442,7 +442,13 @@ subscriptionRoutes.post("/webhook", async (c) => {
       return c.json({ ok: false, error: "unauthorized" }, 401);
     }
 
-    const event = (await c.req.json()) as AsaasWebhookEvent;
+    const rawEvent = await c.req.json();
+    // Basic payload validation
+    if (!rawEvent || typeof rawEvent.event !== "string") {
+      log.warn("Asaas webhook: invalid payload structure");
+      return c.json({ ok: false, error: "invalid payload" }, 400);
+    }
+    const event = rawEvent as AsaasWebhookEvent;
     log.info("Asaas webhook received", { event: event.event, paymentId: event.payment?.id });
 
     // Validate event type — only process known payment events

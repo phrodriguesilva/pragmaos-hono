@@ -183,6 +183,15 @@ usersRoutes.post("/", async (c) => {
     role: parsed.data.role,
   });
 
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "create",
+    entity_type: "user",
+    entity_id: data.user.id,
+    details: { email: parsed.data.email, full_name: parsed.data.full_name, role: parsed.data.role },
+  });
+
   return c.redirect("/users");
 });
 
@@ -386,6 +395,20 @@ usersRoutes.post("/:id", async (c) => {
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "update",
+    entity_type: "user",
+    entity_id: id,
+    details: { full_name: parsed.data.full_name, role: parsed.data.role, active: parsed.data.active === "true" },
+  });
+
+  // If user was deactivated, invalidate their sessions
+  if (parsed.data.active === "false") {
+    await supabase.auth.admin.signOut(id, "global").catch(() => {});
+  }
+
   return c.redirect(`/users/${id}`);
 });
 
@@ -415,9 +438,21 @@ usersRoutes.post("/:id/delete", async (c) => {
 
   await supabase
     .from("profiles")
-    .update({ deleted_at: new Date().toISOString() })
+    .update({ deleted_at: new Date().toISOString(), active: false })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "delete",
+    entity_type: "user",
+    entity_id: id,
+    details: {},
+  });
+
+  // Invalidate the deleted user's sessions
+  await supabase.auth.admin.signOut(id, "global").catch(() => {});
 
   return c.redirect("/users");
 });

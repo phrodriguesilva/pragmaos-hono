@@ -183,9 +183,19 @@ apiKeysRoutes.post("/", async (c) => {
 
   if (!name) return c.redirect("/api-keys?error=Nome obrigatorio");
 
+  // Rate limit: max 10 active API keys per tenant
+  const { count } = await supabase
+    .from("api_keys")
+    .select("id", { count: "exact", head: true })
+    .eq("tenant_id", user.tenantId)
+    .eq("active", true);
+  if ((count ?? 0) >= 10) {
+    return c.redirect("/api-keys?error=Limite de 10 chaves ativas atingido");
+  }
+
   const { key, keyHash, keyPrefix } = await generateApiKey(name);
 
-  await supabase.from("api_keys").insert({
+  const { data: newKey } = await supabase.from("api_keys").insert({
     tenant_id: user.tenantId,
     name,
     key_prefix: keyPrefix,
@@ -193,6 +203,15 @@ apiKeysRoutes.post("/", async (c) => {
     scopes,
     expires_at: expiresAt || null,
     created_by: user.id,
+  }).select().single();
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "create",
+    entity_type: "api_key",
+    entity_id: newKey?.id,
+    details: { name, scopes, expires_at: expiresAt || null },
   });
 
   return c.redirect(`/api-keys?new_key=${encodeURIComponent(key)}`);
@@ -207,6 +226,16 @@ apiKeysRoutes.post("/:id/revoke", async (c) => {
     .update({ active: false, revoked_at: new Date().toISOString() })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "delete",
+    entity_type: "api_key",
+    entity_id: id,
+    details: {},
+  });
+
   return c.redirect("/api-keys");
 });
 
@@ -221,11 +250,20 @@ apiKeysRoutes.post("/webhooks", async (c) => {
 
   if (!url) return c.redirect("/api-keys?tab=webhooks&error=URL obrigatoria");
 
-  await supabase.from("webhooks").insert({
+  const { data: newWebhook } = await supabase.from("webhooks").insert({
     tenant_id: user.tenantId,
     url,
     events,
     secret,
+  }).select().single();
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "create",
+    entity_type: "webhook",
+    entity_id: newWebhook?.id,
+    details: { url, events },
   });
 
   return c.redirect("/api-keys?tab=webhooks&success=Webhook criado");
@@ -240,5 +278,15 @@ apiKeysRoutes.post("/webhooks/:id/delete", async (c) => {
     .delete()
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "delete",
+    entity_type: "webhook",
+    entity_id: id,
+    details: {},
+  });
+
   return c.redirect("/api-keys?tab=webhooks");
 });

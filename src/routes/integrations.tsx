@@ -654,6 +654,15 @@ integrationsRoutes.post("/:id", async (c) => {
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "update",
+    entity_type: "integration",
+    entity_id: id,
+    details: { type: parsed.data.type, name: parsed.data.name, active: parsed.data.active === "true" },
+  });
+
   return c.redirect(`/integrations/${id}`);
 });
 

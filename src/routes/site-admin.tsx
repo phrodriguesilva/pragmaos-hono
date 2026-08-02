@@ -175,6 +175,15 @@ siteAdminRoutes.post("/appearance", async (c) => {
 
   if (error) {
     log.error("Failed to update site appearance", { error: error.message });
+  } else {
+    await supabase.from("audit_log").insert({
+      tenant_id: user.tenantId,
+      user_id: user.id,
+      action: "update",
+      entity_type: "site",
+      entity_id: user.tenantId,
+      details: { name: String(body.name ?? "").trim() },
+    });
   }
 
   return c.redirect("/site/appearance");
@@ -195,6 +204,15 @@ siteAdminRoutes.post("/appearance/toggle-publish", async (c) => {
       .from("tenants")
       .update({ site_published: !tenant.site_published, updated_at: new Date().toISOString() })
       .eq("id", user.tenantId);
+
+    await supabase.from("audit_log").insert({
+      tenant_id: user.tenantId,
+      user_id: user.id,
+      action: "update",
+      entity_type: "site",
+      entity_id: user.tenantId,
+      details: { published: !tenant.site_published },
+    });
   }
 
   return c.redirect("/site/appearance");
@@ -527,7 +545,7 @@ siteAdminRoutes.post("/articles", async (c) => {
   const wordCount = content.split(/\s+/).length;
   const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  await supabase
+  const { data: newArticle } = await supabase
     .from("articles")
     .insert({
       tenant_id: user.tenantId,
@@ -542,7 +560,18 @@ siteAdminRoutes.post("/articles", async (c) => {
       published_at: status === "published" ? new Date().toISOString() : null,
       reading_time_min: readingTime,
       meta_description: String(body.meta_description ?? "").trim() || null,
-    });
+    })
+    .select()
+    .single();
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "create",
+    entity_type: "article",
+    entity_id: newArticle?.id,
+    details: { title, slug, status },
+  });
 
   return c.redirect("/site/articles");
 });
@@ -651,6 +680,15 @@ siteAdminRoutes.post("/articles/:id/edit", async (c) => {
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "update",
+    entity_type: "article",
+    entity_id: id,
+    details: { title, status },
+  });
+
   return c.redirect("/site/articles");
 });
 
@@ -664,6 +702,15 @@ siteAdminRoutes.post("/articles/:id/delete", async (c) => {
     .delete()
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "delete",
+    entity_type: "article",
+    entity_id: id,
+    details: {},
+  });
 
   return c.redirect("/site/articles");
 });
@@ -1060,7 +1107,20 @@ siteAdminRoutes.post("/team", async (c) => {
     }
   }
 
-  await supabase.from("team_members").insert({
+  const slug = (body.slug as string) || publicName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  // Check slug uniqueness within tenant
+  const { data: existing } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("tenant_id", user.tenantId)
+    .eq("slug", slug)
+    .maybeSingle();
+  if (existing) {
+    return c.redirect("/site/team?error=slug-duplicate");
+  }
+
+  const { data: newMember } = await supabase.from("team_members").insert({
     tenant_id: user.tenantId,
     profile_id: profileId,
     public_name: publicName,
@@ -1069,9 +1129,18 @@ siteAdminRoutes.post("/team", async (c) => {
     public_photo_url: photoUrl,
     public_linkedin: linkedin,
     public_email: (body.public_email as string) || null,
-    slug: body.slug as string,
+    slug,
     is_featured: body.is_featured === "true",
     is_published: true,
+  }).select().single();
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "create",
+    entity_type: "team_member",
+    entity_id: newMember?.id,
+    details: { public_name: publicName, public_title: body.public_title as string },
   });
 
   return c.redirect("/site/team");
@@ -1175,13 +1244,28 @@ siteAdminRoutes.post("/team/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
+  const newSlug = body.slug as string;
+
+  // Check slug uniqueness (excluding current member)
+  if (newSlug) {
+    const { data: existing } = await supabase
+      .from("team_members")
+      .select("id")
+      .eq("tenant_id", user.tenantId)
+      .eq("slug", newSlug)
+      .neq("id", id)
+      .maybeSingle();
+    if (existing) {
+      return c.redirect(`/site/team/${id}?error=slug-duplicate`);
+    }
+  }
 
   await supabase
     .from("team_members")
     .update({
       public_name: body.public_name as string,
       public_title: body.public_title as string,
-      slug: body.slug as string,
+      slug: newSlug,
       public_photo_url: (body.public_photo_url as string) || null,
       public_linkedin: (body.public_linkedin as string) || null,
       public_email: (body.public_email as string) || null,
@@ -1193,6 +1277,15 @@ siteAdminRoutes.post("/team/:id", async (c) => {
     })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "update",
+    entity_type: "team_member",
+    entity_id: id,
+    details: { public_name: body.public_name as string, public_title: body.public_title as string },
+  });
 
   return c.redirect(`/site/team/${id}`);
 });
@@ -1207,6 +1300,15 @@ siteAdminRoutes.post("/team/:id/delete", async (c) => {
     .delete()
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "delete",
+    entity_type: "team_member",
+    entity_id: id,
+    details: {},
+  });
 
   return c.redirect("/site/team");
 });
@@ -1762,10 +1864,15 @@ siteAdminRoutes.get("/offices", async (c) => {
 siteAdminRoutes.post("/offices", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
+  const label = (body.label as string)?.trim();
+  const address = (body.address as string)?.trim();
+  if (!label || !address) {
+    return c.redirect("/site/offices?error=missing-fields");
+  }
   await supabase.from("offices").insert({
     tenant_id: user.tenantId,
-    label: body.label as string,
-    address: body.address as string,
+    label,
+    address,
     city: (body.city as string) || null,
     state: (body.state as string) || null,
     zip: (body.zip as string) || null,
@@ -1818,9 +1925,14 @@ siteAdminRoutes.get("/offices/:id", async (c) => {
 siteAdminRoutes.post("/offices/:id", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
+  const label = (body.label as string)?.trim();
+  const address = (body.address as string)?.trim();
+  if (!label || !address) {
+    return c.redirect(`/site/offices/${c.req.param("id")}?error=missing-fields`);
+  }
   await supabase.from("offices").update({
-    label: body.label as string,
-    address: body.address as string,
+    label,
+    address,
     city: (body.city as string) || null,
     state: (body.state as string) || null,
     zip: (body.zip as string) || null,

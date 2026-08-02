@@ -149,16 +149,25 @@ permissionsRoutes.post("/", async (c) => {
     return c.redirect("/permissions");
   }
 
-  const { error } = await supabase.from("roles").insert({
+  const { data: newRole, error } = await supabase.from("roles").insert({
     tenant_id: user.tenantId,
     name: parsed.data.name,
     description: parsed.data.description || null,
     is_system: false,
-  });
+  }).select().single();
 
   if (error) {
     return c.redirect("/permissions");
   }
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "create",
+    entity_type: "role",
+    entity_id: newRole?.id,
+    details: { name: parsed.data.name, description: parsed.data.description || null },
+  });
 
   return c.redirect("/permissions");
 });
@@ -305,6 +314,15 @@ permissionsRoutes.post("/:id", async (c) => {
     .from("role_permissions")
     .insert(rows);
 
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "update",
+    entity_type: "role",
+    entity_id: id,
+    details: {},
+  });
+
   return c.redirect(`/permissions/${id}`);
 });
 
@@ -330,6 +348,15 @@ permissionsRoutes.post("/:id/delete", async (c) => {
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  await supabase.from("audit_log").insert({
+    tenant_id: user.tenantId,
+    user_id: user.id,
+    action: "delete",
+    entity_type: "role",
+    entity_id: id,
+    details: {},
+  });
 
   return c.redirect("/permissions");
 });

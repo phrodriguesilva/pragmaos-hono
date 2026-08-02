@@ -647,7 +647,18 @@ backOfficeRoutes.post("/tenants/:id/suspend", async (c) => {
       target_tenant_id: id,
       ip_address: c.req.header("x-forwarded-for") ?? null,
     });
-    setFlash(c, "success", "Escritório suspenso.");
+
+    // Invalidate all sessions for users in this tenant
+    const { data: tenantUsers } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("tenant_id", id)
+      .is("deleted_at", null);
+    for (const u of tenantUsers ?? []) {
+      await supabase.auth.admin.signOut(u.id, "global").catch(() => {});
+    }
+
+    setFlash(c, "success", "Escritório suspenso. Todas as sessões foram encerradas.");
   }
 
   return c.redirect(`/back-office/tenants/${id}`);
