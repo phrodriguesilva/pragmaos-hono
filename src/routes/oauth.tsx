@@ -12,7 +12,8 @@ export const oauthRoutes = new Hono<AppEnv>();
 
 // ============================================================
 // OAuth state helpers — sign with HMAC to prevent CSRF/forgery.
-// Format: base64url(tenantId:userId:timestamp:hmac)
+// Format: base64url(tenantId:userId:timestamp:code_verifier:hmac)
+// Includes PKCE code_verifier so the callback can exchange the code securely.
 // ============================================================
 
 async function hmacSha256(data: string): Promise<string> {
@@ -31,15 +32,42 @@ async function hmacSha256(data: string): Promise<string> {
     .replace(/=+$/, "");
 }
 
-async function createOAuthState(tenantId: string, userId: string): Promise<string> {
-  const ts = Date.now();
-  const payload = `${tenantId}:${userId}:${ts}`;
-  const sig = await hmacSha256(payload);
-  const encoded = btoa(payload).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  return `${encoded}.${sig}`;
+// PKCE: generate a random code_verifier (43-128 chars, RFC 7636).
+function generateCodeVerifier(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
-async function verifyOAuthState(state: string): Promise<{ tenantId: string; userId: string } | null> {
+// PKCE: derive code_challenge = BASE64URL(SHA256(code_verifier)).
+async function deriveCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(verifier));
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+// Create state token with embedded PKCE verifier.
+async function createOAuthState(
+  tenantId: string,
+  userId: string,
+  codeVerifier?: string,
+): Promise<{ state: string; codeChallenge: string | null }> {
+  const ts = Date.now();
+  const verifier = codeVerifier ?? generateCodeVerifier();
+  const codeChallenge = await deriveCodeChallenge(verifier);
+  const payload = `${tenantId}:${userId}:${ts}:${verifier}`;
+  const sig = await hmacSha256(payload);
+  const encoded = btoa(payload).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return { state: `${encoded}.${sig}`, codeChallenge };
+}
+
+async function verifyOAuthState(state: string): Promise<{ tenantId: string; userId: string; codeVerifier: string } | null> {
   const parts = state.split(".");
   if (parts.length !== 2) return null;
   const [encoded = "", sig = ""] = parts;
@@ -47,12 +75,12 @@ async function verifyOAuthState(state: string): Promise<{ tenantId: string; user
     const payload = atob(encoded.replace(/-/g, "+").replace(/_/g, "/"));
     const expectedSig = await hmacSha256(payload);
     if (sig !== expectedSig) return null;
-    const [tenantId, userId, ts] = payload.split(":");
+    const [tenantId, userId, ts, codeVerifier] = payload.split(":");
     if (!tenantId || !userId || !ts) return null;
     // Expire after 10 minutes
     const ageMs = Date.now() - Number(ts);
     if (ageMs > 600_000 || ageMs < 0) return null;
-    return { tenantId, userId };
+    return { tenantId, userId, codeVerifier: codeVerifier ?? "" };
   } catch {
     return null;
   }
@@ -123,7 +151,7 @@ oauthRoutes.get("/google", requireAuth, async (c) => {
     );
   }
 
-  const state = await createOAuthState(user.tenantId, user.id);
+  const { state, codeChallenge } = await createOAuthState(user.tenantId, user.id);
   const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("client_id", config.client_id);
@@ -132,6 +160,9 @@ oauthRoutes.get("/google", requireAuth, async (c) => {
   authUrl.searchParams.set("access_type", "offline");
   authUrl.searchParams.set("prompt", "consent");
   authUrl.searchParams.set("state", state);
+  // PKCE
+  authUrl.searchParams.set("code_challenge", codeChallenge!);
+  authUrl.searchParams.set("code_challenge_method", "S256");
 
   return c.redirect(authUrl.toString());
 });
@@ -149,7 +180,7 @@ oauthRoutes.get("/google/callback", async (c) => {
   if (!stateData) {
     return c.redirect("/integrations?error=google_invalid_state");
   }
-  const { tenantId, userId } = stateData;
+  const { tenantId, userId, codeVerifier } = stateData;
 
   const { data: integration } = await supabase
     .from("integrations")
@@ -174,16 +205,20 @@ oauthRoutes.get("/google/callback", async (c) => {
   }
 
   try {
+    const tokenParams: Record<string, string> = {
+      code,
+      client_id: config.client_id,
+      client_secret: config.client_secret,
+      redirect_uri: config.redirect_uri,
+      grant_type: "authorization_code",
+    };
+    // PKCE: send code_verifier if we have one.
+    if (codeVerifier) tokenParams.code_verifier = codeVerifier;
+
     const tokenResp = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        code,
-        client_id: config.client_id,
-        client_secret: config.client_secret,
-        redirect_uri: config.redirect_uri,
-        grant_type: "authorization_code",
-      }),
+      body: new URLSearchParams(tokenParams),
     });
 
     if (!tokenResp.ok) {
@@ -282,7 +317,7 @@ oauthRoutes.get("/microsoft", requireAuth, async (c) => {
     );
   }
 
-  const state = await createOAuthState(user.tenantId, user.id);
+  const { state, codeChallenge } = await createOAuthState(user.tenantId, user.id);
   const authUrl = new URL(
     `https://login.microsoftonline.com/${config.tenant_id}/oauth2/v2.0/authorize`,
   );
@@ -291,6 +326,9 @@ oauthRoutes.get("/microsoft", requireAuth, async (c) => {
   authUrl.searchParams.set("redirect_uri", config.redirect_uri);
   authUrl.searchParams.set("scope", config.scopes || "https://graph.microsoft.com/.default");
   authUrl.searchParams.set("state", state);
+  // PKCE
+  authUrl.searchParams.set("code_challenge", codeChallenge!);
+  authUrl.searchParams.set("code_challenge_method", "S256");
 
   return c.redirect(authUrl.toString());
 });
@@ -308,7 +346,7 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
   if (!stateData) {
     return c.redirect("/integrations?error=microsoft_invalid_state");
   }
-  const { tenantId, userId } = stateData;
+  const { tenantId, userId, codeVerifier } = stateData;
 
   const { data: integration } = await supabase
     .from("integrations")
@@ -335,19 +373,22 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
   }
 
   try {
+    const tokenParams: Record<string, string> = {
+      code,
+      client_id: config.client_id,
+      client_secret: config.client_secret,
+      redirect_uri: config.redirect_uri,
+      grant_type: "authorization_code",
+      scope: config.scopes || "https://graph.microsoft.com/.default",
+    };
+    if (codeVerifier) tokenParams.code_verifier = codeVerifier;
+
     const tokenResp = await fetch(
       `https://login.microsoftonline.com/${config.tenant_id}/oauth2/v2.0/token`,
       {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          code,
-          client_id: config.client_id,
-          client_secret: config.client_secret,
-          redirect_uri: config.redirect_uri,
-          grant_type: "authorization_code",
-          scope: config.scopes || "https://graph.microsoft.com/.default",
-        }),
+        body: new URLSearchParams(tokenParams),
       },
     );
 
@@ -445,13 +486,16 @@ oauthRoutes.get("/docusign", requireAuth, async (c) => {
   }
 
   const env = config.environment === "production" ? "" : "d";
-  const state = await createOAuthState(user.tenantId, user.id);
+  const { state, codeChallenge } = await createOAuthState(user.tenantId, user.id);
   const authUrl = new URL(`https://account-${env}.docusign.com/oauth/auth`);
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("client_id", config.client_id);
   authUrl.searchParams.set("redirect_uri", config.redirect_uri);
   authUrl.searchParams.set("scope", "signature impersonation");
   authUrl.searchParams.set("state", state);
+  // PKCE
+  authUrl.searchParams.set("code_challenge", codeChallenge!);
+  authUrl.searchParams.set("code_challenge_method", "S256");
 
   return c.redirect(authUrl.toString());
 });
@@ -469,7 +513,7 @@ oauthRoutes.get("/docusign/callback", async (c) => {
   if (!stateData) {
     return c.redirect("/integrations?error=docusign_invalid_state");
   }
-  const { tenantId, userId } = stateData;
+  const { tenantId, userId, codeVerifier } = stateData;
 
   const { data: integration } = await supabase
     .from("integrations")
@@ -497,16 +541,19 @@ oauthRoutes.get("/docusign/callback", async (c) => {
   const env = config.environment === "production" ? "" : "d";
 
   try {
+    const tokenParams: Record<string, string> = {
+      code,
+      client_id: config.client_id,
+      client_secret: config.client_secret,
+      redirect_uri: config.redirect_uri,
+      grant_type: "authorization_code",
+    };
+    if (codeVerifier) tokenParams.code_verifier = codeVerifier;
+
     const tokenResp = await fetch(`https://account-${env}.docusign.com/oauth/token`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        code,
-        client_id: config.client_id,
-        client_secret: config.client_secret,
-        redirect_uri: config.redirect_uri,
-        grant_type: "authorization_code",
-      }),
+      body: new URLSearchParams(tokenParams),
     });
 
     if (!tokenResp.ok) {
