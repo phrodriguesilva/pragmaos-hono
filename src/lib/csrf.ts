@@ -66,6 +66,18 @@ export async function csrfProtection(c: Context, next: () => Promise<void>) {
     allowedHosts.add("127.0.0.1:5173");
   }
 
+  // Vercel: allow preview deployment URLs (*.vercel.app) for the same project.
+  // Preview URLs follow the pattern: <project>-<hash>-<team>.vercel.app
+  // Production URL is typically: <project>.vercel.app
+  if (originHost.endsWith(".vercel.app")) {
+    // Extract the project prefix from APP_HOST (e.g. "pragmaos-hono" from "pragmaos-hono.vercel.app")
+    const projectPrefix = APP_HOST.replace(/\.vercel\.app$/, "");
+    if (projectPrefix && (originHost === APP_HOST || originHost.startsWith(`${projectPrefix}-`))) {
+      await next();
+      return;
+    }
+  }
+
   if (!allowedHosts.has(originHost)) {
     return c.text("CSRF: Origin not allowed", 403);
   }
