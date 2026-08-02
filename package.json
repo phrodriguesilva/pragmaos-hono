@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot src/app.ts",
+    "dev": "bun --hot scripts/dev-server.ts",
     "build:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --minify",
     "build": "bun scripts/build.ts",
     "watch:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --watch",
