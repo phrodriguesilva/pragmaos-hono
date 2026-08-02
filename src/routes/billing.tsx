@@ -559,7 +559,7 @@ billingRoutes.post("/:id", async (c) => {
 });
 
 // ============================================================
-// GET /billing/:id/pdf — Generate PDF invoice
+// GET /billing/:id/pdf — Generate PDF invoice (pdf-lib, serverless-safe)
 // ============================================================
 billingRoutes.get("/:id/pdf", async (c) => {
   const user = c.get("user");
@@ -587,112 +587,150 @@ billingRoutes.get("/:id/pdf", async (c) => {
     .eq("id", user.tenantId)
     .single();
 
-  const PDFDocument = (await import("pdfkit")).default;
-  const doc = new PDFDocument({ size: "A4", margin: 50 });
+  const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
 
-  const chunks: Buffer[] = [];
-  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595.28, 841.89]); // A4
+  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const courier = await pdfDoc.embedFont(StandardFonts.Courier);
 
   const client = inv.clients as any;
   const caseRow = inv.cases as any;
   const hon = inv.honorarios as any;
 
-  // Header — firm name and invoice number
-  doc.fontSize(20).font("Helvetica-Bold").text(tenant?.name ?? "Escritório", 50, 50);
-  doc.fontSize(10).font("Helvetica").fillColor("#666");
-  if (tenant?.cnpj) doc.text(`CNPJ: ${tenant.cnpj}`, 50, 78);
-  if (tenant?.email_public) doc.text(tenant.email_public, 50, 92);
-  if (tenant?.phone) doc.text(tenant.phone, 50, 106);
-  if (tenant?.address) doc.text(tenant.address, 50, 120);
+  // Colors
+  const terracota = rgb(0.69, 0.39, 0.2);
+  const dark = rgb(0.2, 0.2, 0.2);
+  const gray = rgb(0.4, 0.4, 0.4);
+  const lightGray = rgb(0.9, 0.9, 0.9);
+
+  const left = 50;
+  const right = 545;
+  const width = right - left;
+
+  // Header — firm name
+  let y = 800;
+  page.drawText(tenant?.name ?? "Escritório", { x: left, y, size: 20, font: helveticaBold, color: dark });
+  y -= 18;
+  page.drawText(`CNPJ: ${tenant?.cnpj ?? "—"}`, { x: left, y, size: 9, font: helvetica, color: gray });
+  if (tenant?.email_public) {
+    y -= 14;
+    page.drawText(tenant.email_public, { x: left, y, size: 9, font: helvetica, color: gray });
+  }
+  if (tenant?.phone) {
+    y -= 14;
+    page.drawText(tenant.phone, { x: left, y, size: 9, font: helvetica, color: gray });
+  }
+  if (tenant?.address) {
+    y -= 14;
+    page.drawText(tenant.address.slice(0, 80), { x: left, y, size: 9, font: helvetica, color: gray });
+  }
 
   // Invoice title (right side)
-  doc.fontSize(24).font("Helvetica-Bold").fillColor("#b06432").text("COBRANÇA", 400, 50, { align: "right" });
-  doc.fontSize(12).font("Helvetica").fillColor("#333").text(`Nº ${inv.number}`, 400, 82, { align: "right" });
-  doc.text(`Emitida em: ${formatDate(inv.created_at)}`, 400, 98, { align: "right" });
+  page.drawText("COBRANÇA", { x: right - 130, y: 800, size: 24, font: helveticaBold, color: terracota });
+  page.drawText(`Nº ${inv.number}`, { x: right - 130, y: 778, size: 12, font: helvetica, color: dark });
+  page.drawText(`Emitida em: ${formatDate(inv.created_at)}`, { x: right - 130, y: 762, size: 10, font: helvetica, color: gray });
 
   // Line separator
-  doc.moveTo(50, 150).lineTo(545, 150).strokeColor("#e5e5e5").lineWidth(1).stroke();
+  page.drawLine({ start: { x: left, y: 745 }, end: { x: right, y: 745 }, thickness: 1, color: lightGray });
 
   // Client section
-  doc.fontSize(11).font("Helvetica-Bold").fillColor("#333").text("CLIENTE", 50, 170);
-  doc.font("Helvetica").fillColor("#666");
+  y = 720;
+  page.drawText("CLIENTE", { x: left, y, size: 11, font: helveticaBold, color: dark });
+  y -= 18;
   if (client) {
-    doc.text(client.name ?? "—", 50, 188);
-    if (client.cpf) doc.text(`CPF: ${client.cpf}`, 50, 202);
-    if (client.cnpj) doc.text(`CNPJ: ${client.cnpj}`, 50, 202);
-    if (client.email) doc.text(client.email, 50, 216);
-    if (client.phone) doc.text(client.phone, 50, 230);
-    if (client.address) doc.text(client.address, 50, 244);
+    page.drawText(client.name ?? "—", { x: left, y, size: 10, font: helvetica, color: gray });
+    if (client.cpf) {
+      y -= 14;
+      page.drawText(`CPF: ${client.cpf}`, { x: left, y, size: 9, font: helvetica, color: gray });
+    }
+    if (client.cnpj) {
+      y -= 14;
+      page.drawText(`CNPJ: ${client.cnpj}`, { x: left, y, size: 9, font: helvetica, color: gray });
+    }
+    if (client.email) {
+      y -= 14;
+      page.drawText(client.email, { x: left, y, size: 9, font: helvetica, color: gray });
+    }
+    if (client.phone) {
+      y -= 14;
+      page.drawText(client.phone, { x: left, y, size: 9, font: helvetica, color: gray });
+    }
   }
 
   // Details section
-  let y = 290;
-  doc.fontSize(11).font("Helvetica-Bold").fillColor("#333").text("DETALHES", 50, y);
-  y += 20;
+  y -= 30;
+  page.drawText("DETALHES", { x: left, y, size: 11, font: helveticaBold, color: dark });
+  y -= 18;
 
   const rows: [string, string][] = [
     ["Status", STATUS_LABELS[inv.status] ?? inv.status],
-    ["Método de pagamento", METHOD_LABELS[inv.payment_method] ?? inv.payment_method ?? "—"],
+    ["Método", METHOD_LABELS[inv.payment_method] ?? inv.payment_method ?? "—"],
     ["Vencimento", formatDate(inv.due_date)],
-    ["Data de pagamento", formatDate(inv.paid_at)],
+    ["Pago em", formatDate(inv.paid_at)],
   ];
-  if (caseRow?.title) rows.push(["Processo", caseRow.title]);
-  if (hon?.description) rows.push(["Honorários", hon.description]);
+  if (caseRow?.title) rows.push(["Processo", caseRow.title.slice(0, 50)]);
+  if (hon?.description) rows.push(["Honorários", hon.description.slice(0, 50)]);
 
-  doc.font("Helvetica").fillColor("#666");
   for (const [label, value] of rows) {
-    doc.font("Helvetica-Bold").text(label, 50, y);
-    doc.font("Helvetica").text(value, 200, y);
-    y += 18;
+    page.drawText(label, { x: left, y, size: 9, font: helveticaBold, color: dark });
+    page.drawText(value, { x: left + 150, y, size: 9, font: helvetica, color: gray });
+    y -= 16;
   }
 
   // Amount section
-  y += 20;
-  doc.moveTo(50, y).lineTo(545, y).strokeColor("#e5e5e5").lineWidth(1).stroke();
-  y += 20;
+  y -= 15;
+  page.drawLine({ start: { x: left, y: y + 5 }, end: { x: right, y: y + 5 }, thickness: 1, color: lightGray });
+  y -= 20;
 
-  doc.fontSize(14).font("Helvetica-Bold").fillColor("#333").text("VALOR", 50, y);
-  doc.fontSize(20).fillColor("#b06432").text(formatCurrency(inv.amount_cents), 400, y, { align: "right" });
-  y += 30;
+  page.drawText("VALOR", { x: left, y, size: 14, font: helveticaBold, color: dark });
+  const amountStr = formatCurrency(inv.amount_cents);
+  const amountWidth = helveticaBold.widthOfTextAtSize(amountStr, 20);
+  page.drawText(amountStr, { x: right - amountWidth, y, size: 20, font: helveticaBold, color: terracota });
+  y -= 25;
 
   if (inv.paid_amount_cents && inv.paid_amount_cents > 0 && inv.paid_amount_cents !== inv.amount_cents) {
-    doc.fontSize(11).font("Helvetica").fillColor("#666").text("Valor pago:", 400, y, { align: "right" });
-    doc.font("Helvetica-Bold").fillColor("#333").text(formatCurrency(inv.paid_amount_cents), 545, y, { align: "right" });
-    y += 18;
+    const paidStr = formatCurrency(inv.paid_amount_cents);
+    const paidWidth = helveticaBold.widthOfTextAtSize(paidStr, 11);
+    page.drawText("Valor pago:", { x: right - paidWidth - 80, y, size: 10, font: helvetica, color: gray });
+    page.drawText(paidStr, { x: right - paidWidth, y, size: 11, font: helveticaBold, color: dark });
+    y -= 16;
   }
 
   // PIX code
   if (inv.pix_code) {
-    y += 20;
-    doc.fontSize(11).font("Helvetica-Bold").fillColor("#333").text("PIX Copia e Cola:", 50, y);
-    y += 16;
-    doc.font("Courier").fontSize(8).fillColor("#666").text(inv.pix_code, 50, y, { width: 495 });
+    y -= 15;
+    page.drawText("PIX Copia e Cola:", { x: left, y, size: 10, font: helveticaBold, color: dark });
+    y -= 14;
+    // PIX codes can be long — wrap them
+    const pixLines = (inv.pix_code as string).match(/.{1,60}/g) ?? [];
+    for (const line of pixLines) {
+      page.drawText(line, { x: left, y, size: 8, font: courier, color: gray });
+      y -= 12;
+    }
   }
 
   // Notes
   if (inv.notes) {
-    y += 40;
-    doc.font("Helvetica-Bold").fontSize(11).fillColor("#333").text("Observações:", 50, y);
-    y += 16;
-    doc.font("Helvetica").fontSize(10).fillColor("#666").text(inv.notes, 50, y, { width: 495 });
+    y -= 20;
+    page.drawText("Observações:", { x: left, y, size: 10, font: helveticaBold, color: dark });
+    y -= 14;
+    const noteLines = (inv.notes as string).match(/.{1,70}/g) ?? [];
+    for (const line of noteLines) {
+      page.drawText(line, { x: left, y, size: 9, font: helvetica, color: gray });
+      y -= 12;
+    }
   }
 
   // Footer
-  doc.fontSize(8).fillColor("#999").text(
-    `Documento gerado por PragmaOS em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`,
-    50,
-    800,
-    { align: "center", width: 495 },
-  );
+  const footerStr = `Documento gerado por PragmaOS em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`;
+  const footerWidth = helvetica.widthOfTextAtSize(footerStr, 8);
+  page.drawText(footerStr, { x: (595.28 - footerWidth) / 2, y: 40, size: 8, font: helvetica, color: gray });
 
-  doc.end();
+  const pdfBytes = await pdfDoc.save();
 
-  // Wait for PDF generation to complete
-  const pdfBuffer = await new Promise<Buffer>((resolve) => {
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-  });
-
-  return new Response(pdfBuffer, {
+  return new Response(pdfBytes, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="cobranca-${inv.number}.pdf"`,

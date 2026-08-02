@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "./lib/types";
 
 import { logger } from "hono/logger";
-import { serveStatic } from "hono/bun";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { supabase } from "./lib/supabase";
 import { csrfProtection } from "./lib/csrf";
 import { log, requestLogger } from "./lib/logger";

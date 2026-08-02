@@ -46,12 +46,10 @@ if (!parsed.success) {
   for (const issue of parsed.error.issues) {
     console.error(`  ${issue.path.join(".")}: ${issue.message}`);
   }
-  // In production, fail fast. In development, warn but continue (some vars may be optional).
-  if (env.NODE_ENV === "production") {
-    console.error("[ENV] Abortando em producao devido a configuracao invalida.");
-    process.exit(1);
-  }
-  console.warn("[ENV] Continuando em modo desenvolvimento com configuracao parcial.");
+  // Don't crash the serverless function — continue with fallback values.
+  // Individual routes will fail gracefully if Supabase is not configured.
+  // This prevents a total outage (500 on every request) when one env var is missing.
+  console.warn("[ENV] Continuando com configuracao parcial — algumas funcionalidades podem nao funcionar.");
 }
 
 type EnvValues = {
