@@ -106,6 +106,7 @@ export const MENU: MenuItem[] = [
       { key: "cashflow", label: "Fluxo de Caixa", href: "/cashflow", icon: "ph-chart-line-up" },
       { key: "timesheet", label: "Timesheet", href: "/timesheet", icon: "ph-timer" },
       { key: "finance-reports", label: "Relatorios", href: "/finance-reports", icon: "ph-chart-pie" },
+      { key: "jurimetria", label: "Jurimetria", href: "/jurimetria", icon: "ph-chart-bar" },
       { key: "trust-accounts", label: "Contas de Clientes", href: "/trust-accounts", icon: "ph-bank" },
     ],
   },
