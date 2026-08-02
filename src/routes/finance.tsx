@@ -263,7 +263,7 @@ financeRoutes.get("/:id", async (c) => {
               </Textarea>
             </Modal>
             <form method="post" action={`/finance/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta fatura?')" aria-label="Excluir">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta fatura?')" aria-label="Cancelar Fatura">
                 <i class="ph ph-trash" aria-hidden="true"></i>Cancelar Fatura
               </button>
             </form>

@@ -292,7 +292,7 @@ messagesRoutes.get("/:id", async (c) => {
         actions={() => (
           <div class="flex gap-2">
             <form method="post" action={`/messages/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este canal?')" aria-label="Excluir">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este canal?')" aria-label="Excluir Canal">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir Canal
               </button>
             </form>

@@ -354,7 +354,7 @@ signatureRoutes.get("/:id", async (c) => {
               <button type="submit" class="btn btn-primary inline-flex items-center gap-1"><i class="ph ph-check-circle" aria-hidden="true"></i>Marcar como Assinado</button>
             </form>
             <form method="post" action={`/signatures/${id}/cancel`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta solicitacao de assinatura?')" aria-label="Excluir"><i class="ph ph-x-circle" aria-hidden="true"></i>Cancelar</button>
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta solicitacao de assinatura?')" aria-label="Cancelar"><i class="ph ph-x-circle" aria-hidden="true"></i>Cancelar</button>
             </form>
           </div>
         </Panel>

@@ -542,7 +542,7 @@ backOfficeRoutes.get("/tenants/:id", async (c) => {
           <div class="mt-4 pt-4 border-t border-gray-100 space-y-2">
             {tenant.subscription_status !== "suspended" ? (
               <form method="post" action={`/back-office/tenants/${id}/suspend`} onsubmit="return confirm('Suspender este escritório? Ele perderá acesso ao sistema.')">
-                <button type="submit" class="btn btn-danger w-full" aria-label="Excluir">
+                <button type="submit" class="btn btn-danger w-full" aria-label="Suspender">
                   <i class="ph ph-pause-circle" aria-hidden="true" /> Suspender
                 </button>
               </form>

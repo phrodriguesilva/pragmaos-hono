@@ -364,7 +364,7 @@ billingRoutes.get("/:id", async (c) => {
             </a>
             {!isCancelled && !isPaid ? (
               <form method="post" action={`/billing/${id}/cancel`}>
-                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobrança?')" aria-label="Excluir">
+                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobrança?')" aria-label="Cancelar Cobrança">
                   <i class="ph ph-x-circle" aria-hidden="true"></i>Cancelar Cobrança
                 </button>
               </form>
