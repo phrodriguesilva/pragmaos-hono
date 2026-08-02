@@ -8,7 +8,7 @@ import { log } from "../lib/logger";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
 import { resolveTenantByHost, resolveTenantBySlug } from "../lib/tenant-resolver";
 import { PublicLayout } from "../components/public-layout";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "../lib/sanitize";
 
 export const publicSiteRoutes = new Hono<AppEnv>();
 
