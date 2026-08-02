@@ -511,8 +511,10 @@ onboardingRoutes.get("/done", async (c) => {
   const user = c.get("user");
   const state = await getOnboardingState(user.tenantId);
   if (!state.completed) {
-    // Force-complete if all steps are done but flag wasn't set
-    await completeStep(user.tenantId, "branding");
+    // Mark the final "done" step as complete — this sets onboarding_completed = true.
+    // (completeStep("branding") only advances the pointer to "done" but doesn't flip
+    // the completed flag, so we must complete the "done" step itself.)
+    await completeStep(user.tenantId, "done");
   }
 
   const idx = ONBOARDING_STEPS.indexOf("done");
@@ -524,7 +526,7 @@ onboardingRoutes.get("/done", async (c) => {
         </div>
         <h1 class="text-3xl font-bold mb-3">Tudo pronto!</h1>
         <p class="text-carvao-500 mb-8 max-w-md mx-auto">
-          Seu escritorio esta configurado. Agora voce pode comecar a usar o PragmaOS — adicionar processos, clientes e explorar todos os recursos.
+          Seu escritório está configurado. Agora você pode começar a usar o PragmaOS — adicionar processos, clientes e explorar todos os recursos.
         </p>
         <a href="/dashboard" class="btn btn-primary inline-flex items-center gap-2 px-8 py-3">
           <i class="ph-bold ph-squares-four" aria-hidden="true" />
