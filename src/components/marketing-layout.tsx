@@ -216,7 +216,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
                 <h4 class="text-sm font-semibold text-white mb-3">Contato</h4>
                 <ul class="space-y-2 text-sm">
                   <li class="flex items-center gap-2"><i class="ph ph-envelope text-carvao-400" aria-hidden="true" /><a href="mailto:comercial@pragmaos.com.br" class="hover:text-white">comercial@pragmaos.com.br</a></li>
-                  <li class="flex items-center gap-2"><i class="ph ph-whatsapp-logo text-carvao-400" aria-hidden="true" /><a href="https://wa.me/5511999999999" class="hover:text-white">WhatsApp comercial</a></li>
+                  <li class="flex items-center gap-2"><i class="ph ph-whatsapp-logo text-carvao-400" aria-hidden="true" /><a href="https://wa.me/5535984641515" class="hover:text-white">WhatsApp comercial</a></li>
                 </ul>
               </div>
             </div>

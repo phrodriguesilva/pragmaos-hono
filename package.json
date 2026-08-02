@@ -16,6 +16,7 @@
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
     "@types/bun": "latest",
+    "@types/pdfkit": "^0.17.6",
     "tailwindcss": "^4.3.3"
   },
   "peerDependencies": {
@@ -31,6 +32,7 @@
     "hono": "^4.12.33",
     "isomorphic-dompurify": "^2.14.0",
     "otpauth": "^9.5.1",
+    "pdfkit": "^0.19.1",
     "qrcode": "^1.5.4",
     "zod": "^4.4.3"
   }

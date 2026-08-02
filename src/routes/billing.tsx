@@ -359,6 +359,9 @@ billingRoutes.get("/:id", async (c) => {
         icon="ph-receipt"
         actions={() => (
           <div class="flex gap-2">
+            <a href={`/billing/${id}/pdf`} target="_blank" class="btn btn-secondary inline-flex items-center gap-1">
+              <i class="ph ph-file-pdf" aria-hidden="true"></i>Baixar PDF
+            </a>
             {!isCancelled && !isPaid ? (
               <form method="post" action={`/billing/${id}/cancel`}>
                 <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobrança?')">
@@ -553,4 +556,147 @@ billingRoutes.post("/:id", async (c) => {
     .eq("tenant_id", user.tenantId);
 
   return c.redirect(`/billing/${id}`);
+});
+
+// ============================================================
+// GET /billing/:id/pdf — Generate PDF invoice
+// ============================================================
+billingRoutes.get("/:id/pdf", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  const { data: inv }: any = await supabase
+    .from("invoices")
+    .select(`
+      id, number, amount_cents, paid_amount_cents, status, payment_method,
+      due_date, paid_at, notes, created_at, pix_code,
+      clients(name, email, phone, cpf, cnpj, address),
+      cases(title),
+      honorarios(description, amount_cents)
+    `)
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+
+  if (!inv) return c.html("Cobrança não encontrada.", 404);
+
+  // Fetch tenant data for the invoice header
+  const { data: tenant }: any = await supabase
+    .from("tenants")
+    .select("name, cnpj, email_public, phone, address, subdomain")
+    .eq("id", user.tenantId)
+    .single();
+
+  const PDFDocument = (await import("pdfkit")).default;
+  const doc = new PDFDocument({ size: "A4", margin: 50 });
+
+  const chunks: Buffer[] = [];
+  doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+
+  const client = inv.clients as any;
+  const caseRow = inv.cases as any;
+  const hon = inv.honorarios as any;
+
+  // Header — firm name and invoice number
+  doc.fontSize(20).font("Helvetica-Bold").text(tenant?.name ?? "Escritório", 50, 50);
+  doc.fontSize(10).font("Helvetica").fillColor("#666");
+  if (tenant?.cnpj) doc.text(`CNPJ: ${tenant.cnpj}`, 50, 78);
+  if (tenant?.email_public) doc.text(tenant.email_public, 50, 92);
+  if (tenant?.phone) doc.text(tenant.phone, 50, 106);
+  if (tenant?.address) doc.text(tenant.address, 50, 120);
+
+  // Invoice title (right side)
+  doc.fontSize(24).font("Helvetica-Bold").fillColor("#b06432").text("COBRANÇA", 400, 50, { align: "right" });
+  doc.fontSize(12).font("Helvetica").fillColor("#333").text(`Nº ${inv.number}`, 400, 82, { align: "right" });
+  doc.text(`Emitida em: ${formatDate(inv.created_at)}`, 400, 98, { align: "right" });
+
+  // Line separator
+  doc.moveTo(50, 150).lineTo(545, 150).strokeColor("#e5e5e5").lineWidth(1).stroke();
+
+  // Client section
+  doc.fontSize(11).font("Helvetica-Bold").fillColor("#333").text("CLIENTE", 50, 170);
+  doc.font("Helvetica").fillColor("#666");
+  if (client) {
+    doc.text(client.name ?? "—", 50, 188);
+    if (client.cpf) doc.text(`CPF: ${client.cpf}`, 50, 202);
+    if (client.cnpj) doc.text(`CNPJ: ${client.cnpj}`, 50, 202);
+    if (client.email) doc.text(client.email, 50, 216);
+    if (client.phone) doc.text(client.phone, 50, 230);
+    if (client.address) doc.text(client.address, 50, 244);
+  }
+
+  // Details section
+  let y = 290;
+  doc.fontSize(11).font("Helvetica-Bold").fillColor("#333").text("DETALHES", 50, y);
+  y += 20;
+
+  const rows: [string, string][] = [
+    ["Status", STATUS_LABELS[inv.status] ?? inv.status],
+    ["Método de pagamento", METHOD_LABELS[inv.payment_method] ?? inv.payment_method ?? "—"],
+    ["Vencimento", formatDate(inv.due_date)],
+    ["Data de pagamento", formatDate(inv.paid_at)],
+  ];
+  if (caseRow?.title) rows.push(["Processo", caseRow.title]);
+  if (hon?.description) rows.push(["Honorários", hon.description]);
+
+  doc.font("Helvetica").fillColor("#666");
+  for (const [label, value] of rows) {
+    doc.font("Helvetica-Bold").text(label, 50, y);
+    doc.font("Helvetica").text(value, 200, y);
+    y += 18;
+  }
+
+  // Amount section
+  y += 20;
+  doc.moveTo(50, y).lineTo(545, y).strokeColor("#e5e5e5").lineWidth(1).stroke();
+  y += 20;
+
+  doc.fontSize(14).font("Helvetica-Bold").fillColor("#333").text("VALOR", 50, y);
+  doc.fontSize(20).fillColor("#b06432").text(formatCurrency(inv.amount_cents), 400, y, { align: "right" });
+  y += 30;
+
+  if (inv.paid_amount_cents && inv.paid_amount_cents > 0 && inv.paid_amount_cents !== inv.amount_cents) {
+    doc.fontSize(11).font("Helvetica").fillColor("#666").text("Valor pago:", 400, y, { align: "right" });
+    doc.font("Helvetica-Bold").fillColor("#333").text(formatCurrency(inv.paid_amount_cents), 545, y, { align: "right" });
+    y += 18;
+  }
+
+  // PIX code
+  if (inv.pix_code) {
+    y += 20;
+    doc.fontSize(11).font("Helvetica-Bold").fillColor("#333").text("PIX Copia e Cola:", 50, y);
+    y += 16;
+    doc.font("Courier").fontSize(8).fillColor("#666").text(inv.pix_code, 50, y, { width: 495 });
+  }
+
+  // Notes
+  if (inv.notes) {
+    y += 40;
+    doc.font("Helvetica-Bold").fontSize(11).fillColor("#333").text("Observações:", 50, y);
+    y += 16;
+    doc.font("Helvetica").fontSize(10).fillColor("#666").text(inv.notes, 50, y, { width: 495 });
+  }
+
+  // Footer
+  doc.fontSize(8).fillColor("#999").text(
+    `Documento gerado por PragmaOS em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`,
+    50,
+    800,
+    { align: "center", width: 495 },
+  );
+
+  doc.end();
+
+  // Wait for PDF generation to complete
+  const pdfBuffer = await new Promise<Buffer>((resolve) => {
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+  });
+
+  return new Response(pdfBuffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="cobranca-${inv.number}.pdf"`,
+      "Cache-Control": "no-cache",
+    },
+  });
 });

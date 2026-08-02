@@ -107,10 +107,10 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "+500", label: "escritórios ativos" },
-  { value: "+50 mil", label: "processos gerenciados" },
-  { value: "99,9%", label: "disponibilidade" },
-  { value: "4,9/5", label: "satisfação dos clientes" },
+  { value: "99,9%", label: "disponibilidade garantida" },
+  { value: "14 dias", label: "teste grátis, sem cartão" },
+  { value: "LGPD", label: "conformidade total" },
+  { value: "24/7", label: "suporte e monitoramento" },
 ];
 
 const TESTIMONIALS = [
@@ -563,8 +563,8 @@ marketingRoutes.get("/sobre", (c) => {
               <div class="text-sm text-carvao-400">Fundação</div>
             </div>
             <div>
-              <div class="text-3xl font-bold text-terracota-600 font-serif">+500</div>
-              <div class="text-sm text-carvao-400">Escritórios</div>
+              <div class="text-3xl font-bold text-terracota-600 font-serif">LGPD</div>
+              <div class="text-sm text-carvao-400">Conformidade total</div>
             </div>
             <div>
               <div class="text-3xl font-bold text-terracota-600 font-serif">BR</div>
@@ -631,7 +631,7 @@ marketingRoutes.get("/contato", (c) => {
                 </div>
                 <div>
                   <div class="font-semibold text-carvao-800 text-sm">WhatsApp</div>
-                  <a href="https://wa.me/5511999999999" class="text-sm text-terracota-600 hover:underline">+55 11 99999-9999</a>
+                  <a href="https://wa.me/5535984641515" class="text-sm text-terracota-600 hover:underline">+55 (35) 98464-1515</a>
                 </div>
               </div>
               <div class="flex items-start gap-3">
@@ -676,7 +676,7 @@ marketingRoutes.get("/contato", (c) => {
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label for="phone" class="block text-sm font-semibold text-carvao-700 mb-1">Telefone</label>
-                    <input id="phone" name="phone" type="tel" placeholder="(11) 99999-9999" value={pref("phone")} class="input w-full" />
+                    <input id="phone" name="phone" type="tel" placeholder="(35) 98464-1515" value={pref("phone")} class="input w-full" />
                   </div>
                   <div>
                     <label for="company" class="block text-sm font-semibold text-carvao-700 mb-1">Escritório</label>
