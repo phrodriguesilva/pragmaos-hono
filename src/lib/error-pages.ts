@@ -21,6 +21,8 @@ export function renderErrorPage({ code, title, message, detail }: ErrorPageOpts)
     <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
     <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
     <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+    <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+    <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
     <style>${appCss}</style>
     <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
     <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
@@ -28,12 +30,12 @@ export function renderErrorPage({ code, title, message, detail }: ErrorPageOpts)
   <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased">
     <div class="w-full max-w-md text-center">
       <div class="flex items-center justify-center gap-2.5 mb-8">
-        <div class="w-11 h-11 rounded-xl bg-terracota-500 flex items-center justify-center">
+        <div class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center">
           <i class="ph-bold ph-scales text-white text-h2" aria-hidden="true"></i>
         </div>
         <span class="text-h2 font-bold text-white tracking-tight">PragmaOS</span>
       </div>
-      <div class="text-7xl font-bold font-serif text-terracota-500 mb-2">${code}</div>
+      <div class="text-7xl font-extrabold text-white mb-2">${code}</div>
       <h1 class="text-xl font-semibold text-white mb-3">${title}</h1>
       <p class="text-carvao-300 mb-6 leading-relaxed">${message}</p>
       ${detail ? `<details class="text-left bg-carvao-700 rounded-lg p-4 mb-6"><summary class="text-sm text-carvao-300 cursor-pointer">Detalhes técnicos</summary><pre class="text-xs text-carvao-400 mt-2 whitespace-pre-wrap break-all">${escapeHtml(detail)}</pre></details>` : ""}

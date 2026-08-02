@@ -162,9 +162,9 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   );
 
   return (
-    <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #2b2925 0%, #1f1d1a 100%);">
+    <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #05111e 0%, #1a2634 100%);">
       <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-white/5">
-        <div class="w-9 h-9 rounded-lg bg-terracota-500 flex items-center justify-center shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
           <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
         </div>
         <span class="text-h3 font-semibold text-white tracking-tight">PragmaOS</span>
@@ -178,7 +178,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <a
                 href={item.href}
                 class={`flex items-center gap-3 px-3 py-2.5 text-body-sm rounded-lg transition-all${
-                  isActive ? " bg-terracota-500/15 text-terracota-300 font-semibold" : " text-gray-400 hover:bg-white/5 hover:text-white"
+                  isActive ? " bg-white/10 text-white font-semibold" : " text-gray-400 hover:bg-white/5 hover:text-white"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -212,7 +212,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
                     <a
                       href={child.href}
                       class={`flex items-center gap-3 px-3 py-2 text-body-sm rounded-lg transition-all${
-                        isActive ? " bg-terracota-500/15 text-terracota-300 font-semibold" : " text-gray-500 hover:bg-white/5 hover:text-white"
+                        isActive ? " bg-white/10 text-white font-semibold" : " text-gray-500 hover:bg-white/5 hover:text-white"
                       }`}
                       aria-current={isActive ? "page" : undefined}
                     >

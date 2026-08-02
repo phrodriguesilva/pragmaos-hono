@@ -22,7 +22,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="theme-color" content="#c2410c" />
+      <meta name="theme-color" content="#05111e" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       <meta name="apple-mobile-web-app-title" content="PragmaOS" />
@@ -32,6 +32,8 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
       <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
       <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
@@ -76,7 +78,7 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="theme-color" content="#c2410c" />
+      <meta name="theme-color" content="#05111e" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <title>{title} - PragmaOS</title>
       <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
@@ -84,16 +86,18 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
       <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
       <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
       <script src="/static/js/alpine.min.js" defer />
     </head>
-    <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #1f1d1a 0%, #2b2925 50%, #36332e 100%);">
+    <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #05111e 0%, #1a2634 50%, #05111e 100%);">
       <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl">
         <div class="flex flex-col items-center mb-6">
           <div class="flex items-center gap-2.5 mb-1">
-            <div class="w-11 h-11 rounded-xl bg-terracota-500 flex items-center justify-center">
+            <div class="w-11 h-11 rounded-xl bg-carvao-800 flex items-center justify-center">
               <i class="ph-bold ph-scales text-white text-h2" aria-hidden="true" />
             </div>
             <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
