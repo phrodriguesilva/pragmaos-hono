@@ -2,7 +2,7 @@
   "buildCommand": "bun run build",
   "functions": {
     "api/index.ts": {
-      "runtime": "nodejs20.x"
+      "runtime": "@vercel/node@3.2.26"
     }
   }
 }
