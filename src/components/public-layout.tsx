@@ -16,8 +16,8 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
   jsonLd,
   children,
 }) => {
-  const primary = tenant.primary_color || "#c8553d";
-  const secondary = tenant.secondary_color || "#2b2925";
+  const primary = tenant.primary_color || "#05111e";
+  const secondary = tenant.secondary_color || "#1a2634";
   const b = basePath;
   const title = pageTitle ?? `${tenant.name} — ${tenant.tagline ?? "Advocacia"}`;
   const description = pageDescription ?? (tenant.description ?? `${tenant.name} — escritório de advocacia`);
@@ -76,7 +76,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
             --color-secondary: ${secondary};
           }
           html { scroll-behavior: smooth; }
-          body { font-family: 'Inter', sans-serif; }
+          body { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
           .font-serif { font-family: 'Source Serif 4', serif; }
           .bg-primary { background-color: ${primary}; }
           .text-primary { color: ${primary}; }

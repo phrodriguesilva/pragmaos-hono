@@ -39,14 +39,15 @@ function signupShell(title: string, children: unknown) {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#05111e" />
         <title>{title} — PragmaOS</title>
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
         <script src="/static/js/alpine.min.js" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
-      <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md border border-carvao-700 bg-white p-8">
+      <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #05111e 0%, #1a2634 50%, #05111e 100%);">
+        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl">
           {children}
         </div>
       </body>
@@ -58,7 +59,7 @@ function SignupBrand(subtitle?: string) {
   return (
     <div class="mb-6">
       <div class="flex items-center gap-2.5 mb-2">
-        <div class="w-10 h-10 rounded-xl bg-terracota-500 flex items-center justify-center">
+        <div class="w-10 h-10 rounded-xl bg-carvao-800 flex items-center justify-center">
           <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
         </div>
         <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>

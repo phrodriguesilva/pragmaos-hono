@@ -54,6 +54,8 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
@@ -70,12 +72,12 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         >
           {/* Logo */}
           <div class="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-terracota-500 flex items-center justify-center shrink-0">
+            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
               <i class="ph-bold ph-scales text-white text-sm" aria-hidden="true" />
             </div>
             <div>
               <div class="text-white font-semibold text-sm">PragmaOS</div>
-              <div class="text-xs text-terracota-400">Back-office</div>
+              <div class="text-xs text-carvao-300">Back-office</div>
             </div>
           </div>
 
@@ -86,7 +88,7 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
                 href={item.href}
                 class={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
                   active === item.href
-                    ? "bg-terracota-500 text-white font-medium"
+                    ? "bg-white/10 text-white font-medium"
                     : "text-gray-400 hover:bg-white/5 hover:text-white"
                 }`}
               >

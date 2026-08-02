@@ -30,12 +30,11 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
         <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/PlusJakartaSans-700.woff2" as="font" type="font/woff2" crossorigin="" />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <script src="/static/js/alpine.min.js" defer />
       </head>
       <body class="bg-carvao-50 text-carvao-800 font-sans min-h-screen antialiased">
@@ -44,17 +43,17 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
           <header class="bg-white border-b border-carvao-100">
             <div class="max-w-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-terracota-500 flex items-center justify-center">
+                <div class="w-9 h-9 rounded-xl bg-carvao-800 flex items-center justify-center">
                   <i class="ph-bold ph-scales text-white text-lg" aria-hidden="true" />
                 </div>
                 <span class="text-lg font-bold tracking-tight">PragmaOS</span>
               </div>
               <a href="/dashboard" class="text-sm text-carvao-400 hover:text-carvao-600 transition">Pular por agora</a>
-              {skipHref && <a href={skipHref} class="text-sm text-terracota-500 hover:text-terracota-600 transition ml-3">Pular esta etapa →</a>}
+              {skipHref && <a href={skipHref} class="text-sm text-carvao-600 hover:text-carvao-800 transition ml-3">Pular esta etapa →</a>}
             </div>
             {/* Progress bar */}
             <div class="h-1 bg-carvao-100">
-              <div class="h-full bg-terracota-500 transition-all duration-300" style={`width: ${pct}%`} />
+              <div class="h-full bg-carvao-800 transition-all duration-300" style={`width: ${pct}%`} />
             </div>
           </header>
 
