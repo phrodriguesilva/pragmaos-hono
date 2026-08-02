@@ -108,6 +108,7 @@ export const MENU: MenuItem[] = [
     ],
   },
   { key: "reports", label: "BI e Relatorios", href: "/reports", icon: "ph-presentation-chart" },
+  { key: "consultas", label: "Consultas Legais", href: "/consultas", icon: "ph-magnifying-glass" },
   { key: "portal", label: "Portal do Cliente", href: "/portal/staff", icon: "ph-globe" },
   {
     key: "site",

@@ -69,6 +69,7 @@ import { onboardingRoutes } from "../routes/onboarding";
 import { subscriptionRoutes } from "../routes/subscription";
 import { companySettingsRoutes } from "../routes/company-settings";
 import { backOfficeRoutes } from "../routes/back-office";
+import { consultasRoutes } from "../routes/consultas";
 import { resolveTenantByHost, resolveTenantBySlug, isPublicSiteRequest } from "../lib/tenant-resolver";
 import { renderNotFound, renderServerError } from "../lib/error-pages";
 
@@ -288,6 +289,7 @@ app.route("/jurimetria", jurimetryRoutes);
 app.route("/docs", docsRoutes);
 app.route("/help", helpRoutes);
 app.route("/site", siteAdminRoutes);
+app.route("/consultas", consultasRoutes);
 
 // 404 fallback — full HTML page with branding.
 app.notFound((c) => c.html(renderNotFound(process.env.NODE_ENV === "development" ? c.req.path : undefined), 404));
