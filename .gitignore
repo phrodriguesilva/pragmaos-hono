@@ -40,3 +40,4 @@ src/generated/css.ts
 !.vercel/project.json
 .vercel/output
 .vercel/output
+bun.lock
