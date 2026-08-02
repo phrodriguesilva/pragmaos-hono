@@ -189,6 +189,11 @@ function loginForm(errorMsg?: string, emailValue?: string) {
           </svg>
           Entrar com Gov.br
         </a>
+        <div class="text-center mt-4">
+          <a href="/signup" class="text-body-sm text-terracota-600 hover:underline">
+            Nao tem conta? Cadastre-se (14 dias gratis)
+          </a>
+        </div>
       </div>
     </AuthLayout>
   );

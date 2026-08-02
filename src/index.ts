@@ -58,6 +58,7 @@ import { proactiveRoutes } from "./routes/proactive";
 import { intakeAdminRoutes } from "./routes/intake";
 import { intakePublicRoutes } from "./routes/intake-public";
 import { jurimetryRoutes } from "./routes/jurimetry";
+import { signupRoutes } from "./routes/signup";
 // Help and docs routes — moved to _wip/ until type errors are fixed.
 // import { helpRoutes } from "./routes/help";
 
@@ -117,6 +118,9 @@ app.get("/health/ready", async (c) => {
 
 // Auth (public).
 app.route("/", authRoutes);
+
+// Self-service signup (public).
+app.route("/", signupRoutes);
 
 // Client portal (public login + protected client/staff views).
 // Must be registered before dashboardRoutes since dashboard uses use("*", requireAuth)
