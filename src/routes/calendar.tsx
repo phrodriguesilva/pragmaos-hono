@@ -98,7 +98,7 @@ calendarRoutes.get("/", async (c) => {
     c,
     { title: "Calendario", active: "calendar" },
     <>
-      <PageHeader title="Calendario" icon="ph-calendar-blank" />
+      <PageHeader title="Calendario" icon="ph-calendar-plus" />
 
       <div class="flex items-center justify-between mb-6">
         <a href={`/calendar?year=${prevYear}&month=${prevMonth}`} class="btn btn-secondary inline-flex items-center gap-1">
@@ -137,7 +137,7 @@ calendarRoutes.get("/", async (c) => {
                         class={`text-body-xs px-1.5 py-0.5 rounded truncate block ${e.type === "hearing" ? "bg-blue-50 text-blue-700 hover:bg-blue-100" : "bg-red-50 text-red-700 hover:bg-red-100"}`}
                         title={e.title}
                       >
-                        <i class={`ph ${e.type === "hearing" ? "ph-gavel" : "ph-calendar-x"} text-body-xs mr-0.5`} aria-hidden="true"></i>
+                        <i class={`ph ${e.type === "hearing" ? "ph-gavel" : "ph-calendar"} text-body-xs mr-0.5`} aria-hidden="true"></i>
                         {e.title}
                       </a>
                     ))}
@@ -181,7 +181,7 @@ calendarRoutes.get("/", async (c) => {
             </ul>
           )}
         </Panel>
-        <Panel title="Proximos prazos" icon="ph-calendar-x">
+        <Panel title="Proximos prazos" icon="ph-calendar">
           {(deadlinesRes.data ?? []).length === 0 ? (
             <p class="text-body-sm text-gray-400 py-4 text-center">Nenhum prazo neste mes.</p>
           ) : (

@@ -65,7 +65,7 @@ apiKeysRoutes.get("/", async (c) => {
     c,
     { title: "API e Webhooks", active: "api-keys" },
     <>
-      <PageHeader title="API e Webhooks" icon="ph-plugs-connected" />
+      <PageHeader title="API e Webhooks" icon="ph-hash" />
 
       {newKey ? (
         <div class="mb-6 p-4 bg-status-green-bg border border-status-green rounded-xl">
@@ -123,7 +123,7 @@ apiKeysRoutes.get("/", async (c) => {
           />
 
           <div class="mt-6">
-            <Panel title="Como usar a API" icon="ph-book-open">
+            <Panel title="Como usar a API" icon="ph-info">
               <div class="text-body-sm text-gray-600 space-y-2">
                 <p>Autentique suas requisicoes incluindo a chave no header Authorization:</p>
                 <pre class="bg-gray-900 text-gray-100 p-3 rounded-lg text-body-xs overflow-x-auto"><code>curl -H "Authorization: Bearer pk_live_..." \{"\n"}  https://sua-instancia.pragmaos.com/api/v1/cases</code></pre>
@@ -135,8 +135,8 @@ apiKeysRoutes.get("/", async (c) => {
       ) : (
         <>
           <div class="mb-6 flex justify-end">
-            <Modal id="new-webhook" title="Novo Webhook" icon="ph-webhooks-logo" triggerText="Novo Webhook" triggerIcon="ph-plus" action="/api-keys/webhooks" submitLabel="Criar">
-              <TextField label="URL" id="url" name="url" required placeholder="https://seu-servidor.com/webhook" icon="ph-link" />
+            <Modal id="new-webhook" title="Novo Webhook" icon="ph-hash" triggerText="Novo Webhook" triggerIcon="ph-plus" action="/api-keys/webhooks" submitLabel="Criar">
+              <TextField label="URL" id="url" name="url" required placeholder="https://seu-servidor.com/webhook" icon="ph-arrow-square-out" />
               <div class="flex flex-col gap-1">
                 <label class="text-body-sm font-semibold text-gray-700">Eventos</label>
                 <div class="grid grid-cols-2 gap-2 mt-1">
@@ -163,7 +163,7 @@ apiKeysRoutes.get("/", async (c) => {
             columns={[{ label: "URL" }, { label: "Eventos" }, { label: "Status" }, { label: "Criado em" }, { label: "Acoes" }]}
             rows={webhookRows}
             emptyMsg="Nenhum webhook configurado."
-            emptyIcon="ph-webhooks-logo"
+            emptyIcon="ph-hash"
             ariaLabel="Lista de webhooks"
           />
         </>

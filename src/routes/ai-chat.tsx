@@ -194,7 +194,7 @@ aiChatRoutes.get("/jurisprudence", async (c) => {
     c,
     { title: "Jurisprudencia", active: "ai-jurisprudence" },
     <>
-      <PageHeader title="Jurisprudencia" icon="ph-scales" />
+      <PageHeader title="Jurisprudencia" icon="ph-books" />
 
       <div class="mb-6">
         <Panel title="Buscar Jurisprudencia" icon="ph-magnifying-glass">
@@ -338,7 +338,7 @@ aiChatRoutes.get("/jurisprudence/result/:id", async (c) => {
     c,
     { title: "Resultado da Busca", active: "ai-jurisprudence" },
     <>
-      <PageHeader title="Resultado da Busca" icon="ph-scales"
+      <PageHeader title="Resultado da Busca" icon="ph-books"
         actions={() => (
           <a href="/ai-assistant/jurisprudence" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-left" aria-hidden="true"></i>Nova Busca

@@ -19,7 +19,7 @@ docsRoutes.get("/", async (c) => {
     c,
     { title: "Documentacao Tecnica", active: "docs" },
     <>
-      <PageHeader title="Documentacao Tecnica" icon="ph-book-open" />
+      <PageHeader title="Documentacao Tecnica" icon="ph-info" />
 
       <div class="text-sm text-gray-500 mb-6">
         Auto-gerada em {new Date(data.generatedAt).toLocaleString("pt-BR")} •

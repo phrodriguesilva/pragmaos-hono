@@ -60,11 +60,11 @@ prazosRoutes.get("/", async (c) => {
     c,
     { title: "Calculadora de Prazos", active: "prazos" },
     <>
-      <PageHeader title="Calculadora de Prazos" icon="ph-calendar-x" />
+      <PageHeader title="Calculadora de Prazos" icon="ph-calendar" />
 
       <div class="grid grid-cols-2 gap-6">
         {/* Calculadora */}
-        <Panel title="Calcular Prazo Processual" icon="ph-calculator">
+        <Panel title="Calcular Prazo Processual" icon="ph-gauge">
           <form method="get" action="/prazos" class="flex flex-col gap-4">
             <Select
               label="Tipo de prazo"
@@ -85,7 +85,7 @@ prazosRoutes.get("/", async (c) => {
                   type="number"
                   value={String(dias)}
                   required
-                  icon="ph-calendar-blank"
+                  icon="ph-calendar-plus"
                 />
                 <Select
                   label="Tipo de contagem"
@@ -108,7 +108,7 @@ prazosRoutes.get("/", async (c) => {
               icon="ph-calendar"
             />
             <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-              <i class="ph ph-calculator" aria-hidden="true"></i>Calcular
+              <i class="ph ph-gauge" aria-hidden="true"></i>Calcular
             </button>
           </form>
 
@@ -171,7 +171,7 @@ prazosRoutes.get("/", async (c) => {
 
       {/* Tabela de prazos comuns */}
       <div class="mt-6">
-        <Panel title="Prazos comuns do CPC/2015" icon="ph-book-open">
+        <Panel title="Prazos comuns do CPC/2015" icon="ph-info">
           <div class="grid grid-cols-2 gap-2 text-body-sm">
             {Object.entries(PRAZOS_CPC).filter(([k]) => k !== "personalizado").map(([key, val]) => (
               <div key={key} class="flex items-center justify-between p-2 border-b border-gray-50">

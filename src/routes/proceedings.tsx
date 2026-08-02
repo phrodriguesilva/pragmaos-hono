@@ -107,7 +107,7 @@ proceedingsRoutes.get("/", async (c) => {
     c,
     { title: "Andamentos", active: "proceedings" },
     <>
-      <PageHeader title="Andamentos" icon="ph-scales" actions={() => (
+      <PageHeader title="Andamentos" icon="ph-list-dashes" actions={() => (
         <div class="flex gap-2">
           <a href="/proceedings/search-cnj" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-magnifying-glass" aria-hidden="true"></i>Buscar no DataJud

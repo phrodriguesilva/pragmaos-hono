@@ -147,7 +147,7 @@ deadlinesRoutes.get("/new", async (c) => {
     c,
     { title: "Novo Prazo", active: "deadlines" },
     <>
-      <PageHeader title="Novo Prazo" icon="ph-calendar-x" />
+      <PageHeader title="Novo Prazo" icon="ph-calendar" />
       <div class="max-w-xl">
         <form method="post" action="/deadlines" class="space-y-4 bg-white p-6 rounded-xl border border-gray-100">
           <Select label="Processo" id="case_id" name="case_id" required
@@ -204,7 +204,7 @@ deadlinesRoutes.get("/:id", async (c) => {
     c,
     { title: deadline.title, active: "deadlines" },
     <>
-      <PageHeader title={deadline.title} icon="ph-calendar-x" />
+      <PageHeader title={deadline.title} icon="ph-calendar" />
       <div class="max-w-xl">
         <form method="post" action={`/deadlines/${id}`} class="space-y-4 bg-white p-6 rounded-xl border border-gray-100">
           <Select label="Processo" id="case_id" name="case_id" required

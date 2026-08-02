@@ -88,7 +88,7 @@ intakeAdminRoutes.get("/", async (c) => {
         </div>
       )}
 
-      <PageHeader title="Formularios de Intake" icon="ph-clipboard-text" />
+      <PageHeader title="Formularios de Intake" icon="ph-note" />
 
       <div class="space-y-6">
         {/* Create form button */}
@@ -228,7 +228,7 @@ intakeAdminRoutes.get("/new", async (c) => {
         </div>
       )}
 
-      <PageHeader title="Novo Formulario de Intake" icon="ph-clipboard-text" />
+      <PageHeader title="Novo Formulario de Intake" icon="ph-note" />
 
       <form method="post" class="space-y-6 max-w-3xl">
         <Panel>
@@ -377,7 +377,7 @@ intakeAdminRoutes.get("/:id", async (c) => {
     c,
     { title: "Submissao de Intake", active: "intake" },
     <>
-      <PageHeader title="Detalhes da Submissao" icon="ph-clipboard-text" />
+      <PageHeader title="Detalhes da Submissao" icon="ph-note" />
 
       <Panel>
         <div class="space-y-4">

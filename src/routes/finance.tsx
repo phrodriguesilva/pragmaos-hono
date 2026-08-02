@@ -107,7 +107,7 @@ financeRoutes.get("/", async (c) => {
     c,
     { title: "Financeiro", active: "finance" },
     <>
-      <PageHeader title="Financeiro" icon="ph-currency-dollar" actions={() => (
+      <PageHeader title="Financeiro" icon="ph-hand-coins" actions={() => (
         <Modal id="new-invoice" title="Nova Fatura" icon="ph-currency-dollar" triggerText="Nova Fatura" triggerIcon="ph-plus" action="/finance" submitLabel="Salvar" large>
           <ComboBox label="Cliente" id="client_id" name="client_id" required
             options={(clientsRes.data ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}

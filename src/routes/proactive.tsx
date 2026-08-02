@@ -87,7 +87,7 @@ proactiveRoutes.get("/", async (c) => {
           </div>
         )}
 
-        <PageHeader title="Notificacoes Proativas" icon="ph-bell-ringing" />
+        <PageHeader title="Notificacoes Proativas" icon="ph-lightning" />
 
         <div class="space-y-6">
           {/* Stats */}

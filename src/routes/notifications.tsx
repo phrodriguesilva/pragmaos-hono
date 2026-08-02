@@ -54,7 +54,7 @@ notificationsRoutes.get("/", async (c) => {
         actions={() => (
           <form method="post" action="/notifications/mark-all-read" class="inline">
             <button type="submit" class="btn btn-secondary inline-flex items-center gap-1">
-              <i class="ph ph-check-double" aria-hidden="true"></i>Marcar todas como lidas
+              <i class="ph ph-check" aria-hidden="true"></i>Marcar todas como lidas
             </button>
           </form>
         )}

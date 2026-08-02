@@ -217,7 +217,7 @@ importRoutes.get("/", async (c) => {
       </Panel>
 
       <div class="mt-4">
-        <Panel title="Modelos de CSV" icon="ph-file-csv">
+        <Panel title="Modelos de CSV" icon="ph-file-text">
           <div class="flex gap-4 flex-wrap">
             <div>
               <p class="text-body-sm font-semibold text-gray-700 mb-2">Clientes</p>
@@ -365,7 +365,7 @@ importRoutes.post("/preview", async (c) => {
       </div>
 
       <div class="mt-4">
-        <Panel title={`Previa (primeiras ${previewRows.length} linhas)`} icon="ph-table">
+        <Panel title={`Previa (primeiras ${previewRows.length} linhas)`} icon="ph-list">
           <Table
             columns={[
               { label: "#", icon: "ph-hash" },
@@ -373,7 +373,7 @@ importRoutes.post("/preview", async (c) => {
             ]}
             rows={previewTableRows}
             emptyMsg="Nenhum dado para previsualizar."
-            emptyIcon="ph-table"
+            emptyIcon="ph-list"
           />
           {totalRows > previewRows.length && (
             <p class="text-body-sm text-gray-500 mt-2">

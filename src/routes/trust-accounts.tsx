@@ -56,8 +56,8 @@ trustRoutes.get("/", async (c) => {
     c,
     { title: "Contas de Clientes", active: "trust-accounts" },
     <>
-      <PageHeader title="Contas de Clientes" icon="ph-piggy-bank" actions={() => (
-        <Modal id="new-trust" title="Nova Conta de Cliente" icon="ph-piggy-bank" triggerText="Nova Conta" triggerIcon="ph-plus" action="/trust-accounts" submitLabel="Criar">
+      <PageHeader title="Contas de Clientes" icon="ph-bank" actions={() => (
+        <Modal id="new-trust" title="Nova Conta de Cliente" icon="ph-bank" triggerText="Nova Conta" triggerIcon="ph-plus" action="/trust-accounts" submitLabel="Criar">
           <ComboBox label="Cliente" id="client_id" name="client_id" required
             options={(clients ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
           />
@@ -68,7 +68,7 @@ trustRoutes.get("/", async (c) => {
       <div class="grid grid-cols-2 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-piggy-bank text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Total em Custodia
+            <i class="ph ph-bank text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Total em Custodia
           </div>
           <div class="text-h2 font-bold text-terracota-700">{formatCurrency(totalBalance)}</div>
         </Panel>
@@ -84,7 +84,7 @@ trustRoutes.get("/", async (c) => {
         columns={[{ label: "Cliente" }, { label: "Saldo" }, { label: "Status" }, { label: "Criada em" }, { label: "Acoes" }]}
         rows={rows}
         emptyMsg="Nenhuma conta de cliente cadastrada."
-        emptyIcon="ph-piggy-bank"
+        emptyIcon="ph-bank"
         ariaLabel="Lista de contas de clientes"
       />
     </>,
@@ -166,7 +166,7 @@ trustRoutes.get("/:id", async (c) => {
     c,
     { title: `Conta - ${clientName}`, active: "trust-accounts" },
     <>
-      <PageHeader title={`Conta de ${clientName}`} icon="ph-piggy-bank" actions={() => (
+      <PageHeader title={`Conta de ${clientName}`} icon="ph-bank" actions={() => (
         <div class="flex gap-2">
           <Modal id="deposit" title="Depositar" icon="ph-arrow-down" triggerText="Depositar" triggerIcon="ph-arrow-down" triggerVariant="secondary" action={`/trust-accounts/${id}/transaction`} submitLabel="Confirmar">
             <input type="hidden" name="type" value="deposit" />
@@ -182,7 +182,7 @@ trustRoutes.get("/:id", async (c) => {
       )} />
 
       <div class="grid grid-cols-2 gap-4 mb-6">
-        <Panel title="Saldo Atual" icon="ph-wallet">
+        <Panel title="Saldo Atual" icon="ph-bank">
           <div class={`text-h1 font-bold ${account.balance_cents >= 0 ? "text-terracota-700" : "text-status-red"}`}>
             {formatCurrency(account.balance_cents)}
           </div>
