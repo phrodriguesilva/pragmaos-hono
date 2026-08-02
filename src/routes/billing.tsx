@@ -215,7 +215,7 @@ billingRoutes.get("/", async (c) => {
                     <ComboBox label="Honorario (opcional)" id="honorario_id" name="honorario_id"
                       options={[{ value: "", label: "Nenhum" }, ...(honorariosRes.data ?? []).map((h) => ({ value: h.id, label: h.description }))]}
                     />
-                    <TextField label="Numero" id="number" name="number" required value={suggested} icon="ph-hash" />
+                    <TextField label="Número" id="number" name="number" required value={suggested} icon="ph-hash" />
                   </>
                 ),
               },
@@ -269,7 +269,7 @@ billingRoutes.get("/", async (c) => {
       </form>
       <Table
         columns={[
-          { label: "Numero" },
+          { label: "Número" },
           { label: "Cliente" },
           { label: "Descrição/Referência" },
           { label: "Valor" },
@@ -281,9 +281,9 @@ billingRoutes.get("/", async (c) => {
         rows={rows}
         emptyMsg="Nenhuma cobrança encontrada."
         emptyIcon="ph-receipt"
-        ariaLabel="Lista de cobrancas"
+        ariaLabel="Lista de cobranças"
         count={count ?? 0}
-        countLabel="cobranca(s)"
+        countLabel="cobrança(s)"
         pagination={{
           currentPage: page,
           totalPages,
@@ -361,7 +361,7 @@ billingRoutes.get("/:id", async (c) => {
           <div class="flex gap-2">
             {!isCancelled && !isPaid ? (
               <form method="post" action={`/billing/${id}/cancel`}>
-                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobranca?')">
+                <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Cancelar esta cobrança?')">
                   <i class="ph ph-x-circle" aria-hidden="true"></i>Cancelar Cobrança
                 </button>
               </form>
@@ -387,9 +387,9 @@ billingRoutes.get("/:id", async (c) => {
         ) : null}
       </div>
       <div class="grid grid-cols-2 gap-4 mb-6">
-        <Panel title="Dados da cobranca" icon="ph-receipt">
+        <Panel title="Dados da cobrança" icon="ph-receipt">
           <dl class="flex flex-col gap-2 text-body-sm">
-            <div><dt class="font-semibold text-gray-700 inline">Numero: </dt><dd class="inline">{inv.number}</dd></div>
+            <div><dt class="font-semibold text-gray-700 inline">Número: </dt><dd class="inline">{inv.number}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${inv.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Processo: </dt><dd class="inline">{inv.case_id ? <a href={`/cases/${inv.case_id}`} class="text-terracota-600 hover:underline">{caseRow?.title ?? "-"}</a> : "-"}</dd></div>
             <div><dt class="font-semibold text-gray-700 inline">Honorario: </dt><dd class="inline">{hon ? hon.description : "-"}</dd></div>
@@ -494,7 +494,7 @@ billingRoutes.post("/:id/pix", async (c) => {
   const pixCode = generatePixBRCode({
     amountCents: inv.amount_cents,
     pixKey,
-    merchantName: ((tenantPix as Record<string, unknown> | null)?.pix_merchant_name as string) ?? tenantBasic?.name ?? "ESCRITORIO",
+    merchantName: ((tenantPix as Record<string, unknown> | null)?.pix_merchant_name as string) ?? tenantBasic?.name ?? "ESCRITÓRIO",
     merchantCity: ((tenantPix as Record<string, unknown> | null)?.pix_merchant_city as string) ?? "SAO PAULO",
     txid: `PRAGMA${inv.number}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 25),
   });

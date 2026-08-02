@@ -13,6 +13,7 @@ export type SessionUser = {
   fullName: string;
   role: string;
   firmName?: string;
+  isPlatformAdmin?: boolean;
 };
 
 // Reads the session cookie (a Supabase access token) and resolves the user.
@@ -43,7 +44,7 @@ export async function getSessionUser(c: Context): Promise<SessionUser | null> {
   // verified the JWT above and extracted the real user ID.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, tenant_id, full_name, role, email, tenants(name)")
+    .select("id, tenant_id, full_name, role, email, is_platform_admin, tenants(name)")
     .eq("id", userId)
     .single();
 
@@ -56,6 +57,7 @@ export async function getSessionUser(c: Context): Promise<SessionUser | null> {
     fullName: profile.full_name,
     role: profile.role,
     firmName: (profile.tenants as unknown as { name?: string })?.name,
+    isPlatformAdmin: (profile as any).is_platform_admin ?? false,
   };
 }
 
@@ -78,6 +80,20 @@ export function requireRole(...roles: string[]) {
     }
     await next();
   };
+}
+
+// Platform admin access — for the PragmaOS owner / back-office panel.
+// Checks is_platform_admin flag on the profile. Not tenant-scoped.
+// Must be used AFTER requireAuth (so user is already resolved).
+export async function requirePlatformAdmin(c: Context, next: () => Promise<void>) {
+  const user = c.get("user") as SessionUser | undefined;
+  if (!user) {
+    return c.redirect("/login");
+  }
+  if (!user.isPlatformAdmin) {
+    return c.html("Acesso negado — área restrita à administração da plataforma.", 403);
+  }
+  await next();
 }
 
 // Paths that bypass onboarding + subscription enforcement.

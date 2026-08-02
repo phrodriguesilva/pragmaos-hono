@@ -189,7 +189,29 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         </header>
 
         {/* Main content */}
-        <main class="flex-1">{children}</main>
+        <main class="flex-1 pb-16 md:pb-0">{children}</main>
+
+        {/* Sticky mobile action bar */}
+        {(tenant.phone || tenant.whatsapp) && (
+          <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-20 flex">
+            {tenant.phone && (
+              <a href={`tel:${tenant.phone}`} class="flex-1 flex flex-col items-center gap-0.5 py-2 text-gray-600 hover:text-primary" aria-label="Ligar">
+                <i class="ph-bold ph-phone text-xl" aria-hidden="true" />
+                <span class="text-xs">Ligar</span>
+              </a>
+            )}
+            {tenant.whatsapp && (
+              <a href={`https://wa.me/${tenant.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener" class="flex-1 flex flex-col items-center gap-0.5 py-2 text-green-600" aria-label="WhatsApp">
+                <i class="ph-bold ph-whatsapp-logo text-xl" aria-hidden="true" />
+                <span class="text-xs">WhatsApp</span>
+              </a>
+            )}
+            <a href={`${b}/contato`} class="flex-1 flex flex-col items-center gap-0.5 py-2 text-primary" aria-label="Contato">
+              <i class="ph-bold ph-envelope text-xl" aria-hidden="true" />
+              <span class="text-xs">Contato</span>
+            </a>
+          </div>
+        )}
 
         {/* Footer */}
         <footer class="bg-secondary text-gray-300 mt-auto">

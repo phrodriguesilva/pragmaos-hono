@@ -20,7 +20,6 @@ const signupSchema = z.object({
   admin_email: z.string().email("E-mail inválido"),
   admin_password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
   admin_password_confirm: z.string().min(8, "Confirme sua senha"),
-  plan: z.enum(["trial", "starter", "pro", "enterprise"]).default("trial"),
   phone: z.string().optional(),
   accept_terms: z.string().refine((v) => v === "on", "Você deve aceitar os Termos de Uso e a Política de Privacidade"),
   // Honeypot — should be empty
@@ -146,7 +145,7 @@ signupRoutes.get("/signup", async (c) => {
   return c.html(
     signupShell("Cadastro", (
       <>
-        {SignupBrand("Crie sua conta — 14 dias grátis, sem cartão")}
+        {SignupBrand("Crie sua conta — 14 dias grátis, sem cartão de crédito")}
 
         {flashType === "error" && flashMsg ? ErrorAlert(flashMsg) : null}
         {flashType === "success" && flashMsg ? (
@@ -185,31 +184,10 @@ signupRoutes.get("/signup", async (c) => {
 
           <SignupInput id="phone" name="phone" label="Telefone (opcional)" type="tel" placeholder="(11) 99999-9999" icon="ph-phone" autocomplete="tel" />
 
-          {/* Plan selection */}
-          <div>
-            <label class="text-body-sm font-semibold text-gray-700 mb-2 block">Plano</label>
-            <div class="grid grid-cols-2 gap-2">
-              <label class="border-2 border-terracota-500 bg-terracota-50 rounded-lg p-3 cursor-pointer text-center has-[:checked]:border-terracota-500">
-                <input type="radio" name="plan" value="trial" checked class="sr-only" />
-                <div class="font-semibold text-body-sm text-carvao-800">Trial</div>
-                <div class="text-xs text-gray-500">14 dias grátis</div>
-              </label>
-              <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer text-center hover:border-terracota-300 transition has-[:checked]:border-terracota-500 has-[:checked]:bg-terracota-50">
-                <input type="radio" name="plan" value="starter" class="sr-only" />
-                <div class="font-semibold text-body-sm text-carvao-800">Starter</div>
-                <div class="text-xs text-gray-500">R$ 199/mês</div>
-              </label>
-              <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer text-center hover:border-terracota-300 transition has-[:checked]:border-terracota-500 has-[:checked]:bg-terracota-50">
-                <input type="radio" name="plan" value="pro" class="sr-only" />
-                <div class="font-semibold text-body-sm text-carvao-800">Pro</div>
-                <div class="text-xs text-gray-500">R$ 499/mês</div>
-              </label>
-              <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer text-center hover:border-terracota-300 transition has-[:checked]:border-terracota-500 has-[:checked]:bg-terracota-50">
-                <input type="radio" name="plan" value="enterprise" class="sr-only" />
-                <div class="font-semibold text-body-sm text-carvao-800">Enterprise</div>
-                <div class="text-xs text-gray-500">Sob consulta</div>
-              </label>
-            </div>
+          {/* Trial info banner */}
+          <div class="bg-terracota-50 border border-terracota-200 rounded-lg p-3 flex items-center gap-2 text-body-sm text-terracota-700">
+            <i class="ph ph-gift text-h5" aria-hidden="true" />
+            <span>Você terá <strong>14 dias grátis</strong> para testar. Escolha seu plano depois, sem pressa.</span>
           </div>
 
           {/* Terms checkbox */}
@@ -258,7 +236,6 @@ signupRoutes.post("/signup", signupRateLimit, async (c) => {
     admin_email: body.get("admin_email"),
     admin_password: body.get("admin_password"),
     admin_password_confirm: body.get("admin_password_confirm"),
-    plan: body.get("plan") ?? "trial",
     phone: body.get("phone") || undefined,
     accept_terms: body.get("accept_terms") ?? "",
     website: body.get("website") ?? "",
@@ -274,7 +251,7 @@ signupRoutes.post("/signup", signupRateLimit, async (c) => {
     adminName: parsed.data.admin_name,
     adminEmail: parsed.data.admin_email,
     adminPassword: parsed.data.admin_password,
-    plan: parsed.data.plan,
+    plan: "trial", // Always start with trial — plan selection happens later at /assinatura
     phone: parsed.data.phone,
   });
 

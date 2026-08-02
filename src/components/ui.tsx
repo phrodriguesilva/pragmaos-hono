@@ -1,6 +1,6 @@
 import type { FC, PropsWithChildren } from "hono/jsx";
 
-export type BadgeColor = "green" | "red" | "yellow" | "blue" | "gray";
+export type BadgeColor = "green" | "red" | "yellow" | "blue" | "gray" | "terracota";
 
 // SkeletonRow — placeholder for table rows while data loads.
 export const SkeletonRow: FC<{ cols: number }> = ({ cols }) => (
@@ -67,7 +67,7 @@ export type PaginationProps = {
 
 export type TableProps = {
   columns: TableColumn[];
-  rows: (string | number)[][];
+  rows: unknown[][];
   emptyMsg?: string;
   ariaLabel?: string;
   emptyIcon?: string;
@@ -571,7 +571,7 @@ export const WizardModal: FC<{
   const stepNumbers = Array.from({ length: stepCount }, (_, i) => i).join(", ");
 
   return (
-    <div {...{ "x-data": `{ open: false, step: 0 }` }}>
+    <div {...{ "x-data": `{ open: false, step: 0, loading: false }` }}>
       <button
         type="button"
         {...{ "@click": `open = true; step = 0; document.body.classList.add('modal-open')` }}
@@ -618,7 +618,7 @@ export const WizardModal: FC<{
             ))}
           </div>
 
-          <form method={method} action={action}>
+          <form method={method} action={action} {...{ "@submit": "loading = true" }}>
             {/* Step content */}
             {steps.map((s, i) => (
               <div {...{ "x-show": `step === ${i}` }} x-cloak>
@@ -657,10 +657,14 @@ export const WizardModal: FC<{
               <button
                 type="submit"
                 {...{ "x-show": `step === ${stepCount - 1}` }}
+                {...{ ":disabled": "loading" }}
                 x-cloak
                 class="btn btn-primary inline-flex items-center gap-1"
               >
-                <i class={`ph ${submitIcon}`} aria-hidden="true" />{submitLabel}
+                <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading" }} x-cloak aria-hidden="true" />
+                <i class={`ph ${submitIcon}`} {...{ "x-show": "!loading" }} aria-hidden="true" />
+                <span {...{ "x-show": "!loading" }}>{submitLabel}</span>
+                <span {...{ "x-show": "loading" }} x-cloak>Salvando...</span>
               </button>
             </div>
           </form>

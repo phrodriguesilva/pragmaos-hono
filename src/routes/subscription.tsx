@@ -126,20 +126,43 @@ subscriptionRoutes.get("/", async (c) => {
       {/* Plans */}
       <div class="mt-6">
         <h2 class="text-h4 font-bold mb-4">Escolha seu plano</h2>
+
+        {/* Billing cycle toggle (mensal / anual) */}
+        <div {...{ "x-data": "{ annual: false }" }} class="flex items-center justify-center gap-3 mb-6">
+          <span {...{ ":class": "annual ? 'text-gray-400' : 'text-carvao-800 font-semibold'" }}>Mensal</span>
+          <button type="button" {...{ "@click": "annual = !annual", ":class": "annual ? 'bg-terracota-500' : 'bg-gray-200'" }} class="relative w-12 h-6 rounded-full transition-colors" aria-label="Alternar cobrança anual">
+            <span {...{ ":class": "annual ? 'translate-x-6' : 'translate-x-0'" }} class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform" />
+          </button>
+          <span {...{ ":class": "annual ? 'text-carvao-800 font-semibold' : 'text-gray-400'" }}>
+            Anual <span class="text-terracota-600 text-body-sm">(-20%)</span>
+          </span>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {(plans ?? []).filter((p) => p.id !== "trial" && p.id !== "enterprise").map((p) => {
             const isCurrent = state.plan === p.id && state.status === "active";
+            const monthlyPrice = p.price_monthly_cents;
+            const yearlyPrice = p.price_yearly_cents ?? Math.round(monthlyPrice * 12 * 0.8);
+            const annualMonthly = Math.round(yearlyPrice / 12);
             return (
               <div class={`rounded-xl p-6 border-2 flex flex-col ${p.id === "pro" ? "border-terracota-500 bg-terracota-50" : "border-gray-200 bg-white"}`}>
                 {p.id === "pro" && <div class="text-xs font-bold text-terracota-600 uppercase mb-2">Mais popular</div>}
                 <h3 class="text-h4 font-bold">{p.name}</h3>
                 <p class="text-body-sm text-gray-500 mb-3">{p.tagline}</p>
                 <div class="mb-4">
-                  <span class="text-h2 font-bold">{formatCurrency(p.price_monthly_cents)}</span>
-                  <span class="text-body-sm text-gray-400">/mês</span>
+                  {/* Monthly price */}
+                  <div {...{ "x-show": "!annual" }} class="flex items-baseline gap-1">
+                    <span class="text-h2 font-bold">{formatCurrency(monthlyPrice)}</span>
+                    <span class="text-body-sm text-gray-400">/mês</span>
+                  </div>
+                  {/* Annual price (shows monthly equivalent) */}
+                  <div {...{ "x-show": "annual", "x-cloak": "" }} class="flex items-baseline gap-1">
+                    <span class="text-h2 font-bold">{formatCurrency(annualMonthly)}</span>
+                    <span class="text-body-sm text-gray-400">/mês · cobrado anualmente</span>
+                  </div>
                 </div>
                 <ul class="space-y-2 text-body-sm mb-6 flex-1">
-                  <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_users} usuarios</li>
+                  <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_users} usuários</li>
                   <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> {p.max_cases ? `${p.max_cases} processos` : "Processos ilimitados"}</li>
                   {p.has_ai && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> IA jurídica</li>}
                   {p.has_whatsapp && <li class="flex gap-2"><i class="ph ph-check text-terracota-600" aria-hidden="true" /> WhatsApp integrado</li>}
@@ -150,10 +173,12 @@ subscriptionRoutes.get("/", async (c) => {
                 {isCurrent ? (
                   <span class="btn btn-secondary w-full text-center cursor-default">Plano atual</span>
                 ) : (
-                  <form method="post" action={`/assinatura/assinar/${p.id}`}>
-                    <input type="hidden" name="billing_cycle" value="monthly" />
-                    <button type="submit" class={`btn w-full ${p.id === "pro" ? "btn-primary" : "btn-secondary"}`}>
-                      Assinar {p.name}
+                  <form method="post" action={`/assinatura/assinar/${p.id}`} {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+                    <input type="hidden" name="billing_cycle" value="monthly" {...{ ":value": "annual ? 'yearly' : 'monthly'" }} />
+                    <button type="submit" class={`btn w-full ${p.id === "pro" ? "btn-primary" : "btn-secondary"}`} {...{ ":disabled": "loading" }}>
+                      <i class="ph ph-spinner animate-spin mr-1" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
+                      <span {...{ "x-show": "!loading" }}>Assinar {p.name}</span>
+                      <span {...{ "x-show": "loading", "x-cloak": "" }}>Processando...</span>
                     </button>
                   </form>
                 )}

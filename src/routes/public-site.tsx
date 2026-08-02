@@ -12,6 +12,14 @@ import DOMPurify from "isomorphic-dompurify";
 
 export const publicSiteRoutes = new Hono<AppEnv>();
 
+// Normalize Phosphor icon class — ensures "ph ph-scales" regardless of DB format.
+// Accepts "ph-scales", "scales", or "ph ph-scales" and always returns "ph ph-scales".
+function phIcon(icon?: string | null, fallback = "ph-scales"): string {
+  if (!icon) return `ph ${fallback}`;
+  const cleaned = icon.replace(/^ph\s+/, "").replace(/^ph-/, "").trim();
+  return `ph ph-${cleaned}`;
+}
+
 // Middleware: resolve tenant from host on every request.
 // The main app already tried to resolve and dispatched here — we resolve again
 // to get the tenant into this sub-app's context.
@@ -103,6 +111,38 @@ function renderPublic(c: any, tenant: ResolvedTenant, active: string, content: a
     <PublicLayout tenant={tenant} active={active} basePath={basePath} pageTitle={finalTitle} pageDescription={finalDesc} jsonLd={jsonLd}>
       {content}
     </PublicLayout>
+  );
+}
+
+// Breadcrumbs component for sub-pages
+function Breadcrumbs({ items, basePath }: { items: { label: string; href?: string }[]; basePath: string }) {
+  const b = basePath;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.label,
+      ...(item.href ? { item: `https://pragmaos.app${b}${item.href}` } : {}),
+    })),
+  };
+  return (
+    <>
+      <nav aria-label="Breadcrumb" class="text-sm text-gray-500 mb-6 flex items-center gap-1.5 flex-wrap">
+        {items.map((item, i) => (
+          <span key={i} class="flex items-center gap-1.5">
+            {item.href ? (
+              <a href={`${b}${item.href}`} class="hover:text-primary transition">{item.label}</a>
+            ) : (
+              <span class="text-gray-700 font-medium">{item.label}</span>
+            )}
+            {i < items.length - 1 && <span class="text-gray-300" aria-hidden="true">/</span>}
+          </span>
+        ))}
+      </nav>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    </>
   );
 }
 
@@ -233,7 +273,7 @@ publicSiteRoutes.get("/", async (c) => {
               {areas.map((a: any) => (
                 <a key={a.law_areas.slug} href={`${b}/areas/${a.law_areas.slug}`} class="block p-6 rounded-xl border border-gray-100 hover:border-primary hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
                   <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition">
-                    <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary group-hover:text-white`} aria-hidden="true" />
+                    <i class={`${phIcon(a.law_areas.icon)} text-2xl text-primary group-hover:text-white`} aria-hidden="true" />
                   </div>
                   <h3 class="text-lg font-semibold text-secondary mb-2">{a.law_areas.name}</h3>
                   {a.description && <p class="text-sm text-gray-500 line-clamp-3">{a.description}</p>}
@@ -249,7 +289,7 @@ publicSiteRoutes.get("/", async (c) => {
             <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {stats.map((s: any) => (
                 <div key={s.label}>
-                  {s.icon && <i class={`ph ${s.icon} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
+                  {s.icon && <i class={`${phIcon(s.icon)} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
                   <div class="text-4xl font-serif font-bold stat-counter" data-value={s.value} data-prefix={s.prefix ?? ""} data-suffix={s.suffix ?? ""}>
                     {s.prefix}{s.value}{s.suffix}
                   </div>
@@ -367,7 +407,7 @@ publicSiteRoutes.get("/", async (c) => {
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {recognitions.map((r: any) => (
                   <div class="text-center">
-                    {r.icon && <i class={`ph ${r.icon} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
+                    {r.icon && <i class={`${phIcon(r.icon)} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
                     <h3 class="font-semibold text-lg">{r.title}</h3>
                     {r.organization && <p class="text-sm text-gray-300">{r.organization}</p>}
                     {r.year && <p class="text-sm text-gray-400">{r.year}{r.ranking_position ? ` • ${r.ranking_position}` : ""}</p>}
@@ -382,7 +422,7 @@ publicSiteRoutes.get("/", async (c) => {
         {offices && offices.length > 0 && (
           <section class="py-16 px-4 max-w-6xl mx-auto">
             <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-10">Onde Estamos</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {offices.map((o: any) => (
                 <div class="p-6 rounded-xl border border-gray-100">
                   <div class="flex items-center gap-2 mb-3">
@@ -482,7 +522,7 @@ publicSiteRoutes.get("/sobre", async (c) => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {areas.map((a: any) => (
                 <a href={`${b}/areas/${a.law_areas.slug}`} class="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-primary transition">
-                  <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary`} aria-hidden="true" />
+                  <i class={`${phIcon(a.law_areas.icon)} text-2xl text-primary`} aria-hidden="true" />
                   <span class="font-medium text-secondary">{a.law_areas.name}</span>
                 </a>
               ))}
@@ -529,11 +569,11 @@ publicSiteRoutes.get("/areas", async (c) => {
             <p>Em breve nossas áreas de atuação.</p>
           </div>
         ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {areas.map((a: any) => (
               <a href={`${b}/areas/${a.law_areas.slug}`} class="block p-8 rounded-xl border border-gray-100 hover:border-primary hover:shadow-xl transition group">
                 <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition">
-                  <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-3xl text-primary group-hover:text-white`} aria-hidden="true" />
+                  <i class={`${phIcon(a.law_areas.icon)} text-3xl text-primary group-hover:text-white`} aria-hidden="true" />
                 </div>
                 <h3 class="text-xl font-serif font-bold text-secondary mb-3">{a.law_areas.name}</h3>
                 {a.description && <p class="text-gray-500 line-clamp-4">{a.description}</p>}
@@ -591,11 +631,14 @@ publicSiteRoutes.get("/areas/:slug", async (c) => {
   return c.html(
     renderPublic(c, tenant, "areas", (
       <div>
+        <div class="max-w-4xl mx-auto px-4 pt-6">
+          <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Áreas de Atuação", href: "/areas" }, { label: areaData.law_areas.name }]} basePath={getBasePath(c)} />
+        </div>
         {/* Hero */}
         <section class="bg-secondary text-white py-16 px-4">
           <div class="max-w-4xl mx-auto">
             <div class="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mb-6">
-              <i class={`ph ${areaData.law_areas.icon ?? "ph-scales"} text-3xl text-white`} aria-hidden="true" />
+              <i class={`${phIcon(areaData.law_areas.icon)} text-3xl text-white`} aria-hidden="true" />
             </div>
             <h1 class="text-4xl font-serif font-bold mb-4">{areaData.law_areas.name}</h1>
             {areaData.description && <p class="text-lg text-gray-300 max-w-2xl">{areaData.description}</p>}
@@ -651,12 +694,31 @@ publicSiteRoutes.get("/artigos", async (c) => {
   const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
   const limit = 9;
   const offset = (page - 1) * limit;
+  const areaFilter = c.req.query("area") ?? "";
+  const search = c.req.query("q") ?? "";
 
-  const { data: articles, count } = await supabase
+  // Fetch areas for filter dropdown
+  const { data: areas } = await supabase
+    .from("tenant_law_areas")
+    .select("law_areas!inner(id, name, slug)")
+    .eq("tenant_id", tenant.id)
+    .order("law_areas(name)");
+
+  let query = supabase
     .from("articles")
     .select("id, title, slug, excerpt, cover_image_url, published_at, reading_time_min, law_areas(name)", { count: "exact" })
     .eq("tenant_id", tenant.id)
-    .eq("status", "published")
+    .eq("status", "published");
+
+  if (areaFilter) {
+    const areaObj = (areas as any)?.find((a: any) => a.law_areas?.slug === areaFilter);
+    if (areaObj) query = query.eq("law_area_id", areaObj.law_areas.id);
+  }
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+  }
+
+  const { data: articles, count } = await query
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -666,12 +728,43 @@ publicSiteRoutes.get("/artigos", async (c) => {
     renderPublic(c, tenant, "artigos", (
       <div class="max-w-6xl mx-auto px-4 py-16">
         <h1 class="text-4xl font-serif font-bold text-secondary mb-2 text-center">Artigos</h1>
-        <p class="text-center text-gray-500 mb-12">Conteúdo jurídico produzido por nossa equipe</p>
+        <p class="text-center text-gray-500 mb-8">Conteúdo jurídico produzido por nossa equipe</p>
+
+        {/* Search + filter */}
+        <div class="max-w-2xl mx-auto mb-10 flex flex-col sm:flex-row gap-3">
+          <form method="get" action={`${b}/artigos`} class="flex-1 flex gap-2">
+            <div class="relative flex-1">
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+              <input type="text" name="q" value={search} placeholder="Buscar artigos..." class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary text-sm" aria-label="Buscar artigos" />
+            </div>
+            {areaFilter && <input type="hidden" name="area" value={areaFilter} />}
+            <button type="submit" class="btn btn-secondary px-4 py-2.5 text-sm" aria-label="Buscar">
+              <i class="ph ph-magnifying-glass" aria-hidden="true" />
+            </button>
+          </form>
+          {areas && areas.length > 0 && (
+            <select onchange={`window.location.href='${b}/artigos' + (this.value ? '?area=' + this.value : '')`} class="px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white" aria-label="Filtrar por área">
+              <option value="">Todas as áreas</option>
+              {(areas as any).map((a: any) => (
+                <option value={a.law_areas?.slug} selected={a.law_areas?.slug === areaFilter}>{a.law_areas?.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {/* Active filter indicator */}
+        {(areaFilter || search) && (
+          <div class="max-w-2xl mx-auto mb-6 text-center text-sm text-gray-500">
+            {areaFilter && <span class="inline-block bg-gray-100 rounded-full px-3 py-1 mr-2">Área: {areas && (areas as any).find((a: any) => a.law_areas?.slug === areaFilter)?.law_areas?.name}</span>}
+            {search && <span class="inline-block bg-gray-100 rounded-full px-3 py-1 mr-2">Busca: "{search}"</span>}
+            <a href={`${b}/artigos`} class="text-primary hover:underline">Limpar filtros</a>
+          </div>
+        )}
 
         {(!articles || articles.length === 0) ? (
           <div class="text-center py-12 text-gray-400">
             <i class="ph ph-file-text text-5xl block mb-4" aria-hidden="true" />
-            <p>Nenhum artigo publicado ainda.</p>
+            <p>{(areaFilter || search) ? "Nenhum artigo encontrado com esses filtros." : "Nenhum artigo publicado ainda."}</p>
           </div>
         ) : (
           <>
@@ -780,6 +873,7 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
         )}
 
         <div class="max-w-3xl mx-auto px-4 py-12">
+          <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Artigos", href: "/artigos" }, { label: articleData.title }]} basePath={b} />
           {/* Meta */}
           {articleData.law_areas?.name && (
             <a href={`${b}/areas/${articleData.law_areas.slug}`} class="text-sm font-semibold text-primary uppercase tracking-wide hover:underline">
@@ -800,6 +894,26 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
           )}
 
           <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(articleData.content) }} />
+
+          {/* Social share buttons */}
+          <div class="mt-8 flex items-center gap-3 pt-6 border-t border-gray-100">
+            <span class="text-sm text-gray-500 font-medium">Compartilhar:</span>
+            <a href={`https://wa.me/?text=${encodeURIComponent(articleData.title + " — " + (c.req.url))}`} target="_blank" rel="noopener" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-green-50 hover:text-green-600 flex items-center justify-center transition" aria-label="Compartilhar no WhatsApp">
+              <i class="ph ph-whatsapp-logo" aria-hidden="true" />
+            </a>
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(c.req.url)}`} target="_blank" rel="noopener" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center transition" aria-label="Compartilhar no LinkedIn">
+              <i class="ph ph-linkedin-logo" aria-hidden="true" />
+            </a>
+            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(articleData.title)}&url=${encodeURIComponent(c.req.url)}`} target="_blank" rel="noopener" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition" aria-label="Compartilhar no Twitter/X">
+              <i class="ph ph-x-logo" aria-hidden="true" />
+            </a>
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(c.req.url)}`} target="_blank" rel="noopener" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-700 flex items-center justify-center transition" aria-label="Compartilhar no Facebook">
+              <i class="ph ph-facebook-logo" aria-hidden="true" />
+            </a>
+            <button type="button" onclick="navigator.clipboard.writeText(window.location.href); this.querySelector('i').className='ph ph-check text-green-600'" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition" aria-label="Copiar link">
+              <i class="ph ph-link" aria-hidden="true" />
+            </button>
+          </div>
 
           {/* CTA */}
           <div class="mt-12 p-6 bg-gray-50 rounded-xl text-center">
@@ -1110,7 +1224,7 @@ publicSiteRoutes.get("/reconhecimentos", async (c) => {
             {recognitions.map((r: any) => (
               <div class="flex items-start gap-4 p-6 rounded-xl border border-gray-100 hover:shadow-md transition">
                 <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <i class={`ph ${r.icon ?? "ph-trophy"} text-2xl text-primary`} aria-hidden="true" />
+                  <i class={`${phIcon(r.icon, "ph-trophy")} text-2xl text-primary`} aria-hidden="true" />
                 </div>
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-secondary">{r.title}</h3>
@@ -1221,6 +1335,7 @@ publicSiteRoutes.get("/equipe/:slug", async (c) => {
   return c.html(
     renderPublic(c, tenant, "equipe", (
       <div class="max-w-4xl mx-auto px-4 py-16">
+        <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Equipe", href: "/equipe" }, { label: member.public_name }]} basePath={b} />
         <a href={`${b}/equipe`} class="text-primary hover:underline text-sm mb-6 inline-block"><span aria-hidden="true">←</span> Voltar para a equipe</a>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

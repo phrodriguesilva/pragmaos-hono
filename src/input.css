@@ -217,6 +217,9 @@
   .badge-gray {
     @apply bg-gray-200 text-gray-600;
   }
+  .badge-terracota {
+    @apply bg-terracota-50 text-terracota-700;
+  }
 
   /* Modern data table -- no harsh borders, subtle row separators */
   .data-table {

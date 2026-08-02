@@ -5,7 +5,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { supabase } from "../lib/supabase";
 import { appCss } from "../generated/css";
 import { getOnboardingState, completeStep, ONBOARDING_STEPS, type OnboardingStep } from "../lib/onboarding";
@@ -13,12 +13,12 @@ import { log } from "../lib/logger";
 
 export const onboardingRoutes = new Hono<AppEnv>();
 
-onboardingRoutes.use("*", requireAuth);
+onboardingRoutes.use("*", requireAuth, requireRole("admin", "socio"));
 
 // ============================================================
 // Onboarding layout (full-screen, no sidebar)
 // ============================================================
-function onboardingShell(title: string, stepIdx: number, children: unknown) {
+function onboardingShell(title: string, stepIdx: number, children: unknown, skipHref?: string) {
   const total = ONBOARDING_STEPS.length - 1; // exclude "done"
   const pct = Math.round((stepIdx / total) * 100);
   return (
@@ -50,6 +50,7 @@ function onboardingShell(title: string, stepIdx: number, children: unknown) {
                 <span class="text-lg font-bold tracking-tight">PragmaOS</span>
               </div>
               <a href="/dashboard" class="text-sm text-carvao-400 hover:text-carvao-600 transition">Pular por agora</a>
+              {skipHref && <a href={skipHref} class="text-sm text-terracota-500 hover:text-terracota-600 transition ml-3">Pular esta etapa →</a>}
             </div>
             {/* Progress bar */}
             <div class="h-1 bg-carvao-100">
@@ -119,13 +120,13 @@ onboardingRoutes.get("/company", async (c) => {
 
   const idx = ONBOARDING_STEPS.indexOf("company");
   return c.html(
-    onboardingShell("Dados do Escritorio", idx, (
+    onboardingShell("Dados do Escritório", idx, (
       <>
         {stepIndicator(idx)}
         <h1 class="text-2xl font-bold mb-2">Conte-nos sobre seu escritório</h1>
         <p class="text-carvao-500 mb-6 text-sm">Estes dados aparecem em documentos, cobranças e no seu site público. Você poderá editá-los depois.</p>
 
-        <form method="post" action="/onboarding/company" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4">
+        <form method="post" action="/onboarding/company" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           <div>
             <label for="name" class="block text-sm font-semibold text-carvao-700 mb-1">Nome do escritório *</label>
             <input id="name" name="name" type="text" required value={tenant?.name ?? ""} class="input w-full" />
@@ -142,7 +143,7 @@ onboardingRoutes.get("/company", async (c) => {
           </div>
           <div>
             <label for="address" class="block text-sm font-semibold text-carvao-700 mb-1">Endereço</label>
-            <input id="address" name="address" type="text" placeholder="Av. Paulista, 1000 - Sao Paulo/SP" value={tenant?.address ?? ""} class="input w-full" />
+            <input id="address" name="address" type="text" placeholder="Av. Paulista, 1000 - São Paulo/SP" value={tenant?.address ?? ""} class="input w-full" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -158,8 +159,10 @@ onboardingRoutes.get("/company", async (c) => {
             <label for="founded_year" class="block text-sm font-semibold text-carvao-700 mb-1">Ano de fundação</label>
             <input id="founded_year" name="founded_year" type="number" min="1900" max="2099" placeholder="2010" value={tenant?.founded_year ?? ""} class="input w-full" />
           </div>
-          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2">
-            Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" />
+          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2" {...{ ":disabled": "loading" }}>
+            <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
+            <span {...{ "x-show": "!loading" }}>Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" /></span>
+            <span {...{ "x-show": "loading", "x-cloak": "" }}>Salvando...</span>
           </button>
         </form>
       </>
@@ -168,7 +171,7 @@ onboardingRoutes.get("/company", async (c) => {
 });
 
 const companySchema = z.object({
-  name: z.string().min(2, "Nome obrigatorio"),
+  name: z.string().min(2, "Nome obrigatório"),
   cnpj: z.string().optional(),
   oab_number: z.string().optional(),
   address: z.string().optional(),
@@ -222,7 +225,7 @@ onboardingRoutes.get("/areas", async (c) => {
         <h1 class="text-2xl font-bold mb-2">Quais áreas seu escritório atua?</h1>
         <p class="text-carvao-500 mb-6 text-sm">Selecione todas que se aplicam. Isso ajuda a organizar processos e aparece no seu site público.</p>
 
-        <form method="post" action="/onboarding/areas" class="bg-white rounded-2xl border border-carvao-100 p-6">
+        <form method="post" action="/onboarding/areas" class="bg-white rounded-2xl border border-carvao-100 p-6" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           {/* Search bar with Alpine.js live filter */}
           <div class="mb-4" {...{ "x-data": "{ q: '' }" }}>
             <div class="relative">
@@ -269,8 +272,10 @@ onboardingRoutes.get("/areas", async (c) => {
             </div>
           )}
 
-          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-6">
-            Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" />
+          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-6" {...{ ":disabled": "loading" }}>
+            <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
+            <span {...{ "x-show": "!loading" }}>Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" /></span>
+            <span {...{ "x-show": "loading", "x-cloak": "" }}>Salvando...</span>
           </button>
         </form>
       </>
@@ -334,7 +339,7 @@ onboardingRoutes.get("/team", async (c) => {
           </ul>
         </div>
 
-        <form method="post" action="/onboarding/team" class="bg-white rounded-2xl border border-carvao-100 p-6">
+        <form method="post" action="/onboarding/team" class="bg-white rounded-2xl border border-carvao-100 p-6" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
           <h3 class="font-semibold mb-3 text-sm">Adicionar membro (opcional)</h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <input name="invite_name" type="text" placeholder="Nome" class="input w-full" />
@@ -348,12 +353,14 @@ onboardingRoutes.get("/team", async (c) => {
             </select>
           </div>
           <p class="text-xs text-carvao-400 mb-4">O membro receberá um e-mail para definir a senha. Você pode adicionar mais depois.</p>
-          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2">
-            Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" />
+          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2" {...{ ":disabled": "loading" }}>
+            <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
+            <span {...{ "x-show": "!loading" }}>Continuar <i class="ph-bold ph-arrow-right" aria-hidden="true" /></span>
+            <span {...{ "x-show": "loading", "x-cloak": "" }}>Enviando convite...</span>
           </button>
         </form>
       </>
-    )),
+    ), "/onboarding/branding"),
   );
 });
 
@@ -416,14 +423,23 @@ onboardingRoutes.get("/branding", async (c) => {
         <h1 class="text-2xl font-bold mb-2">Personalize sua identidade</h1>
         <p class="text-carvao-500 mb-6 text-sm">Cores e tagline aparecem no seu site público e nos documentos. Você pode mudar tudo depois.</p>
 
-        <form method="post" action="/onboarding/branding" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4">
+        <form method="post" action="/onboarding/branding" class="bg-white rounded-2xl border border-carvao-100 p-6 flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+          {/* Logo URL */}
+          <div>
+            <label for="logo_url" class="block text-sm font-semibold text-carvao-700 mb-1">URL do Logo (opcional)</label>
+            <div class="flex items-center gap-3">
+              {tenant?.logo_url && <img src={tenant.logo_url} alt="Logo atual" class="h-10 w-auto max-w-24 object-contain border border-carvao-100 rounded p-1" />}
+              <input id="logo_url" name="logo_url" type="url" placeholder="https://... (PNG ou SVG)" value={tenant?.logo_url ?? ""} class="input flex-1" />
+            </div>
+            <p class="text-xs text-carvao-400 mt-1">Cole a URL do seu logo. Você pode fazer upload depois nas configurações.</p>
+          </div>
           <div>
             <label for="tagline" class="block text-sm font-semibold text-carvao-700 mb-1">Slogan / Tagline</label>
-            <input id="tagline" name="tagline" type="text" placeholder="Ex: Advocacia estrategica para empresas" value={tenant?.tagline ?? ""} class="input w-full" />
+            <input id="tagline" name="tagline" type="text" placeholder="Ex: Advocacia estratégica para empresas" value={tenant?.tagline ?? ""} class="input w-full" />
           </div>
           <div>
             <label for="description" class="block text-sm font-semibold text-carvao-700 mb-1">Descrição curta</label>
-            <textarea id="description" name="description" rows={2} placeholder="Em 1-2 frases, o que seu escritorio faz." class="input w-full">{tenant?.description ?? ""}</textarea>
+            <textarea id="description" name="description" rows={2} placeholder="Em 1-2 frases, o que seu escritório faz." class="input w-full">{tenant?.description ?? ""}</textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -447,14 +463,16 @@ onboardingRoutes.get("/branding", async (c) => {
               <input id="subdomain" name="subdomain" type="text" placeholder="meu-escritorio" value={tenant?.subdomain ?? ""} class="input flex-1" />
               <span class="text-sm text-carvao-400">.pragmaos.app</span>
             </div>
-            <p class="text-xs text-carvao-400 mt-1">Seu site ficara em <strong>subdominio.pragmaos.app</strong>. Voce pode usar dominio proprio depois.</p>
+            <p class="text-xs text-carvao-400 mt-1">Seu site ficará em <strong>subdominio.pragmaos.app</strong>. Você pode usar domínio próprio depois.</p>
           </div>
-          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2">
-            Concluir onboarding <i class="ph-bold ph-check-circle" aria-hidden="true" />
+          <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2" {...{ ":disabled": "loading" }}>
+            <i class="ph ph-spinner animate-spin" {...{ "x-show": "loading", "x-cloak": "" }} aria-hidden="true" />
+            <span {...{ "x-show": "!loading" }}>Concluir onboarding <i class="ph-bold ph-check-circle" aria-hidden="true" /></span>
+            <span {...{ "x-show": "loading", "x-cloak": "" }}>Salvando identidade...</span>
           </button>
         </form>
       </>
-    )),
+    ), "/onboarding/done"),
   );
 });
 
@@ -464,6 +482,7 @@ const brandingSchema = z.object({
   primary_color: z.string().optional(),
   secondary_color: z.string().optional(),
   subdomain: z.string().optional(),
+  logo_url: z.string().url().or(z.literal("")).optional(),
 });
 
 onboardingRoutes.post("/branding", async (c) => {
@@ -485,7 +504,18 @@ onboardingRoutes.post("/branding", async (c) => {
       .neq("id", user.tenantId)
       .maybeSingle();
     if (existing) {
-      subdomain = `${subdomain}-${Date.now().toString(36)}`;
+      // Return error so user can choose a different subdomain
+      return c.html(
+        onboardingShell("Identidade", ONBOARDING_STEPS.indexOf("branding"), (
+          <div class="max-w-lg mx-auto pt-12">
+            <div class="border border-status-red bg-status-red-bg text-status-red p-4 rounded-lg mb-6">
+              <p class="font-semibold mb-1">Subdomínio já em uso</p>
+              <p class="text-body-sm">O subdomínio <strong>{subdomain}</strong> já está cadastrado. Escolha outro e tente novamente.</p>
+            </div>
+            <a href="/onboarding/branding" class="btn btn-secondary">← Voltar e tentar outro</a>
+          </div>
+        )),
+      );
     }
   }
 
@@ -497,6 +527,7 @@ onboardingRoutes.post("/branding", async (c) => {
       primary_color: parsed.data.primary_color || "#c8553d",
       secondary_color: parsed.data.secondary_color || "#2b2925",
       subdomain,
+      logo_url: parsed.data.logo_url || null,
     })
     .eq("id", user.tenantId);
 

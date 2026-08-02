@@ -68,6 +68,7 @@ import { marketingRoutes } from "./routes/marketing";
 import { onboardingRoutes } from "./routes/onboarding";
 import { subscriptionRoutes } from "./routes/subscription";
 import { companySettingsRoutes } from "./routes/company-settings";
+import { backOfficeRoutes } from "./routes/back-office";
 import { resolveTenantByHost, resolveTenantBySlug, isPublicSiteRequest } from "./lib/tenant-resolver";
 import { renderNotFound, renderServerError } from "./lib/error-pages";
 
@@ -213,6 +214,11 @@ app.get("/ai-petitions", (c) => c.redirect("/ai-assistant/petitions"));
 app.route("/onboarding", onboardingRoutes);
 app.route("/assinatura", subscriptionRoutes);
 app.route("/configuracoes-empresa", companySettingsRoutes);
+
+// Back-office (platform admin) — must be before dashboardRoutes to avoid
+// the onboarding/subscription enforcement middleware that dashboard applies.
+app.route("/back-office", backOfficeRoutes);
+
 app.route("/", dashboardRoutes);
 app.route("/clients", clientsRoutes);
 app.route("/cases", casesRoutes);

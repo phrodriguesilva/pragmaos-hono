@@ -564,7 +564,7 @@ marketingRoutes.get("/sobre", (c) => {
             </div>
             <div>
               <div class="text-3xl font-bold text-terracota-600 font-serif">+500</div>
-              <div class="text-sm text-carvao-400">Escritorios</div>
+              <div class="text-sm text-carvao-400">Escritórios</div>
             </div>
             <div>
               <div class="text-3xl font-bold text-terracota-600 font-serif">BR</div>
@@ -803,6 +803,8 @@ marketingRoutes.get("/sitemap.xml", (c) => {
     { loc: "https://pragmaos.app/", priority: "1.0", changefreq: "weekly" },
     { loc: "https://pragmaos.app/sobre", priority: "0.8", changefreq: "monthly" },
     { loc: "https://pragmaos.app/contato", priority: "0.8", changefreq: "monthly" },
+    { loc: "https://pragmaos.app/termos", priority: "0.3", changefreq: "yearly" },
+    { loc: "https://pragmaos.app/privacidade", priority: "0.3", changefreq: "yearly" },
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -813,4 +815,174 @@ ${urls.map((u) => `  <url>
   </url>`).join("\n")}
 </urlset>`;
   return new Response(xml, { headers: { "Content-Type": "application/xml; charset=utf-8" } });
+});
+
+// ============================================================
+// GET /termos — Terms of Use (SaaS)
+// ============================================================
+marketingRoutes.get("/termos", (c) => {
+  return c.html(
+    <MarketingLayout title="Termos de Uso — PragmaOS" active="" description="Termos de uso da plataforma PragmaOS.">
+      <div class="max-w-3xl mx-auto px-4 py-16">
+        <h1 class="text-4xl font-serif font-bold text-carvao-800 mb-2">Termos de Uso</h1>
+        <p class="text-sm text-gray-500 mb-8">Última atualização: 02 de agosto de 2026</p>
+
+        <div class="prose prose-lg max-w-none text-gray-700 space-y-6">
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">1. Aceitação dos Termos</h2>
+            <p>Ao criar uma conta ou utilizar a plataforma PragmaOS ("Serviço"), você concorda com estes Termos de Uso. Se não concordar, não utilize o Serviço.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">2. Descrição do Serviço</h2>
+            <p>O PragmaOS é uma plataforma SaaS de gestão jurídica para escritórios de advocacia, incluindo gestão de processos, prazos, financeiro, IA jurídica e site público white-label.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">3. Conta e Responsabilidade</h2>
+            <p>Você é responsável pela precisão dos dados fornecidos no cadastro e pela segurança de suas credenciais. A conta é pessoal e intransferível, vinculada ao escritório cadastrado.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">4. Uso Aceitável</h2>
+            <p>Você concorda em não: (a) usar o Serviço para fins ilegais; (b) tentar acessar dados de outros escritórios; (c) fazer engenharia reversa ou descompilar o software; (d) usar bots ou scripts que sobrecarreguem a infraestrutura.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">5. Planos e Pagamentos</h2>
+            <p>Oferecemos um período de trial gratuito de 14 dias. Após o trial, a assinatura do plano escolhido é cobrada mensal ou anualmente. Cancelamentos são processados conforme nossa política de reembolso. Preços podem ser alterados com aviso prévio de 30 dias.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">6. Dados e Privacidade</h2>
+            <p>Seus dados são tratados conforme nossa <a href="/privacidade" class="text-terracota-600 hover:underline">Política de Privacidade</a> e a LGPD (Lei 13.709/2018). Você é titular dos dados inseridos no Serviço e pode solicitá-los ou excluí-los a qualquer momento.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">7. Disponibilidade do Serviço</h2>
+            <p>Esforçamo-nos para manter 99,9% de uptime, mas não garantimos que o Serviço será ininterrupto ou livre de erros. Manutenções programadas são comunicadas com antecedência.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">8. Limitação de Responsabilidade</h2>
+            <p>O PragmaOS não se responsabiliza por decisões jurídicas tomadas com base em sugestões de IA, sendo estas apenas ferramentas de apoio. A responsabilidade total é limitada ao valor pago nos últimos 12 meses.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">9. Cancelamento</h2>
+            <p>Você pode cancelar a assinatura a qualquer momento na área de Assinatura. O acesso continua até o fim do período já pago.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">10. Alterações dos Termos</h2>
+            <p>Estes termos podem ser atualizados periodicamente. Alterações significativas serão comunicadas por e-mail com 30 dias de antecedência.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">11. Contato</h2>
+            <p>Em caso de dúvidas: <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a></p>
+          </section>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-gray-200">
+          <a href="/signup" class="btn btn-primary inline-flex items-center gap-2">Criar conta grátis <i class="ph-bold ph-arrow-right" aria-hidden="true" /></a>
+        </div>
+      </div>
+    </MarketingLayout>,
+  );
+});
+
+// ============================================================
+// GET /privacidade — Privacy Policy (SaaS / LGPD)
+// ============================================================
+marketingRoutes.get("/privacidade", (c) => {
+  return c.html(
+    <MarketingLayout title="Política de Privacidade — PragmaOS" active="" description="Política de privacidade e proteção de dados da plataforma PragmaOS (LGPD).">
+      <div class="max-w-3xl mx-auto px-4 py-16">
+        <h1 class="text-4xl font-serif font-bold text-carvao-800 mb-2">Política de Privacidade</h1>
+        <p class="text-sm text-gray-500 mb-8">Última atualização: 02 de agosto de 2026</p>
+
+        <div class="prose prose-lg max-w-none text-gray-700 space-y-6">
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">1. Introdução</h2>
+            <p>A PragmaOS ("nós", "nosso") respeita sua privacidade e está comprometida em proteger seus dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018).</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">2. Dados Coletados</h2>
+            <p>Coletamos os seguintes dados:</p>
+            <ul class="list-disc pl-6 space-y-1">
+              <li><strong>Cadastro:</strong> nome, e-mail, telefone, nome do escritório</li>
+              <li><strong>Uso da plataforma:</strong> processos, clientes, documentos, prazos inseridos pelo escritório</li>
+              <li><strong>Navegação:</strong> cookies essenciais, endereço IP, logs de acesso</li>
+              <li><strong>Pagamento:</strong> processados pelo Asaas (não armazenamos dados de cartão)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">3. Finalidade do Tratamento</h2>
+            <p>Seus dados são utilizados para:</p>
+            <ul class="list-disc pl-6 space-y-1">
+              <li>Fornecer e manter o Serviço</li>
+              <li>Processar pagamentos e emitir notas fiscais</li>
+              <li>Enviar comunicações sobre o serviço e atualizações</li>
+              <li>Cumprir obrigações legais e regulatórias</li>
+              <li>Melhorar a plataforma através de métricas de uso anônimas</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">4. Base Legal</h2>
+            <p>O tratamento de dados ocorre com base no consentimento, execução de contrato e cumprimento de obrigações legais.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">5. Compartilhamento de Dados</h2>
+            <p>Não vendemos seus dados. Compartilhamos dados apenas com:</p>
+            <ul class="list-disc pl-6 space-y-1">
+              <li><strong>Asaas:</strong> processamento de pagamentos</li>
+              <li><strong>Supabase:</strong> infraestrutura de banco de dados</li>
+              <li><strong>CNJ DataJud:</strong> consulta de processos (dados públicos)</li>
+              <li><strong>Autoridades legais:</strong> quando exigido por ordem judicial</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">6. Seus Direitos (LGPD)</h2>
+            <p>Você tem direito a: confirmar a existência de tratamento, acessar os dados, corrigi-los, anonimizá-los, bloqueá-los, eliminá-los, portar os dados, revogar consentimento e opor-se ao tratamento.</p>
+            <p>Para exercer seus direitos, envie e-mail para <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a>.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">7. Segurança</h2>
+            <p>Utilizamos criptografia em trânsito (TLS/SSL), isolamento de dados por tenant, backups criptografados e controle de acesso baseado em funções (RBAC).</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">8. Retenção de Dados</h2>
+            <p>Os dados são mantidos enquanto a conta estiver ativa. Após cancelamento, os dados são retidos por 90 dias para exportação e depois permanentemente excluídos, salvo obrigação legal de retenção.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">9. Cookies</h2>
+            <p>Usamos apenas cookies essenciais para funcionamento (sessão de autenticação). Não usamos cookies de rastreamento de terceiros para publicidade.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">10. Encarregado de Dados (DPO)</h2>
+            <p>Para questões de privacidade: <a href="mailto:contato@pragmaos.com.br" class="text-terracota-600 hover:underline">contato@pragmaos.com.br</a></p>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold text-carvao-800 mb-2">11. Alterações desta Política</h2>
+            <p>Esta política pode ser atualizada periodicamente. Alterações significativas serão comunicadas por e-mail.</p>
+          </section>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-gray-200">
+          <a href="/termos" class="text-terracota-600 hover:underline">Ver Termos de Uso →</a>
+        </div>
+      </div>
+    </MarketingLayout>,
+  );
 });

@@ -173,6 +173,11 @@ function loginForm(errorMsg?: string, emailValue?: string) {
             </button>
           </div>
         </div>
+        {/* Remember me */}
+        <label class="flex items-center gap-2 text-body-sm text-gray-600 cursor-pointer">
+          <input type="checkbox" name="remember" class="rounded" />
+          <span>Lembrar de mim neste dispositivo</span>
+        </label>
         <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2" {...{ ":disabled": "loading" }}>
           <i class={`ph ${"loading ? 'ph-spinner animate-spin' : 'ph-sign-in'"}`} aria-hidden="true" />
           <span {...{ "x-show": "!loading" }}>Entrar</span>
@@ -216,6 +221,7 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   const body = await c.req.parseBody();
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
+  const remember = String(body.remember ?? "") === "on";
 
   if (!email || !password) {
     return c.html(loginForm("Email e senha são obrigatórios.", email));
@@ -226,6 +232,9 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   if (error || !data.session) {
     return c.html(loginForm("Credenciais inválidas.", email));
   }
+
+  // Extend session if "remember me" is checked (30 days vs default 1 hour).
+  const sessionMaxAge = remember ? 30 * 24 * 60 * 60 : (data.session.expires_in ?? 3600);
 
   // Look up the user's profile to get tenant_id and check 2FA status.
   const { data: profile } = await supabase
@@ -240,7 +249,7 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
     secure: APP_URL.startsWith("https"),
     sameSite: "Strict",
     path: "/",
-    maxAge: data.session.expires_in ?? 3600,
+    maxAge: sessionMaxAge,
   });
 
   // Store the user ID in a short-lived cookie for 2FA flow.
@@ -296,10 +305,10 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
 
 function twoFAVerifyForm(errorMsg?: string) {
   return (
-    <AuthLayout title="Verificacao 2FA">
+    <AuthLayout title="Verificação 2FA">
       <div class="flex items-center gap-2 mb-1">
         <i class="ph-bold ph-shield-check text-h2 text-terracota-700" aria-hidden="true" />
-        <h1 class="text-h2 font-bold text-gray-900">Verificacao 2FA</h1>
+        <h1 class="text-h2 font-bold text-gray-900">Verificação 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
         Digite o código de 6 dígitos do seu app autenticador.
@@ -794,7 +803,7 @@ authRoutes.get("/reset-password", async (c) => {
   const token = c.req.query("token") ?? "";
   if (!token) {
     return c.html(
-      <AuthLayout title="Link Invalido">
+      <AuthLayout title="Link Inválido">
         {AuthBrand("Redefinição de senha")}
         {ErrorAlert("Link de recuperação inválido ou ausente.")}
         <a href="/forgot-password" class="btn btn-secondary w-full flex items-center justify-center gap-2">
@@ -835,7 +844,7 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
   const confirmPassword = String(body.confirm_password ?? "");
 
   if (!token) {
-    return c.html(resetPasswordForm("", "Token invalido."));
+    return c.html(resetPasswordForm("", "Token inválido."));
   }
 
   if (!password || password.length < 6) {
@@ -843,7 +852,7 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
   }
 
   if (password !== confirmPassword) {
-    return c.html(resetPasswordForm(token, "As senhas nao coincidem."));
+    return c.html(resetPasswordForm(token, "As senhas não coincidem."));
   }
 
   // Verify token (hash before lookup).
@@ -855,7 +864,7 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
     .single();
 
   if (!resetRow || resetRow.used || new Date(resetRow.expires_at) < new Date()) {
-    return c.html(resetPasswordForm(token, "Link expirado ou invalido."));
+    return c.html(resetPasswordForm(token, "Link expirado ou inválido."));
   }
 
   // Update password via Supabase Admin API.
@@ -911,7 +920,7 @@ authRoutes.get("/logout", (c) => {
 authRoutes.get("/govbr", (c) => {
   const config = getGovBrConfig();
   if (!config.enabled) {
-    return c.html(loginForm("Login via Gov.br nao configurado. Contate o administrador."));
+    return c.html(loginForm("Login via Gov.br não configurado. Contate o administrador."));
   }
   const state = crypto.randomUUID();
   setCookie(c, "govbr-oauth-state", state, { path: "/", httpOnly: true, maxAge: 600, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
@@ -926,7 +935,7 @@ authRoutes.get("/govbr/callback", async (c) => {
   deleteCookie(c, "govbr-oauth-state", { path: "/" });
 
   if (!code || !state || state !== savedState) {
-    return c.html(loginForm("Erro na autenticacao Gov.br: state invalido."));
+    return c.html(loginForm("Erro na autenticação Gov.br: state inválido."));
   }
 
   const tokenResult = await exchangeGovBrCode(code);
@@ -949,7 +958,7 @@ authRoutes.get("/govbr/callback", async (c) => {
     .maybeSingle();
 
   if (!profile) {
-    return c.html(loginForm(`Usuario com CPF ${govUser.cpf} nao encontrado no PragmaOS. Contate o administrador.`));
+    return c.html(loginForm(`Usuário com CPF ${govUser.cpf} não encontrado no PragmaOS. Contate o administrador.`));
   }
 
   // Set session cookies (same as regular login)
