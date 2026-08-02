@@ -46,14 +46,14 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
         x-cloak
         class="fixed inset-0 bg-black/50 z-40 lg:hidden"
       ></div>
-      {/* Sidebar — fixed on all screens, slides in on mobile */}
+      {/* Sidebar — floating with margin and rounded corners */}
       <div
         {...{ ":class": "sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'", "@keydown.escape.window": "sidebarOpen = false" }}
-        class="fixed top-0 left-0 z-50 h-screen transition-transform duration-200"
+        class="fixed top-3 left-3 z-50 h-[calc(100vh-1.5rem)] rounded-2xl overflow-hidden shadow-2xl shadow-black/20 transition-transform duration-200"
       >
         <Sidebar active={active} />
       </div>
-      <div class="flex flex-col min-h-screen lg:ml-sidebar">
+      <div class="flex flex-col min-h-screen lg:ml-[264px]">
         {/* Mobile hamburger button */}
         <button
           {...{ "@click": "sidebarOpen = true" }}

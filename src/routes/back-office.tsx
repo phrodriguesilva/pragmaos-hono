@@ -65,10 +65,10 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         {/* Mobile overlay */}
         <div {...{ "x-show": "sidebarOpen", "@click": "sidebarOpen = false" }} x-cloak class="fixed inset-0 bg-black/50 z-40 lg:hidden" />
 
-        {/* Sidebar */}
+        {/* Sidebar — floating with margin and rounded corners */}
         <div
           {...{ ":class": "sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'", "@keydown.escape.window": "sidebarOpen = false" }}
-          class="fixed top-0 left-0 z-50 h-screen w-60 bg-carvao-900 text-gray-300 transition-transform duration-200 flex flex-col"
+          class="fixed top-3 left-3 z-50 h-[calc(100vh-1.5rem)] w-60 rounded-2xl overflow-hidden shadow-2xl shadow-black/20 transition-transform duration-200 flex flex-col"
         >
           {/* Logo */}
           <div class="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
@@ -112,7 +112,7 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         </div>
 
         {/* Main */}
-        <div class="flex flex-col min-h-screen lg:ml-60">
+        <div class="flex flex-col min-h-screen lg:ml-[264px]">
           {/* Mobile hamburger */}
           <button
             {...{ "@click": "sidebarOpen = true" }}
