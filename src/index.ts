@@ -6,6 +6,7 @@ import { serveStatic } from "hono/bun";
 import { supabase } from "./lib/supabase";
 import { csrfProtection } from "./lib/csrf";
 import { log, requestLogger } from "./lib/logger";
+import { initSentry, captureException } from "./lib/sentry";
 import { authRoutes } from "./routes/auth";
 import { dashboardRoutes } from "./routes/dashboard";
 import { clientsRoutes } from "./routes/clients";
@@ -210,21 +211,49 @@ app.route("/help", helpRoutes);
 // 404 fallback.
 app.notFound((c) => c.html("Pagina nao encontrada.", 404));
 
-// Global error handler — log structured error and return 500.
-app.onError((err, c) => {
+// Global error handler — log structured error, capture to Sentry, return 500.
+app.onError(async (err, c) => {
   log.error("Unhandled error", {
     error: err.message,
     stack: err.stack,
     path: c.req.path,
     method: c.req.method,
   });
-  return c.html("Erro interno do servidor.", 500);
+
+  // Capture to Sentry (no-op if not configured).
+  await captureException(err, {
+    tags: { path: c.req.path, method: c.req.method },
+  });
+
+  const isProd = process.env.NODE_ENV === "production";
+  if (isProd) {
+    return c.html("Erro interno do servidor.", 500);
+  }
+  return c.html(`Erro interno: ${err.message}`, 500);
 });
 
 // Log startup.
 log.info("PragmaOS 2 server initialized", {
   node_env: process.env.NODE_ENV ?? "development",
   vercel_env: process.env.VERCEL_ENV ?? "local",
+});
+
+// Initialize Sentry if configured.
+initSentry();
+if (process.env.SENTRY_DSN) {
+  log.info("Sentry error tracking enabled");
+}
+
+// Capture uncaught exceptions and unhandled rejections.
+process.on("uncaughtException", async (err) => {
+  log.error("Uncaught exception", { error: err.message, stack: err.stack });
+  await captureException(err, { tags: { type: "uncaughtException" } });
+});
+
+process.on("unhandledRejection", async (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  log.error("Unhandled rejection", { error: err.message, stack: err.stack });
+  await captureException(err, { tags: { type: "unhandledRejection" } });
 });
 
 export default app;

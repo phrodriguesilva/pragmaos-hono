@@ -32,6 +32,8 @@ const envSchema = z.object({
   // Upstash Redis (optional — for distributed rate limiting on serverless).
   UPSTASH_REDIS_REST_URL: z.string().url().or(z.literal("")).default(""),
   UPSTASH_REDIS_REST_TOKEN: z.string().or(z.literal("")).default(""),
+  // Sentry (optional — error tracking in production).
+  SENTRY_DSN: z.string().url().or(z.literal("")).default(""),
 });
 
 const parsed = envSchema.safeParse(env);
@@ -75,6 +77,7 @@ type EnvValues = {
   SMTP_FROM: string;
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
+  SENTRY_DSN: string;
 };
 
 const e: EnvValues = parsed.success ? parsed.data : {
@@ -103,6 +106,7 @@ const e: EnvValues = parsed.success ? parsed.data : {
   SMTP_FROM: env.SMTP_FROM ?? "",
   UPSTASH_REDIS_REST_URL: env.UPSTASH_REDIS_REST_URL ?? "",
   UPSTASH_REDIS_REST_TOKEN: env.UPSTASH_REDIS_REST_TOKEN ?? "",
+  SENTRY_DSN: env.SENTRY_DSN ?? "",
 };
 
 export const SUPABASE_URL = e.SUPABASE_URL;
@@ -143,3 +147,6 @@ export const SMTP_FROM = e.SMTP_FROM;
 // Upstash Redis (optional — distributed rate limiting)
 export const UPSTASH_REDIS_REST_URL = e.UPSTASH_REDIS_REST_URL;
 export const UPSTASH_REDIS_REST_TOKEN = e.UPSTASH_REDIS_REST_TOKEN;
+
+// Sentry (optional — error tracking)
+export const SENTRY_DSN = e.SENTRY_DSN;
