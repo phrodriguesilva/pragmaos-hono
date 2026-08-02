@@ -5,6 +5,8 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { setFlash } from "../lib/flash";
+import { processDocumentOCR, batchProcessDocuments } from "../lib/ocr";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Modal, FileUpload, WizardModal } from "../components/ui";
 
 export const documentsRoutes = new Hono<AppEnv>();
@@ -489,6 +491,50 @@ documentsRoutes.post("/:id/delete", async (c) => {
     .delete()
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
+
+  return c.redirect("/documents");
+});
+
+// POST /:id/ocr -- run OCR on a single document.
+documentsRoutes.post("/:id/ocr", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  // Fetch document to get storage path.
+  const { data: doc } = await supabase
+    .from("documents")
+    .select("id, storage_path, title")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .maybeSingle();
+
+  if (!doc) {
+    setFlash(c, "error", "Documento nao encontrado.");
+    return c.redirect("/documents");
+  }
+
+  const result = await processDocumentOCR(user.tenantId, id, "documents", doc.storage_path);
+
+  if (result.success) {
+    setFlash(c, "success", `OCR concluido: ${result.text?.length ?? 0} caracteres extraidos.`);
+  } else {
+    setFlash(c, "error", `Erro no OCR: ${result.error}`);
+  }
+
+  return c.redirect(`/documents/${id}`);
+});
+
+// POST /ocr/batch -- run OCR on all documents without extracted text.
+documentsRoutes.post("/ocr/batch", async (c) => {
+  const user = c.get("user");
+
+  const result = await batchProcessDocuments(user.tenantId, 10);
+
+  if (result.processed === 0) {
+    setFlash(c, "info", "Nenhum documento pendente de OCR.");
+  } else {
+    setFlash(c, "success", `OCR em lote: ${result.success} processados, ${result.failed} falharam.`);
+  }
 
   return c.redirect("/documents");
 });
