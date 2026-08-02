@@ -64,7 +64,7 @@ prazosRoutes.get("/", async (c) => {
 
       <div class="grid grid-cols-2 gap-6">
         {/* Calculadora */}
-        <Panel title="Calcular Prazo Processual" icon="ph-gauge">
+        <Panel title="Calcular Prazo Processual" icon="ph-calculator">
           <form method="get" action="/prazos" class="flex flex-col gap-4">
             <Select
               label="Tipo de prazo"
@@ -85,7 +85,7 @@ prazosRoutes.get("/", async (c) => {
                   type="number"
                   value={String(dias)}
                   required
-                  icon="ph-calendar-plus"
+                  icon="ph-calendar-blank"
                 />
                 <Select
                   label="Tipo de contagem"
@@ -171,7 +171,7 @@ prazosRoutes.get("/", async (c) => {
 
       {/* Tabela de prazos comuns */}
       <div class="mt-6">
-        <Panel title="Prazos comuns do CPC/2015" icon="ph-info">
+        <Panel title="Prazos comuns do CPC/2015" icon="ph-book-open">
           <div class="grid grid-cols-2 gap-2 text-body-sm">
             {Object.entries(PRAZOS_CPC).filter(([k]) => k !== "personalizado").map(([key, val]) => (
               <div key={key} class="flex items-center justify-between p-2 border-b border-gray-50">

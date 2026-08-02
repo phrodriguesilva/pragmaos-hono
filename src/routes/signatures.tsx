@@ -295,7 +295,7 @@ signatureRoutes.get("/:id", async (c) => {
         </Panel>
       </div>
       <div class="mt-4">
-      <Panel title="Linha do Tempo" icon="ph-timeline">
+      <Panel title="Linha do Tempo" icon="ph-list-dashes">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2 text-body-sm">
             <i class="ph ph-circle-fill text-terracota-600 text-body-sm" aria-hidden="true"></i>

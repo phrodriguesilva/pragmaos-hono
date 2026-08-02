@@ -174,7 +174,7 @@ profileRoutes.get("/", async (c) => {
           <form method="post" action="/profile/pix" class="flex flex-col gap-3">
             <TextField label="Chave PIX" id="pix_key" name="pix_key" icon="ph-key" placeholder="email@exemplo.com, CPF, CNPJ, telefone ou chave aleatoria" value={tenant?.pix_key ?? ""} />
             <TextField label="Nome do recebedor (max 25 chars)" id="pix_merchant_name" name="pix_merchant_name" icon="ph-user" placeholder="Ex: SILVA ADVOGADOS" value={tenant?.pix_merchant_name ?? ""} />
-            <TextField label="Cidade do recebedor (max 15 chars)" id="pix_merchant_city" name="pix_merchant_city" icon="ph-id-card" placeholder="Ex: SAO PAULO" value={tenant?.pix_merchant_city ?? ""} />
+            <TextField label="Cidade do recebedor (max 15 chars)" id="pix_merchant_city" name="pix_merchant_city" icon="ph-map-pin" placeholder="Ex: SAO PAULO" value={tenant?.pix_merchant_city ?? ""} />
             <button type="submit" class="btn btn-primary inline-flex items-center gap-1 self-start">
               <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar configuracoes PIX
             </button>

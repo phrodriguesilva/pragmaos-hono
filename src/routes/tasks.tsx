@@ -393,7 +393,7 @@ tasksRoutes.get("/:id", async (c) => {
             options={COLUMNS.map((c2) => ({ value: c2.key, label: c2.label }))}
           />
           <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-arrows-right-left" aria-hidden="true" />Mover
+            <i class="ph ph-arrows-left-right" aria-hidden="true" />Mover
           </button>
         </form>
       </Panel>

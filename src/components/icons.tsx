@@ -54,7 +54,7 @@ export const MENU: MenuItem[] = [
       { key: "leads", label: "Leads", href: "/leads", icon: "ph-user-plus" },
       { key: "clients", label: "Clientes", href: "/clients", icon: "ph-users" },
       { key: "companies", label: "Empresas", href: "/companies", icon: "ph-building" },
-      { key: "intake", label: "Intake Forms", href: "/intake", icon: "ph-note" },
+      { key: "intake", label: "Intake Forms", href: "/intake", icon: "ph-clipboard-text" },
     ],
   },
   {
@@ -90,7 +90,7 @@ export const MENU: MenuItem[] = [
     icon: "ph-chats-circle",
     children: [
       { key: "whatsapp", label: "WhatsApp", href: "/whatsapp", icon: "ph-whatsapp-logo" },
-      { key: "proactive", label: "Notific. Proativas", href: "/proactive", icon: "ph-lightning" },
+      { key: "proactive", label: "Notific. Proativas", href: "/proactive", icon: "ph-bell-ringing" },
       { key: "emails", label: "E-mails", href: "/emails", icon: "ph-envelope" },
       { key: "messages", label: "Mensagens", href: "/messages", icon: "ph-chat-circle" },
       { key: "notifications", label: "Notificacoes", href: "/notifications", icon: "ph-bell" },
@@ -133,10 +133,10 @@ export const MENU: MenuItem[] = [
       { key: "workflows", label: "Workflows", href: "/workflows", icon: "ph-gear-six" },
       { key: "permissions", label: "Permissoes", href: "/permissions", icon: "ph-key" },
       { key: "integrations", label: "Integracoes", href: "/integrations", icon: "ph-plugs-connected" },
-      { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-hash" },
+      { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-webhooks-logo" },
       { key: "import", label: "Importar Dados", href: "/import", icon: "ph-upload-simple" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
-      { key: "docs", label: "Docs Tecnicas", href: "/docs", icon: "ph-info" },
+      { key: "docs", label: "Docs Tecnicas", href: "/docs", icon: "ph-book-open" },
     ],
   },
 ];
@@ -221,7 +221,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
       </nav>
       <div class="px-3 py-3 shrink-0 border-t border-white/5 flex items-center justify-between">
         <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-gray-500 hover:bg-white/5 hover:text-white transition-colors">
-          <i class="ph ph-chats-teardrop" aria-hidden="true" />
+          <i class="ph ph-lifebuoy" aria-hidden="true" />
           Central de Ajuda
         </a>
         <span class="text-body-xs text-gray-700">v0.2.0</span>
@@ -238,14 +238,6 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   <header class="w-full h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-30">
     <span class="text-h3 text-gray-800 font-semibold">{firmName ?? "PragmaOS"}</span>
     <div class="flex items-center gap-4">
-      {/* Help button */}
-      <a
-        href="/help"
-        aria-label="Central de Ajuda"
-        class="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-terracota-600 transition-colors"
-      >
-        <i class="ph ph-chats-teardrop text-h4" aria-hidden="true"></i>
-      </a>
       {/* Notifications bell with badge */}
       <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative flex items-center">
         {/* Notifications bell */}

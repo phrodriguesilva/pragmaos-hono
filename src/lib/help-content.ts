@@ -23,7 +23,7 @@ export const helpCategories: HelpCategory[] = [
   {
     slug: "primeiros-passos",
     name: "Primeiros Passos",
-    icon: "ph-flag",
+    icon: "ph-rocket",
     description: "Onboarding e configuracao inicial do escritorio.",
   },
   {

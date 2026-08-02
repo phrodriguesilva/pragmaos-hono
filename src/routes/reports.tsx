@@ -66,13 +66,13 @@ reportsRoutes.get("/", async (c) => {
       <PageHeader title="Relatorios" icon="ph-chart-bar" actions={() => (
         <div class="flex gap-2">
           <a href="/reports/export?type=status" class="btn btn-secondary inline-flex items-center gap-1">
-            <i class="ph ph-file-text" aria-hidden="true"></i>Status CSV
+            <i class="ph ph-file-csv" aria-hidden="true"></i>Status CSV
           </a>
           <a href="/reports/export?type=type" class="btn btn-secondary inline-flex items-center gap-1">
-            <i class="ph ph-file-text" aria-hidden="true"></i>Tipos CSV
+            <i class="ph ph-file-csv" aria-hidden="true"></i>Tipos CSV
           </a>
           <a href="/reports/export?type=clients" class="btn btn-secondary inline-flex items-center gap-1">
-            <i class="ph ph-file-text" aria-hidden="true"></i>Clientes CSV
+            <i class="ph ph-file-csv" aria-hidden="true"></i>Clientes CSV
           </a>
         </div>
       )} />

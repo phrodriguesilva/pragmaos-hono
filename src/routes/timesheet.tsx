@@ -105,7 +105,7 @@ timesheetRoutes.get("/", async (c) => {
       taskTitle ?? "-",
       formatDuration(e.duration_minutes),
       e.billable
-        ? (<Badge color="green" icon="ph-currency-circle-check">Sim</Badge> as unknown as string)
+        ? (<Badge color="green" icon="ph-currency-circle-dollar">Sim</Badge> as unknown as string)
         : (<Badge color="gray" icon="ph-x-circle">Nao</Badge> as unknown as string),
       e.invoiced
         ? (<Badge color="blue" icon="ph-invoice">Faturado</Badge> as unknown as string)
@@ -161,7 +161,7 @@ timesheetRoutes.get("/", async (c) => {
           { label: "Processo", icon: "ph-folder" },
           { label: "Tarefa", icon: "ph-check-square" },
           { label: "Duracao", icon: "ph-timer" },
-          { label: "Faturavel", icon: "ph-currency-circle-check" },
+          { label: "Faturavel", icon: "ph-currency-circle-dollar" },
           { label: "Faturado", icon: "ph-invoice" },
           { label: "Acoes" },
         ]}
@@ -309,7 +309,7 @@ timesheetRoutes.get("/summary", async (c) => {
           <div class="text-h1 font-bold text-terracota-700">{formatDuration(totalMinutes)}</div>
           <div class="text-body-sm text-gray-500 mt-1">Todas as entradas</div>
         </Panel>
-        <Panel title="Horas Faturaveis" icon="ph-currency-circle-check">
+        <Panel title="Horas Faturaveis" icon="ph-currency-circle-dollar">
           <div class="text-h1 font-bold text-green-600">{formatDuration(totalBillableMinutes)}</div>
           <div class="text-body-sm text-gray-500 mt-1">Horas faturaveis</div>
         </Panel>
@@ -323,7 +323,7 @@ timesheetRoutes.get("/summary", async (c) => {
           columns={[
             { label: "Usuario", icon: "ph-user-circle" },
             { label: "Total", icon: "ph-timer" },
-            { label: "Faturavel", icon: "ph-currency-circle-check" },
+            { label: "Faturavel", icon: "ph-currency-circle-dollar" },
             { label: "Valor", icon: "ph-currency-dollar" },
           ]}
           rows={userRows}

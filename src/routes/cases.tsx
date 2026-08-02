@@ -574,7 +574,7 @@ casesRoutes.get("/:id", async (c) => {
             emptyMsg="Nenhum processo CNJ vinculado."
           />
         </Panel>
-        <Panel title="Linha do tempo" icon="ph-timeline">
+        <Panel title="Linha do tempo" icon="ph-list-dashes">
           <Table
             columns={[{ label: "Data" }, { label: "Evento" }, { label: "Descricao" }]}
             rows={(events.data ?? []).map((e: { created_at: string; event_type: string; description: string }) => [

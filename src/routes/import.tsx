@@ -217,7 +217,7 @@ importRoutes.get("/", async (c) => {
       </Panel>
 
       <div class="mt-4">
-        <Panel title="Modelos de CSV" icon="ph-file-text">
+        <Panel title="Modelos de CSV" icon="ph-file-csv">
           <div class="flex gap-4 flex-wrap">
             <div>
               <p class="text-body-sm font-semibold text-gray-700 mb-2">Clientes</p>
@@ -365,7 +365,7 @@ importRoutes.post("/preview", async (c) => {
       </div>
 
       <div class="mt-4">
-        <Panel title={`Previa (primeiras ${previewRows.length} linhas)`} icon="ph-list">
+        <Panel title={`Previa (primeiras ${previewRows.length} linhas)`} icon="ph-table">
           <Table
             columns={[
               { label: "#", icon: "ph-hash" },
@@ -373,7 +373,7 @@ importRoutes.post("/preview", async (c) => {
             ]}
             rows={previewTableRows}
             emptyMsg="Nenhum dado para previsualizar."
-            emptyIcon="ph-list"
+            emptyIcon="ph-table"
           />
           {totalRows > previewRows.length && (
             <p class="text-body-sm text-gray-500 mt-2">
@@ -622,7 +622,7 @@ importRoutes.post("/confirm", async (c) => {
           <i class="ph ph-upload-simple" aria-hidden="true" />Nova importacao
         </a>
         <a href={entity === "cases" ? "/cases" : "/clients"} class="btn btn-secondary inline-flex items-center gap-2">
-          <i class="ph ph-list" aria-hidden="true" />Ver {entity === "cases" ? "processos" : "clientes"}
+          <i class="ph ph-table" aria-hidden="true" />Ver {entity === "cases" ? "processos" : "clientes"}
         </a>
       </div>
     </>,

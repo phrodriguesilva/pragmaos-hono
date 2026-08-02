@@ -439,7 +439,7 @@ async function twoFASetupForm(qrDataUrl?: string, secret?: string, backupCodes?:
         </>
       ) : (
         <form method="post" action="/2fa/setup" class="flex flex-col gap-4">
-          <AuthButton icon="ph-qrcode" label="Gerar QR Code" />
+          <AuthButton icon="ph-qr-code" label="Gerar QR Code" />
         </form>
       )}
 

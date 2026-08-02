@@ -216,7 +216,7 @@ documentsRoutes.get("/", async (c) => {
               },
               {
                 label: "Vinculacao",
-                icon: "ph-arrow-square-out",
+                icon: "ph-link",
                 fields: (
                   <>
                     <p class="text-body-sm text-gray-500">Vincule este documento a um processo e/ou cliente (opcional).</p>

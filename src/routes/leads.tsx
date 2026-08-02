@@ -347,7 +347,7 @@ leadsRoutes.get("/:id", async (c) => {
             options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
           />
           <button type="submit" class="btn btn-primary inline-flex items-center gap-1">
-            <i class="ph ph-arrows-right-left" aria-hidden="true" />Mover
+            <i class="ph ph-arrows-left-right" aria-hidden="true" />Mover
           </button>
         </form>
       </Panel>
