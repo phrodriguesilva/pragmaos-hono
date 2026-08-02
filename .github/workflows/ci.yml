@@ -49,6 +49,9 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Generate CSS module (needed for build typecheck)
+        run: bun scripts/gen-css.ts
+
       - name: Build
         run: bun run build
         env:
