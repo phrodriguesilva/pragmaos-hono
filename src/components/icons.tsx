@@ -88,6 +88,7 @@ export const MENU: MenuItem[] = [
     icon: "ph-chats-circle",
     children: [
       { key: "whatsapp", label: "WhatsApp", href: "/whatsapp", icon: "ph-whatsapp-logo" },
+      { key: "proactive", label: "Notific. Proativas", href: "/proactive", icon: "ph-bell-ringing" },
       { key: "emails", label: "E-mails", href: "/emails", icon: "ph-envelope" },
       { key: "messages", label: "Mensagens", href: "/messages", icon: "ph-chat-circle" },
       { key: "notifications", label: "Notificacoes", href: "/notifications", icon: "ph-bell" },

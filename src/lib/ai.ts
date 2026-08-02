@@ -19,7 +19,7 @@ export interface LLMConfig {
 
 // --- PII Masking ---
 
-type ClientPII = {
+export type ClientPII = {
   name: string;
   cpf?: string;
   cnpj?: string;
