@@ -11,7 +11,7 @@ const FlashMessages: FC = () => {
       id="flashContainer"
       class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
       {...{ "x-data": "{ show: false, type: '', msg: '' }" }}
-      {...{ "x-init": `var params = new URLSearchParams(window.location.search); var success = params.get('success'); var error = params.get('error'); if (success) { show = true; type = 'success'; msg = decodeURIComponent(success); } else if (error) { show = true; type = 'error'; msg = decodeURIComponent(error); } if (show) { setTimeout(function() { show = false; }, 4000); }` }}
+      {...{ "x-init": `(() => { const params = new URLSearchParams(window.location.search); const success = params.get('success'); const error = params.get('error'); if (success) { show = true; type = 'success'; msg = decodeURIComponent(success); } else if (error) { show = true; type = 'error'; msg = decodeURIComponent(error); } if (show) { setTimeout(() => show = false, 4000); } })()` }}
     >
       <div
         {...{ "x-show": "show" }}

@@ -184,7 +184,7 @@ timesheetRoutes.post("/", async (c) => {
             <i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>
             {Object.values(errors).flat().join(", ")}
           </div>
-          <a href="/timesheet/new" class="btn btn-secondary">Voltar</a>
+          <a href="/timesheet" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,
     );
@@ -219,7 +219,7 @@ timesheetRoutes.post("/", async (c) => {
         <PageHeader title="Novo Registro" icon="ph-plus-circle" />
         <Panel>
           <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
-          <a href="/timesheet/new" class="btn btn-secondary">Voltar</a>
+          <a href="/timesheet" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,
     );
@@ -413,7 +413,7 @@ timesheetRoutes.post("/:id", async (c) => {
   const body = await c.req.parseBody();
   const parsed = entrySchema.safeParse(body);
 
-  if (!parsed.success) return c.redirect(`/timesheet/${id}/edit`);
+  if (!parsed.success) return c.redirect(`/timesheet/${id}`);
 
   const startISO = toISO(parsed.data.start_time);
   const endISO = toISO(parsed.data.end_time);

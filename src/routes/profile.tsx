@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Panel, TextField, Badge } from "../components/ui";
@@ -15,11 +15,12 @@ profileRoutes.use("*", requireAuth);
 profileRoutes.get("/", async (c) => {
   const user = c.get("user");
   const twofaParam = c.req.query("2fa");
+  const pixParam = c.req.query("pix");
 
   const [profileRes, totpRes] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, email, full_name, role, active, created_at, tenants(name)")
+      .select("id, email, full_name, role, active, created_at, tenants(name, pix_key, pix_merchant_name, pix_merchant_city)")
       .eq("id", user.id)
       .single(),
     supabase
@@ -32,9 +33,10 @@ profileRoutes.get("/", async (c) => {
   if (!profileRes.data) return c.html("Perfil nao encontrado.", 404);
 
   const profile = profileRes.data;
-  const tenant = profile.tenants as unknown as { name: string } | null;
+  const tenant = profile.tenants as unknown as { name: string; pix_key?: string | null; pix_merchant_name?: string | null; pix_merchant_city?: string | null } | null;
   const totp = totpRes.data;
   const twoFAEnabled = totp?.enabled ?? false;
+  const canManageBilling = user.role === "socio" || user.role === "financeiro";
 
   const roleLabels: Record<string, string> = {
     socio: "Socio",
@@ -67,6 +69,12 @@ profileRoutes.get("/", async (c) => {
         <div class="mb-4 border border-status-green bg-status-green-bg text-status-green text-body-sm px-3 py-2 flex items-center gap-2">
           <i class="ph ph-shield-check" aria-hidden="true" />
           2FA ativado com sucesso!
+        </div>
+      ) : null}
+      {pixParam === "saved" ? (
+        <div class="mb-4 border border-status-green bg-status-green-bg text-status-green text-body-sm px-3 py-2 flex items-center gap-2">
+          <i class="ph ph-check-circle" aria-hidden="true" />
+          Configuracoes de PIX salvas com sucesso!
         </div>
       ) : null}
 
@@ -140,8 +148,45 @@ profileRoutes.get("/", async (c) => {
           </div>
         ) : null}
       </Panel>
+
+      {canManageBilling ? (
+        <Panel title="Configuracoes de PIX" icon="ph-qr-code">
+          <p class="text-body-sm text-gray-600 mb-3">
+            Configure a chave PIX do escritorio para gerar codigos BR Code (copia e cola) nas faturas.
+          </p>
+          <form method="post" action="/profile/pix" class="flex flex-col gap-3">
+            <TextField label="Chave PIX" id="pix_key" name="pix_key" icon="ph-key" placeholder="email@exemplo.com, CPF, CNPJ, telefone ou chave aleatoria" value={tenant?.pix_key ?? ""} />
+            <TextField label="Nome do recebedor (max 25 chars)" id="pix_merchant_name" name="pix_merchant_name" icon="ph-user" placeholder="Ex: SILVA ADVOGADOS" value={tenant?.pix_merchant_name ?? ""} />
+            <TextField label="Cidade do recebedor (max 15 chars)" id="pix_merchant_city" name="pix_merchant_city" icon="ph-map-pin" placeholder="Ex: SAO PAULO" value={tenant?.pix_merchant_city ?? ""} />
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-1 self-start">
+              <i class="ph ph-floppy-disk" aria-hidden="true" />Salvar configuracoes PIX
+            </button>
+          </form>
+        </Panel>
+      ) : null}
     </>,
   );
+});
+
+// POST /profile/pix -- save tenant PIX settings (socio/financeiro only).
+profileRoutes.post("/pix", requireRole("socio", "financeiro"), async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  const pixKey = String(body.pix_key ?? "").trim();
+  const pixMerchantName = String(body.pix_merchant_name ?? "").trim();
+  const pixMerchantCity = String(body.pix_merchant_city ?? "").trim();
+
+  await supabase
+    .from("tenants")
+    .update({
+      pix_key: pixKey || null,
+      pix_merchant_name: pixMerchantName || null,
+      pix_merchant_city: pixMerchantCity || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", user.tenantId);
+
+  return c.redirect("/profile?pix=saved");
 });
 
 // POST /profile/password -- change password via Supabase Auth.

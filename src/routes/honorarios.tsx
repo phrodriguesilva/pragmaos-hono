@@ -363,7 +363,7 @@ honorariosRoutes.post("/:id", async (c) => {
   const parsed = honorarioSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/honorarios/${id}/edit`);
+    return c.redirect(`/honorarios/${id}`);
   }
 
   const rawAmount = (body.amount_cents as string) ?? "0";

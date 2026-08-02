@@ -149,9 +149,12 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   );
 
   return (
-    <aside class="fixed inset-y-0 left-0 w-sidebar flex flex-col z-20 overflow-y-auto" style="background: linear-gradient(180deg, #2b2925 0%, #1f1d1a 100%);">
-      <div class="h-16 flex items-center px-5 shrink-0 border-b border-white/5">
-        <img src="/static/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
+    <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #2b2925 0%, #1f1d1a 100%);">
+      <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-white/5">
+        <div class="w-9 h-9 rounded-lg bg-terracota-500 flex items-center justify-center shrink-0">
+          <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
+        </div>
+        <span class="text-h3 font-semibold text-white tracking-tight">PragmaOS</span>
       </div>
       <nav class="flex-1 flex flex-col py-3 gap-0.5 px-3">
         {MENU.map((item) => {
@@ -227,12 +230,14 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
       <div {...{ "x-data": "{ open: false, q: '', results: [], async search() { if (this.q.length < 2) { this.results = []; return; } try { const r = await fetch('/search/api?q=' + encodeURIComponent(this.q)); const d = await r.json(); this.results = d.results ?? []; } catch(e) {} } }" }}>
         <button
           {...{ "@click": "open = true", "@keydown.cmd.k.prevent": "open = true", "@keydown.ctrl+k.prevent": "open = true" }}
-          class="flex items-center gap-2 bg-gray-50 text-body-sm text-gray-500 px-3 py-2 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-200"
+          class="flex items-center gap-2 bg-gray-50 text-body-sm text-gray-500 px-3 py-2 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-200 w-64 justify-between"
           aria-label="Buscar (Cmd+K)"
         >
-          <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-          <span class="hidden sm:inline">Buscar...</span>
-          <kbd class="hidden sm:inline text-body-xs text-gray-400 bg-white border border-gray-200 rounded px-1">Cmd+K</kbd>
+          <span class="flex items-center gap-2">
+            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+            <span class="hidden sm:inline">Buscar processos, clientes...</span>
+          </span>
+          <kbd class="hidden sm:inline text-body-xs text-gray-400 bg-white border border-gray-200 rounded px-1.5 py-0.5">Cmd+K</kbd>
         </button>
         {/* Search modal */}
         <div
@@ -278,30 +283,12 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
         </div>
       </div>
       {/* Notifications bell with badge */}
-      <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative">
-        {/* Timer widget */}
-        <div {...{ "x-data": "{ running: false, elapsed: 0, desc: '', timer: null, async check() { try { const r = await fetch('/timer/api/status'); const d = await r.json(); if (d.running) { this.running = true; this.desc = d.entry.description; this.elapsed = d.entry.elapsed_seconds; this.startTimer(); } } catch(e) {} }, startTimer() { if (this.timer) clearInterval(this.timer); this.timer = setInterval(() => this.elapsed++, 1000); }, formatTime(s) { const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60); const sec = s%60; return (h>0 ? h+':'+String(m).padStart(2,'0') : String(m)+':'+String(sec).padStart(2,'0')); }, async start() { try { await fetch('/timer/api/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({description: this.desc || 'Trabalhando...'}) }); this.running = true; this.elapsed = 0; this.startTimer(); } catch(e) {} }, async stop() { try { await fetch('/timer/api/stop', { method: 'POST' }); this.running = false; if (this.timer) { clearInterval(this.timer); this.timer = null; } this.elapsed = 0; this.desc = ''; } catch(e) {} }, init() { this.check(); } }" }} class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
-          <template {...{ "x-if": "!running" }}>
-            <button {...{ "@click": "start()" }} class="flex items-center gap-1 text-body-sm text-gray-600 hover:text-terracota-600" aria-label="Iniciar timer">
-              <i class="ph ph-play-circle text-h4" aria-hidden="true"></i>
-              <span class="hidden sm:inline">Iniciar</span>
-            </button>
-          </template>
-          <template {...{ "x-if": "running" }}>
-            <div class="flex items-center gap-2">
-              <i class="ph ph-circle text-h4 text-status-red animate-pulse" aria-hidden="true"></i>
-              <span class="text-body-sm font-mono text-gray-700" {...{ "x-text": "formatTime(elapsed)" }}></span>
-              <button {...{ "@click": "stop()" }} class="text-status-red hover:text-red-700" aria-label="Parar timer">
-                <i class="ph ph-stop-circle text-h4" aria-hidden="true"></i>
-              </button>
-            </div>
-          </template>
-        </div>
+      <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative flex items-center">
         {/* Notifications bell */}
         <button
           {...{ "@click": "open = !open" }}
           aria-label="Notificacoes"
-          class="relative p-2 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-gray-700"
+          class="relative p-2 rounded-lg hover:bg-gray-50 text-gray-500 hover:text-gray-700 flex items-center justify-center"
         >
           <i class="ph ph-bell text-h4" aria-hidden="true"></i>
           <span {...{ "x-show": "count > 0", "x-text": "count > 99 ? '99+' : count" }} x-cloak

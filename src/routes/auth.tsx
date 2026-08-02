@@ -52,7 +52,12 @@ function authShell(title: string, children: unknown, opts?: { wide?: boolean }) 
 function AuthBrand(subtitle?: string) {
   return (
     <div class="mb-6">
-      <img src="/static/pragmaos-logo-dark.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
+      <div class="flex items-center gap-2.5 mb-2">
+        <div class="w-10 h-10 rounded-xl bg-terracota-500 flex items-center justify-center">
+          <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
+        </div>
+        <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
+      </div>
       {subtitle ? <p class="text-body-sm text-gray-500">{subtitle}</p> : null}
     </div>
   );

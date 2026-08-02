@@ -60,8 +60,11 @@ function clientLayout(title: string, clientName: string, children: unknown) {
       </head>
       <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
         <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #2b2925 0%, #1f1d1a 100%);">
-          <div class="flex items-center gap-3">
-            <img src="/static/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-terracota-500 flex items-center justify-center">
+              <i class="ph-bold ph-scales text-white text-body" aria-hidden="true" />
+            </div>
+            <span class="text-h3 font-semibold text-white tracking-tight">PragmaOS</span>
             <span class="text-body-sm text-gray-400 font-normal">Portal do Cliente</span>
           </div>
           <div class="flex items-center gap-5 text-body-sm">
@@ -294,7 +297,12 @@ portalRoutes.get("/login", (c) => {
       </head>
       <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">
         <div class="w-full max-w-sm border border-carvao-700 bg-white p-8">
-          <img src="/static/pragmaos-logo-dark.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
+          <div class="flex items-center gap-2.5 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-terracota-500 flex items-center justify-center">
+              <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
+            </div>
+            <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
+          </div>
           <p class="text-body-sm text-gray-500 mb-6">Portal do Cliente — acesse seus processos e documentos.</p>
           <form method="post" action="/portal/login" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">

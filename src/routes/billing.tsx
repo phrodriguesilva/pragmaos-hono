@@ -41,6 +41,7 @@ function generatePixBRCode(opts: {
   amountCents: number;
   merchantName: string;
   merchantCity: string;
+  pixKey: string;
   txid: string;
 }): string {
   const amount = (opts.amountCents / 100).toFixed(2);
@@ -51,7 +52,7 @@ function generatePixBRCode(opts: {
 
   // Build payload without CRC
   const gui = emvField("00", "br.gov.bcb.pix");
-  const key = emvField("01", "pragmaos@pragmaos.com.br"); // PIX key
+  const key = emvField("01", opts.pixKey);
   const merchantAccount = emvField("26", gui + key);
   const additionalData = emvField("62", emvField("05", txid));
 
@@ -470,10 +471,24 @@ billingRoutes.post("/:id/pix", async (c) => {
 
   if (!inv) return c.redirect("/billing");
 
+  // Fetch tenant PIX settings.
+  const { data: tenant } = await supabase
+    .from("tenants")
+    .select("name, pix_key, pix_merchant_name, pix_merchant_city")
+    .eq("id", user.tenantId)
+    .single();
+
+  const pixKey = tenant?.pix_key ?? "";
+  if (!pixKey) {
+    // No PIX key configured — redirect with error.
+    return c.redirect(`/billing/${id}?error=pix_not_configured`);
+  }
+
   const pixCode = generatePixBRCode({
     amountCents: inv.amount_cents,
-    merchantName: "PRAGMAOS",
-    merchantCity: "SAO PAULO",
+    pixKey,
+    merchantName: tenant?.pix_merchant_name ?? tenant?.name ?? "ESCRITORIO",
+    merchantCity: tenant?.pix_merchant_city ?? "SAO PAULO",
     txid: `PRAGMA${inv.number}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 25),
   });
 
@@ -508,7 +523,7 @@ billingRoutes.post("/:id", async (c) => {
   const parsed = invoiceSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.redirect(`/billing/${id}/edit`);
+    return c.redirect(`/billing/${id}`);
   }
 
   const rawAmount = (body.amount as string) ?? "0";

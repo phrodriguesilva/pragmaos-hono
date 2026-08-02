@@ -28,7 +28,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
       <script src="https://unpkg.com/alpinejs@3.14.8" defer />
     </head>
-    <body class="bg-gray-50 text-body font-sans antialiased" {...{ "x-data": "{ sidebarOpen: false }" }}>
+    <body class="bg-gray-50 text-body font-sans antialiased lg:flex" {...{ "x-data": "{ sidebarOpen: false }" }}>
       {/* Mobile sidebar overlay */}
       <div
         {...{ "x-show": "sidebarOpen", "@click": "sidebarOpen = false" }}
@@ -38,11 +38,11 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       {/* Sidebar — fixed on mobile, static on desktop */}
       <div
         {...{ ":class": "sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'", "@keydown.escape.window": "sidebarOpen = false" }}
-        class="fixed lg:static inset-y-0 left-0 z-50 lg:z-auto transition-transform duration-200"
+        class="fixed lg:sticky top-0 left-0 z-50 lg:z-auto h-screen shrink-0 transition-transform duration-200"
       >
         <Sidebar active={active} />
       </div>
-      <div class="lg:ml-sidebar flex flex-col min-h-screen">
+      <div class="flex flex-col min-h-screen flex-1">
         {/* Mobile hamburger button */}
         <button
           {...{ "@click": "sidebarOpen = true" }}
@@ -73,7 +73,12 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
     <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #1f1d1a 0%, #2b2925 50%, #36332e 100%);">
       <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl">
         <div class="flex flex-col items-center mb-6">
-          <img src="/static/pragmaos-logo-dark.png" alt="PragmaOS" class="h-12 w-auto mb-1" />
+          <div class="flex items-center gap-2.5 mb-1">
+            <div class="w-11 h-11 rounded-xl bg-terracota-500 flex items-center justify-center">
+              <i class="ph-bold ph-scales text-white text-h2" aria-hidden="true" />
+            </div>
+            <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
+          </div>
         </div>
         {children}
       </div>

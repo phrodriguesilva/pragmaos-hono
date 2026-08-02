@@ -740,7 +740,8 @@ workflowsRoutes.post("/:id/execute", async (c) => {
         await supabase
           .from("workflow_executions")
           .update({ steps_completed: completed })
-          .eq("id", execId);
+          .eq("id", execId)
+          .eq("tenant_id", user.tenantId);
       }
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);
@@ -758,7 +759,8 @@ workflowsRoutes.post("/:id/execute", async (c) => {
         steps_completed: completed,
         error: lastError,
       })
-      .eq("id", execId);
+      .eq("id", execId)
+      .eq("tenant_id", user.tenantId);
   }
 
   return c.redirect(`/workflows/${id}`);
