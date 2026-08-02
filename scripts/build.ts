@@ -1,6 +1,8 @@
-// Build script: generates CSS and runs typecheck.
-// Vercel's Hono preset handles the actual compilation/bundling of src/index.ts
-// — we only need to generate the CSS module and verify types beforehand.
+// Build script: generates CSS, runs typecheck, then bundles the app into
+// a single JS file for Vercel serverless (Node.js ESM).
+// Bundling is required because the codebase uses extensionless imports
+// (Bun-style), but Node.js ESM requires file extensions.
+// The bundle inlines everything, avoiding extension issues.
 import { $ } from "bun";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
@@ -21,3 +23,9 @@ console.log(`CSS built and inlined: ${css.length} bytes -> src/generated/css.ts`
 console.log("Running typecheck (tsc --noEmit)...");
 await $`bunx tsc --noEmit --project tsconfig.json`;
 console.log("Typecheck passed.");
+
+// 4. Bundle the app into a single JS file for Vercel.
+// Target node, ESM format. All dependencies are bundled except node builtins.
+console.log("Bundling app for Vercel (Node.js ESM)...");
+await $`bun build src/server/app.ts --outfile src/generated/bundle.js --target node --format esm --external @supabase/supabase-js --external hono`;
+console.log("Bundle written to src/generated/bundle.js");
