@@ -60,7 +60,7 @@ export const WysiwygEditor: FC<EditorProps> = ({
     { cmd: "insertOrderedList", icon: "ph-list-numbers", label: "Lista numerada" },
     { sep: true },
     { cmd: "formatBlock", value: "h2", icon: "ph-text-h", label: "Titulo" },
-    { cmd: "formatBlock", value: "p", icon: "ph-text-paragraph", label: "Paragrafo" },
+    { cmd: "formatBlock", value: "p", icon: "ph-text-indent", label: "Paragrafo" },
   ];
 
   return (

@@ -194,7 +194,7 @@ aiChatRoutes.get("/jurisprudence", async (c) => {
     c,
     { title: "Jurisprudencia", active: "ai-jurisprudence" },
     <>
-      <PageHeader title="Jurisprudencia" icon="ph-books" />
+      <PageHeader title="Jurisprudencia" icon="ph-brain" />
 
       <div class="mb-6">
         <Panel title="Buscar Jurisprudencia" icon="ph-magnifying-glass">
@@ -338,7 +338,7 @@ aiChatRoutes.get("/jurisprudence/result/:id", async (c) => {
     c,
     { title: "Resultado da Busca", active: "ai-jurisprudence" },
     <>
-      <PageHeader title="Resultado da Busca" icon="ph-books"
+      <PageHeader title="Resultado da Busca" icon="ph-magnifying-glass"
         actions={() => (
           <a href="/ai-assistant/jurisprudence" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-left" aria-hidden="true"></i>Nova Busca
@@ -398,7 +398,7 @@ aiChatRoutes.get("/petitions", async (c) => {
     c,
     { title: "Gerador de Peticoes", active: "ai-petitions" },
     <>
-      <PageHeader title="Gerador de Peticoes" icon="ph-file-text" />
+      <PageHeader title="Gerador de Peticoes" icon="ph-scroll" />
 
       <div class="mb-6">
         <Panel title="Gerar Peticao" icon="ph-file-arrow-up">
@@ -586,7 +586,7 @@ aiChatRoutes.get("/petitions/result/:id", async (c) => {
     c,
     { title: "Peticao Gerada", active: "ai-petitions" },
     <>
-      <PageHeader title={typeLabels[petition.petition_type] ?? petition.petition_type} icon="ph-file-text"
+      <PageHeader title={typeLabels[petition.petition_type] ?? petition.petition_type} icon="ph-scroll"
         actions={() => (
           <a href="/ai-assistant/petitions" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-left" aria-hidden="true"></i>Nova Peticao

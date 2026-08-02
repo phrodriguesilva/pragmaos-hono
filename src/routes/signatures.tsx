@@ -298,20 +298,20 @@ signatureRoutes.get("/:id", async (c) => {
       <Panel title="Linha do Tempo" icon="ph-list-dashes">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2 text-body-sm">
-            <i class="ph ph-circle-fill text-terracota-600 text-body-sm" aria-hidden="true"></i>
+            <i class="ph-bold ph-circle text-terracota-600 text-body-sm" aria-hidden="true"></i>
             <span class="font-semibold text-gray-700">Criada em:</span>
             <span class="text-gray-900">{new Date(req.created_at).toLocaleString("pt-BR")}</span>
           </div>
           {req.sent_at ? (
             <div class="flex items-center gap-2 text-body-sm">
-              <i class="ph ph-circle-fill text-blue-500 text-body-sm" aria-hidden="true"></i>
+              <i class="ph-bold ph-circle text-blue-500 text-body-sm" aria-hidden="true"></i>
               <span class="font-semibold text-gray-700">Enviada em:</span>
               <span class="text-gray-900">{new Date(req.sent_at).toLocaleString("pt-BR")}</span>
             </div>
           ) : null}
           {req.signed_at ? (
             <div class="flex items-center gap-2 text-body-sm">
-              <i class="ph ph-circle-fill text-green-500 text-body-sm" aria-hidden="true"></i>
+              <i class="ph-bold ph-circle text-green-500 text-body-sm" aria-hidden="true"></i>
               <span class="font-semibold text-gray-700">Assinada em:</span>
               <span class="text-gray-900">{new Date(req.signed_at).toLocaleString("pt-BR")}</span>
             </div>

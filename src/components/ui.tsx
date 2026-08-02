@@ -402,13 +402,14 @@ export const Textarea: FC<PropsWithChildren<{
   rows?: number;
   required?: boolean;
   icon?: string;
-}>> = ({ label, id, name, value, rows = 4, required, children }) => (
+  placeholder?: string;
+}>> = ({ label, id, name, value, rows = 4, required, placeholder, children }) => (
   <div class="flex flex-col gap-1">
     <label for={id} class="text-body-sm font-semibold text-gray-700">
       {label}
       {required ? <span class="text-status-red"> *</span> : null}
     </label>
-    <textarea id={id} name={name} rows={rows} required={required} class="input">
+    <textarea id={id} name={name} rows={rows} required={required} placeholder={placeholder} class="input">
       {value ?? children}
     </textarea>
   </div>

@@ -56,8 +56,8 @@ trustRoutes.get("/", async (c) => {
     c,
     { title: "Contas de Clientes", active: "trust-accounts" },
     <>
-      <PageHeader title="Contas de Clientes" icon="ph-piggy-bank" actions={() => (
-        <Modal id="new-trust" title="Nova Conta de Cliente" icon="ph-piggy-bank" triggerText="Nova Conta" triggerIcon="ph-plus" action="/trust-accounts" submitLabel="Criar">
+      <PageHeader title="Contas de Clientes" icon="ph-bank" actions={() => (
+        <Modal id="new-trust" title="Nova Conta de Cliente" icon="ph-bank" triggerText="Nova Conta" triggerIcon="ph-plus" action="/trust-accounts" submitLabel="Criar">
           <ComboBox label="Cliente" id="client_id" name="client_id" required
             options={(clients ?? []).map((cl) => ({ value: cl.id, label: cl.name }))}
           />
@@ -166,7 +166,7 @@ trustRoutes.get("/:id", async (c) => {
     c,
     { title: `Conta - ${clientName}`, active: "trust-accounts" },
     <>
-      <PageHeader title={`Conta de ${clientName}`} icon="ph-piggy-bank" actions={() => (
+      <PageHeader title={`Conta de ${clientName}`} icon="ph-bank" actions={() => (
         <div class="flex gap-2">
           <Modal id="deposit" title="Depositar" icon="ph-arrow-down" triggerText="Depositar" triggerIcon="ph-arrow-down" triggerVariant="secondary" action={`/trust-accounts/${id}/transaction`} submitLabel="Confirmar">
             <input type="hidden" name="type" value="deposit" />

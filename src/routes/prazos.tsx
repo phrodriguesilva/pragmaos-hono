@@ -60,7 +60,7 @@ prazosRoutes.get("/", async (c) => {
     c,
     { title: "Calculadora de Prazos", active: "prazos" },
     <>
-      <PageHeader title="Calculadora de Prazos" icon="ph-calendar" />
+      <PageHeader title="Calculadora de Prazos" icon="ph-calendar-x" />
 
       <div class="grid grid-cols-2 gap-6">
         {/* Calculadora */}

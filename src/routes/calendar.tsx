@@ -98,7 +98,7 @@ calendarRoutes.get("/", async (c) => {
     c,
     { title: "Calendario", active: "calendar" },
     <>
-      <PageHeader title="Calendario" icon="ph-calendar-plus" />
+      <PageHeader title="Calendario" icon="ph-calendar-blank" />
 
       <div class="flex items-center justify-between mb-6">
         <a href={`/calendar?year=${prevYear}&month=${prevMonth}`} class="btn btn-secondary inline-flex items-center gap-1">

@@ -455,7 +455,7 @@ casesRoutes.get("/:id", async (c) => {
       <div class="grid grid-cols-2 gap-4 mb-6">
         <Panel title="Partes do processo" icon="ph-users-three">
           <Table
-            columns={[{ label: "Tipo", icon: "ph-tag" }, { label: "Nome", icon: "ph-user" }, { label: "Documento", icon: "ph-id-card" }, { label: "Acoes" }]}
+            columns={[{ label: "Tipo", icon: "ph-tag" }, { label: "Nome", icon: "ph-user" }, { label: "Documento", icon: "ph-identification-card" }, { label: "Acoes" }]}
             rows={(parties.data ?? []).map((p) => [
               <Badge color={p.party_type === "autor" ? "green" : p.party_type === "reu" ? "red" : "blue"}>{p.party_type}</Badge> as unknown as string,
               p.name,

@@ -166,7 +166,7 @@ cashflowRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scale text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Projetado
+            <i class="ph ph-scales text-h3 text-terracota-700" aria-hidden="true"></i>Saldo Projetado
           </div>
           <div class="text-h2 font-bold text-terracota-700">{formatCurrency(saldoProjetado)}</div>
         </Panel>
@@ -570,7 +570,7 @@ cashflowRoutes.get("/dre", async (c) => {
     c,
     { title: "DRE Simplificado", active: "cashflow" },
     <>
-      <PageHeader title="DRE Simplificado" icon="ph-chart-bar" />
+      <PageHeader title="DRE Simplificado" icon="ph-chart-line" />
 
       <div class="grid grid-cols-3 gap-4 mb-6">
         <Panel>
@@ -614,7 +614,7 @@ cashflowRoutes.get("/dre", async (c) => {
         </Panel>
       </div>
 
-      <Panel title="Resultado" icon="ph-scale">
+      <Panel title="Resultado" icon="ph-scales">
         <div class="flex items-center justify-between py-2">
           <span class="text-body font-semibold text-gray-700">Lucro Bruto</span>
           <span class={`text-h2 font-bold ${grossProfit >= 0 ? "text-status-green" : "text-status-red"}`}>

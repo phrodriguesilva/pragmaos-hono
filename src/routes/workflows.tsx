@@ -473,7 +473,7 @@ workflowsRoutes.get("/:id", async (c) => {
       <Panel title="Passos do Workflow" icon="ph-list-numbers">
         {stepsList.length === 0 ? (
           <div class="text-body-sm text-gray-500 text-center py-4">
-            <i class="ph ph-inbox text-h2 block mb-1 text-gray-300" aria-hidden="true" />
+            <i class="ph ph-tray text-h2 block mb-1 text-gray-300" aria-hidden="true" />
             Nenhum passo adicionado. Use o formulario abaixo.
           </div>
         ) : (

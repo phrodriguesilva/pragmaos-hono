@@ -567,7 +567,7 @@ portalRoutes.get("/messages", async (c) => {
           <div class="flex flex-col gap-3">
             {(messages ?? []).length === 0 ? (
               <div class="text-body-sm text-gray-400 text-center py-4">
-                <i class="ph ph-inbox text-h2 block mb-1 text-gray-300" aria-hidden="true" />
+                <i class="ph ph-tray text-h2 block mb-1 text-gray-300" aria-hidden="true" />
                 Nenhuma mensagem.
               </div>
             ) : (

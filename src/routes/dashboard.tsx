@@ -361,7 +361,7 @@ dashboardRoutes.get("/", async (c) => {
         <Panel title="Ultimas movimentacoes" icon="ph-list-dashes">
           {(recentMovements.data ?? []).length === 0 ? (
             <div class="text-body-sm text-gray-400 py-8 text-center">
-              <i class="ph ph-inbox text-h2 block mb-1 text-gray-300" aria-hidden="true" />
+              <i class="ph ph-tray text-h2 block mb-1 text-gray-300" aria-hidden="true" />
               Nenhuma movimentacao recente.
             </div>
           ) : (

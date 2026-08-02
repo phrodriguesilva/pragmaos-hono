@@ -100,7 +100,7 @@ jurimetryRoutes.get("/", async (c) => {
     c,
     { title: "Jurimetria Interna", active: "jurimetry" },
     <>
-      <PageHeader title="Jurimetria Interna" icon="ph-chart-bar" />
+      <PageHeader title="Jurimetria Interna" icon="ph-chart-scatter" />
 
       {/* Filters */}
       <form method="get" class="flex items-end gap-3 mb-6">

@@ -63,7 +63,7 @@ reportsRoutes.get("/", async (c) => {
     c,
     { title: "Relatorios", active: "reports" },
     <>
-      <PageHeader title="Relatorios" icon="ph-chart-bar" actions={() => (
+      <PageHeader title="Relatorios" icon="ph-presentation-chart" actions={() => (
         <div class="flex gap-2">
           <a href="/reports/export?type=status" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-file-csv" aria-hidden="true"></i>Status CSV

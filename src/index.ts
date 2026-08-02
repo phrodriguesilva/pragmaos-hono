@@ -62,6 +62,9 @@ import { jurimetryRoutes } from "./routes/jurimetry";
 import { signupRoutes } from "./routes/signup";
 import { docsRoutes } from "./routes/docs";
 import { helpRoutes } from "./routes/help";
+import { publicSiteRoutes } from "./routes/public-site";
+import { siteAdminRoutes } from "./routes/site-admin";
+import { resolveTenantByHost, isPublicSiteRequest } from "./lib/tenant-resolver";
 
 const app = new Hono<AppEnv>();
 
@@ -108,6 +111,29 @@ app.use("/offline.html", serveStatic({ root: "./public", path: "offline.html" })
 
 // Health checks (public, no auth).
 app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
+
+// =========================================================================
+// Public site detection — if the host is a subdomain or custom domain,
+// resolve the tenant and serve the public site routes instead of the app.
+// =========================================================================
+app.use("*", async (c, next) => {
+  const host = c.req.header("host") ?? "";
+  if (!isPublicSiteRequest(host)) {
+    return next();
+  }
+
+  const tenant = await resolveTenantByHost(host);
+  if (!tenant) {
+    return next(); // No tenant found, fall through to app
+  }
+
+  // Store the resolved tenant and dispatch to public site routes
+  c.set("publicTenant", tenant);
+
+  // Dispatch to the public site sub-app
+  const res = await publicSiteRoutes.fetch(c.req.raw, c.env);
+  return res;
+});
 app.get("/health/ready", async (c) => {
   try {
     const { error } = await supabase.from("tenants").select("id").limit(1).maybeSingle();
@@ -207,6 +233,7 @@ app.route("/intake", intakePublicRoutes);
 app.route("/jurimetria", jurimetryRoutes);
 app.route("/docs", docsRoutes);
 app.route("/help", helpRoutes);
+app.route("/site", siteAdminRoutes);
 
 // 404 fallback.
 app.notFound((c) => c.html("Pagina nao encontrada.", 404));

@@ -214,7 +214,7 @@ leadsRoutes.get("/", async (c) => {
                 ))}
                 {stageLeads.length === 0 ? (
                   <div class="border border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-400 text-body-sm">
-                    <i class="ph ph-inbox text-h2 block mb-1" aria-hidden="true" />
+                    <i class="ph ph-tray text-h2 block mb-1" aria-hidden="true" />
                     Vazio
                   </div>
                 ) : null}

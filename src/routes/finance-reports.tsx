@@ -141,7 +141,7 @@ financeReportsRoutes.get("/", async (c) => {
         </Panel>
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
-            <i class="ph ph-scale text-h3 text-terracota-700" aria-hidden="true"></i>Lucro Bruto
+            <i class="ph ph-scales text-h3 text-terracota-700" aria-hidden="true"></i>Lucro Bruto
           </div>
           <div class={`text-h2 font-bold ${lucro >= 0 ? "text-terracota-700" : "text-status-red"}`}>{formatCurrency(lucro)}</div>
         </Panel>
