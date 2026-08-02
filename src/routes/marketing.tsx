@@ -125,6 +125,9 @@ const FEATURES = [
   { icon: "ph-signature", title: "Assinaturas Digitais", desc: "Coleta de assinaturas com validade jurídica via Clicksign. Documentos assinados em minutos, sem imprimir nem escanear." },
   { icon: "ph-buildings", title: "Portal do Cliente", desc: "App exclusivo para clientes acompanharem processos, documentos e faturas. Transparência total — seu WhatsApp livre de cobranças." },
   { icon: "ph-chart-line-up", title: "Relatórios e Jurimetria", desc: "Dashboards executivos, análise de performance da equipe e jurimetria preditiva. Decisões com dados, não com achismos." },
+  { icon: "ph-users", title: "Gestão de Clientes", desc: "CRM jurídico completo: cadastro, histórico de relacionamento, intake digital e segmentação. Saiba quem é quem em cada processo." },
+  { icon: "ph-file-text", title: "Documentos e Petições", desc: "Biblioteca centralizada com versionamento, modelos reutilizáveis e geração automática de petições a partir de dados do processo." },
+  { icon: "ph-globe", title: "Site da Advocacia", desc: "Site público profissional incluso — áreas de atuação, equipe, artigos e formulário de contato. SEO otimizado e sem custo extra." },
 ];
 
 const STATS = [
@@ -391,45 +394,45 @@ marketingRoutes.get("/", (c) => {
         </div>
       </section>
 
-      {/* AI highlight */}
-      <section class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
-        <div class="max-w-5xl mx-auto">
-          <div class="reveal rounded-2xl gradient-cta-navy text-white p-8 md:p-14 relative overflow-hidden">
-            <div class="noise-overlay absolute inset-0 opacity-[0.1] mix-blend-overlay pointer-events-none" />
-            <div class="grid md:grid-cols-2 gap-10 items-center relative">
+      {/* AI highlight — minimalista */}
+      <section class="py-24 px-4 sm:px-6">
+        <div class="max-w-3xl mx-auto text-center">
+          <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e5f4fb] text-[#006382] text-xs font-bold uppercase tracking-wider mb-6">
+            <i class="ph-fill ph-sparkle" aria-hidden="true" /> IA Jurídica
+          </div>
+          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] mb-5 text-balance tracking-[-0.01em]">
+            Menos trabalho manual. Mais tempo para o que importa.
+          </h2>
+          <p class="reveal text-base md:text-lg text-[#425563] text-pretty mb-12 leading-relaxed">
+            A IA do PragmaOS entende o contexto jurídico brasileiro. Resume processos, pesquisa jurisprudência, redige peças e traduz o juridiquês para o cliente — tudo dentro da plataforma.
+          </p>
+          <div class="reveal-stagger grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-[#dce2e7] bg-white">
+              <i class="ph ph-scroll text-xl text-[#006382] mt-0.5" aria-hidden="true" />
               <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs sm:text-sm mb-5 backdrop-blur-sm">
-                  <i class="ph-fill ph-sparkle text-[#00b3e6]" aria-hidden="true" /> IA Jurídica
-                </div>
-                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-balance tracking-[-0.01em]">
-                  Sua equipe produtiva como nunca antes.
-                </h2>
-                <p class="text-[#00b3e6] text-pretty mb-6 leading-relaxed">
-                  Resumos automáticos de processos, pesquisa de jurisprudência em segundos, redação assistida de peças e análise preditiva de resultados. A IA do PragmaOS entende o contexto jurídico brasileiro.
-                </p>
-                <ul class="space-y-2 text-sm">
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#00b3e6]" aria-hidden="true" /> Resumo de andamentos em 1 clique</li>
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#00b3e6]" aria-hidden="true" /> Jurisprudência pesquisada por relevância</li>
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#00b3e6]" aria-hidden="true" /> Redação de peças com sua voz</li>
-                </ul>
+                <p class="font-semibold text-sm text-[#1a2530]">Resumo de andamentos</p>
+                <p class="text-sm text-[#7a8893]">Síntese em 1 clique com riscos e próximos passos</p>
               </div>
-              <div class="bg-white/5 rounded-2xl p-6 backdrop-blur border border-white/10">
-                <div class="flex items-start gap-3 mb-4">
-                  <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                    <i class="ph-bold ph-user text-white" aria-hidden="true" />
-                  </div>
-                  <div class="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
-                    Resuma o processo 0012345-67.2024 e identifique os riscos.
-                  </div>
-                </div>
-                <div class="flex items-start gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-[#00b3e6] flex items-center justify-center shrink-0">
-                    <i class="ph-bold ph-sparkle text-[#006382]" aria-hidden="true" />
-                  </div>
-                  <div class="bg-white text-[#1a2530] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
-                    Processo de indenização por responsabilidade civil. Risco médio: 65% de procedência. Audiência de conciliação agendada. Recomendo proposta de acordo...
-                  </div>
-                </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-[#dce2e7] bg-white">
+              <i class="ph ph-gavel text-xl text-[#006382] mt-0.5" aria-hidden="true" />
+              <div>
+                <p class="font-semibold text-sm text-[#1a2530]">Pesquisa de jurisprudência</p>
+                <p class="text-sm text-[#7a8893]">Decisões relevantes encontradas em segundos</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-[#dce2e7] bg-white">
+              <i class="ph ph-pen-nib text-xl text-[#006382] mt-0.5" aria-hidden="true" />
+              <div>
+                <p class="font-semibold text-sm text-[#1a2530]">Redação assistida</p>
+                <p class="text-sm text-[#7a8893]">Peças com sua voz e estilo, prontas para revisar</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-[#dce2e7] bg-white">
+              <i class="ph ph-translate text-xl text-[#006382] mt-0.5" aria-hidden="true" />
+              <div>
+                <p class="font-semibold text-sm text-[#1a2530]">Tradução do juridiquês</p>
+                <p class="text-sm text-[#7a8893]">Linguagem simples para o cliente entender</p>
               </div>
             </div>
           </div>
@@ -454,7 +457,7 @@ marketingRoutes.get("/", (c) => {
           <div class="reveal-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { icon: "ph-map-pin", title: "Localização por CPF", desc: "Nome, endereços, telefones e e-mails" },
-              { icon: "ph-id-card", title: "Situação Cadastral CPF", desc: "Status na Receita + verificação de óbito" },
+              { icon: "ph-fingerprint", title: "Situação Cadastral CPF", desc: "Status na Receita + verificação de óbito" },
               { icon: "ph-building", title: "CNPJ Completo", desc: "Dados da empresa + quadro societário (QSA)" },
               { icon: "ph-car", title: "Veículos por CPF/CNPJ", desc: "Todos os veículos em nome de uma pessoa" },
               { icon: "ph-car-profile", title: "Dados do Veículo por Placa", desc: "Proprietário, RENAVAM e restrições" },
