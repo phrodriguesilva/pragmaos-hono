@@ -10,6 +10,7 @@
     "watch:css": "bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --watch",
     "start": "bun src/index.ts",
     "seed": "bun scripts/seed.ts",
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
