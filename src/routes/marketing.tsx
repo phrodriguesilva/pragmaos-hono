@@ -535,7 +535,7 @@ marketingRoutes.get("/", (c) => {
 // ============================================================
 marketingRoutes.get("/sobre", (c) => {
   return c.html(
-    <MarketingLayout title="Sobre o PragmaOS — Nossa Missao" active="Clientes" description="O PragmaOS nasceu para devolver tempo aos advogados. Conheca nossa historia e missao.">
+    <MarketingLayout title="Sobre o PragmaOS — Nossa Missao" active="Sobre" description="O PragmaOS nasceu para devolver tempo aos advogados. Conheca nossa historia e missao.">
       <section class="py-20 px-4 sm:px-6">
         <div class="max-w-3xl mx-auto">
           <h1 class="text-4xl md:text-5xl font-bold font-serif text-carvao-800 mb-6 text-balance">Construido por quem entende o juridico brasileiro.</h1>
@@ -588,6 +588,7 @@ const leadSchema = z.object({
 marketingRoutes.get("/contato", (c) => {
   const interestedPlan = c.req.query("plan") ?? "";
   const success = c.req.query("success") === "1";
+  const error = c.req.query("error");
   return c.html(
     <MarketingLayout title="Fale com o Comercial — PragmaOS" active="Contato" description="Agende uma demonstracao do PragmaOS com nosso time comercial. Solucoes para escritorios de qualquer tamanho.">
       <section class="py-16 md:py-24 px-4 sm:px-6">
@@ -643,7 +644,13 @@ marketingRoutes.get("/contato", (c) => {
                 <a href="/" class="btn btn-secondary text-sm">Voltar ao inicio</a>
               </div>
             ) : (
-              <form method="post" action="/contato" class="flex flex-col gap-4">
+              <>
+                {error && (
+                  <div class="bg-status-red-bg border border-status-red text-status-red px-4 py-3 rounded-lg mb-4 text-sm">
+                    {decodeURIComponent(error)}
+                  </div>
+                )}
+                <form method="post" action="/contato" class="flex flex-col gap-4">
                 <div>
                   <label for="name" class="block text-sm font-semibold text-carvao-700 mb-1">Nome completo *</label>
                   <input id="name" name="name" type="text" required placeholder="Seu nome" class="input w-full" />
@@ -705,6 +712,7 @@ marketingRoutes.get("/contato", (c) => {
                 </button>
                 <p class="text-xs text-carvao-400 text-center">Ao enviar, voce concorda com nossa politica de privacidade. Nao compartilhamos seus dados.</p>
               </form>
+              </>
             )}
           </div>
         </div>
@@ -728,7 +736,7 @@ marketingRoutes.post("/contato", async (c) => {
   });
 
   if (!parsed.success) {
-    return c.redirect("/contato");
+    return c.redirect(`/contato?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Dados invalidos")}`);
   }
 
   const { error } = await supabase.from("commercial_leads").insert({

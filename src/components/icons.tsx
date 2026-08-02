@@ -1,19 +1,5 @@
 import type { FC, PropsWithChildren } from "hono/jsx";
 
-// Phosphor Icons web font: https://phosphoricons.com
-export type IconWeight = "regular" | "bold" | "fill" | "duotone" | "light" | "thin";
-
-export const Icon: FC<{ name: string; weight?: IconWeight; class?: string; size?: string }> = ({
-  name,
-  weight = "regular",
-  class: cls,
-  size,
-}) => {
-  const weightClass = weight === "regular" ? "ph" : `ph-${weight}`;
-  const sizeStyle = size ? `font-size:${size}` : undefined;
-  return <i class={`${weightClass} ${name}${cls ? ` ${cls}` : ""}`} style={sizeStyle} aria-hidden="true" />;
-};
-
 // --- Hierarchical sidebar menu ---
 
 export type MenuChild = {

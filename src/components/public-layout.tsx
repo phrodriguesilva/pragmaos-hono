@@ -50,7 +50,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
       </head>
       <body class="bg-white text-gray-900 min-h-screen flex flex-col">
         {/* Header */}
-        <header class="bg-white border-b border-gray-100 sticky top-0 z-30">
+        <header {...{ "x-data": "{ open: false }" }} class="bg-white border-b border-gray-100 sticky top-0 z-30">
           <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             {/* Logo */}
             <a href={`${b}/`} class="flex items-center gap-2.5">
@@ -66,8 +66,8 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
             {/* Nav */}
             <nav class="hidden md:flex items-center gap-6">
-              <a href={`${b}/`} class={`text-sm font-medium ${active === "home" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Inicio</a>
-              <a href={`${b}/areas`} class={`text-sm font-medium ${active === "areas" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Areas de Atuacao</a>
+              <a href={`${b}/`} class={`text-sm font-medium ${active === "home" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Início</a>
+              <a href={`${b}/areas`} class={`text-sm font-medium ${active === "areas" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Áreas de Atuação</a>
               <a href={`${b}/equipe`} class={`text-sm font-medium ${active === "equipe" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Equipe</a>
               <a href={`${b}/artigos`} class={`text-sm font-medium ${active === "artigos" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Artigos</a>
               <a href={`${b}/sobre`} class={`text-sm font-medium ${active === "sobre" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Sobre</a>
@@ -75,15 +75,15 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
             </nav>
 
             {/* Mobile menu button */}
-            <button class="md:hidden p-2 rounded-lg hover:bg-gray-50" {...{ "x-data": "{ open: false }", "@click": "open = !open" }} aria-label="Menu">
+            <button class="md:hidden p-2 rounded-lg hover:bg-gray-50" {...{ "@click": "open = !open" }} aria-label="Menu">
               <i class="ph ph-list text-xl text-gray-600" aria-hidden="true" />
             </button>
           </div>
 
           {/* Mobile nav */}
           <div {...{ "x-show": "open", "x-transition": "" }} x-cloak class="md:hidden border-t border-gray-100 px-4 py-3 flex flex-col gap-3">
-            <a href={`${b}/`} class="text-sm font-medium text-gray-600 hover:text-primary">Inicio</a>
-            <a href={`${b}/areas`} class="text-sm font-medium text-gray-600 hover:text-primary">Areas de Atuacao</a>
+            <a href={`${b}/`} class="text-sm font-medium text-gray-600 hover:text-primary">Início</a>
+            <a href={`${b}/areas`} class="text-sm font-medium text-gray-600 hover:text-primary">Áreas de Atuação</a>
             <a href={`${b}/equipe`} class="text-sm font-medium text-gray-600 hover:text-primary">Equipe</a>
             <a href={`${b}/artigos`} class="text-sm font-medium text-gray-600 hover:text-primary">Artigos</a>
             <a href={`${b}/sobre`} class="text-sm font-medium text-gray-600 hover:text-primary">Sobre</a>
@@ -137,10 +137,10 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
               {/* Social + Links */}
               <div>
-                <h4 class="text-sm font-semibold text-white mb-3">Navegacao</h4>
+                <h4 class="text-sm font-semibold text-white mb-3">Navegação</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href={`${b}/`} class="hover:text-white">Inicio</a></li>
-                  <li><a href={`${b}/areas`} class="hover:text-white">Areas de Atuacao</a></li>
+                  <li><a href={`${b}/`} class="hover:text-white">Início</a></li>
+                  <li><a href={`${b}/areas`} class="hover:text-white">Áreas de Atuação</a></li>
                   <li><a href={`${b}/equipe`} class="hover:text-white">Equipe</a></li>
                   <li><a href={`${b}/artigos`} class="hover:text-white">Artigos</a></li>
                   <li><a href={`${b}/sobre`} class="hover:text-white">Sobre</a></li>
@@ -159,7 +159,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
             <div class="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
               <span>&copy; {new Date().getFullYear()} {tenant.name}. Todos os direitos reservados.</span>
               <div class="flex gap-4">
-                <a href={`${b}/lgpd`} class="hover:text-white transition">Politica de Privacidade</a>
+                <a href={`${b}/lgpd`} class="hover:text-white transition">Política de Privacidade</a>
                 <a href={`${b}/lgpd/termos`} class="hover:text-white transition">Termos de Uso</a>
               </div>
               <span>Powered by PragmaOS</span>

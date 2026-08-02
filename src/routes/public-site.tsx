@@ -177,7 +177,7 @@ publicSiteRoutes.get("/", async (c) => {
                 Fale Conosco
               </a>
               <a href={`${b}/areas`} class="btn border border-white/30 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition">
-                Areas de Atuacao
+                Áreas de Atuação
               </a>
             </div>
           </div>
@@ -186,13 +186,13 @@ publicSiteRoutes.get("/", async (c) => {
         {/* Law areas preview */}
         {areas && areas.length > 0 && (
           <section class="py-16 px-4 max-w-6xl mx-auto">
-            <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-2">Areas de Atuacao</h2>
-            <p class="text-center text-gray-500 mb-10">Como podemos ajudar voce</p>
+            <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-2">Áreas de Atuação</h2>
+            <p class="text-center text-gray-500 mb-10">Como podemos ajudar você</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               {areas.map((a: any) => (
                 <a href={`${b}/areas/${a.law_areas.slug}`} class="block p-6 rounded-xl border border-gray-100 hover:border-primary hover:shadow-lg transition group">
                   <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition">
-                    <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary group-hover:text-white`} aria-hidden="true" />
+                    <i class={`${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary group-hover:text-white`} aria-hidden="true" />
                   </div>
                   <h3 class="text-lg font-semibold text-secondary mb-2">{a.law_areas.name}</h3>
                   {a.description && <p class="text-sm text-gray-500 line-clamp-3">{a.description}</p>}
@@ -208,7 +208,7 @@ publicSiteRoutes.get("/", async (c) => {
             <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {stats.map((s: any) => (
                 <div>
-                  {s.icon && <i class={`ph ${s.icon} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
+                  {s.icon && <i class={`${s.icon} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
                   <div class="text-4xl font-serif font-bold">
                     {s.prefix}{s.value}{s.suffix}
                   </div>
@@ -242,7 +242,7 @@ publicSiteRoutes.get("/", async (c) => {
               ))}
             </div>
             <div class="text-center mt-8">
-              <a href={`${b}/equipe`} class="text-primary font-semibold hover:underline">Conheca toda a equipe →</a>
+              <a href={`${b}/equipe`} class="text-primary font-semibold hover:underline">Conheça toda a equipe →</a>
             </div>
           </section>
         )}
@@ -251,13 +251,13 @@ publicSiteRoutes.get("/", async (c) => {
         {tenant.founded_year && (
           <section class="bg-gray-50 py-16 px-4">
             <div class="max-w-4xl mx-auto text-center">
-              <h2 class="text-3xl font-serif font-bold text-secondary mb-4">Sobre o Escritorio</h2>
+              <h2 class="text-3xl font-serif font-bold text-secondary mb-4">Sobre o Escritório</h2>
               <p class="text-gray-600 max-w-2xl mx-auto">
-                {tenant.name} atua desde {tenant.founded_year} oferecendo solucoes juridicas
+                {tenant.name} atua desde {tenant.founded_year} oferecendo soluções jurídicas
                 personalizadas e estrategicas para nossos clientes.
               </p>
               <a href={`${b}/sobre`} class="inline-block mt-6 text-primary font-semibold hover:underline">
-                Conheca nossa historia →
+                Conheça nossa historia →
               </a>
             </div>
           </section>
@@ -266,7 +266,7 @@ publicSiteRoutes.get("/", async (c) => {
         {/* Latest articles */}
         {articles && articles.length > 0 && (
           <section class="py-16 px-4 max-w-6xl mx-auto">
-            <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-10">Ultimos Artigos</h2>
+            <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-10">Últimos Artigos</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
               {articles.map((article: any) => (
                 <a href={`${b}/artigos/${article.slug}`} class="group">
@@ -339,7 +339,7 @@ publicSiteRoutes.get("/", async (c) => {
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {recognitions.map((r: any) => (
                   <div class="text-center">
-                    {r.icon && <i class={`ph ${r.icon} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
+                    {r.icon && <i class={`${r.icon} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
                     <h3 class="font-semibold text-lg">{r.title}</h3>
                     {r.organization && <p class="text-sm text-gray-400">{r.organization}</p>}
                     {r.year && <p class="text-sm text-gray-500">{r.year}{r.ranking_position ? ` • ${r.ranking_position}` : ""}</p>}
@@ -364,7 +364,7 @@ publicSiteRoutes.get("/", async (c) => {
                   <p class="text-sm text-gray-500">{o.address}</p>
                   {o.city && <p class="text-sm text-gray-500">{o.city}/{o.state ?? ""}</p>}
                   {o.phone && <p class="text-sm text-gray-500 mt-2"><i class="ph ph-phone text-xs" aria-hidden="true"></i> {o.phone}</p>}
-                  {o.email && <p class="text-sm text-gray-500"><i class="ph ph-envelope-simple text-xs" aria-hidden="true"></i> {o.email}</p>}
+                  {o.email && <p class="text-sm text-gray-500"><i class="ph ph-envelope text-xs" aria-hidden="true"></i> {o.email}</p>}
                 </div>
               ))}
             </div>
@@ -374,8 +374,8 @@ publicSiteRoutes.get("/", async (c) => {
         {/* CTA */}
         <section class="bg-primary py-16 px-4">
           <div class="max-w-2xl mx-auto text-center text-white">
-            <h2 class="text-3xl font-serif font-bold mb-4">Precisa de ajuda juridica?</h2>
-            <p class="text-white/90 mb-6">Entre em contato e descubra como podemos ajudar voce.</p>
+            <h2 class="text-3xl font-serif font-bold mb-4">Precisa de ajuda jurídica?</h2>
+            <p class="text-white/90 mb-6">Entre em contato e descubra como podemos ajudar você.</p>
             <a href={`${b}/contato`} class="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
               Agendar Consulta
             </a>
@@ -386,7 +386,7 @@ publicSiteRoutes.get("/", async (c) => {
         <section class="py-12 px-4 bg-gray-50">
           <div class="max-w-xl mx-auto text-center">
             <h2 class="text-2xl font-serif font-bold text-secondary mb-2">Receba Nossos Artigos</h2>
-            <p class="text-sm text-gray-500 mb-6">Inscreva-se para receber novidades e conteudos juridicos.</p>
+            <p class="text-sm text-gray-500 mb-6">Inscreva-se para receber novidades e conteúdos jurídicos.</p>
             <form method="post" action={`${b}/newsletter`} class="flex gap-2 max-w-md mx-auto">
               <input type="email" name="email" required placeholder="Seu email..." class="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary text-sm" />
               <button type="submit" class="btn btn-primary px-6 py-2.5 rounded-lg text-sm font-semibold">Inscrever</button>
@@ -424,7 +424,7 @@ publicSiteRoutes.get("/sobre", async (c) => {
           {tenant.founded_year && (
             <div class="text-center">
               <div class="text-3xl font-bold text-primary">{new Date().getFullYear() - tenant.founded_year}+</div>
-              <div class="text-sm text-gray-500">Anos de experiencia</div>
+              <div class="text-sm text-gray-500">Anos de experiência</div>
             </div>
           )}
           {areas && (
@@ -441,7 +441,7 @@ publicSiteRoutes.get("/sobre", async (c) => {
           )}
           {tenant.email_public && (
             <div class="text-center">
-              <div class="text-3xl font-bold text-primary">✓</div>
+              <i class="ph-bold ph-check-circle text-3xl text-primary" aria-hidden="true" />
               <div class="text-sm text-gray-500">Atendimento online</div>
             </div>
           )}
@@ -449,11 +449,11 @@ publicSiteRoutes.get("/sobre", async (c) => {
 
         {areas && areas.length > 0 && (
           <div class="mt-10">
-            <h2 class="text-2xl font-serif font-bold text-secondary mb-6">Nossas Areas de Atuacao</h2>
+            <h2 class="text-2xl font-serif font-bold text-secondary mb-6">Nossas Áreas de Atuação</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {areas.map((a: any) => (
                 <a href={`${b}/areas/${a.law_areas.slug}`} class="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-primary transition">
-                  <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary`} aria-hidden="true" />
+                  <i class={`${a.law_areas.icon ?? "ph-scales"} text-2xl text-primary`} aria-hidden="true" />
                   <span class="font-medium text-secondary">{a.law_areas.name}</span>
                 </a>
               ))}
@@ -463,7 +463,7 @@ publicSiteRoutes.get("/sobre", async (c) => {
 
         {tenant.address && (
           <div class="mt-10 p-6 bg-gray-50 rounded-xl">
-            <h3 class="font-semibold text-secondary mb-2">Endereco</h3>
+            <h3 class="font-semibold text-secondary mb-2">Endereço</h3>
             <p class="text-gray-600">{tenant.address}</p>
           </div>
         )}
@@ -491,7 +491,7 @@ publicSiteRoutes.get("/areas", async (c) => {
   return c.html(
     renderPublic(c, tenant, "areas", (
       <div class="max-w-6xl mx-auto px-4 py-16">
-        <h1 class="text-4xl font-serif font-bold text-secondary mb-2 text-center">Areas de Atuacao</h1>
+        <h1 class="text-4xl font-serif font-bold text-secondary mb-2 text-center">Áreas de Atuação</h1>
         <p class="text-center text-gray-500 mb-12">Atuacao juridica especializada em diversas areas do direito</p>
 
         {(!areas || areas.length === 0) ? (
@@ -504,7 +504,7 @@ publicSiteRoutes.get("/areas", async (c) => {
             {areas.map((a: any) => (
               <a href={`${b}/areas/${a.law_areas.slug}`} class="block p-8 rounded-xl border border-gray-100 hover:border-primary hover:shadow-xl transition group">
                 <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition">
-                  <i class={`ph ${a.law_areas.icon ?? "ph-scales"} text-3xl text-primary group-hover:text-white`} aria-hidden="true" />
+                  <i class={`${a.law_areas.icon ?? "ph-scales"} text-3xl text-primary group-hover:text-white`} aria-hidden="true" />
                 </div>
                 <h3 class="text-xl font-serif font-bold text-secondary mb-3">{a.law_areas.name}</h3>
                 {a.description && <p class="text-gray-500 line-clamp-4">{a.description}</p>}
@@ -541,7 +541,7 @@ publicSiteRoutes.get("/areas/:slug", async (c) => {
     return c.html(
       renderPublic(c, tenant, "areas", (
         <div class="max-w-4xl mx-auto px-4 py-20 text-center">
-          <h1 class="text-2xl font-bold text-gray-400 mb-4">Area nao encontrada</h1>
+          <h1 class="text-2xl font-bold text-gray-400 mb-4">Área não encontrada</h1>
           <a href={`${b}/areas`} class="text-primary hover:underline">← Voltar para areas</a>
         </div>
       )),
@@ -566,7 +566,7 @@ publicSiteRoutes.get("/areas/:slug", async (c) => {
         <section class="bg-secondary text-white py-16 px-4">
           <div class="max-w-4xl mx-auto">
             <div class="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mb-6">
-              <i class={`ph ${areaData.law_areas.icon ?? "ph-scales"} text-3xl text-white`} aria-hidden="true" />
+              <i class={`${areaData.law_areas.icon ?? "ph-scales"} text-3xl text-white`} aria-hidden="true" />
             </div>
             <h1 class="text-4xl font-serif font-bold mb-4">{areaData.law_areas.name}</h1>
             {areaData.description && <p class="text-lg text-gray-300 max-w-2xl">{areaData.description}</p>}
@@ -669,12 +669,12 @@ publicSiteRoutes.get("/artigos", async (c) => {
               ))}
             </div>
 
-            {/* Pagination */}
+            {/* Págination */}
             {totalPages > 1 && (
               <div class="flex justify-center gap-2 mt-12">
-                {page > 1 && <a href={`/artigos?page=${page - 1}`} class="px-4 py-2 rounded-lg border border-gray-200 hover:border-primary">← Anterior</a>}
-                <span class="px-4 py-2 text-gray-500">Pagina {page} de {totalPages}</span>
-                {page < totalPages && <a href={`/artigos?page=${page + 1}`} class="px-4 py-2 rounded-lg border border-gray-200 hover:border-primary">Proxima →</a>}
+                {page > 1 && <a href={`${b}/artigos?page=${page - 1}`} class="px-4 py-2 rounded-lg border border-gray-200 hover:border-primary">← Anterior</a>}
+                <span class="px-4 py-2 text-gray-500">Página {page} de {totalPages}</span>
+                {page < totalPages && <a href={`${b}/artigos?page=${page + 1}`} class="px-4 py-2 rounded-lg border border-gray-200 hover:border-primary">Próxima →</a>}
               </div>
             )}
           </>
@@ -710,7 +710,7 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
     return c.html(
       renderPublic(c, tenant, "artigos", (
         <div class="max-w-4xl mx-auto px-4 py-20 text-center">
-          <h1 class="text-2xl font-bold text-gray-400 mb-4">Artigo nao encontrado</h1>
+          <h1 class="text-2xl font-bold text-gray-400 mb-4">Artigo não encontrado</h1>
           <a href={`${b}/artigos`} class="text-primary hover:underline">← Voltar para artigos</a>
         </div>
       )),
@@ -798,6 +798,7 @@ publicSiteRoutes.get("/artigos/:slug", async (c) => {
 publicSiteRoutes.get("/contato", async (c) => {
   const tenant = getTenant(c);
   const b = getBasePath(c);
+  const error = c.req.query("error");
 
   const { data: areas }: any = await supabase
     .from("tenant_law_areas")
@@ -809,7 +810,13 @@ publicSiteRoutes.get("/contato", async (c) => {
     renderPublic(c, tenant, "contato", (
       <div class="max-w-4xl mx-auto px-4 py-16">
         <h1 class="text-4xl font-serif font-bold text-secondary mb-2 text-center">Entre em Contato</h1>
-        <p class="text-center text-gray-500 mb-12">Estamos aqui para ajudar voce</p>
+        <p class="text-center text-gray-500 mb-12">Estamos aqui para ajudar você</p>
+
+        {error && (
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
+            {decodeURIComponent(error)}
+          </div>
+        )}
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Contact info */}
@@ -853,7 +860,7 @@ publicSiteRoutes.get("/contato", async (c) => {
                   <i class="ph ph-map-pin text-xl text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 class="font-semibold text-secondary text-sm">Endereco</h3>
+                  <h3 class="font-semibold text-secondary text-sm">Endereço</h3>
                   <p class="text-gray-500 text-sm">{tenant.address}</p>
                 </div>
               </div>
@@ -925,15 +932,7 @@ publicSiteRoutes.post("/contato", async (c) => {
   const lawAreaId = String(body.law_area_id ?? "").trim() || null;
 
   if (!name || !email || !message) {
-    return c.html(
-      renderPublic(c, tenant, "contato", (
-        <div class="max-w-4xl mx-auto px-4 py-20 text-center">
-          <h1 class="text-2xl font-bold text-status-red mb-4">Dados incompletos</h1>
-          <p class="text-gray-500 mb-6">Por favor, preencha todos os campos obrigatórios.</p>
-          <a href={`${b}/contato`} class="text-primary hover:underline">← Voltar</a>
-        </div>
-      )),
-    );
+    return c.redirect(`${b}/contato?error=${encodeURIComponent("Por favor, preencha todos os campos obrigatórios.")}`);
   }
 
   // 1. Create a lead in the CRM
@@ -975,7 +974,7 @@ publicSiteRoutes.post("/contato", async (c) => {
           <i class="ph ph-check-circle text-4xl text-status-green" aria-hidden="true" />
         </div>
         <h1 class="text-3xl font-serif font-bold text-secondary mb-3">Mensagem Enviada!</h1>
-        <p class="text-gray-500 mb-8">Obrigado pelo contato, {name.split(" ")[0]}. Retornaremos o mais breve possivel.</p>
+        <p class="text-gray-500 mb-8">Obrigado pelo contato, {name.split(" ")[0]}. Retornaremos o mais breve possível.</p>
         <a href={`${b}/`} class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
           Voltar ao Inicio
         </a>
@@ -1043,7 +1042,7 @@ publicSiteRoutes.get("/reconhecimentos", async (c) => {
             {recognitions.map((r: any) => (
               <div class="flex items-start gap-4 p-6 rounded-xl border border-gray-100 hover:shadow-md transition">
                 <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <i class={`ph ${r.icon ?? "ph-trophy"} text-2xl text-primary`} aria-hidden="true" />
+                  <i class={`${r.icon ?? "ph-trophy"} text-2xl text-primary`} aria-hidden="true" />
                 </div>
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-secondary">{r.title}</h3>
@@ -1081,7 +1080,7 @@ publicSiteRoutes.get("/equipe", async (c) => {
       <div class="max-w-6xl mx-auto px-4 py-16">
         <h1 class="text-4xl font-serif font-bold text-secondary text-center mb-4">Nossa Equipe</h1>
         <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
-          Conheca os profissionais que dedicam sua experiencia e conhecimento para entregar os melhores resultados aos nossos clientes.
+          Conheça os profissionais que dedicam sua experiência e conhecimento para entregar os melhores resultados aos nossos clientes.
         </p>
 
         {members && members.length > 0 ? (
@@ -1206,10 +1205,10 @@ publicSiteRoutes.get("/lgpd", async (c) => {
         <h1 class="text-3xl font-serif font-bold text-secondary mb-8">Politica de Privacidade</h1>
         <div class="prose prose-sm max-w-none text-gray-600 space-y-4">
           <p><strong>Ultima atualizacao:</strong> {new Date().toLocaleDateString("pt-BR")}</p>
-          <p>{tenant.name} ("Escritorio", "nos" ou "nosso") leva a privacidade dos dados pessoais a serio. Esta politica descreve como coletamos, usamos e protegemos as informacoes que voce nos fornece.</p>
+          <p>{tenant.name} ("Escritório", "nos" ou "nosso") leva a privacidade dos dados pessoais a serio. Esta politica descreve como coletamos, usamos e protegemos as informacoes que você nos fornece.</p>
 
           <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">1. Dados Coletados</h2>
-          <p>Coletamos os seguintes dados quando voce interage com nosso site ou servi-os:</p>
+          <p>Coletamos os seguintes dados quando você interage com nosso site ou servi-os:</p>
           <ul class="list-disc pl-6 space-y-1">
             <li>Nome, email e telefone (formulario de contato)</li>
             <li>Informacoes de navegacao (cookies essenciais)</li>
@@ -1254,7 +1253,7 @@ publicSiteRoutes.get("/lgpd/termos", async (c) => {
         <h1 class="text-3xl font-serif font-bold text-secondary mb-8">Termos de Uso</h1>
         <div class="prose prose-sm max-w-none text-gray-600 space-y-4">
           <p><strong>Ultima atualizacao:</strong> {new Date().toLocaleDateString("pt-BR")}</p>
-          <p>Ao acessar e utilizar o site de {tenant.name}, voce concorda com os termos e condicoes descritos abaixo.</p>
+          <p>Ao acessar e utilizar o site de {tenant.name}, você concorda com os termos e condicoes descritos abaixo.</p>
 
           <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">1. Natureza do Servico</h2>
           <p>Este site tem carater informativo. As informacoes aqui apresentadas nao constituem aconselhamento juridico e nao substituem a consulta com um advogado.</p>

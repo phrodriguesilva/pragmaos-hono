@@ -13,6 +13,7 @@ const NAV: NavItem[] = [
   { href: "/#depoimentos", label: "Clientes" },
   { href: "/#faq", label: "FAQ" },
   { href: "/contato", label: "Contato" },
+  { href: "/sobre", label: "Sobre" },
 ];
 
 export const MarketingLayout: FC<PropsWithChildren<{
@@ -97,7 +98,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
       </head>
       <body class="bg-white text-carvao-800 antialiased min-h-screen flex flex-col">
         {/* Header */}
-        <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-carvao-100">
+        <header {...{ "x-data": "{ open: false }" }} class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-carvao-100">
           <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2.5" aria-label="PragmaOS inicio">
               <div class="w-9 h-9 rounded-xl bg-terracota-500 flex items-center justify-center shrink-0">
@@ -118,7 +119,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
             </div>
 
             {/* Mobile */}
-            <button class="md:hidden p-2 rounded-lg hover:bg-carvao-50" {...{ "x-data": "{ open: false }", "@click": "open = !open" }} aria-label="Menu">
+            <button class="md:hidden p-2 rounded-lg hover:bg-carvao-50" {...{ "@click": "open = !open" }} aria-label="Menu">
               <i class="ph ph-list text-xl text-carvao-600" aria-hidden="true" />
             </button>
           </div>
