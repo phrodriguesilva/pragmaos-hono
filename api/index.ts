@@ -1,11 +1,5 @@
-// Minimal Vercel serverless entry point.
-// This file avoids importing from src/ to test if the Bun runtime bug
-// is caused by the module graph in src/index.ts.
-import { Hono } from "hono";
-
-const app = new Hono();
-
-app.get("/", (c) => c.json({ ok: true, message: "PragmaOS API" }));
-app.get("/health", (c) => c.json({ status: "ok" }));
-
-export default app;
+// Vercel serverless entry point.
+// Uses Node.js runtime (not Bun) to avoid the "Requested module is not
+// instantiated yet" Bun runtime bug on Vercel.
+// The Hono app is imported from src/index.ts and exported as default.
+export { default } from "../src/index";

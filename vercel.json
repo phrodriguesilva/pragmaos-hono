@@ -1,9 +1,9 @@
 {
   "buildCommand": "bun run build",
-  "bunVersion": "1.x",
   "functions": {
     "api/index.ts": {
-      "memory": 1024
+      "memory": 1024,
+      "runtime": "nodejs20.x"
     }
   }
 }

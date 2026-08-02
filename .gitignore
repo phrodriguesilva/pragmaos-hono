@@ -38,3 +38,4 @@ public/css/app.css
 src/generated/css.ts
 .vercel
 !.vercel/project.json
+.vercel/output
