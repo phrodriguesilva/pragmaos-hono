@@ -26,5 +26,5 @@ console.log("Typecheck passed.");
 // 4. Bundle the app into a single JS file for Vercel.
 // Target node, ESM format. All dependencies are bundled except node builtins.
 console.log("Bundling app for Vercel (Node.js ESM)...");
-await $`bun build src/app.ts --outfile src/generated/bundle.js --target node --format esm --external @supabase/supabase-js --external hono`;
+await $`bun build src/server/app.ts --outfile src/generated/bundle.js --target node --format esm --external @supabase/supabase-js --external hono`;
 console.log("Bundle written to src/generated/bundle.js");

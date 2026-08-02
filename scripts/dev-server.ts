@@ -1,6 +1,6 @@
-// Bun dev server entry. In production (Vercel), the Hono app in src/app.ts
+// Bun dev server entry. In production (Vercel), the Hono app in src/server/app.ts
 // is handled by the Vercel Bun runtime directly.
-import app from "../src/app.ts";
+import app from "../src/server/app.ts";
 import { log } from "../src/lib/logger.ts";
 
 const port = Number(process.env.PORT ?? 3000);
