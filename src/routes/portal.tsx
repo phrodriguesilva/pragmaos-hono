@@ -59,7 +59,7 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
-        <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #05111e 0%, #1a2634 100%);">
+        <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
               <i class="ph-bold ph-scales text-white text-body" aria-hidden="true" />
@@ -72,7 +72,7 @@ function clientLayout(title: string, clientName: string, children: unknown) {
             <a href="/portal/logout" class="flex items-center gap-1.5 hover:text-white text-gray-300"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
           </div>
         </header>
-        <nav class="px-8 py-3 flex gap-1 text-body-sm text-white" style="background: linear-gradient(180deg, #1a2634 0%, #05111e 100%);">
+        <nav class="px-8 py-3 flex gap-1 text-body-sm text-white" style="background: linear-gradient(180deg, #00b3e6 0%, #006382 100%);">
           <a href="/portal/home" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-house" aria-hidden="true" />Inicio</a>
           <a href="/portal/cases" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-folder-open" aria-hidden="true" />Processos</a>
           <a href="/portal/documents" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-file-text" aria-hidden="true" />Documentos</a>

@@ -104,8 +104,8 @@ siteAdminRoutes.get("/appearance", async (c) => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField label="Nome do Escritorio (exibido no site)" id="name" name="name" value={tenant.name} required />
             <TextField label="Slogan / Tagline" id="tagline" name="tagline" value={tenant.tagline ?? ""} placeholder="Ex: Advocacia especializada e personalizada" />
-            <TextField label="Cor Primaria" id="primary_color" name="primary_color" type="color" value={tenant.primary_color ?? "#05111e"} />
-            <TextField label="Cor Secundaria" id="secondary_color" name="secondary_color" type="color" value={tenant.secondary_color ?? "#1a2634"} />
+            <TextField label="Cor Primaria" id="primary_color" name="primary_color" type="color" value={tenant.primary_color ?? "#006382"} />
+            <TextField label="Cor Secundaria" id="secondary_color" name="secondary_color" type="color" value={tenant.secondary_color ?? "#00b3e6"} />
             <TextField label="URL do Logo" id="logo_url" name="logo_url" value={tenant.logo_url ?? ""} placeholder="https://..." icon="ph-image" />
           </div>
         </Panel>
@@ -155,8 +155,8 @@ siteAdminRoutes.post("/appearance", async (c) => {
     .update({
       name: String(body.name ?? "").trim(),
       tagline: String(body.tagline ?? "").trim() || null,
-      primary_color: String(body.primary_color ?? "#05111e"),
-      secondary_color: String(body.secondary_color ?? "#1a2634"),
+      primary_color: String(body.primary_color ?? "#006382"),
+      secondary_color: String(body.secondary_color ?? "#00b3e6"),
       logo_url: String(body.logo_url ?? "").trim() || null,
       description: String(body.description ?? "").trim() || null,
       founded_year: body.founded_year ? parseInt(String(body.founded_year), 10) : null,

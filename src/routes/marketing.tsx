@@ -140,14 +140,14 @@ const TESTIMONIALS = [
     author: "Mariana Costa",
     role: "Advogada autônoma · Cível e família · plano Starter",
     initials: "MC",
-    color: "#05111e",
+    color: "#006382",
   },
   {
     quote: "O portal do cliente virou diferencial competitivo. Meus clientes acompanham processos sem me ligar. O WhatsApp ficou livre para o que importa.",
     author: "Rafael Mendes",
     role: "Sócio · Empresarial · 4 advogados · plano Pro",
     initials: "RM",
-    color: "#1a2634",
+    color: "#00b3e6",
   },
   {
     quote: "A IA resume andamentos em 1 clique e traduz o juridiquês para o cliente. Economizo pelo menos 2 horas por dia. Só isso já paga a mensalidade.",
@@ -231,16 +231,16 @@ marketingRoutes.get("/", (c) => {
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-24 md:py-32 lg:py-40 relative">
           <div class="max-w-2xl">
             <h1 class="reveal text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.05] tracking-[-0.02em] text-balance mb-6">
-              A gestão jurídica do seu escritório, <span class="text-[#bbc7da] italic font-serif font-normal">finalmente</span> em um só lugar.
+              A gestão jurídica do seu escritório, <span class="text-[#00b3e6] italic font-serif font-normal">finalmente</span> em um só lugar.
             </h1>
-            <p class="reveal text-lg md:text-xl text-[#bbc7da]/80 text-pretty mb-10 leading-relaxed">
+            <p class="reveal text-lg md:text-xl text-[#00b3e6]/80 text-pretty mb-10 leading-relaxed">
               Processos, prazos, financeiro e IA jurídica — tudo integrado. Comece grátis em 2 minutos.
             </p>
             <div class="reveal flex flex-col sm:flex-row gap-4">
-              <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#05111e] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#bbc7da] transition-all hover:gap-4">
+              <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#006382] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#00b3e6] transition-all hover:gap-4">
                 <i class="ph-bold ph-rocket-launch" aria-hidden="true" />
                 Começar teste grátis
-                <span class="w-8 h-8 rounded-full bg-[#05111e] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="w-8 h-8 rounded-full bg-[#006382] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <i class="ph-bold ph-arrow-right text-white text-sm" aria-hidden="true" />
                 </span>
               </a>
@@ -249,19 +249,19 @@ marketingRoutes.get("/", (c) => {
                 Agendar demonstração
               </a>
             </div>
-            <p class="reveal text-sm text-[#818d9f] mt-6">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
+            <p class="reveal text-sm text-[#6b7b8a] mt-6">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
           </div>
         </div>
       </section>
 
       {/* Stats */}
-      <section class="py-16 bg-[#f1f4f6]">
+      <section class="py-16 bg-[#eef2f5]">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
           <div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {STATS.map((s) => (
               <div>
-                <div class="text-3xl md:text-4xl font-extrabold text-[#05111e] stat-counter" data-value={s.value}>{s.value}</div>
-                <div class="text-sm text-[#44474c] mt-1">{s.label}</div>
+                <div class="text-3xl md:text-4xl font-extrabold text-[#006382] stat-counter" data-value={s.value}>{s.value}</div>
+                <div class="text-sm text-[#425563] mt-1">{s.label}</div>
               </div>
             ))}
           </div>
@@ -269,53 +269,53 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Segmentação — Para quem é o PragmaOS */}
-      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+      <section class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal text-center mb-14">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Para quem é</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em] mb-4">
+            <p class="text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">Para quem é</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] text-balance tracking-[-0.01em] mb-4">
               Do advogado solo ao escritório em crescimento.
             </h2>
-            <p class="text-base md:text-lg text-[#44474c] text-pretty max-w-2xl mx-auto leading-relaxed">
+            <p class="text-base md:text-lg text-[#425563] text-pretty max-w-2xl mx-auto leading-relaxed">
               Planos escaláveis. Comece pequeno e cresça sem trocar de plataforma.
             </p>
           </div>
           <div class="reveal-stagger grid md:grid-cols-3 gap-6">
             <div class="card-lexis p-8">
-              <div class="w-12 h-12 rounded-xl bg-[#f1f4f6] flex items-center justify-center mb-5">
-                <i class="ph-bold ph-user text-2xl text-[#05111e]" aria-hidden="true" />
+              <div class="w-12 h-12 rounded-xl bg-[#eef2f5] flex items-center justify-center mb-5">
+                <i class="ph-bold ph-user text-2xl text-[#006382]" aria-hidden="true" />
               </div>
-              <h3 class="text-lg font-bold text-[#05111e] mb-2">Advogados solo</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed mb-4">Centralize processos, prazos e financeiro sem contratar secretaria. A IA faz o trabalho repetitivo por você.</p>
-              <ul class="space-y-2 text-sm text-[#44474c]">
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Monitoramento automático pela OAB</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Site público da advocacia incluso</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> A partir de R$ 199/mês</li>
+              <h3 class="text-lg font-bold text-[#006382] mb-2">Advogados solo</h3>
+              <p class="text-sm text-[#425563] leading-relaxed mb-4">Centralize processos, prazos e financeiro sem contratar secretaria. A IA faz o trabalho repetitivo por você.</p>
+              <ul class="space-y-2 text-sm text-[#425563]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> Monitoramento automático pela OAB</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> Site público da advocacia incluso</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> A partir de R$ 199/mês</li>
               </ul>
             </div>
-            <div class="card-lexis p-8 border-2 border-[#1a2634] bg-[#d9e3f2]/20 relative">
-              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1a2634] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Mais popular</div>
-              <div class="w-12 h-12 rounded-xl bg-[#1a2634] flex items-center justify-center mb-5">
+            <div class="card-lexis p-8 border-2 border-[#00b3e6] bg-[#e5f4fb]/20 relative">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00b3e6] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Mais popular</div>
+              <div class="w-12 h-12 rounded-xl bg-[#00b3e6] flex items-center justify-center mb-5">
                 <i class="ph-bold ph-users-three text-2xl text-white" aria-hidden="true" />
               </div>
-              <h3 class="text-lg font-bold text-[#05111e] mb-2">Pequenos escritórios</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed mb-4">Gestão de equipe, permissões, portal do cliente e WhatsApp integrado. Tudo que um escritório de 2 a 10 advogados precisa.</p>
-              <ul class="space-y-2 text-sm text-[#44474c]">
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Até 10 usuários com permissões</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> WhatsApp Business integrado</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> A partir de R$ 499/mês</li>
+              <h3 class="text-lg font-bold text-[#006382] mb-2">Pequenos escritórios</h3>
+              <p class="text-sm text-[#425563] leading-relaxed mb-4">Gestão de equipe, permissões, portal do cliente e WhatsApp integrado. Tudo que um escritório de 2 a 10 advogados precisa.</p>
+              <ul class="space-y-2 text-sm text-[#425563]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> Até 10 usuários com permissões</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> WhatsApp Business integrado</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> A partir de R$ 499/mês</li>
               </ul>
             </div>
             <div class="card-lexis p-8">
-              <div class="w-12 h-12 rounded-xl bg-[#f1f4f6] flex items-center justify-center mb-5">
-                <i class="ph-bold ph-building-office text-2xl text-[#05111e]" aria-hidden="true" />
+              <div class="w-12 h-12 rounded-xl bg-[#eef2f5] flex items-center justify-center mb-5">
+                <i class="ph-bold ph-building-office text-2xl text-[#006382]" aria-hidden="true" />
               </div>
-              <h3 class="text-lg font-bold text-[#05111e] mb-2">Escritórios em escala</h3>
-              <p class="text-sm text-[#44474c] leading-relaxed mb-4">Onboarding personalizado, SLA 24/7, integrações sob medida e gerente de conta dedicado. Para operações que não podem parar.</p>
-              <ul class="space-y-2 text-sm text-[#44474c]">
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Usuários e processos ilimitados</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> API aberta + integrações custom</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Sob consulta</li>
+              <h3 class="text-lg font-bold text-[#006382] mb-2">Escritórios em escala</h3>
+              <p class="text-sm text-[#425563] leading-relaxed mb-4">Onboarding personalizado, SLA 24/7, integrações sob medida e gerente de conta dedicado. Para operações que não podem parar.</p>
+              <ul class="space-y-2 text-sm text-[#425563]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> Usuários e processos ilimitados</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> API aberta + integrações custom</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" /> Sob consulta</li>
               </ul>
             </div>
           </div>
@@ -323,14 +323,14 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Problem / solution */}
-      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+      <section class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal max-w-3xl mx-auto text-center mb-14">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">O problema</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance mb-6 tracking-[-0.01em]">
+            <p class="text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">O problema</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] text-balance mb-6 tracking-[-0.01em]">
               Seu escritório não deveria ser gerido em planilhas.
             </h2>
-            <p class="text-base md:text-lg text-[#44474c] text-pretty max-w-2xl mx-auto leading-relaxed">
+            <p class="text-base md:text-lg text-[#425563] text-pretty max-w-2xl mx-auto leading-relaxed">
               Prazos perdidos em e-mails. Financeiro espalhado em abas. Clientes sem visibilidade. Equipe sem clareza. Cada ferramenta avulsa resolve um pedaço — e cria um novo problema de integração.
             </p>
           </div>
@@ -341,7 +341,7 @@ marketingRoutes.get("/", (c) => {
                 <i class="ph-bold ph-x-circle text-[#ba1a1a] text-xl" aria-hidden="true" />
                 <h3 class="font-bold text-[#ba1a1a] text-lg">Sem PragmaOS</h3>
               </div>
-              <ul class="space-y-3 text-sm text-[#44474c]">
+              <ul class="space-y-3 text-sm text-[#425563]">
                 <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Prazos rastreados manualmente em planilhas</li>
                 <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Financeiro separado dos processos</li>
                 <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Clientes ligando para saber o andamento</li>
@@ -349,18 +349,18 @@ marketingRoutes.get("/", (c) => {
                 <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Pesquisa de jurisprudência manual e lenta</li>
               </ul>
             </div>
-            <div class="rounded-xl border-2 border-[#1a2634] bg-white p-8 relative shadow-[0_20px_40px_-15px_rgba(5,17,33,0.06)]">
-              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1a2634] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">A Solução</div>
+            <div class="rounded-xl border-2 border-[#00b3e6] bg-white p-8 relative shadow-[0_20px_40px_-15px_rgba(5,17,33,0.06)]">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00b3e6] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">A Solução</div>
               <div class="flex items-center gap-2 mb-6">
-                <i class="ph-bold ph-check-circle text-[#05111e] text-xl" aria-hidden="true" />
-                <h3 class="font-bold text-[#05111e] text-lg">Com PragmaOS</h3>
+                <i class="ph-bold ph-check-circle text-[#006382] text-xl" aria-hidden="true" />
+                <h3 class="font-bold text-[#006382] text-lg">Com PragmaOS</h3>
               </div>
-              <ul class="space-y-3 text-sm text-[#44474c]">
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Prazos calculados e alertados automaticamente</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Financeiro vinculado a cada processo</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Portal do cliente com transparência total</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Dashboards de performance em tempo real</li>
-                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />IA que resume, pesquisa e redige por você</li>
+              <ul class="space-y-3 text-sm text-[#425563]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" />Prazos calculados e alertados automaticamente</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" />Financeiro vinculado a cada processo</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" />Portal do cliente com transparência total</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" />Dashboards de performance em tempo real</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#006382] mt-0.5" aria-hidden="true" />IA que resume, pesquisa e redige por você</li>
               </ul>
             </div>
           </div>
@@ -368,23 +368,23 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Features grid */}
-      <section id="recursos" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+      <section id="recursos" class="py-20 px-4 sm:px-6 bg-[#eef2f5]">
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal text-center mb-14">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Tudo em um</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em]">
+            <p class="text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">Tudo em um</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] text-balance tracking-[-0.01em]">
               Uma plataforma. Tudo que seu escritório precisa.
             </h2>
           </div>
           <div class="reveal-stagger grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {FEATURES.map((f, i) => (
-              <div class={`card-lexis p-6 group ${i === 3 ? "border-[#1a2634] bg-[#d9e3f2]/30" : ""}`}>
-                <div class={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition ${i === 3 ? "bg-[#1a2634]" : "bg-[#f1f4f6] group-hover:bg-[#05111e]"}`}>
-                  <i class={`ph-bold ${f.icon} text-2xl ${i === 3 ? "text-white" : "text-[#05111e] group-hover:text-white"} transition`} aria-hidden="true" />
+              <div class={`card-lexis p-6 group ${i === 3 ? "border-[#00b3e6] bg-[#e5f4fb]/30" : ""}`}>
+                <div class={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition ${i === 3 ? "bg-[#00b3e6]" : "bg-[#eef2f5] group-hover:bg-[#006382]"}`}>
+                  <i class={`ph-bold ${f.icon} text-2xl ${i === 3 ? "text-white" : "text-[#006382] group-hover:text-white"} transition`} aria-hidden="true" />
                 </div>
-                {i === 3 && <div class="inline-block bg-[#1a2634] text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold mb-2">Novo</div>}
-                <h3 class="font-bold text-[#05111e] mb-2 text-base">{f.title}</h3>
-                <p class="text-sm text-[#44474c] leading-relaxed">{f.desc}</p>
+                {i === 3 && <div class="inline-block bg-[#00b3e6] text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold mb-2">Novo</div>}
+                <h3 class="font-bold text-[#006382] mb-2 text-base">{f.title}</h3>
+                <p class="text-sm text-[#425563] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -392,25 +392,25 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* AI highlight */}
-      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+      <section class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-5xl mx-auto">
           <div class="reveal rounded-2xl gradient-cta-navy text-white p-8 md:p-14 relative overflow-hidden">
             <div class="noise-overlay absolute inset-0 opacity-[0.1] mix-blend-overlay pointer-events-none" />
             <div class="grid md:grid-cols-2 gap-10 items-center relative">
               <div>
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs sm:text-sm mb-5 backdrop-blur-sm">
-                  <i class="ph-fill ph-sparkle text-[#bbc7da]" aria-hidden="true" /> IA Jurídica
+                  <i class="ph-fill ph-sparkle text-[#00b3e6]" aria-hidden="true" /> IA Jurídica
                 </div>
                 <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-balance tracking-[-0.01em]">
                   Sua equipe produtiva como nunca antes.
                 </h2>
-                <p class="text-[#bbc7da] text-pretty mb-6 leading-relaxed">
+                <p class="text-[#00b3e6] text-pretty mb-6 leading-relaxed">
                   Resumos automáticos de processos, pesquisa de jurisprudência em segundos, redação assistida de peças e análise preditiva de resultados. A IA do PragmaOS entende o contexto jurídico brasileiro.
                 </p>
                 <ul class="space-y-2 text-sm">
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#bbc7da]" aria-hidden="true" /> Resumo de andamentos em 1 clique</li>
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#bbc7da]" aria-hidden="true" /> Jurisprudência pesquisada por relevância</li>
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#bbc7da]" aria-hidden="true" /> Redação de peças com sua voz</li>
+                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#00b3e6]" aria-hidden="true" /> Resumo de andamentos em 1 clique</li>
+                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#00b3e6]" aria-hidden="true" /> Jurisprudência pesquisada por relevância</li>
+                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#00b3e6]" aria-hidden="true" /> Redação de peças com sua voz</li>
                 </ul>
               </div>
               <div class="bg-white/5 rounded-2xl p-6 backdrop-blur border border-white/10">
@@ -423,10 +423,10 @@ marketingRoutes.get("/", (c) => {
                   </div>
                 </div>
                 <div class="flex items-start gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-[#bbc7da] flex items-center justify-center shrink-0">
-                    <i class="ph-bold ph-sparkle text-[#05111e]" aria-hidden="true" />
+                  <div class="w-9 h-9 rounded-lg bg-[#00b3e6] flex items-center justify-center shrink-0">
+                    <i class="ph-bold ph-sparkle text-[#006382]" aria-hidden="true" />
                   </div>
-                  <div class="bg-white text-[#181c1e] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
+                  <div class="bg-white text-[#1a2530] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
                     Processo de indenização por responsabilidade civil. Risco médio: 65% de procedência. Audiência de conciliação agendada. Recomendo proposta de acordo...
                   </div>
                 </div>
@@ -440,13 +440,13 @@ marketingRoutes.get("/", (c) => {
       <section id="consultas" class="py-20 px-4 sm:px-6">
         <div class="max-w-5xl mx-auto">
           <div class="text-center mb-12">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#05111e] text-white text-xs sm:text-sm mb-5">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#006382] text-white text-xs sm:text-sm mb-5">
               <i class="ph-bold ph-magnifying-glass" aria-hidden="true" /> Consultas Legais
             </div>
-            <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+            <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] mb-4 text-balance tracking-[-0.01em]">
               Localize bens, pessoas e empresas em segundos.
             </h2>
-            <p class="reveal text-[#44474c] max-w-2xl mx-auto text-pretty leading-relaxed">
+            <p class="reveal text-[#425563] max-w-2xl mx-auto text-pretty leading-relaxed">
               10 tipos de consulta integrados — encontre veículos para penhora, localize devedores, analise a parte contrária e verifique restrições de crédito. Tudo sem sair da plataforma, com exportação em PDF.
             </p>
           </div>
@@ -466,12 +466,12 @@ marketingRoutes.get("/", (c) => {
             ].map((c) => (
               <div class="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition">
                 <div class="flex items-start gap-3">
-                  <div class="w-10 h-10 rounded-lg bg-[#05111e] flex items-center justify-center flex-shrink-0">
+                  <div class="w-10 h-10 rounded-lg bg-[#006382] flex items-center justify-center flex-shrink-0">
                     <i class={`ph-bold ${c.icon} text-white text-lg`} aria-hidden="true" />
                   </div>
                   <div>
-                    <div class="font-semibold text-[#05111e] text-sm">{c.title}</div>
-                    <div class="text-xs text-[#75777c] mt-0.5">{c.desc}</div>
+                    <div class="font-semibold text-[#006382] text-sm">{c.title}</div>
+                    <div class="text-xs text-[#7a8893] mt-0.5">{c.desc}</div>
                   </div>
                 </div>
               </div>
@@ -479,10 +479,10 @@ marketingRoutes.get("/", (c) => {
           </div>
 
           <div class="reveal text-center mt-8">
-            <p class="text-sm text-[#75777c] mb-4">
-              Créditos mensais inclusos: <strong class="text-[#05111e]">3</strong> (trial) · <strong class="text-[#05111e]">15</strong> (Starter) · <strong class="text-[#05111e]">50</strong> (Pro) · <strong class="text-[#05111e]">200</strong> (Enterprise). Créditos adicionais como add-on.
+            <p class="text-sm text-[#7a8893] mb-4">
+              Créditos mensais inclusos: <strong class="text-[#006382]">3</strong> (trial) · <strong class="text-[#006382]">15</strong> (Starter) · <strong class="text-[#006382]">50</strong> (Pro) · <strong class="text-[#006382]">200</strong> (Enterprise). Créditos adicionais como add-on.
             </p>
-            <a href="/signup" class="inline-flex items-center gap-2 bg-[#05111e] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-[#1a2634] transition">
+            <a href="/signup" class="inline-flex items-center gap-2 bg-[#006382] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-[#00b3e6] transition">
               <i class="ph-bold ph-rocket-launch" aria-hidden="true" /> Experimentar grátis
             </a>
           </div>
@@ -490,13 +490,13 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Integrations */}
-      <section id="integracoes" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+      <section id="integracoes" class="py-20 px-4 sm:px-6 bg-[#eef2f5]">
         <div class="max-w-5xl mx-auto text-center">
-          <p class="reveal text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Integrações nativas</p>
-          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+          <p class="reveal text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">Integrações nativas</p>
+          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] mb-4 text-balance tracking-[-0.01em]">
             Conectado ao que já importa para você.
           </h2>
-          <p class="reveal text-[#44474c] mb-12 max-w-2xl mx-auto">Dados que antes exigiam cópia manual, agora sincronizados automaticamente.</p>
+          <p class="reveal text-[#425563] mb-12 max-w-2xl mx-auto">Dados que antes exigiam cópia manual, agora sincronizados automaticamente.</p>
           <div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: "ph-database", name: "DataJud CNJ" },
@@ -509,8 +509,8 @@ marketingRoutes.get("/", (c) => {
               { icon: "ph-plugs-connected", name: "API aberta" },
             ].map((i) => (
               <div class="card-lexis p-5 flex flex-col items-center gap-2">
-                <i class={`ph-bold ${i.icon} text-3xl text-[#05111e]`} aria-hidden="true" />
-                <span class="text-sm font-semibold text-[#44474c]">{i.name}</span>
+                <i class={`ph-bold ${i.icon} text-3xl text-[#006382]`} aria-hidden="true" />
+                <span class="text-sm font-semibold text-[#425563]">{i.name}</span>
               </div>
             ))}
           </div>
@@ -518,22 +518,22 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Testimonials */}
-      <section id="depoimentos" class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+      <section id="depoimentos" class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-5xl mx-auto">
           <div class="reveal text-center mb-14">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Quem usa, recomenda</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em]">
+            <p class="text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">Quem usa, recomenda</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] text-balance tracking-[-0.01em]">
               Escritórios que transformaram sua operação.
             </h2>
           </div>
           <div class="reveal-stagger grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t) => (
               <figure class="card-lexis p-6 flex flex-col">
-                <div class="flex gap-0.5 text-[#05111e] mb-4">
+                <div class="flex gap-0.5 text-[#006382] mb-4">
                   {[1, 2, 3, 4, 5].map(() => <i class="ph-fill ph-star" aria-hidden="true" />)}
                 </div>
-                <blockquote class="text-[#181c1e] text-pretty mb-6 leading-relaxed text-sm flex-1">"{t.quote}"</blockquote>
-                <figcaption class="flex items-center gap-3 pt-4 border-t border-[#e0e3e5]">
+                <blockquote class="text-[#1a2530] text-pretty mb-6 leading-relaxed text-sm flex-1">"{t.quote}"</blockquote>
+                <figcaption class="flex items-center gap-3 pt-4 border-t border-[#dce2e7]">
                   <div
                     class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                     style={`background:${t.color}`}
@@ -541,8 +541,8 @@ marketingRoutes.get("/", (c) => {
                     {t.initials}
                   </div>
                   <div>
-                    <div class="font-bold text-[#05111e] text-sm">{t.author}</div>
-                    <div class="text-xs text-[#75777c]">{t.role}</div>
+                    <div class="font-bold text-[#006382] text-sm">{t.author}</div>
+                    <div class="text-xs text-[#7a8893]">{t.role}</div>
                   </div>
                 </figcaption>
               </figure>
@@ -552,50 +552,50 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Pricing */}
-      <section id="planos" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+      <section id="planos" class="py-20 px-4 sm:px-6 bg-[#eef2f5]">
         <div class="max-w-[1200px] mx-auto">
           <div class="reveal text-center mb-14">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Planos</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+            <p class="text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">Planos</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] mb-4 text-balance tracking-[-0.01em]">
               Preço justo. Sem surpresas.
             </h2>
-            <p class="text-[#44474c]">Escolha o plano ideal para o momento do seu escritório.</p>
+            <p class="text-[#425563]">Escolha o plano ideal para o momento do seu escritório.</p>
           </div>
           <div class="reveal-stagger grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((p) => (
-              <div class={`rounded-xl p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "bg-[#05111e] text-white border-2 border-[#1a2634] shadow-[0_20px_40px_-15px_rgba(5,17,33,0.15)] scale-[1.02]" : "card-lexis"}`}>
+              <div class={`rounded-xl p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "bg-[#006382] text-white border-2 border-[#00b3e6] shadow-[0_20px_40px_-15px_rgba(5,17,33,0.15)] scale-[1.02]" : "card-lexis"}`}>
                 {p.highlight && (
-                  <div class="inline-flex self-start items-center gap-1 px-2.5 py-1 rounded-full bg-white text-[#05111e] text-xs font-bold mb-3">
+                  <div class="inline-flex self-start items-center gap-1 px-2.5 py-1 rounded-full bg-white text-[#006382] text-xs font-bold mb-3">
                     <i class="ph-fill ph-star" aria-hidden="true" /> Mais popular
                   </div>
                 )}
-                <h3 class={`text-lg font-extrabold mb-1 ${p.highlight ? "text-white" : "text-[#05111e]"}`}>{p.name}</h3>
-                <p class={`text-sm mb-4 ${p.highlight ? "text-[#bbc7da]" : "text-[#75777c]"}`}>{p.tagline}</p>
+                <h3 class={`text-lg font-extrabold mb-1 ${p.highlight ? "text-white" : "text-[#006382]"}`}>{p.name}</h3>
+                <p class={`text-sm mb-4 ${p.highlight ? "text-[#00b3e6]" : "text-[#7a8893]"}`}>{p.tagline}</p>
                 <div class="mb-5">
-                  <span class={`text-3xl font-extrabold ${p.highlight ? "text-white" : "text-[#05111e]"}`}>{p.price}</span>
-                  {p.period && <span class={`text-sm ${p.highlight ? "text-[#bbc7da]" : "text-[#75777c]"}`}>{p.period}</span>}
+                  <span class={`text-3xl font-extrabold ${p.highlight ? "text-white" : "text-[#006382]"}`}>{p.price}</span>
+                  {p.period && <span class={`text-sm ${p.highlight ? "text-[#00b3e6]" : "text-[#7a8893]"}`}>{p.period}</span>}
                 </div>
                 <ul class="space-y-2.5 text-sm mb-6 flex-1">
                   {p.features.map((f) => (
                     <li class="flex gap-2">
-                      <i class={`ph-fill ph-check-circle mt-0.5 ${p.highlight ? "text-[#bbc7da]" : "text-[#05111e]"}`} aria-hidden="true" />
-                      <span class={p.highlight ? "text-[#bbc7da]" : "text-[#44474c]"}>{f}</span>
+                      <i class={`ph-fill ph-check-circle mt-0.5 ${p.highlight ? "text-[#00b3e6]" : "text-[#006382]"}`} aria-hidden="true" />
+                      <span class={p.highlight ? "text-[#00b3e6]" : "text-[#425563]"}>{f}</span>
                     </li>
                   ))}
                 </ul>
                 {p.footnote && (
-                  <p class={`text-xs mb-4 ${p.highlight ? "text-[#818d9f]" : "text-[#75777c]"}`}>{p.footnote}</p>
+                  <p class={`text-xs mb-4 ${p.highlight ? "text-[#6b7b8a]" : "text-[#7a8893]"}`}>{p.footnote}</p>
                 )}
                 <a
                   href={p.href}
-                  class={`text-center py-2.5 rounded-lg font-semibold text-sm transition ${p.highlight ? "bg-white text-[#05111e] hover:bg-[#bbc7da]" : "border border-[#c4c6cc] text-[#05111e] hover:border-[#05111e] hover:bg-[#f1f4f6]"}`}
+                  class={`text-center py-2.5 rounded-lg font-semibold text-sm transition ${p.highlight ? "bg-white text-[#006382] hover:bg-[#00b3e6]" : "border border-[#c5cdd3] text-[#006382] hover:border-[#006382] hover:bg-[#eef2f5]"}`}
                 >
                   {p.cta}
                 </a>
               </div>
             ))}
           </div>
-          <p class="reveal text-center text-sm text-[#75777c] mt-8">
+          <p class="reveal text-center text-sm text-[#7a8893] mt-8">
             Todos os planos incluem: criptografia, backup diário, suporte e atualizações gratuitas. Créditos adicionais de IA disponíveis como add-on.
           </p>
 
@@ -603,22 +603,22 @@ marketingRoutes.get("/", (c) => {
           <div class="reveal mt-12 overflow-x-auto">
             <table class="w-full text-sm border-collapse">
               <thead>
-                <tr class="border-b-2 border-[#c4c6cc]">
-                  <th class="text-left py-4 px-4 font-bold text-[#05111e]">Recurso</th>
-                  <th class="text-center py-4 px-3 font-bold text-[#44474c]">Trial</th>
-                  <th class="text-center py-4 px-3 font-bold text-[#44474c]">Starter</th>
-                  <th class="text-center py-4 px-3 font-bold text-white bg-[#05111e] rounded-t-lg">Pro</th>
-                  <th class="text-center py-4 px-3 font-bold text-[#44474c]">Enterprise</th>
+                <tr class="border-b-2 border-[#c5cdd3]">
+                  <th class="text-left py-4 px-4 font-bold text-[#006382]">Recurso</th>
+                  <th class="text-center py-4 px-3 font-bold text-[#425563]">Trial</th>
+                  <th class="text-center py-4 px-3 font-bold text-[#425563]">Starter</th>
+                  <th class="text-center py-4 px-3 font-bold text-white bg-[#006382] rounded-t-lg">Pro</th>
+                  <th class="text-center py-4 px-3 font-bold text-[#425563]">Enterprise</th>
                 </tr>
               </thead>
               <tbody>
                 {COMPARE_ROWS.map((row, i) => (
-                  <tr class={i % 2 === 0 ? "bg-[#f7fafc]" : "bg-white"}>
-                    <td class="py-3 px-4 font-medium text-[#181c1e]">{row.label}</td>
-                    <td class="text-center py-3 px-3 text-[#44474c]">{row.trial}</td>
-                    <td class="text-center py-3 px-3 text-[#44474c]">{row.starter}</td>
-                    <td class="text-center py-3 px-3 text-[#05111e] font-semibold bg-[#d9e3f2]/20">{row.pro}</td>
-                    <td class="text-center py-3 px-3 text-[#44474c]">{row.enterprise}</td>
+                  <tr class={i % 2 === 0 ? "bg-[#f5f8fa]" : "bg-white"}>
+                    <td class="py-3 px-4 font-medium text-[#1a2530]">{row.label}</td>
+                    <td class="text-center py-3 px-3 text-[#425563]">{row.trial}</td>
+                    <td class="text-center py-3 px-3 text-[#425563]">{row.starter}</td>
+                    <td class="text-center py-3 px-3 text-[#006382] font-semibold bg-[#e5f4fb]/20">{row.pro}</td>
+                    <td class="text-center py-3 px-3 text-[#425563]">{row.enterprise}</td>
                   </tr>
                 ))}
               </tbody>
@@ -628,49 +628,49 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Security */}
-      <section id="seguranca" class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+      <section id="seguranca" class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-3xl mx-auto">
           <div class="reveal">
-            <div class="w-14 h-14 rounded-2xl bg-[#05111e] flex items-center justify-center mb-5">
+            <div class="w-14 h-14 rounded-2xl bg-[#006382] flex items-center justify-center mb-5">
               <i class="ph-bold ph-shield-check text-3xl text-white" aria-hidden="true" />
             </div>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-[#006382] mb-4 text-balance tracking-[-0.01em]">
               Segurança de nível bancário. Conformidade com a LGPD.
             </h2>
-            <p class="text-[#44474c] mb-6 text-pretty leading-relaxed">
+            <p class="text-[#425563] mb-6 text-pretty leading-relaxed">
               Seus dados são o seu negócio. Por isso tratamos segurança como prioridade absoluta — não como recurso.
             </p>
             <ul class="space-y-3 text-sm">
-              <li class="flex items-center gap-3"><i class="ph-bold ph-lock-key text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Criptografia AES-256 em repouso e TLS 1.3 em trânsito</span></li>
-              <li class="flex items-center gap-3"><i class="ph-bold ph-user-circle-check text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Autenticação de dois fatores (2FA) e login com Gov.br</span></li>
-              <li class="flex items-center gap-3"><i class="ph-bold ph-database text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Backup automático diário com retenção de 30 dias</span></li>
-              <li class="flex items-center gap-3"><i class="ph-bold ph-map-pin text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Dados hospedados em datacenters no Brasil</span></li>
-              <li class="flex items-center gap-3"><i class="ph-bold ph-file-text text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Conformidade plena com a LGPD</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-lock-key text-[#006382] text-lg" aria-hidden="true" /><span class="text-[#425563]">Criptografia AES-256 em repouso e TLS 1.3 em trânsito</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-user-circle-check text-[#006382] text-lg" aria-hidden="true" /><span class="text-[#425563]">Autenticação de dois fatores (2FA) e login com Gov.br</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-database text-[#006382] text-lg" aria-hidden="true" /><span class="text-[#425563]">Backup automático diário com retenção de 30 dias</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-map-pin text-[#006382] text-lg" aria-hidden="true" /><span class="text-[#425563]">Dados hospedados em datacenters no Brasil</span></li>
+              <li class="flex items-center gap-3"><i class="ph-bold ph-file-text text-[#006382] text-lg" aria-hidden="true" /><span class="text-[#425563]">Conformidade plena com a LGPD</span></li>
             </ul>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+      <section id="faq" class="py-20 px-4 sm:px-6 bg-[#eef2f5]">
         <div class="max-w-3xl mx-auto">
           <div class="reveal text-center mb-12">
-            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Dúvidas frequentes</p>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em]">
+            <p class="text-xs font-bold text-[#006382] uppercase tracking-wider mb-3">Dúvidas frequentes</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#006382] text-balance tracking-[-0.01em]">
               Tudo que você precisa saber.
             </h2>
           </div>
           <div class="reveal-stagger space-y-3" {...{ "x-data": "{ open: 0 }" }}>
             {FAQS.map((f, i) => (
-              <div class="bg-white rounded-xl border border-[#e0e3e5] overflow-hidden">
+              <div class="bg-white rounded-xl border border-[#dce2e7] overflow-hidden">
                 <button
                   class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
                   {...{ "@click": `open = open === ${i + 1} ? 0 : ${i + 1}` }}
                 >
-                  <span class="font-bold text-[#05111e]">{f.q}</span>
-                  <i class="ph ph-caret-down text-[#05111e] transition-transform" {...{ ":class": `open === ${i + 1} ? 'rotate-180' : ''` }} aria-hidden="true" />
+                  <span class="font-bold text-[#006382]">{f.q}</span>
+                  <i class="ph ph-caret-down text-[#006382] transition-transform" {...{ ":class": `open === ${i + 1} ? 'rotate-180' : ''` }} aria-hidden="true" />
                 </button>
-                <div {...{ "x-show": `open === ${i + 1}` }} x-cloak {...{ "x-transition": "" }} class="px-5 pb-4 text-sm text-[#44474c] leading-relaxed">
+                <div {...{ "x-show": `open === ${i + 1}` }} x-cloak {...{ "x-transition": "" }} class="px-5 pb-4 text-sm text-[#425563] leading-relaxed">
                   {f.a}
                 </div>
               </div>
@@ -686,14 +686,14 @@ marketingRoutes.get("/", (c) => {
           <h2 class="reveal text-3xl md:text-5xl font-extrabold mb-5 text-balance tracking-[-0.02em]">
             Pronto para transformar seu escritório?
           </h2>
-          <p class="reveal text-base md:text-lg text-[#bbc7da] mb-8 text-pretty">
+          <p class="reveal text-base md:text-lg text-[#00b3e6] mb-8 text-pretty">
             Comece hoje. 14 dias grátis, sem cartão de crédito. Em 2 minutos você está dentro.
           </p>
           <div class="reveal flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#05111e] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#bbc7da] transition-all hover:gap-4">
+            <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#006382] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#00b3e6] transition-all hover:gap-4">
               <i class="ph-bold ph-rocket-launch" aria-hidden="true" />
               Criar conta grátis
-              <span class="w-8 h-8 rounded-full bg-[#05111e] flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span class="w-8 h-8 rounded-full bg-[#006382] flex items-center justify-center group-hover:scale-110 transition-transform">
                 <i class="ph-bold ph-arrow-right text-white text-sm" aria-hidden="true" />
               </span>
             </a>
@@ -714,34 +714,34 @@ marketingRoutes.get("/", (c) => {
 marketingRoutes.get("/sobre", (c) => {
   return c.html(
     <MarketingLayout title="Sobre o PragmaOS — Nossa Missão" active="Sobre" description="O PragmaOS nasceu para devolver tempo aos advogados. Conheça nossa história e missão.">
-      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+      <section class="py-20 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-3xl mx-auto">
-          <h1 class="reveal text-4xl md:text-5xl font-extrabold text-[#05111e] mb-6 text-balance tracking-[-0.02em]">Construído por quem entende o jurídico brasileiro.</h1>
-          <p class="reveal text-lg text-[#44474c] mb-8 text-pretty leading-relaxed">
+          <h1 class="reveal text-4xl md:text-5xl font-extrabold text-[#006382] mb-6 text-balance tracking-[-0.02em]">Construído por quem entende o jurídico brasileiro.</h1>
+          <p class="reveal text-lg text-[#425563] mb-8 text-pretty leading-relaxed">
             O PragmaOS nasceu de uma frustração simples: escritórios de advocacia no Brasil operavam com ferramentas pensadas para outros setores — ou pior, com planilhas. Prazos se perdiam, o financeiro vivia desconectado dos processos, e a equipe gastava horas em tarefas que a tecnologia já conseguia resolver.
           </p>
-          <p class="reveal text-lg text-[#44474c] mb-8 text-pretty leading-relaxed">
+          <p class="reveal text-lg text-[#425563] mb-8 text-pretty leading-relaxed">
             Nossa missão é clara: devolver tempo aos advogados. Cada feature do PragmaOS existe para eliminar uma fricção real, vivida por escritórios reais. Não construímos para o mercado global — construímos para o Brasil, com DataJud, OAB, LGPD e a realidade do foro brasileiro no DNA.
           </p>
           <div class="reveal-stagger grid grid-cols-3 gap-6 my-12 text-center">
             <div>
-              <div class="text-3xl font-extrabold text-[#05111e]">2024</div>
-              <div class="text-sm text-[#75777c]">Fundação</div>
+              <div class="text-3xl font-extrabold text-[#006382]">2024</div>
+              <div class="text-sm text-[#7a8893]">Fundação</div>
             </div>
             <div>
-              <div class="text-3xl font-extrabold text-[#05111e]">LGPD</div>
-              <div class="text-sm text-[#75777c]">Conformidade total</div>
+              <div class="text-3xl font-extrabold text-[#006382]">LGPD</div>
+              <div class="text-sm text-[#7a8893]">Conformidade total</div>
             </div>
             <div>
-              <div class="text-3xl font-extrabold text-[#05111e]">BR</div>
-              <div class="text-sm text-[#75777c]">100% nacional</div>
+              <div class="text-3xl font-extrabold text-[#006382]">BR</div>
+              <div class="text-sm text-[#7a8893]">100% nacional</div>
             </div>
           </div>
-          <h2 class="reveal text-2xl font-extrabold text-[#05111e] mb-4">Nossos valores</h2>
-          <ul class="reveal-stagger space-y-4 text-[#44474c]">
-            <li class="flex gap-3"><i class="ph-bold ph-target text-[#05111e] text-xl mt-0.5" aria-hidden="true" /><div><strong>Tempo é o ativo mais valioso.</strong> Tudo que automatizamos é tempo que devolvemos ao advogado para o que importa: estratégia e relacionamento.</div></li>
-            <li class="flex gap-3"><i class="ph-bold ph-shield-check text-[#05111e] text-xl mt-0.5" aria-hidden="true" /><div><strong>Segurança não é negociável.</strong> Dados jurídicos são sensíveis. Tratamos cada byte como se fosse nosso.</div></li>
-            <li class="flex gap-3"><i class="ph-bold ph-flag-banner text-[#05111e] text-xl mt-0.5" aria-hidden="true" /><div><strong>Feito para o Brasil.</strong> Não adaptamos um produto gringo. Construímos do zero para a realidade do foro brasileiro.</div></li>
+          <h2 class="reveal text-2xl font-extrabold text-[#006382] mb-4">Nossos valores</h2>
+          <ul class="reveal-stagger space-y-4 text-[#425563]">
+            <li class="flex gap-3"><i class="ph-bold ph-target text-[#006382] text-xl mt-0.5" aria-hidden="true" /><div><strong>Tempo é o ativo mais valioso.</strong> Tudo que automatizamos é tempo que devolvemos ao advogado para o que importa: estratégia e relacionamento.</div></li>
+            <li class="flex gap-3"><i class="ph-bold ph-shield-check text-[#006382] text-xl mt-0.5" aria-hidden="true" /><div><strong>Segurança não é negociável.</strong> Dados jurídicos são sensíveis. Tratamos cada byte como se fosse nosso.</div></li>
+            <li class="flex gap-3"><i class="ph-bold ph-flag-banner text-[#006382] text-xl mt-0.5" aria-hidden="true" /><div><strong>Feito para o Brasil.</strong> Não adaptamos um produto gringo. Construímos do zero para a realidade do foro brasileiro.</div></li>
           </ul>
         </div>
       </section>
@@ -771,57 +771,57 @@ marketingRoutes.get("/contato", (c) => {
   const pref = (k: string) => c.req.query(k) ?? "";
   return c.html(
     <MarketingLayout title="Fale com o Comercial — PragmaOS" active="Contato" description="Agende uma demonstração do PragmaOS com nosso time comercial. Soluções para escritórios de qualquer tamanho.">
-      <section class="py-16 md:py-24 px-4 sm:px-6 bg-[#f7fafc]">
+      <section class="py-16 md:py-24 px-4 sm:px-6 bg-[#f5f8fa]">
         <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Copy side */}
           <div>
-            <h1 class="reveal text-3xl md:text-4xl font-extrabold text-[#05111e] mb-5 text-balance tracking-[-0.01em]">
+            <h1 class="reveal text-3xl md:text-4xl font-extrabold text-[#006382] mb-5 text-balance tracking-[-0.01em]">
               Vamos conversar sobre o seu escritório.
             </h1>
-            <p class="reveal text-lg text-[#44474c] mb-8 text-pretty leading-relaxed">
+            <p class="reveal text-lg text-[#425563] mb-8 text-pretty leading-relaxed">
               Preencha o formulário e nosso time comercial entra em contato em até 1 dia útil. Para o plano Enterprise, agendamos uma demonstração personalizada.
             </p>
             <div class="reveal-stagger space-y-4">
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-lg bg-[#f1f4f6] flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-envelope text-[#05111e]" aria-hidden="true" />
+                <div class="w-10 h-10 rounded-lg bg-[#eef2f5] flex items-center justify-center shrink-0">
+                  <i class="ph-bold ph-envelope text-[#006382]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-bold text-[#05111e] text-sm">E-mail comercial</div>
-                  <a href="mailto:comercial@pragmaos.com.br" class="text-sm text-[#05111e] hover:underline">comercial@pragmaos.com.br</a>
+                  <div class="font-bold text-[#006382] text-sm">E-mail comercial</div>
+                  <a href="mailto:comercial@pragmaos.com.br" class="text-sm text-[#006382] hover:underline">comercial@pragmaos.com.br</a>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-lg bg-[#f1f4f6] flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-whatsapp-logo text-[#05111e]" aria-hidden="true" />
+                <div class="w-10 h-10 rounded-lg bg-[#eef2f5] flex items-center justify-center shrink-0">
+                  <i class="ph-bold ph-whatsapp-logo text-[#006382]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-bold text-[#05111e] text-sm">WhatsApp</div>
-                  <a href="https://wa.me/5535984641515" class="text-sm text-[#05111e] hover:underline">+55 (35) 98464-1515</a>
+                  <div class="font-bold text-[#006382] text-sm">WhatsApp</div>
+                  <a href="https://wa.me/5535984641515" class="text-sm text-[#006382] hover:underline">+55 (35) 98464-1515</a>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-lg bg-[#f1f4f6] flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-clock text-[#05111e]" aria-hidden="true" />
+                <div class="w-10 h-10 rounded-lg bg-[#eef2f5] flex items-center justify-center shrink-0">
+                  <i class="ph-bold ph-clock text-[#006382]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-bold text-[#05111e] text-sm">Tempo de resposta</div>
-                  <span class="text-sm text-[#44474c]">Até 1 dia útil</span>
+                  <div class="font-bold text-[#006382] text-sm">Tempo de resposta</div>
+                  <span class="text-sm text-[#425563]">Até 1 dia útil</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Form side */}
-          <div class="reveal bg-[#f1f4f6] rounded-2xl p-6 md:p-8 border border-[#e0e3e5]">
+          <div class="reveal bg-[#eef2f5] rounded-2xl p-6 md:p-8 border border-[#dce2e7]">
             {success ? (
               <div class="text-center py-10">
-                <div class="w-16 h-16 rounded-full bg-[#d9e3f2] flex items-center justify-center mx-auto mb-4">
-                  <i class="ph-bold ph-check-circle text-3xl text-[#05111e]" aria-hidden="true" />
+                <div class="w-16 h-16 rounded-full bg-[#e5f4fb] flex items-center justify-center mx-auto mb-4">
+                  <i class="ph-bold ph-check-circle text-3xl text-[#006382]" aria-hidden="true" />
                 </div>
-                <h2 class="text-xl font-extrabold text-[#05111e] mb-2">Recebemos seu contato!</h2>
-                <p class="text-sm text-[#44474c] mb-6">Nosso time comercial entrará em contato em breve. Obrigado pelo interesse.</p>
-                <a href="/" class="inline-flex items-center gap-2 px-4 py-2 border border-[#c4c6cc] rounded-lg text-sm font-semibold text-[#05111e] hover:bg-white transition">Voltar ao início</a>
+                <h2 class="text-xl font-extrabold text-[#006382] mb-2">Recebemos seu contato!</h2>
+                <p class="text-sm text-[#425563] mb-6">Nosso time comercial entrará em contato em breve. Obrigado pelo interesse.</p>
+                <a href="/" class="inline-flex items-center gap-2 px-4 py-2 border border-[#c5cdd3] rounded-lg text-sm font-semibold text-[#006382] hover:bg-white transition">Voltar ao início</a>
               </div>
             ) : (
               <>
@@ -832,26 +832,26 @@ marketingRoutes.get("/contato", (c) => {
                 )}
                 <form method="post" action="/contato" class="flex flex-col gap-4">
                 <div>
-                  <label for="name" class="block text-sm font-bold text-[#05111e] mb-1">Nome completo *</label>
+                  <label for="name" class="block text-sm font-bold text-[#006382] mb-1">Nome completo *</label>
                   <input id="name" name="name" type="text" required placeholder="Seu nome" value={pref("name")} class="input w-full" />
                 </div>
                 <div>
-                  <label for="email" class="block text-sm font-bold text-[#05111e] mb-1">E-mail *</label>
+                  <label for="email" class="block text-sm font-bold text-[#006382] mb-1">E-mail *</label>
                   <input id="email" name="email" type="email" required placeholder="voce@escritorio.com" value={pref("email")} class="input w-full" />
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label for="phone" class="block text-sm font-bold text-[#05111e] mb-1">Telefone</label>
+                    <label for="phone" class="block text-sm font-bold text-[#006382] mb-1">Telefone</label>
                     <input id="phone" name="phone" type="tel" placeholder="(35) 98464-1515" value={pref("phone")} class="input w-full" />
                   </div>
                   <div>
-                    <label for="company" class="block text-sm font-bold text-[#05111e] mb-1">Escritório</label>
+                    <label for="company" class="block text-sm font-bold text-[#006382] mb-1">Escritório</label>
                     <input id="company" name="company" type="text" placeholder="Nome do escritório" value={pref("company")} class="input w-full" />
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label for="role" class="block text-sm font-bold text-[#05111e] mb-1">Cargo</label>
+                    <label for="role" class="block text-sm font-bold text-[#006382] mb-1">Cargo</label>
                     <select id="role" name="role" class="input w-full">
                       <option value="">Selecione</option>
                       <option value="socio" selected={pref("role") === "socio"}>Sócio / Sócia</option>
@@ -862,7 +862,7 @@ marketingRoutes.get("/contato", (c) => {
                     </select>
                   </div>
                   <div>
-                    <label for="team_size" class="block text-sm font-bold text-[#05111e] mb-1">Tamanho da equipe</label>
+                    <label for="team_size" class="block text-sm font-bold text-[#006382] mb-1">Tamanho da equipe</label>
                     <select id="team_size" name="team_size" class="input w-full">
                       <option value="">Selecione</option>
                       <option value="1-5" selected={pref("team_size") === "1-5"}>1-5 pessoas</option>
@@ -873,7 +873,7 @@ marketingRoutes.get("/contato", (c) => {
                   </div>
                 </div>
                 <div>
-                  <label for="interested_plan" class="block text-sm font-bold text-[#05111e] mb-1">Plano de interesse</label>
+                  <label for="interested_plan" class="block text-sm font-bold text-[#006382] mb-1">Plano de interesse</label>
                   <select id="interested_plan" name="interested_plan" class="input w-full">
                     <option value="">Selecione</option>
                     <option value="starter" selected={interestedPlan === "starter"}>Starter — R$ 199/mês</option>
@@ -883,14 +883,14 @@ marketingRoutes.get("/contato", (c) => {
                   </select>
                 </div>
                 <div>
-                  <label for="message" class="block text-sm font-bold text-[#05111e] mb-1">Mensagem (opcional)</label>
+                  <label for="message" class="block text-sm font-bold text-[#006382] mb-1">Mensagem (opcional)</label>
                   <textarea id="message" name="message" rows={3} placeholder="Conte-nos sobre seu escritório e o que procura." class="input w-full">{pref("message")}</textarea>
                 </div>
-                <button type="submit" class="bg-[#05111e] text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-[#1a2634] transition flex items-center justify-center gap-2">
+                <button type="submit" class="bg-[#006382] text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-[#00b3e6] transition flex items-center justify-center gap-2">
                   <i class="ph-bold ph-paper-plane-tilt" aria-hidden="true" />
                   Enviar para o comercial
                 </button>
-                <p class="text-xs text-[#75777c] text-center">Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos seus dados.</p>
+                <p class="text-xs text-[#7a8893] text-center">Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos seus dados.</p>
               </form>
               </>
             )}

@@ -16,8 +16,8 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
   jsonLd,
   children,
 }) => {
-  const primary = tenant.primary_color || "#05111e";
-  const secondary = tenant.secondary_color || "#1a2634";
+  const primary = tenant.primary_color || "#006382";
+  const secondary = tenant.secondary_color || "#00b3e6";
   const b = basePath;
   const title = pageTitle ?? `${tenant.name} — ${tenant.tagline ?? "Advocacia"}`;
   const description = pageDescription ?? (tenant.description ?? `${tenant.name} — escritório de advocacia`);

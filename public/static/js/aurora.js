@@ -6,7 +6,7 @@
  *   <canvas id="aurora"></canvas>
  *   <script src="/static/js/aurora.js"></script>
  *   Aurora.init('#aurora', {
- *     colorStops: ['#040D19', '#1a2634', '#bbc7da'],
+ *     colorStops: ['#004556', '#00b3e6', '#00b3e6'],
  *     speed: 0.5,
  *     blend: 0.5,
  *     amplitude: 1.0
@@ -147,7 +147,7 @@ void main() {
     if (!canvas) return null;
 
     const options = Object.assign({
-      colorStops: ['#040D19', '#1a2634', '#bbc7da'],
+      colorStops: ['#004556', '#00b3e6', '#00b3e6'],
       speed: 0.5,
       blend: 0.5,
       amplitude: 1.0,

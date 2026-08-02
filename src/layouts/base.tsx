@@ -22,7 +22,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="theme-color" content="#05111e" />
+      <meta name="theme-color" content="#006382" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       <meta name="apple-mobile-web-app-title" content="PragmaOS" />
@@ -79,7 +79,7 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="theme-color" content="#05111e" />
+      <meta name="theme-color" content="#006382" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <title>{title} - PragmaOS</title>
       <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
@@ -95,7 +95,7 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
       <script src="/static/js/alpine.min.js" defer />
     </head>
-    <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #05111e 0%, #1a2634 50%, #05111e 100%);">
+    <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 50%, #006382 100%);">
       <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl">
         <div class="flex flex-col items-center mb-6">
           <div class="flex items-center gap-2.5 mb-1">

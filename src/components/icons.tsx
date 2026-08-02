@@ -163,7 +163,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   );
 
   return (
-    <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #05111e 0%, #1a2634 100%);">
+    <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #006382 0%, #00b3e6 100%);">
       <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-white/5">
         <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
           <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />

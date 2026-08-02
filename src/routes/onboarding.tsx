@@ -445,15 +445,15 @@ onboardingRoutes.get("/branding", async (c) => {
             <div>
               <label for="primary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor primária</label>
               <div class="flex items-center gap-2">
-                <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#05111e"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
-                <input type="text" value={tenant?.primary_color ?? "#05111e"} readonly class="input flex-1 text-sm" />
+                <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#006382"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
+                <input type="text" value={tenant?.primary_color ?? "#006382"} readonly class="input flex-1 text-sm" />
               </div>
             </div>
             <div>
               <label for="secondary_color" class="block text-sm font-semibold text-carvao-700 mb-1">Cor secundária</label>
               <div class="flex items-center gap-2">
-                <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#1a2634"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
-                <input type="text" value={tenant?.secondary_color ?? "#1a2634"} readonly class="input flex-1 text-sm" />
+                <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#00b3e6"} class="w-12 h-10 rounded cursor-pointer border border-carvao-200" />
+                <input type="text" value={tenant?.secondary_color ?? "#00b3e6"} readonly class="input flex-1 text-sm" />
               </div>
             </div>
           </div>
@@ -524,8 +524,8 @@ onboardingRoutes.post("/branding", async (c) => {
     .update({
       tagline: parsed.data.tagline || null,
       description: parsed.data.description || null,
-      primary_color: parsed.data.primary_color || "#05111e",
-      secondary_color: parsed.data.secondary_color || "#1a2634",
+      primary_color: parsed.data.primary_color || "#006382",
+      secondary_color: parsed.data.secondary_color || "#00b3e6",
       subdomain,
       logo_url: parsed.data.logo_url || null,
     })
