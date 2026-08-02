@@ -5,7 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
-import { PageHeader, Table, TextField, Select, Panel, Badge, BtnLink, Modal } from "../components/ui";
+import { PageHeader, Table, TextField, Select, Panel, Badge, Modal, Textarea } from "../components/ui";
 
 export const usersRoutes = new Hono<AppEnv>();
 
@@ -23,15 +23,45 @@ const userUpdateSchema = z.object({
   full_name: z.string().min(1, "Nome e obrigatorio"),
   role: z.enum(["socio", "advogado", "estagiario", "financeiro", "recepcao"]),
   active: z.enum(["true", "false"]).optional(),
+  phone: z.string().optional(),
+  oab_number: z.string().optional(),
+  oab_state: z.string().optional(),
+  bio: z.string().optional(),
+  linkedin_url: z.string().optional(),
+  photo_url: z.string().optional(),
+  admission_date: z.string().optional(),
+  bar_admission_date: z.string().optional(),
+  specialties: z.string().optional(),
 });
+
+const roleLabels: Record<string, string> = {
+  socio: "Socio",
+  advogado: "Advogado",
+  estagiario: "Estagiario",
+  financeiro: "Financeiro",
+  recepcao: "Recepcao",
+};
+
+const roleOptions = [
+  { value: "socio", label: "Socio" },
+  { value: "advogado", label: "Advogado" },
+  { value: "estagiario", label: "Estagiario" },
+  { value: "financeiro", label: "Financeiro" },
+  { value: "recepcao", label: "Recepcao" },
+];
+
+const ufOptions = [
+  "", "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+].map((uf) => ({ value: uf, label: uf || "—" }));
 
 usersRoutes.get("/", async (c) => {
   const user = c.get("user");
   const search = c.req.query("search")?.trim() ?? "";
+  const roleFilter = c.req.query("role")?.trim() ?? "";
 
   let query = supabase
     .from("profiles")
-    .select("id, email, full_name, role, active, created_at", { count: "exact" })
+    .select("id, email, full_name, role, active, photo_url, oab_number, oab_state, created_at", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
     .order("full_name");
@@ -39,13 +69,26 @@ usersRoutes.get("/", async (c) => {
   if (search) {
     query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
   }
+  if (roleFilter) {
+    query = query.eq("role", roleFilter);
+  }
 
   const { data: users, count } = await query;
 
   const rows = (users ?? []).map((u) => [
-    <a href={`/users/${u.id}`} class="text-terracota-600 hover:underline">{u.full_name}</a> as unknown as string,
+    <div class="flex items-center gap-2">
+      {u.photo_url ? (
+        <img src={u.photo_url} alt={u.full_name} class="h-8 w-8 rounded-full object-cover" />
+      ) : (
+        <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-body-sm font-semibold">
+          {u.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+        </div>
+      )}
+      <a href={`/users/${u.id}`} class="text-terracota-600 hover:underline">{u.full_name}</a>
+    </div> as unknown as string,
     u.email,
-    <Badge color="blue">{u.role}</Badge> as unknown as string,
+    <Badge color="blue">{roleLabels[u.role] ?? u.role}</Badge> as unknown as string,
+    u.oab_number ? `OAB/${u.oab_state ?? ""} ${u.oab_number}` : "—" as unknown as string,
     u.active ? <Badge color="green">Ativo</Badge> : <Badge color="gray">Inativo</Badge> as unknown as string,
     <div class="flex items-center gap-2">
       <a href={`/users/${u.id}`} class="text-terracota-600 hover:underline text-body-sm">Ver</a>
@@ -56,33 +99,25 @@ usersRoutes.get("/", async (c) => {
 
   return renderPage(
     c,
-    { title: "Usuarios", active: "users" },
+    { title: "Equipe", active: "users" },
     <>
-      <PageHeader title="Usuarios" icon="ph-user-circle-gear" actions={() => (
+      <PageHeader title="Equipe" icon="ph-user-circle-gear" actions={() => (
         <Modal
           id="newUser"
-          title="Novo Usuario"
+          title="Novo Profissional"
           icon="ph-user-plus"
-          triggerText="Novo Usuario"
+          triggerText="Novo Profissional"
           triggerIcon="ph-plus"
           action="/users"
           submitLabel="Criar e Convidar"
           submitIcon="ph-paper-plane-tilt"
         >
-          <TextField label="Nome" id="full_name" name="full_name" required />
+          <TextField label="Nome completo" id="full_name" name="full_name" required />
           <TextField label="Email" id="email" name="email" type="email" required />
-          <Select label="Papel" id="role" name="role" required
-            options={[
-              { value: "socio", label: "Socio" },
-              { value: "advogado", label: "Advogado" },
-              { value: "estagiario", label: "Estagiario" },
-              { value: "financeiro", label: "Financeiro" },
-              { value: "recepcao", label: "Recepcao" },
-            ]}
-          />
+          <Select label="Papel" id="role" name="role" required options={roleOptions} />
         </Modal>
       )} />
-      <form method="get" action="/users" class="mb-4 flex gap-4 items-end">
+      <form method="get" action="/users" class="mb-4 flex gap-4 items-end flex-wrap">
         <TextField
           label="Buscar"
           id="search"
@@ -92,16 +127,23 @@ usersRoutes.get("/", async (c) => {
           placeholder="Nome ou email..."
           icon="ph-magnifying-glass"
         />
+        <Select
+          label="Papel"
+          id="role"
+          name="role"
+          options={[{ value: "", label: "Todos" }, ...roleOptions]}
+          selected={roleFilter}
+        />
         <button type="submit" class="btn btn-secondary inline-flex items-center gap-1"><i class="ph ph-funnel" aria-hidden="true"></i>Filtrar</button>
       </form>
       <Table
-        columns={[{ label: "Nome" }, { label: "Email" }, { label: "Papel" }, { label: "Status" }, { label: "Acoes" }]}
+        columns={[{ label: "Nome" }, { label: "Email" }, { label: "Papel" }, { label: "OAB" }, { label: "Status" }, { label: "Acoes" }]}
         rows={rows}
-        emptyMsg="Nenhum usuario."
+        emptyMsg="Nenhum profissional cadastrado."
         emptyIcon="ph-users"
-        ariaLabel="Lista de usuarios"
+        ariaLabel="Lista de profissionais"
       />
-      <div class="mt-2 text-body-sm text-gray-500">{count ?? 0} usuario(s)</div>
+      <div class="mt-2 text-body-sm text-gray-500">{count ?? 0} profissional(is)</div>
     </>,
   );
 });
@@ -146,8 +188,14 @@ usersRoutes.get("/:id", async (c) => {
     .single();
 
   if (!profile) {
-    return c.html("Usuario nao encontrado.", 404);
+    return c.html("Profissional nao encontrado.", 404);
   }
+
+  // Format date for display
+  const fmtDate = (d: string | null | undefined) => {
+    if (!d) return null;
+    try { return new Date(d).toLocaleDateString("pt-BR"); } catch { return d; }
+  };
 
   return renderPage(
     c,
@@ -160,7 +208,7 @@ usersRoutes.get("/:id", async (c) => {
           <div class="flex gap-2">
             <Modal
               id="editUser"
-              title="Editar Usuario"
+              title="Editar Profissional"
               icon="ph-pencil"
               triggerText="Editar"
               triggerIcon="ph-pencil"
@@ -169,48 +217,99 @@ usersRoutes.get("/:id", async (c) => {
               submitLabel="Salvar Alteracoes"
               large
             >
-              <TextField label="Nome" id="full_name" name="full_name" required value={profile.full_name} />
-              <Select
-                label="Papel"
-                id="role"
-                name="role"
-                required
-                options={[
-                  { value: "socio", label: "Socio" },
-                  { value: "advogado", label: "Advogado" },
-                  { value: "estagiario", label: "Estagiario" },
-                  { value: "financeiro", label: "Financeiro" },
-                  { value: "recepcao", label: "Recepcao" },
-                ]}
-                selected={profile.role}
-              />
+              <TextField label="Nome completo" id="full_name" name="full_name" required value={profile.full_name} />
+              <Select label="Papel" id="role" name="role" required options={roleOptions} selected={profile.role} />
               <Select
                 label="Status"
                 id="active"
                 name="active"
-                options={[
-                  { value: "true", label: "Ativo" },
-                  { value: "false", label: "Inativo" },
-                ]}
+                options={[{ value: "true", label: "Ativo" }, { value: "false", label: "Inativo" }]}
                 selected={profile.active ? "true" : "false"}
               />
+              <TextField label="Telefone" id="phone" name="phone" value={profile.phone ?? ""} placeholder="(11) 99999-9999" />
+              <div class="grid grid-cols-2 gap-3">
+                <TextField label="OAB Numero" id="oab_number" name="oab_number" value={profile.oab_number ?? ""} placeholder="123456" />
+                <Select label="OAB UF" id="oab_state" name="oab_state" options={ufOptions} selected={profile.oab_state ?? ""} />
+              </div>
+              <TextField label="Foto (URL)" id="photo_url" name="photo_url" value={profile.photo_url ?? ""} placeholder="https://..." />
+              <TextField label="LinkedIn" id="linkedin_url" name="linkedin_url" value={profile.linkedin_url ?? ""} placeholder="https://linkedin.com/in/..." />
+              <div class="grid grid-cols-2 gap-3">
+                <TextField label="Data de Admissao" id="admission_date" name="admission_date" type="date" value={profile.admission_date ?? ""} />
+                <TextField label="Inscricao na OAB" id="bar_admission_date" name="bar_admission_date" type="date" value={profile.bar_admission_date ?? ""} />
+              </div>
+              <TextField label="Especialidades (separadas por virgula)" id="specialties" name="specialties" value={(profile.specialties ?? []).join(", ")} placeholder="Civel, Trabalhista, Tributario" />
+              <Textarea label="Biografia" id="bio" name="bio" placeholder="Breve biografia profissional..." value={profile.bio ?? ""} />
             </Modal>
             <form method="post" action={`/users/${id}/delete`}>
-              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este usuario?')">
+              <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir este profissional?')">
                 <i class="ph ph-trash" aria-hidden="true"></i>Excluir
               </button>
             </form>
           </div>
         )}
       />
-      <div class="grid grid-cols-2 gap-4 mb-6">
-        <Panel title="Dados do usuario" icon="ph-user-circle">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        {/* Photo + basic info */}
+        <Panel title="Perfil" icon="ph-user-circle">
+          <div class="flex flex-col items-center gap-3">
+            {profile.photo_url ? (
+              <img src={profile.photo_url} alt={profile.full_name} class="h-32 w-32 rounded-full object-cover border-4 border-gray-100" />
+            ) : (
+              <div class="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-h1 font-semibold">
+                {profile.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+              </div>
+            )}
+            <div class="text-center">
+              <h3 class="font-semibold text-gray-800">{profile.full_name}</h3>
+              <p class="text-body-sm text-gray-500">{roleLabels[profile.role] ?? profile.role}</p>
+              <div class="mt-2 flex justify-center">
+                {profile.active ? <Badge color="green">Ativo</Badge> : <Badge color="gray">Inativo</Badge>}
+              </div>
+            </div>
+          </div>
+        </Panel>
+
+        {/* Contact + professional data */}
+        <Panel title="Dados Profissionais" icon="ph-identification-card">
           <dl class="flex flex-col gap-2 text-body-sm">
-            <div><dt class="font-semibold text-gray-700 inline">Nome: </dt><dd class="inline">{profile.full_name}</dd></div>
-            {profile.email ? <div><dt class="font-semibold text-gray-700 inline">Email: </dt><dd class="inline">{profile.email}</dd></div> : null}
-            <div><dt class="font-semibold text-gray-700 inline">Papel: </dt><dd class="inline">{profile.role}</dd></div>
-            <div><dt class="font-semibold text-gray-700 inline">Status: </dt><dd class="inline">{profile.active ? "Ativo" : "Inativo"}</dd></div>
+            {profile.email && (
+              <div><dt class="font-semibold text-gray-700 inline">Email: </dt><dd class="inline">{profile.email}</dd></div>
+            )}
+            {profile.phone && (
+              <div><dt class="font-semibold text-gray-700 inline">Telefone: </dt><dd class="inline">{profile.phone}</dd></div>
+            )}
+            {profile.oab_number && (
+              <div><dt class="font-semibold text-gray-700 inline">OAB: </dt><dd class="inline">OAB/{profile.oab_state ?? ""} {profile.oab_number}</dd></div>
+            )}
+            {fmtDate(profile.bar_admission_date) && (
+              <div><dt class="font-semibold text-gray-700 inline">Inscricao OAB: </dt><dd class="inline">{fmtDate(profile.bar_admission_date)}</dd></div>
+            )}
+            {fmtDate(profile.admission_date) && (
+              <div><dt class="font-semibold text-gray-700 inline">Admissao: </dt><dd class="inline">{fmtDate(profile.admission_date)}</dd></div>
+            )}
+            {profile.linkedin_url && (
+              <div><dt class="font-semibold text-gray-700 inline">LinkedIn: </dt><dd class="inline"><a href={profile.linkedin_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline">Ver perfil</a></dd></div>
+            )}
           </dl>
+        </Panel>
+
+        {/* Specialties */}
+        <Panel title="Especialidades" icon="ph-target">
+          {profile.specialties && profile.specialties.length > 0 ? (
+            <div class="flex flex-wrap gap-2">
+              {profile.specialties.map((s: string) => (
+                <Badge color="blue">{s}</Badge>
+              ))}
+            </div>
+          ) : (
+            <p class="text-body-sm text-gray-400">Nenhuma especialidade cadastrada.</p>
+          )}
+          {profile.bio && (
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <h4 class="text-body-sm font-semibold text-gray-700 mb-1">Biografia</h4>
+              <p class="text-body-sm text-gray-600 whitespace-pre-wrap">{profile.bio}</p>
+            </div>
+          )}
         </Panel>
       </div>
     </>,
@@ -228,12 +327,26 @@ usersRoutes.post("/:id", async (c) => {
     return c.redirect(`/users/${id}`);
   }
 
+  // Parse specialties from comma-separated string to array
+  const specialties = parsed.data.specialties
+    ? parsed.data.specialties.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+
   await supabase
     .from("profiles")
     .update({
       full_name: parsed.data.full_name,
       role: parsed.data.role,
       active: parsed.data.active === "true",
+      phone: parsed.data.phone || null,
+      oab_number: parsed.data.oab_number || null,
+      oab_state: parsed.data.oab_state || null,
+      bio: parsed.data.bio || null,
+      linkedin_url: parsed.data.linkedin_url || null,
+      photo_url: parsed.data.photo_url || null,
+      admission_date: parsed.data.admission_date || null,
+      bar_admission_date: parsed.data.bar_admission_date || null,
+      specialties,
     })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);

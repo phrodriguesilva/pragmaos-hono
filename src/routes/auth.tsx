@@ -278,7 +278,7 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
     });
   }
 
-  return c.redirect("/");
+  return c.redirect("/dashboard");
 });
 
 // ============================================================
@@ -384,7 +384,7 @@ authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
   // Clear the pending 2FA cookie.
   deleteCookie(c, "auth-user-id", { path: "/" });
 
-  return c.redirect("/");
+  return c.redirect("/dashboard");
 });
 
 // ============================================================
@@ -947,5 +947,5 @@ authRoutes.get("/govbr/callback", async (c) => {
   setCookie(c, "sb-access-token", tokenResult.token.access_token, { path: "/", httpOnly: true, maxAge: 86400, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
   setCookie(c, "auth-user-id", profile.id, { path: "/", httpOnly: true, maxAge: 86400, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
 
-  return c.redirect("/");
+  return c.redirect("/dashboard");
 });

@@ -45,7 +45,7 @@ function isGroup(item: MenuItem): item is MenuGroup {
 
 // Full menu structure matching the proposed architecture.
 export const MENU: MenuItem[] = [
-  { key: "dashboard", label: "Dashboard", href: "/", icon: "ph-squares-four" },
+  { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: "ph-squares-four" },
   {
     key: "crm",
     label: "CRM",
@@ -130,7 +130,14 @@ export const MENU: MenuItem[] = [
     children: [
       { key: "site-appearance", label: "Aparencia", href: "/site/appearance", icon: "ph-palette" },
       { key: "site-areas", label: "Areas de Atuacao", href: "/site/areas", icon: "ph-scales" },
+      { key: "site-team", label: "Equipe", href: "/site/team", icon: "ph-users-three" },
+      { key: "site-stats", label: "Numeros", href: "/site/stats", icon: "ph-chart-bar" },
+      { key: "site-testimonials", label: "Depoimentos", href: "/site/testimonials", icon: "ph-quotes" },
+      { key: "site-clients", label: "Clientes", href: "/site/clients", icon: "ph-handshake" },
+      { key: "site-recognitions", label: "Reconhecimentos", href: "/site/recognitions", icon: "ph-trophy" },
+      { key: "site-offices", label: "Escritorios", href: "/site/offices", icon: "ph-buildings" },
       { key: "site-articles", label: "Artigos", href: "/site/articles", icon: "ph-file-text" },
+      { key: "site-newsletter", label: "Newsletter", href: "/site/newsletter", icon: "ph-envelope-simple" },
       { key: "site-contacts", label: "Contatos Recebidos", href: "/site/contacts", icon: "ph-tray" },
       { key: "site-settings", label: "Configuracoes", href: "/site/settings", icon: "ph-gear" },
     ],
@@ -149,6 +156,8 @@ export const MENU: MenuItem[] = [
       { key: "import", label: "Importar Dados", href: "/import", icon: "ph-upload-simple" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
       { key: "docs", label: "Docs Tecnicas", href: "/docs", icon: "ph-book-open" },
+      { key: "subscription", label: "Assinatura", href: "/assinatura", icon: "ph-credit-card" },
+      { key: "company-settings", label: "Config. da Empresa", href: "/configuracoes-empresa", icon: "ph-building-office" },
     ],
   },
 ];

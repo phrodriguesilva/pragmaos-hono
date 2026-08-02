@@ -161,7 +161,7 @@
 .ph-bold.ph-article:before { content: "\e0a8"; }
 .ph-bold.ph-article-medium:before { content: "\e5e0"; }
 .ph-bold.ph-article-ny-times:before { content: "\e5e2"; }
-.ph-bold.ph-asclepius-bold, caduceus:before { content: "\ee34"; }
+.ph-bold.ph-asclepius-bold:before, .caduceus:before { content: "\ee34"; }
 .ph-bold.ph-asterisk:before { content: "\e0aa"; }
 .ph-bold.ph-asterisk-simple:before { content: "\e832"; }
 .ph-bold.ph-at:before { content: "\e0ac"; }
@@ -248,7 +248,7 @@
 .ph-bold.ph-bowl-food:before { content: "\eaa4"; }
 .ph-bold.ph-bowl-steam:before { content: "\e8e4"; }
 .ph-bold.ph-bowling-ball:before { content: "\ea34"; }
-.ph-bold.ph-box-arrow-down-bold, archive-box:before { content: "\e00e"; }
+.ph-bold.ph-box-arrow-down-bold:before, .archive-box:before { content: "\e00e"; }
 .ph-bold.ph-box-arrow-up:before { content: "\ee54"; }
 .ph-bold.ph-boxing-glove:before { content: "\ea36"; }
 .ph-bold.ph-brackets-angle:before { content: "\e862"; }
@@ -599,7 +599,7 @@
 .ph-bold.ph-file-cpp:before { content: "\eb2e"; }
 .ph-bold.ph-file-css:before { content: "\eb34"; }
 .ph-bold.ph-file-csv:before { content: "\eb1c"; }
-.ph-bold.ph-file-dashed-bold, file-dotted:before { content: "\e704"; }
+.ph-bold.ph-file-dashed-bold:before, .file-dotted:before { content: "\e704"; }
 .ph-bold.ph-file-doc:before { content: "\eb1e"; }
 .ph-bold.ph-file-html:before { content: "\eb38"; }
 .ph-bold.ph-file-image:before { content: "\ea24"; }
@@ -608,7 +608,7 @@
 .ph-bold.ph-file-js:before { content: "\eb24"; }
 .ph-bold.ph-file-jsx:before { content: "\eb3a"; }
 .ph-bold.ph-file-lock:before { content: "\e95c"; }
-.ph-bold.ph-file-magnifying-glass-bold, file-search:before { content: "\e238"; }
+.ph-bold.ph-file-magnifying-glass-bold:before, .file-search:before { content: "\e238"; }
 .ph-bold.ph-file-md:before { content: "\ed50"; }
 .ph-bold.ph-file-minus:before { content: "\e234"; }
 .ph-bold.ph-file-pdf:before { content: "\e702"; }
@@ -661,14 +661,14 @@
 .ph-bold.ph-flower-lotus:before { content: "\e6cc"; }
 .ph-bold.ph-flower-tulip:before { content: "\eacc"; }
 .ph-bold.ph-flying-saucer:before { content: "\eb4a"; }
-.ph-bold.ph-folder-bold, folder-notch:before { content: "\e24a"; }
-.ph-bold.ph-folder-dashed-bold, folder-dotted:before { content: "\e8f8"; }
+.ph-bold.ph-folder-bold:before, .folder-notch:before { content: "\e24a"; }
+.ph-bold.ph-folder-dashed-bold:before, .folder-dotted:before { content: "\e8f8"; }
 .ph-bold.ph-folder-lock:before { content: "\ea3c"; }
-.ph-bold.ph-folder-minus-bold, folder-notch-minus:before { content: "\e254"; }
-.ph-bold.ph-folder-open-bold, folder-notch-open:before { content: "\e256"; }
-.ph-bold.ph-folder-plus-bold, folder-notch-plus:before { content: "\e258"; }
+.ph-bold.ph-folder-minus-bold:before, .folder-notch-minus:before { content: "\e254"; }
+.ph-bold.ph-folder-open-bold:before, .folder-notch-open:before { content: "\e256"; }
+.ph-bold.ph-folder-plus-bold:before, .folder-notch-plus:before { content: "\e258"; }
 .ph-bold.ph-folder-simple:before { content: "\e25a"; }
-.ph-bold.ph-folder-simple-dashed-bold, folder-simple-dotted:before { content: "\ec2a"; }
+.ph-bold.ph-folder-simple-dashed-bold:before, .folder-simple-dotted:before { content: "\ec2a"; }
 .ph-bold.ph-folder-simple-lock:before { content: "\eb5e"; }
 .ph-bold.ph-folder-simple-minus:before { content: "\e25c"; }
 .ph-bold.ph-folder-simple-plus:before { content: "\e25e"; }
@@ -817,7 +817,7 @@
 .ph-bold.ph-image-square:before { content: "\e2cc"; }
 .ph-bold.ph-images:before { content: "\e836"; }
 .ph-bold.ph-images-square:before { content: "\e834"; }
-.ph-bold.ph-infinity-bold, lemniscate:before { content: "\e634"; }
+.ph-bold.ph-infinity-bold:before, .lemniscate:before { content: "\e634"; }
 .ph-bold.ph-info:before { content: "\e2ce"; }
 .ph-bold.ph-instagram-logo:before { content: "\e2d0"; }
 .ph-bold.ph-intersect:before { content: "\e2d2"; }
@@ -1133,7 +1133,7 @@
 .ph-bold.ph-prohibit-inset:before { content: "\e3e0"; }
 .ph-bold.ph-projector-screen:before { content: "\e658"; }
 .ph-bold.ph-projector-screen-chart:before { content: "\e65a"; }
-.ph-bold.ph-pulse-bold, activity:before { content: "\e000"; }
+.ph-bold.ph-pulse-bold:before, .activity:before { content: "\e000"; }
 .ph-bold.ph-push-pin:before { content: "\e3e2"; }
 .ph-bold.ph-push-pin-simple:before { content: "\e65c"; }
 .ph-bold.ph-push-pin-simple-slash:before { content: "\e65e"; }
@@ -1189,11 +1189,11 @@
 .ph-bold.ph-scribble:before { content: "\e806"; }
 .ph-bold.ph-scribble-loop:before { content: "\e662"; }
 .ph-bold.ph-scroll:before { content: "\eb7a"; }
-.ph-bold.ph-seal-bold, circle-wavy:before { content: "\e604"; }
-.ph-bold.ph-seal-check-bold, circle-wavy-check:before { content: "\e606"; }
+.ph-bold.ph-seal-bold:before, .circle-wavy:before { content: "\e604"; }
+.ph-bold.ph-seal-check-bold:before, .circle-wavy-check:before { content: "\e606"; }
 .ph-bold.ph-seal-percent:before { content: "\e60a"; }
-.ph-bold.ph-seal-question-bold, circle-wavy-question:before { content: "\e608"; }
-.ph-bold.ph-seal-warning-bold, circle-wavy-warning:before { content: "\e60c"; }
+.ph-bold.ph-seal-question-bold:before, .circle-wavy-question:before { content: "\e608"; }
+.ph-bold.ph-seal-warning-bold:before, .circle-wavy-warning:before { content: "\e60c"; }
 .ph-bold.ph-seat:before { content: "\eb8e"; }
 .ph-bold.ph-seatbelt:before { content: "\edfe"; }
 .ph-bold.ph-security-camera:before { content: "\eca4"; }
@@ -1370,7 +1370,7 @@
 .ph-bold.ph-text-align-justify:before { content: "\e482"; }
 .ph-bold.ph-text-align-left:before { content: "\e484"; }
 .ph-bold.ph-text-align-right:before { content: "\e486"; }
-.ph-bold.ph-text-b-bold, text-bolder:before { content: "\e5be"; }
+.ph-bold.ph-text-b-bold:before, .text-bolder:before { content: "\e5be"; }
 .ph-bold.ph-text-columns:before { content: "\ec96"; }
 .ph-bold.ph-text-h:before { content: "\e6ba"; }
 .ph-bold.ph-text-h-five:before { content: "\e6c4"; }
@@ -1429,7 +1429,7 @@
 .ph-bold.ph-trash:before { content: "\e4a6"; }
 .ph-bold.ph-trash-simple:before { content: "\e4a8"; }
 .ph-bold.ph-tray:before { content: "\e4aa"; }
-.ph-bold.ph-tray-arrow-down-bold, archive-tray:before { content: "\e010"; }
+.ph-bold.ph-tray-arrow-down-bold:before, .archive-tray:before { content: "\e010"; }
 .ph-bold.ph-tray-arrow-up:before { content: "\ee52"; }
 .ph-bold.ph-treasure-chest:before { content: "\ede2"; }
 .ph-bold.ph-tree:before { content: "\e6da"; }

@@ -64,6 +64,10 @@ import { docsRoutes } from "./routes/docs";
 import { helpRoutes } from "./routes/help";
 import { publicSiteRoutes } from "./routes/public-site";
 import { siteAdminRoutes } from "./routes/site-admin";
+import { marketingRoutes } from "./routes/marketing";
+import { onboardingRoutes } from "./routes/onboarding";
+import { subscriptionRoutes } from "./routes/subscription";
+import { companySettingsRoutes } from "./routes/company-settings";
 import { resolveTenantByHost, resolveTenantBySlug, isPublicSiteRequest } from "./lib/tenant-resolver";
 
 const app = new Hono<AppEnv>();
@@ -138,7 +142,7 @@ app.use("*", async (c, next) => {
 // Mode 2: path-based public sites — /site/:slug, /site/:slug/sobre, etc.
 // Admin routes (/site/appearance, /site/areas, etc.) are handled by siteAdminRoutes
 // mounted below, so we only intercept paths that don't match admin routes.
-const ADMIN_SITE_PATHS = ["/appearance", "/areas", "/articles", "/contacts", "/settings"];
+const ADMIN_SITE_PATHS = ["/appearance", "/areas", "/articles", "/contacts", "/settings", "/team", "/stats", "/testimonials", "/clients", "/recognitions", "/offices", "/newsletter"];
 
 app.get("/site/:slug", async (c, next) => {
   const slug = c.req.param("slug");
@@ -180,6 +184,12 @@ app.get("/health/ready", async (c) => {
   }
 });
 
+// Marketing site (public) — PragmaOS product landing page on the main domain.
+// Mounted before authRoutes so GET / serves the landing page, not /login.
+// Only the main app domains reach here (subdomains/custom domains are handled
+// by the public site detection above).
+app.route("/", marketingRoutes);
+
 // Auth (public).
 app.route("/", authRoutes);
 
@@ -197,6 +207,11 @@ app.get("/ai-jurisprudence", (c) => c.redirect("/ai-assistant/jurisprudence"));
 app.get("/ai-petitions", (c) => c.redirect("/ai-assistant/petitions"));
 
 // Protected routes -- requireAuth is applied per-route group.
+// Onboarding + subscription + company-settings must be before dashboardRoutes
+// (they have their own requireAuth + onboarding/subscription enforcement).
+app.route("/onboarding", onboardingRoutes);
+app.route("/assinatura", subscriptionRoutes);
+app.route("/configuracoes-empresa", companySettingsRoutes);
 app.route("/", dashboardRoutes);
 app.route("/clients", clientsRoutes);
 app.route("/cases", casesRoutes);

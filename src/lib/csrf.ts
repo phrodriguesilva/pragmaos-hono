@@ -60,6 +60,11 @@ export async function csrfProtection(c: Context, next: () => Promise<void>) {
   const isDev = APP_URL.includes("localhost") || APP_URL.includes("127.0.0.1");
   const allowedHosts = new Set([APP_HOST]);
   if (isDev) {
+    // In development, allow any localhost port (dev servers may run on dynamic ports).
+    if (originHost.startsWith("localhost:") || originHost.startsWith("127.0.0.1:")) {
+      await next();
+      return;
+    }
     allowedHosts.add("localhost:3000");
     allowedHosts.add("localhost:5173");
     allowedHosts.add("127.0.0.1:3000");

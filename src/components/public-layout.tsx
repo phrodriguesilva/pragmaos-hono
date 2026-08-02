@@ -3,6 +3,7 @@
 
 import type { FC, PropsWithChildren } from "hono/jsx";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
+import { appCss } from "../generated/css";
 
 export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active?: string; basePath?: string }>> = ({
   tenant,
@@ -21,8 +22,10 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{tenant.name} — {tenant.tagline ?? "Advocacia"}</title>
         <meta name="description" content={tenant.description ?? `${tenant.name} — escritorio de advocacia`} />
-        <link rel="icon" href={tenant.logo_url ?? "/static/img/icon.svg"} type="image/svg+xml" />
-        <link rel="stylesheet" href="/static/css/tailwind.css" />
+        <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+        <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
+        <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
+        <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -65,6 +68,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
             <nav class="hidden md:flex items-center gap-6">
               <a href={`${b}/`} class={`text-sm font-medium ${active === "home" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Inicio</a>
               <a href={`${b}/areas`} class={`text-sm font-medium ${active === "areas" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Areas de Atuacao</a>
+              <a href={`${b}/equipe`} class={`text-sm font-medium ${active === "equipe" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Equipe</a>
               <a href={`${b}/artigos`} class={`text-sm font-medium ${active === "artigos" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Artigos</a>
               <a href={`${b}/sobre`} class={`text-sm font-medium ${active === "sobre" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Sobre</a>
               <a href={`${b}/contato`} class="btn btn-primary text-sm">Contato</a>
@@ -80,6 +84,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
           <div {...{ "x-show": "open", "x-transition": "" }} x-cloak class="md:hidden border-t border-gray-100 px-4 py-3 flex flex-col gap-3">
             <a href={`${b}/`} class="text-sm font-medium text-gray-600 hover:text-primary">Inicio</a>
             <a href={`${b}/areas`} class="text-sm font-medium text-gray-600 hover:text-primary">Areas de Atuacao</a>
+            <a href={`${b}/equipe`} class="text-sm font-medium text-gray-600 hover:text-primary">Equipe</a>
             <a href={`${b}/artigos`} class="text-sm font-medium text-gray-600 hover:text-primary">Artigos</a>
             <a href={`${b}/sobre`} class="text-sm font-medium text-gray-600 hover:text-primary">Sobre</a>
             <a href={`${b}/contato`} class="btn btn-primary text-sm text-center">Contato</a>
@@ -136,6 +141,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
                 <ul class="space-y-2 text-sm">
                   <li><a href={`${b}/`} class="hover:text-white">Inicio</a></li>
                   <li><a href={`${b}/areas`} class="hover:text-white">Areas de Atuacao</a></li>
+                  <li><a href={`${b}/equipe`} class="hover:text-white">Equipe</a></li>
                   <li><a href={`${b}/artigos`} class="hover:text-white">Artigos</a></li>
                   <li><a href={`${b}/sobre`} class="hover:text-white">Sobre</a></li>
                   <li><a href={`${b}/contato`} class="hover:text-white">Contato</a></li>
@@ -150,12 +156,29 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
               </div>
             </div>
 
-            <div class="border-t border-white/10 mt-8 pt-6 flex items-center justify-between text-xs text-gray-500">
+            <div class="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
               <span>&copy; {new Date().getFullYear()} {tenant.name}. Todos os direitos reservados.</span>
+              <div class="flex gap-4">
+                <a href={`${b}/lgpd`} class="hover:text-white transition">Politica de Privacidade</a>
+                <a href={`${b}/lgpd/termos`} class="hover:text-white transition">Termos de Uso</a>
+              </div>
               <span>Powered by PragmaOS</span>
             </div>
           </div>
         </footer>
+
+        {/* WhatsApp floating button */}
+        {tenant.whatsapp && (
+          <a
+            href={`https://wa.me/${tenant.whatsapp.replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noopener"
+            class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:scale-110 transition flex items-center justify-center"
+            aria-label="Falar no WhatsApp"
+          >
+            <i class="ph-bold ph-whatsapp-logo text-white text-2xl" aria-hidden="true" />
+          </a>
+        )}
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireActiveTenant } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Panel, Badge } from "../components/ui";
@@ -9,6 +9,7 @@ import { PageHeader, Panel, Badge } from "../components/ui";
 export const dashboardRoutes = new Hono<AppEnv>();
 
 dashboardRoutes.use("*", requireAuth);
+dashboardRoutes.use("*", requireActiveTenant);
 
 // ============================================================
 // SVG Chart Components — pure SVG, no external dependencies
@@ -198,7 +199,10 @@ function KpiCard({ icon, label, value, color, sub }: {
 // Dashboard route
 // ============================================================
 
-dashboardRoutes.get("/", async (c) => {
+// Legacy redirect: / -> /dashboard (the root now serves the marketing landing page).
+dashboardRoutes.get("/", (c) => c.redirect("/dashboard"));
+
+dashboardRoutes.get("/dashboard", async (c) => {
   const user = c.get("user");
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();

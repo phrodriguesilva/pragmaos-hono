@@ -108,6 +108,58 @@ publicSiteRoutes.get("/", async (c) => {
     .order("published_at", { ascending: false })
     .limit(3);
 
+  // Fetch published stats
+  const { data: stats }: any = await supabase
+    .from("site_stats")
+    .select("label, value, prefix, suffix, icon")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true });
+
+  // Fetch featured team members
+  const { data: teamMembers }: any = await supabase
+    .from("team_members")
+    .select("public_name, public_title, public_photo_url, slug")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .eq("is_featured", true)
+    .order("sort_order", { ascending: true })
+    .limit(4);
+
+  // Fetch testimonials
+  const { data: testimonials }: any = await supabase
+    .from("testimonials")
+    .select("author_name, author_role, content, rating")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true })
+    .limit(3);
+
+  // Fetch client logos
+  const { data: clients }: any = await supabase
+    .from("client_logos")
+    .select("name, logo_url, website_url")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true });
+
+  // Fetch recognitions
+  const { data: recognitions }: any = await supabase
+    .from("recognitions")
+    .select("title, organization, year, ranking_position, icon")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("year", { ascending: false })
+    .limit(6);
+
+  // Fetch offices
+  const { data: offices }: any = await supabase
+    .from("offices")
+    .select("label, address, city, state, phone, email")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true });
+
   return c.html(
     renderPublic(c, tenant, "home", (
       <>
@@ -146,6 +198,51 @@ publicSiteRoutes.get("/", async (c) => {
                   {a.description && <p class="text-sm text-gray-500 line-clamp-3">{a.description}</p>}
                 </a>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Stats */}
+        {stats && stats.length > 0 && (
+          <section class="bg-secondary text-white py-16 px-4">
+            <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              {stats.map((s: any) => (
+                <div>
+                  {s.icon && <i class={`ph ${s.icon} text-3xl text-primary mb-2 block`} aria-hidden="true" />}
+                  <div class="text-4xl font-serif font-bold">
+                    {s.prefix}{s.value}{s.suffix}
+                  </div>
+                  <div class="text-sm text-gray-400 mt-1">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Featured team members */}
+        {teamMembers && teamMembers.length > 0 && (
+          <section class="py-16 px-4 max-w-6xl mx-auto">
+            <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-2">Nossa Equipe</h2>
+            <p class="text-center text-gray-500 mb-10">Profissionais dedicados ao seu caso</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {teamMembers.map((m: any) => (
+                <a href={`${b}/equipe/${m.slug}`} class="group text-center">
+                  <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-gray-100 group-hover:border-primary transition mb-3">
+                    {m.public_photo_url ? (
+                      <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" />
+                    ) : (
+                      <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-3xl font-semibold">
+                        {m.public_name?.charAt(0)?.toUpperCase() ?? "?"}
+                      </div>
+                    )}
+                  </div>
+                  <h3 class="font-semibold text-secondary group-hover:text-primary transition text-sm">{m.public_name}</h3>
+                  <p class="text-xs text-gray-500">{m.public_title}</p>
+                </a>
+              ))}
+            </div>
+            <div class="text-center mt-8">
+              <a href={`${b}/equipe`} class="text-primary font-semibold hover:underline">Conheca toda a equipe →</a>
             </div>
           </section>
         )}
@@ -191,6 +288,89 @@ publicSiteRoutes.get("/", async (c) => {
           </section>
         )}
 
+        {/* Testimonials */}
+        {testimonials && testimonials.length > 0 && (
+          <section class="py-16 px-4 bg-gray-50">
+            <div class="max-w-5xl mx-auto">
+              <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-10">O Que Dizem Nossos Clientes</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {testimonials.map((t: any) => (
+                  <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-1 mb-3">
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <i class={`ph-bold ${i < (t.rating ?? 5) ? "ph-star text-yellow-500" : "ph-star text-gray-300"} text-sm`} aria-hidden="true" />
+                      ))}
+                    </div>
+                    <p class="text-gray-600 italic text-sm mb-4">"{t.content}"</p>
+                    <div class="border-t border-gray-100 pt-3">
+                      <p class="font-semibold text-secondary text-sm">{t.author_name}</p>
+                      {t.author_role && <p class="text-xs text-gray-500">{t.author_role}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Client logos */}
+        {clients && clients.length > 0 && (
+          <section class="py-12 px-4 max-w-6xl mx-auto">
+            <h2 class="text-center text-lg font-semibold text-gray-400 mb-8 uppercase tracking-wider">Nossos Clientes</h2>
+            <div class="flex flex-wrap items-center justify-center gap-8">
+              {clients.map((cl: any) => (
+                <a href={cl.website_url ?? "#"} target="_blank" rel="noopener" class="grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition">
+                  {cl.logo_url ? (
+                    <img src={cl.logo_url} alt={cl.name} class="h-12 w-auto max-w-32 object-contain" />
+                  ) : (
+                    <span class="text-lg font-semibold text-gray-400">{cl.name}</span>
+                  )}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Recognitions */}
+        {recognitions && recognitions.length > 0 && (
+          <section class="py-16 px-4 bg-secondary text-white">
+            <div class="max-w-5xl mx-auto">
+              <h2 class="text-3xl font-serif font-bold text-center mb-10">Reconhecimentos</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {recognitions.map((r: any) => (
+                  <div class="text-center">
+                    {r.icon && <i class={`ph ${r.icon} text-4xl text-primary mb-3 block`} aria-hidden="true" />}
+                    <h3 class="font-semibold text-lg">{r.title}</h3>
+                    {r.organization && <p class="text-sm text-gray-400">{r.organization}</p>}
+                    {r.year && <p class="text-sm text-gray-500">{r.year}{r.ranking_position ? ` • ${r.ranking_position}` : ""}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Offices */}
+        {offices && offices.length > 0 && (
+          <section class="py-16 px-4 max-w-6xl mx-auto">
+            <h2 class="text-3xl font-serif font-bold text-center text-secondary mb-10">Onde Estamos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {offices.map((o: any) => (
+                <div class="p-6 rounded-xl border border-gray-100">
+                  <div class="flex items-center gap-2 mb-3">
+                    <i class="ph ph-map-pin text-primary text-xl" aria-hidden="true" />
+                    <h3 class="font-semibold text-secondary">{o.label}</h3>
+                  </div>
+                  <p class="text-sm text-gray-500">{o.address}</p>
+                  {o.city && <p class="text-sm text-gray-500">{o.city}/{o.state ?? ""}</p>}
+                  {o.phone && <p class="text-sm text-gray-500 mt-2"><i class="ph ph-phone text-xs" aria-hidden="true"></i> {o.phone}</p>}
+                  {o.email && <p class="text-sm text-gray-500"><i class="ph ph-envelope-simple text-xs" aria-hidden="true"></i> {o.email}</p>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* CTA */}
         <section class="bg-primary py-16 px-4">
           <div class="max-w-2xl mx-auto text-center text-white">
@@ -199,6 +379,18 @@ publicSiteRoutes.get("/", async (c) => {
             <a href={`${b}/contato`} class="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
               Agendar Consulta
             </a>
+          </div>
+        </section>
+
+        {/* Newsletter */}
+        <section class="py-12 px-4 bg-gray-50">
+          <div class="max-w-xl mx-auto text-center">
+            <h2 class="text-2xl font-serif font-bold text-secondary mb-2">Receba Nossos Artigos</h2>
+            <p class="text-sm text-gray-500 mb-6">Inscreva-se para receber novidades e conteudos juridicos.</p>
+            <form method="post" action={`${b}/newsletter`} class="flex gap-2 max-w-md mx-auto">
+              <input type="email" name="email" required placeholder="Seu email..." class="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary text-sm" />
+              <button type="submit" class="btn btn-primary px-6 py-2.5 rounded-lg text-sm font-semibold">Inscrever</button>
+            </form>
           </div>
         </section>
       </>
@@ -787,6 +979,298 @@ publicSiteRoutes.post("/contato", async (c) => {
         <a href={`${b}/`} class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
           Voltar ao Inicio
         </a>
+      </div>
+    )),
+  );
+});
+
+// =========================================================================
+// POST /newsletter — Subscribe
+// =========================================================================
+publicSiteRoutes.post("/newsletter", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+  const body = await c.req.parseBody();
+  const email = (body.email as string)?.trim();
+
+  if (!email) return c.redirect(`${b}/`);
+
+  // Insert (ignore duplicates via upsert)
+  await supabase
+    .from("newsletter_subscriptions")
+    .upsert({ tenant_id: tenant.id, email }, { onConflict: "tenant_id,email" });
+
+  return c.html(
+    renderPublic(c, tenant, "home", (
+      <div class="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div class="w-16 h-16 rounded-full bg-status-green-bg flex items-center justify-center mx-auto mb-6">
+          <i class="ph ph-check-circle text-4xl text-status-green" aria-hidden="true" />
+        </div>
+        <h1 class="text-3xl font-serif font-bold text-secondary mb-3">Inscricao Confirmada!</h1>
+        <p class="text-gray-500 mb-8">Obrigado! Voce recebera nossos conteudos no email {email}.</p>
+        <a href={`${b}/`} class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
+          Voltar ao Inicio
+        </a>
+      </div>
+    )),
+  );
+});
+
+// =========================================================================
+// GET /reconhecimentos — Recognitions page
+// =========================================================================
+publicSiteRoutes.get("/reconhecimentos", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+
+  const { data: recognitions }: any = await supabase
+    .from("recognitions")
+    .select("*")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("year", { ascending: false });
+
+  return c.html(
+    renderPublic(c, tenant, "reconhecimentos", (
+      <div class="max-w-5xl mx-auto px-4 py-16">
+        <h1 class="text-4xl font-serif font-bold text-secondary text-center mb-4">Reconhecimentos</h1>
+        <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+          Nossos reconhecimentos e premiacoes sao reflexo do compromisso com a excelencia juridica.
+        </p>
+
+        {recognitions && recognitions.length > 0 ? (
+          <div class="space-y-6">
+            {recognitions.map((r: any) => (
+              <div class="flex items-start gap-4 p-6 rounded-xl border border-gray-100 hover:shadow-md transition">
+                <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <i class={`ph ${r.icon ?? "ph-trophy"} text-2xl text-primary`} aria-hidden="true" />
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-secondary">{r.title}</h3>
+                  {r.organization && <p class="text-sm text-gray-500">{r.organization}{r.year ? ` • ${r.year}` : ""}</p>}
+                  {r.ranking_position && <p class="text-sm text-primary font-semibold mt-1">{r.ranking_position}</p>}
+                  {r.description && <p class="text-sm text-gray-600 mt-2">{r.description}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="text-center text-gray-400">Em breve compartilharemos nossos reconhecimentos.</p>
+        )}
+      </div>
+    )),
+  );
+});
+
+// =========================================================================
+// GET /equipe — Team listing page
+// =========================================================================
+publicSiteRoutes.get("/equipe", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+
+  const { data: members }: any = await supabase
+    .from("team_members")
+    .select("id, public_name, public_title, public_bio, public_photo_url, slug, sort_order")
+    .eq("tenant_id", tenant.id)
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true });
+
+  return c.html(
+    renderPublic(c, tenant, "equipe", (
+      <div class="max-w-6xl mx-auto px-4 py-16">
+        <h1 class="text-4xl font-serif font-bold text-secondary text-center mb-4">Nossa Equipe</h1>
+        <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+          Conheca os profissionais que dedicam sua experiencia e conhecimento para entregar os melhores resultados aos nossos clientes.
+        </p>
+
+        {members && members.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {members.map((m: any) => (
+              <a href={`${b}/equipe/${m.slug}`} class="group text-center">
+                <div class="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-100 group-hover:border-primary transition mb-4">
+                  {m.public_photo_url ? (
+                    <img src={m.public_photo_url} alt={m.public_name} class="w-full h-full object-cover" />
+                  ) : (
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-4xl font-semibold">
+                      {m.public_name?.charAt(0)?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
+                </div>
+                <h3 class="text-lg font-semibold text-secondary group-hover:text-primary transition">{m.public_name}</h3>
+                <p class="text-sm text-gray-500">{m.public_title}</p>
+                {m.public_bio && <p class="text-sm text-gray-400 mt-2 line-clamp-3">{m.public_bio}</p>}
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="text-center text-gray-400">Em breve conhecera nossa equipe.</p>
+        )}
+      </div>
+    )),
+  );
+});
+
+// =========================================================================
+// GET /equipe/:slug — Team member detail page
+// =========================================================================
+publicSiteRoutes.get("/equipe/:slug", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+  const slug = c.req.param("slug");
+
+  const { data: member }: any = await supabase
+    .from("team_members")
+    .select("*")
+    .eq("tenant_id", tenant.id)
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .single();
+
+  if (!member) {
+    return c.html(
+      renderPublic(c, tenant, "equipe", (
+        <div class="max-w-2xl mx-auto px-4 py-20 text-center">
+          <h1 class="text-2xl font-serif font-bold text-secondary mb-4">Profissional nao encontrado</h1>
+          <a href={`${b}/equipe`} class="text-primary hover:underline">← Ver toda a equipe</a>
+        </div>
+      )),
+      404,
+    );
+  }
+
+  return c.html(
+    renderPublic(c, tenant, "equipe", (
+      <div class="max-w-4xl mx-auto px-4 py-16">
+        <a href={`${b}/equipe`} class="text-primary hover:underline text-sm mb-6 inline-block">← Voltar para a equipe</a>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Photo */}
+          <div class="text-center">
+            <div class="w-48 h-48 mx-auto rounded-full overflow-hidden border-4 border-gray-100 mb-4">
+              {member.public_photo_url ? (
+                <img src={member.public_photo_url} alt={member.public_name} class="w-full h-full object-cover" />
+              ) : (
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-6xl font-semibold">
+                  {member.public_name?.charAt(0)?.toUpperCase() ?? "?"}
+                </div>
+              )}
+            </div>
+            {member.public_linkedin && (
+              <a href={member.public_linkedin} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary">
+                <i class="ph ph-linkedin-logo" aria-hidden="true"></i> LinkedIn
+              </a>
+            )}
+          </div>
+
+          {/* Info */}
+          <div class="md:col-span-2">
+            <h1 class="text-3xl font-serif font-bold text-secondary mb-2">{member.public_name}</h1>
+            <p class="text-lg text-primary font-semibold mb-6">{member.public_title}</p>
+
+            {member.public_bio && (
+              <div class="prose prose-sm max-w-none">
+                <p class="text-gray-600 whitespace-pre-wrap">{member.public_bio}</p>
+              </div>
+            )}
+
+            {member.public_email && (
+              <div class="mt-8 pt-6 border-t border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">Contato</h3>
+                <a href={`mailto:${member.public_email}`} class="text-primary hover:underline">{member.public_email}</a>
+              </div>
+            )}
+
+            <div class="mt-6">
+              <a href={`${b}/contato`} class="inline-block bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm">
+                Agendar Consulta
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    )),
+  );
+});
+
+// =========================================================================
+// GET /lgpd — Privacy policy
+// =========================================================================
+publicSiteRoutes.get("/lgpd", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+
+  return c.html(
+    renderPublic(c, tenant, "lgpd", (
+      <div class="max-w-3xl mx-auto px-4 py-16">
+        <h1 class="text-3xl font-serif font-bold text-secondary mb-8">Politica de Privacidade</h1>
+        <div class="prose prose-sm max-w-none text-gray-600 space-y-4">
+          <p><strong>Ultima atualizacao:</strong> {new Date().toLocaleDateString("pt-BR")}</p>
+          <p>{tenant.name} ("Escritorio", "nos" ou "nosso") leva a privacidade dos dados pessoais a serio. Esta politica descreve como coletamos, usamos e protegemos as informacoes que voce nos fornece.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">1. Dados Coletados</h2>
+          <p>Coletamos os seguintes dados quando voce interage com nosso site ou servi-os:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>Nome, email e telefone (formulario de contato)</li>
+            <li>Informacoes de navegacao (cookies essenciais)</li>
+            <li>Conteudo de mensagens enviadas via formulario</li>
+          </ul>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">2. Uso dos Dados</h2>
+          <p>Utilizamos seus dados para:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>Responder solicitacoes de contato e consultas</li>
+            <li>Enviar conteudos informativos (mediante consentimento)</li>
+            <li>Cumprir obrigacoes legais e regulatorias</li>
+          </ul>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">3. Base Legal</h2>
+          <p>O tratamento dos seus dados pessoais e fundamentado na Lei Geral de Protecao de Dados (LGPD - Lei 13.709/2018), com base no consentimento e na execucao de contratos.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">4. Seus Direitos</h2>
+          <p>Voce tem direito a acessar, corrigir, excluir ou portar seus dados pessoais. Para exercer esses direitos, entre em contato pelo email {tenant.email_public ?? "nosso email de contato"}.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">5. Seguranca</h2>
+          <p>Adotamos medidas tecnicas e organizacionais para proteger seus dados contra acessos nao autorizados, alteracao ou divulgacao indevida.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">6. Contato</h2>
+          <p>Para questoes relacionadas a esta politica, entre em contato atraves da nossa <a href={`${b}/contato`} class="text-primary hover:underline">pagina de contato</a>.</p>
+        </div>
+      </div>
+    )),
+  );
+});
+
+// =========================================================================
+// GET /lgpd/termos — Terms of use
+// =========================================================================
+publicSiteRoutes.get("/lgpd/termos", async (c) => {
+  const tenant = getTenant(c);
+  const b = getBasePath(c);
+
+  return c.html(
+    renderPublic(c, tenant, "lgpd", (
+      <div class="max-w-3xl mx-auto px-4 py-16">
+        <h1 class="text-3xl font-serif font-bold text-secondary mb-8">Termos de Uso</h1>
+        <div class="prose prose-sm max-w-none text-gray-600 space-y-4">
+          <p><strong>Ultima atualizacao:</strong> {new Date().toLocaleDateString("pt-BR")}</p>
+          <p>Ao acessar e utilizar o site de {tenant.name}, voce concorda com os termos e condicoes descritos abaixo.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">1. Natureza do Servico</h2>
+          <p>Este site tem carater informativo. As informacoes aqui apresentadas nao constituem aconselhamento juridico e nao substituem a consulta com um advogado.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">2. Uso Permitido</h2>
+          <p>Voce concorda a utilizar o site de forma etica e legal, nao reproduzindo conteudo sem autorizacao expressa.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">3. Propriedade Intelectual</h2>
+          <p>Todo o conteudo deste site (textos, imagens, logotipos, artigos) e protegido por direitos autorais e pertence a {tenant.name}, salvo quando indicado o contrario.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">4. Limitacao de Responsabilidade</h2>
+          <p>{tenant.name} nao se responsabiliza por decisoes tomadas com base exclusivamente no conteudo deste site, sem a devida consulta profissional.</p>
+
+          <h2 class="text-xl font-semibold text-secondary mt-6 mb-2">5. Alteracoes</h2>
+          <p>Estes termos podem ser alterados a qualquer momento, sem aviso previo. Recomendamos a consulta periodica a esta pagina.</p>
+        </div>
       </div>
     )),
   );

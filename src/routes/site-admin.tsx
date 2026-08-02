@@ -932,3 +932,883 @@ siteAdminRoutes.post("/settings", async (c) => {
 
   return c.redirect("/site/settings");
 });
+
+// =========================================================================
+// GET /site/team — Manage team members shown on public site
+// =========================================================================
+siteAdminRoutes.get("/team", async (c) => {
+  const user = c.get("user");
+
+  const { data: members }: any = await supabase
+    .from("team_members")
+    .select("*")
+    .eq("tenant_id", user.tenantId)
+    .order("sort_order", { ascending: true });
+
+  // Also fetch profiles for the "add from existing" dropdown
+  const { data: profiles }: any = await supabase
+    .from("profiles")
+    .select("id, full_name, role, photo_url, oab_number")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("full_name");
+
+  const rows = (members ?? []).map((m: any) => [
+    <div class="flex items-center gap-2">
+      {m.public_photo_url ? (
+        <img src={m.public_photo_url} alt={m.public_name} class="h-8 w-8 rounded-full object-cover" />
+      ) : (
+        <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-semibold">
+          {m.public_name?.charAt(0)?.toUpperCase() ?? "?"}
+        </div>
+      )}
+      <span>{m.public_name}</span>
+    </div> as unknown as string,
+    m.public_title,
+    m.slug,
+    m.is_featured ? <Badge color="yellow">Destaque</Badge> : <Badge color="gray">Normal</Badge> as unknown as string,
+    m.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/site/team/${m.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/site/team/${m.id}/delete`} class="inline" onsubmit="return confirm('Remover este membro do site?')">
+        <button type="submit" class="text-status-red hover:underline text-body-sm">Remover</button>
+      </form>
+    </div> as unknown as string,
+  ]);
+
+  return renderPage(
+    c,
+    { title: "Equipe do Site", active: "site" },
+    <>
+      <PageHeader
+        title="Equipe do Site"
+        icon="ph-users-three"
+        actions={() => (
+          <Modal
+            id="newTeamMember"
+            title="Adicionar Membro"
+            icon="ph-user-plus"
+            triggerText="Adicionar Membro"
+            triggerIcon="ph-plus"
+            action="/site/team"
+            submitLabel="Adicionar"
+            large
+          >
+            <Select label="Profissional cadastrado (opcional)" id="profile_id" name="profile_id"
+              options={[{ value: "", label: "— Digitar manualmente —" }, ...(profiles ?? []).map((p: any) => ({ value: p.id, label: `${p.full_name} (${p.role})` }))]}
+            />
+            <TextField label="Nome publico" id="public_name" name="public_name" required placeholder="Dr. Joao Silva" />
+            <TextField label="Cargo / Titulo" id="public_title" name="public_title" required placeholder="Socio Fundador" />
+            <TextField label="Slug (URL)" id="slug" name="slug" required placeholder="joao-silva" />
+            <TextField label="Foto (URL)" id="public_photo_url" name="public_photo_url" placeholder="https://..." />
+            <TextField label="LinkedIn" id="public_linkedin" name="public_linkedin" placeholder="https://linkedin.com/in/..." />
+            <TextField label="Email publico" id="public_email" name="public_email" placeholder="joao@escritorio.com" />
+            <Textarea label="Biografia publica" id="public_bio" name="public_bio" placeholder="Breve biografia para o site..." />
+            <Select label="Destacar na home?" id="is_featured" name="is_featured"
+              options={[{ value: "false", label: "Nao" }, { value: "true", label: "Sim - mostrar na home" }]}
+            />
+          </Modal>
+        )}
+      />
+      <Table
+        columns={[{ label: "Nome" }, { label: "Cargo" }, { label: "Slug" }, { label: "Destaque" }, { label: "Status" }, { label: "Acoes" }]}
+        rows={rows}
+        emptyMsg="Nenhum membro no site ainda. Adicione profissionais para exibi-los publicamente."
+        emptyIcon="ph-users-three"
+        ariaLabel="Lista de membros da equipe no site"
+      />
+    </>,
+  );
+});
+
+// POST /site/team — create
+siteAdminRoutes.post("/team", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+
+  const profileId = (body.profile_id as string) || null;
+  let photoUrl = (body.public_photo_url as string) || null;
+  let publicName = (body.public_name as string) || "";
+  let linkedin = (body.public_linkedin as string) || null;
+
+  // If a profile was selected, prefill from it
+  if (profileId) {
+    const { data: profile }: any = await supabase
+      .from("profiles")
+      .select("full_name, photo_url, linkedin_url")
+      .eq("id", profileId)
+      .single();
+    if (profile) {
+      if (!publicName) publicName = profile.full_name;
+      if (!photoUrl) photoUrl = profile.photo_url;
+      if (!linkedin) linkedin = profile.linkedin_url;
+    }
+  }
+
+  await supabase.from("team_members").insert({
+    tenant_id: user.tenantId,
+    profile_id: profileId,
+    public_name: publicName,
+    public_title: body.public_title as string,
+    public_bio: (body.public_bio as string) || null,
+    public_photo_url: photoUrl,
+    public_linkedin: linkedin,
+    public_email: (body.public_email as string) || null,
+    slug: body.slug as string,
+    is_featured: body.is_featured === "true",
+    is_published: true,
+  });
+
+  return c.redirect("/site/team");
+});
+
+// GET /site/team/:id — edit
+siteAdminRoutes.get("/team/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  const { data: member }: any = await supabase
+    .from("team_members")
+    .select("*")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+
+  if (!member) return c.html("Membro nao encontrado.", 404);
+
+  return renderPage(
+    c,
+    { title: member.public_name, active: "site" },
+    <>
+      <PageHeader title={member.public_name} icon="ph-user-circle" actions={() => (
+        <div class="flex gap-2">
+          <Modal
+            id="editMember"
+            title="Editar Membro"
+            icon="ph-pencil"
+            triggerText="Editar"
+            triggerIcon="ph-pencil"
+            triggerVariant="secondary"
+            action={`/site/team/${member.id}`}
+            submitLabel="Salvar"
+            large
+          >
+            <TextField label="Nome publico" id="public_name" name="public_name" required value={member.public_name} />
+            <TextField label="Cargo / Titulo" id="public_title" name="public_title" required value={member.public_title} />
+            <TextField label="Slug (URL)" id="slug" name="slug" required value={member.slug} />
+            <TextField label="Foto (URL)" id="public_photo_url" name="public_photo_url" value={member.public_photo_url ?? ""} />
+            <TextField label="LinkedIn" id="public_linkedin" name="public_linkedin" value={member.public_linkedin ?? ""} />
+            <TextField label="Email publico" id="public_email" name="public_email" value={member.public_email ?? ""} />
+            <Textarea label="Biografia publica" id="public_bio" name="public_bio" value={member.public_bio ?? ""} />
+            <TextField label="Ordem" id="sort_order" name="sort_order" type="number" value={String(member.sort_order)} />
+            <Select label="Destacar na home?" id="is_featured" name="is_featured"
+              options={[{ value: "false", label: "Nao" }, { value: "true", label: "Sim" }]}
+              selected={member.is_featured ? "true" : "false"}
+            />
+            <Select label="Publicado?" id="is_published" name="is_published"
+              options={[{ value: "true", label: "Publicado" }, { value: "false", label: "Oculto" }]}
+              selected={member.is_published ? "true" : "false"}
+            />
+          </Modal>
+          <form method="post" action={`/site/team/${member.id}/delete`}>
+            <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Remover do site?')">
+              <i class="ph ph-trash" aria-hidden="true"></i>Remover
+            </button>
+          </form>
+        </div>
+      )} />
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Panel title="Perfil" icon="ph-user-circle">
+          <div class="flex flex-col items-center gap-3">
+            {member.public_photo_url ? (
+              <img src={member.public_photo_url} alt={member.public_name} class="h-32 w-32 rounded-full object-cover border-4 border-gray-100" />
+            ) : (
+              <div class="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-h1 font-semibold">
+                {member.public_name?.charAt(0)?.toUpperCase() ?? "?"}
+              </div>
+            )}
+            <div class="text-center">
+              <h3 class="font-semibold text-gray-800">{member.public_name}</h3>
+              <p class="text-body-sm text-gray-500">{member.public_title}</p>
+              <div class="mt-2 flex gap-2 justify-center">
+                {member.is_featured ? <Badge color="yellow">Destaque</Badge> : null}
+                {member.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge>}
+              </div>
+            </div>
+          </div>
+        </Panel>
+        <Panel title="Dados" icon="ph-identification-card">
+          <dl class="flex flex-col gap-2 text-body-sm">
+            <div><dt class="font-semibold text-gray-700 inline">Slug: </dt><dd class="inline">/equipe/{member.slug}</dd></div>
+            {member.public_email && <div><dt class="font-semibold text-gray-700 inline">Email: </dt><dd class="inline">{member.public_email}</dd></div>}
+            {member.public_linkedin && <div><dt class="font-semibold text-gray-700 inline">LinkedIn: </dt><dd class="inline"><a href={member.public_linkedin} target="_blank" rel="noopener" class="text-terracota-600 hover:underline">Ver</a></dd></div>}
+            <div><dt class="font-semibold text-gray-700 inline">Ordem: </dt><dd class="inline">{member.sort_order}</dd></div>
+          </dl>
+        </Panel>
+        {member.public_bio && (
+          <Panel title="Biografia" icon="ph-text-aa">
+            <p class="text-body-sm text-gray-600 whitespace-pre-wrap">{member.public_bio}</p>
+          </Panel>
+        )}
+      </div>
+    </>,
+  );
+});
+
+// POST /site/team/:id — update
+siteAdminRoutes.post("/team/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+
+  await supabase
+    .from("team_members")
+    .update({
+      public_name: body.public_name as string,
+      public_title: body.public_title as string,
+      slug: body.slug as string,
+      public_photo_url: (body.public_photo_url as string) || null,
+      public_linkedin: (body.public_linkedin as string) || null,
+      public_email: (body.public_email as string) || null,
+      public_bio: (body.public_bio as string) || null,
+      sort_order: parseInt(body.sort_order as string) || 0,
+      is_featured: body.is_featured === "true",
+      is_published: body.is_published === "true",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId);
+
+  return c.redirect(`/site/team/${id}`);
+});
+
+// POST /site/team/:id/delete
+siteAdminRoutes.post("/team/:id/delete", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  await supabase
+    .from("team_members")
+    .delete()
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId);
+
+  return c.redirect("/site/team");
+});
+
+// =========================================================================
+// GET /site/stats — Manage stats shown on public home
+// =========================================================================
+siteAdminRoutes.get("/stats", async (c) => {
+  const user = c.get("user");
+
+  const { data: stats }: any = await supabase
+    .from("site_stats")
+    .select("*")
+    .eq("tenant_id", user.tenantId)
+    .order("sort_order", { ascending: true });
+
+  const rows = (stats ?? []).map((s: any) => [
+    s.label,
+    <span class="font-semibold">{s.prefix}{s.value}{s.suffix}</span> as unknown as string,
+    s.icon ? <code class="text-body-sm text-gray-600">{s.icon}</code> : "—" as unknown as string,
+    s.sort_order,
+    s.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/site/stats/${s.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/site/stats/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir esta estatistica?')">
+        <button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button>
+      </form>
+    </div> as unknown as string,
+  ]);
+
+  return renderPage(
+    c,
+    { title: "Numeros do Escritorio", active: "site" },
+    <>
+      <PageHeader
+        title="Numeros do Escritorio"
+        icon="ph-chart-bar"
+        actions={() => (
+          <Modal
+            id="newStat"
+            title="Nova Estatistica"
+            icon="ph-plus"
+            triggerText="Adicionar"
+            triggerIcon="ph-plus"
+            action="/site/stats"
+            submitLabel="Criar"
+          >
+            <TextField label="Label" id="label" name="label" required placeholder="anos de experiencia" />
+            <TextField label="Valor" id="value" name="value" required placeholder="20" />
+            <TextField label="Prefixo (opcional)" id="prefix" name="prefix" placeholder="+" />
+            <TextField label="Sufixo (opcional)" id="suffix" name="suffix" placeholder="mil" />
+            <TextField label="Icone Phosphor (opcional)" id="icon" name="icon" placeholder="ph-calendar-check" />
+            <TextField label="Ordem" id="sort_order" name="sort_order" type="number" value="0" />
+          </Modal>
+        )}
+      />
+      <p class="text-body-sm text-gray-500 mb-4">Estes numeros aparecem em destaque na pagina inicial do site publico.</p>
+      <Table
+        columns={[{ label: "Label" }, { label: "Valor" }, { label: "Icone" }, { label: "Ordem" }, { label: "Status" }, { label: "Acoes" }]}
+        rows={rows}
+        emptyMsg="Nenhuma estatistica cadastrada."
+        emptyIcon="ph-chart-bar"
+        ariaLabel="Lista de estatisticas"
+      />
+    </>,
+  );
+});
+
+// POST /site/stats — create
+siteAdminRoutes.post("/stats", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+
+  await supabase.from("site_stats").insert({
+    tenant_id: user.tenantId,
+    label: body.label as string,
+    value: body.value as string,
+    prefix: (body.prefix as string) || "",
+    suffix: (body.suffix as string) || "",
+    icon: (body.icon as string) || null,
+    sort_order: parseInt(body.sort_order as string) || 0,
+    is_published: true,
+  });
+
+  return c.redirect("/site/stats");
+});
+
+// GET /site/stats/:id — edit
+siteAdminRoutes.get("/stats/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  const { data: stat }: any = await supabase
+    .from("site_stats")
+    .select("*")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+
+  if (!stat) return c.html("Estatistica nao encontrada.", 404);
+
+  return renderPage(
+    c,
+    { title: stat.label, active: "site" },
+    <>
+      <PageHeader title={stat.label} icon="ph-chart-bar" actions={() => (
+        <div class="flex gap-2">
+          <Modal
+            id="editStat"
+            title="Editar Estatistica"
+            icon="ph-pencil"
+            triggerText="Editar"
+            triggerIcon="ph-pencil"
+            triggerVariant="secondary"
+            action={`/site/stats/${stat.id}`}
+            submitLabel="Salvar"
+          >
+            <TextField label="Label" id="label" name="label" required value={stat.label} />
+            <TextField label="Valor" id="value" name="value" required value={stat.value} />
+            <TextField label="Prefixo" id="prefix" name="prefix" value={stat.prefix ?? ""} />
+            <TextField label="Sufixo" id="suffix" name="suffix" value={stat.suffix ?? ""} />
+            <TextField label="Icone Phosphor" id="icon" name="icon" value={stat.icon ?? ""} />
+            <TextField label="Ordem" id="sort_order" name="sort_order" type="number" value={String(stat.sort_order)} />
+            <Select label="Publicado?" id="is_published" name="is_published"
+              options={[{ value: "true", label: "Publicado" }, { value: "false", label: "Oculto" }]}
+              selected={stat.is_published ? "true" : "false"}
+            />
+          </Modal>
+          <form method="post" action={`/site/stats/${stat.id}/delete`}>
+            <button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir?')">
+              <i class="ph ph-trash" aria-hidden="true"></i>Excluir
+            </button>
+          </form>
+        </div>
+      )} />
+      <Panel title="Estatistica" icon="ph-chart-bar">
+        <dl class="flex flex-col gap-2 text-body-sm">
+          <div><dt class="font-semibold text-gray-700 inline">Label: </dt><dd class="inline">{stat.label}</dd></div>
+          <div><dt class="font-semibold text-gray-700 inline">Valor exibido: </dt><dd class="inline font-semibold text-h4 text-primary">{stat.prefix}{stat.value}{stat.suffix}</dd></div>
+          {stat.icon && <div><dt class="font-semibold text-gray-700 inline">Icone: </dt><dd class="inline"><code>{stat.icon}</code></dd></div>}
+          <div><dt class="font-semibold text-gray-700 inline">Ordem: </dt><dd class="inline">{stat.sort_order}</dd></div>
+          <div><dt class="font-semibold text-gray-700 inline">Status: </dt><dd class="inline">{stat.is_published ? "Publicado" : "Oculto"}</dd></div>
+        </dl>
+      </Panel>
+    </>,
+  );
+});
+
+// POST /site/stats/:id — update
+siteAdminRoutes.post("/stats/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+
+  await supabase
+    .from("site_stats")
+    .update({
+      label: body.label as string,
+      value: body.value as string,
+      prefix: (body.prefix as string) || "",
+      suffix: (body.suffix as string) || "",
+      icon: (body.icon as string) || null,
+      sort_order: parseInt(body.sort_order as string) || 0,
+      is_published: body.is_published === "true",
+    })
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId);
+
+  return c.redirect(`/site/stats/${id}`);
+});
+
+// POST /site/stats/:id/delete
+siteAdminRoutes.post("/stats/:id/delete", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  await supabase
+    .from("site_stats")
+    .delete()
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId);
+
+  return c.redirect("/site/stats");
+});
+
+// =========================================================================
+// TESTIMONIALS — Depoimentos
+// =========================================================================
+siteAdminRoutes.get("/testimonials", async (c) => {
+  const user = c.get("user");
+  const { data: items }: any = await supabase
+    .from("testimonials")
+    .select("*")
+    .eq("tenant_id", user.tenantId)
+    .order("sort_order", { ascending: true });
+
+  const rows = (items ?? []).map((t: any) => [
+    t.author_name,
+    t.author_role ?? "—",
+    <div class="flex items-center gap-1">{Array.from({ length: 5 }, (_, i) => <i class={`ph-bold ${i < (t.rating ?? 5) ? "ph-star text-yellow-500" : "ph-star text-gray-300"} text-sm`} aria-hidden="true" />)}</div> as unknown as string,
+    t.source,
+    t.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/site/testimonials/${t.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/site/testimonials/${t.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
+  ]);
+
+  return renderPage(c, { title: "Depoimentos", active: "site" }, <>
+    <PageHeader title="Depoimentos" icon="ph-quotes" actions={() => (
+      <Modal id="newTestimonial" title="Novo Depoimento" icon="ph-plus" triggerText="Adicionar" triggerIcon="ph-plus" action="/site/testimonials" submitLabel="Criar" large>
+        <TextField label="Autor" id="author_name" name="author_name" required placeholder="Joao Silva" />
+        <TextField label="Cargo / Empresa" id="author_role" name="author_role" placeholder="CEO, Empresa X" />
+        <Textarea label="Depoimento" id="content" name="content" required placeholder="Excelente atendimento..." />
+        <Select label="Avaliacao" id="rating" name="rating" options={[{value:"5",label:"5 estrelas"},{value:"4",label:"4"},{value:"3",label:"3"},{value:"2",label:"2"},{value:"1",label:"1"}]} />
+        <Select label="Origem" id="source" name="source" options={[{value:"website",label:"Website"},{value:"google",label:"Google"},{value:"manual",label:"Manual"}]} />
+      </Modal>
+    )} />
+    <Table columns={[{label:"Autor"},{label:"Cargo"},{label:"Avaliacao"},{label:"Origem"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum depoimento." emptyIcon="ph-quotes" ariaLabel="Depoimentos" />
+  </>);
+});
+
+siteAdminRoutes.post("/testimonials", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("testimonials").insert({
+    tenant_id: user.tenantId,
+    author_name: body.author_name as string,
+    author_role: (body.author_role as string) || null,
+    content: body.content as string,
+    rating: parseInt(body.rating as string) || 5,
+    source: (body.source as string) || "website",
+    is_published: true,
+  });
+  return c.redirect("/site/testimonials");
+});
+
+siteAdminRoutes.get("/testimonials/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const { data: t }: any = await supabase.from("testimonials").select("*").eq("id", id).eq("tenant_id", user.tenantId).single();
+  if (!t) return c.html("Nao encontrado.", 404);
+
+  return renderPage(c, { title: t.author_name, active: "site" }, <>
+    <PageHeader title={t.author_name} icon="ph-quotes" actions={() => (
+      <div class="flex gap-2">
+        <Modal id="editTestimonial" title="Editar Depoimento" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/site/testimonials/${t.id}`} submitLabel="Salvar" large>
+          <TextField label="Autor" id="author_name" name="author_name" required value={t.author_name} />
+          <TextField label="Cargo / Empresa" id="author_role" name="author_role" value={t.author_role ?? ""} />
+          <Textarea label="Depoimento" id="content" name="content" required value={t.content} />
+          <Select label="Avaliacao" id="rating" name="rating" options={[{value:"5",label:"5"},{value:"4",label:"4"},{value:"3",label:"3"},{value:"2",label:"2"},{value:"1",label:"1"}]} selected={String(t.rating ?? 5)} />
+          <Select label="Origem" id="source" name="source" options={[{value:"website",label:"Website"},{value:"google",label:"Google"},{value:"manual",label:"Manual"}]} selected={t.source ?? "website"} />
+          <Select label="Publicado?" id="is_published" name="is_published" options={[{value:"true",label:"Sim"},{value:"false",label:"Nao"}]} selected={t.is_published ? "true" : "false"} />
+        </Modal>
+        <form method="post" action={`/site/testimonials/${t.id}/delete`}><button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button></form>
+      </div>
+    )} />
+    <Panel title="Depoimento" icon="ph-quotes">
+      <div class="flex items-center gap-1 mb-3">{Array.from({ length: 5 }, (_, i) => <i class={`ph-bold ${i < (t.rating ?? 5) ? "ph-star text-yellow-500" : "ph-star text-gray-300"} text-lg`} aria-hidden="true" />)}</div>
+      <p class="text-gray-600 italic mb-4">"{t.content}"</p>
+      <dl class="flex flex-col gap-1 text-body-sm">
+        <div><dt class="font-semibold inline">Autor: </dt><dd class="inline">{t.author_name}</dd></div>
+        {t.author_role && <div><dt class="font-semibold inline">Cargo: </dt><dd class="inline">{t.author_role}</dd></div>}
+        <div><dt class="font-semibold inline">Origem: </dt><dd class="inline">{t.source}</dd></div>
+        <div><dt class="font-semibold inline">Status: </dt><dd class="inline">{t.is_published ? "Publicado" : "Oculto"}</dd></div>
+      </dl>
+    </Panel>
+  </>);
+});
+
+siteAdminRoutes.post("/testimonials/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+  await supabase.from("testimonials").update({
+    author_name: body.author_name as string,
+    author_role: (body.author_role as string) || null,
+    content: body.content as string,
+    rating: parseInt(body.rating as string) || 5,
+    source: (body.source as string) || "website",
+    is_published: body.is_published === "true",
+  }).eq("id", id).eq("tenant_id", user.tenantId);
+  return c.redirect(`/site/testimonials/${id}`);
+});
+
+siteAdminRoutes.post("/testimonials/:id/delete", async (c) => {
+  const user = c.get("user");
+  await supabase.from("testimonials").delete().eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect("/site/testimonials");
+});
+
+// =========================================================================
+// CLIENT LOGOS — Clientes
+// =========================================================================
+siteAdminRoutes.get("/clients", async (c) => {
+  const user = c.get("user");
+  const { data: items }: any = await supabase.from("client_logos").select("*").eq("tenant_id", user.tenantId).order("sort_order", { ascending: true });
+
+  const rows = (items ?? []).map((cl: any) => [
+    cl.name,
+    cl.logo_url ? <img src={cl.logo_url} alt={cl.name} class="h-8 w-auto max-w-32 object-contain" /> : "—" as unknown as string,
+    cl.website_url ? <a href={cl.website_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline text-body-sm">Visitar</a> : "—" as unknown as string,
+    cl.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/site/clients/${cl.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/site/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
+  ]);
+
+  return renderPage(c, { title: "Clientes", active: "site" }, <>
+    <PageHeader title="Clientes" icon="ph-handshake" actions={() => (
+      <Modal id="newClient" title="Novo Cliente" icon="ph-plus" triggerText="Adicionar" triggerIcon="ph-plus" action="/site/clients" submitLabel="Criar">
+        <TextField label="Nome" id="name" name="name" required placeholder="Empresa X" />
+        <TextField label="Logo (URL)" id="logo_url" name="logo_url" placeholder="https://..." />
+        <TextField label="Website" id="website_url" name="website_url" placeholder="https://..." />
+      </Modal>
+    )} />
+    <Table columns={[{label:"Nome"},{label:"Logo"},{label:"Website"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum cliente cadastrado." emptyIcon="ph-handshake" ariaLabel="Clientes" />
+  </>);
+});
+
+siteAdminRoutes.post("/clients", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("client_logos").insert({
+    tenant_id: user.tenantId,
+    name: body.name as string,
+    logo_url: (body.logo_url as string) || null,
+    website_url: (body.website_url as string) || null,
+    is_published: true,
+  });
+  return c.redirect("/site/clients");
+});
+
+siteAdminRoutes.get("/clients/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const { data: cl }: any = await supabase.from("client_logos").select("*").eq("id", id).eq("tenant_id", user.tenantId).single();
+  if (!cl) return c.html("Nao encontrado.", 404);
+
+  return renderPage(c, { title: cl.name, active: "site" }, <>
+    <PageHeader title={cl.name} icon="ph-handshake" actions={() => (
+      <div class="flex gap-2">
+        <Modal id="editClient" title="Editar Cliente" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/site/clients/${cl.id}`} submitLabel="Salvar">
+          <TextField label="Nome" id="name" name="name" required value={cl.name} />
+          <TextField label="Logo (URL)" id="logo_url" name="logo_url" value={cl.logo_url ?? ""} />
+          <TextField label="Website" id="website_url" name="website_url" value={cl.website_url ?? ""} />
+          <TextField label="Ordem" id="sort_order" name="sort_order" type="number" value={String(cl.sort_order)} />
+          <Select label="Publicado?" id="is_published" name="is_published" options={[{value:"true",label:"Sim"},{value:"false",label:"Nao"}]} selected={cl.is_published ? "true" : "false"} />
+        </Modal>
+        <form method="post" action={`/site/clients/${cl.id}/delete`}><button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button></form>
+      </div>
+    )} />
+    <Panel title="Cliente" icon="ph-handshake">
+      {cl.logo_url && <img src={cl.logo_url} alt={cl.name} class="h-20 w-auto max-w-48 object-contain mb-4" />}
+      <dl class="flex flex-col gap-1 text-body-sm">
+        <div><dt class="font-semibold inline">Nome: </dt><dd class="inline">{cl.name}</dd></div>
+        {cl.website_url && <div><dt class="font-semibold inline">Website: </dt><dd class="inline"><a href={cl.website_url} target="_blank" rel="noopener" class="text-terracota-600 hover:underline">{cl.website_url}</a></dd></div>}
+        <div><dt class="font-semibold inline">Status: </dt><dd class="inline">{cl.is_published ? "Publicado" : "Oculto"}</dd></div>
+      </dl>
+    </Panel>
+  </>);
+});
+
+siteAdminRoutes.post("/clients/:id", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("client_logos").update({
+    name: body.name as string,
+    logo_url: (body.logo_url as string) || null,
+    website_url: (body.website_url as string) || null,
+    sort_order: parseInt(body.sort_order as string) || 0,
+    is_published: body.is_published === "true",
+  }).eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect(`/site/clients/${c.req.param("id")}`);
+});
+
+siteAdminRoutes.post("/clients/:id/delete", async (c) => {
+  const user = c.get("user");
+  await supabase.from("client_logos").delete().eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect("/site/clients");
+});
+
+// =========================================================================
+// RECOGNITIONS — Reconhecimentos
+// =========================================================================
+siteAdminRoutes.get("/recognitions", async (c) => {
+  const user = c.get("user");
+  const { data: items }: any = await supabase.from("recognitions").select("*").eq("tenant_id", user.tenantId).order("year", { ascending: false });
+
+  const rows = (items ?? []).map((r: any) => [
+    r.title,
+    r.organization ?? "—",
+    r.year ? String(r.year) : "—",
+    r.ranking_position ?? "—",
+    r.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/site/recognitions/${r.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/site/recognitions/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
+  ]);
+
+  return renderPage(c, { title: "Reconhecimentos", active: "site" }, <>
+    <PageHeader title="Reconhecimentos" icon="ph-trophy" actions={() => (
+      <Modal id="newRecognition" title="Novo Reconhecimento" icon="ph-plus" triggerText="Adicionar" triggerIcon="ph-plus" action="/site/recognitions" submitLabel="Criar" large>
+        <TextField label="Titulo" id="title" name="title" required placeholder="Top 100 advogados" />
+        <TextField label="Organizacao" id="organization" name="organization" placeholder="Analise Advocacia 500" />
+        <TextField label="Ano" id="year" name="year" type="number" placeholder="2025" />
+        <TextField label="Posicao / Ranking" id="ranking_position" name="ranking_position" placeholder="1o lugar" />
+        <Textarea label="Descricao" id="description" name="description" placeholder="..." />
+      </Modal>
+    )} />
+    <Table columns={[{label:"Titulo"},{label:"Organizacao"},{label:"Ano"},{label:"Posicao"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum reconhecimento." emptyIcon="ph-trophy" ariaLabel="Reconhecimentos" />
+  </>);
+});
+
+siteAdminRoutes.post("/recognitions", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("recognitions").insert({
+    tenant_id: user.tenantId,
+    title: body.title as string,
+    organization: (body.organization as string) || null,
+    year: body.year ? parseInt(body.year as string) : null,
+    ranking_position: (body.ranking_position as string) || null,
+    description: (body.description as string) || null,
+    is_published: true,
+  });
+  return c.redirect("/site/recognitions");
+});
+
+siteAdminRoutes.get("/recognitions/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const { data: r }: any = await supabase.from("recognitions").select("*").eq("id", id).eq("tenant_id", user.tenantId).single();
+  if (!r) return c.html("Nao encontrado.", 404);
+
+  return renderPage(c, { title: r.title, active: "site" }, <>
+    <PageHeader title={r.title} icon="ph-trophy" actions={() => (
+      <div class="flex gap-2">
+        <Modal id="editRecognition" title="Editar" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/site/recognitions/${r.id}`} submitLabel="Salvar" large>
+          <TextField label="Titulo" id="title" name="title" required value={r.title} />
+          <TextField label="Organizacao" id="organization" name="organization" value={r.organization ?? ""} />
+          <TextField label="Ano" id="year" name="year" type="number" value={r.year ? String(r.year) : ""} />
+          <TextField label="Posicao" id="ranking_position" name="ranking_position" value={r.ranking_position ?? ""} />
+          <Textarea label="Descricao" id="description" name="description" value={r.description ?? ""} />
+          <Select label="Publicado?" id="is_published" name="is_published" options={[{value:"true",label:"Sim"},{value:"false",label:"Nao"}]} selected={r.is_published ? "true" : "false"} />
+        </Modal>
+        <form method="post" action={`/site/recognitions/${r.id}/delete`}><button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button></form>
+      </div>
+    )} />
+    <Panel title="Reconhecimento" icon="ph-trophy">
+      <dl class="flex flex-col gap-2 text-body-sm">
+        <div><dt class="font-semibold inline">Titulo: </dt><dd class="inline">{r.title}</dd></div>
+        {r.organization && <div><dt class="font-semibold inline">Organizacao: </dt><dd class="inline">{r.organization}</dd></div>}
+        {r.year && <div><dt class="font-semibold inline">Ano: </dt><dd class="inline">{r.year}</dd></div>}
+        {r.ranking_position && <div><dt class="font-semibold inline">Posicao: </dt><dd class="inline">{r.ranking_position}</dd></div>}
+        {r.description && <div class="mt-2 pt-2 border-t border-gray-100"><p class="text-gray-600">{r.description}</p></div>}
+      </dl>
+    </Panel>
+  </>);
+});
+
+siteAdminRoutes.post("/recognitions/:id", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("recognitions").update({
+    title: body.title as string,
+    organization: (body.organization as string) || null,
+    year: body.year ? parseInt(body.year as string) : null,
+    ranking_position: (body.ranking_position as string) || null,
+    description: (body.description as string) || null,
+    is_published: body.is_published === "true",
+  }).eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect(`/site/recognitions/${c.req.param("id")}`);
+});
+
+siteAdminRoutes.post("/recognitions/:id/delete", async (c) => {
+  const user = c.get("user");
+  await supabase.from("recognitions").delete().eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect("/site/recognitions");
+});
+
+// =========================================================================
+// NEWSLETTER — Inscritos
+// =========================================================================
+siteAdminRoutes.get("/newsletter", async (c) => {
+  const user = c.get("user");
+  const { data: subs, count }: any = await supabase.from("newsletter_subscriptions")
+    .select("*", { count: "exact" })
+    .eq("tenant_id", user.tenantId)
+    .order("created_at", { ascending: false });
+
+  const rows = (subs ?? []).map((s: any) => [
+    s.email,
+    s.name ?? "—",
+    s.unsubscribed_at ? <Badge color="gray">Cancelado</Badge> : <Badge color="green">Ativo</Badge> as unknown as string,
+    new Date(s.created_at).toLocaleDateString("pt-BR"),
+  ]);
+
+  return renderPage(c, { title: "Newsletter", active: "site" }, <>
+    <PageHeader title="Newsletter" icon="ph-envelope-simple" />
+    <p class="text-body-sm text-gray-500 mb-4">{count ?? 0} inscrito(s)</p>
+    <Table columns={[{label:"Email"},{label:"Nome"},{label:"Status"},{label:"Inscrito em"}]} rows={rows} emptyMsg="Nenhuma inscricao." emptyIcon="ph-envelope-simple" ariaLabel="Newsletter" />
+  </>);
+});
+
+// =========================================================================
+// OFFICES — Multiplos escritorios
+// =========================================================================
+siteAdminRoutes.get("/offices", async (c) => {
+  const user = c.get("user");
+  const { data: items }: any = await supabase.from("offices").select("*").eq("tenant_id", user.tenantId).order("sort_order", { ascending: true });
+
+  const rows = (items ?? []).map((o: any) => [
+    o.label,
+    o.city ? `${o.city}/${o.state ?? ""}` : "—",
+    o.phone ?? "—",
+    o.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
+    <div class="flex items-center gap-2">
+      <a href={`/site/offices/${o.id}`} class="text-terracota-600 hover:underline text-body-sm">Editar</a>
+      <form method="post" action={`/site/offices/${o.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+    </div> as unknown as string,
+  ]);
+
+  return renderPage(c, { title: "Escritorios", active: "site" }, <>
+    <PageHeader title="Escritorios" icon="ph-buildings" actions={() => (
+      <Modal id="newOffice" title="Novo Escritorio" icon="ph-plus" triggerText="Adicionar" triggerIcon="ph-plus" action="/site/offices" submitLabel="Criar" large>
+        <TextField label="Nome / Label" id="label" name="label" required placeholder="Escritorio Sao Paulo" />
+        <TextField label="Endereco" id="address" name="address" required placeholder="Av. Paulista, 1000" />
+        <div class="grid grid-cols-2 gap-3">
+          <TextField label="Cidade" id="city" name="city" placeholder="Sao Paulo" />
+          <Select label="UF" id="state" name="state" options={["","AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map((uf) => ({value:uf,label:uf||"—"}))} />
+        </div>
+        <TextField label="CEP" id="zip" name="zip" placeholder="01310-100" />
+        <TextField label="Telefone" id="phone" name="phone" placeholder="(11) 3000-0000" />
+        <TextField label="Email" id="email" name="email" type="email" placeholder="sp@escritorio.com" />
+      </Modal>
+    )} />
+    <Table columns={[{label:"Nome"},{label:"Cidade"},{label:"Telefone"},{label:"Status"},{label:"Acoes"}]} rows={rows} emptyMsg="Nenhum escritorio cadastrado." emptyIcon="ph-buildings" ariaLabel="Escritorios" />
+  </>);
+});
+
+siteAdminRoutes.post("/offices", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("offices").insert({
+    tenant_id: user.tenantId,
+    label: body.label as string,
+    address: body.address as string,
+    city: (body.city as string) || null,
+    state: (body.state as string) || null,
+    zip: (body.zip as string) || null,
+    phone: (body.phone as string) || null,
+    email: (body.email as string) || null,
+    is_published: true,
+  });
+  return c.redirect("/site/offices");
+});
+
+siteAdminRoutes.get("/offices/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const { data: o }: any = await supabase.from("offices").select("*").eq("id", id).eq("tenant_id", user.tenantId).single();
+  if (!o) return c.html("Nao encontrado.", 404);
+
+  return renderPage(c, { title: o.label, active: "site" }, <>
+    <PageHeader title={o.label} icon="ph-buildings" actions={() => (
+      <div class="flex gap-2">
+        <Modal id="editOffice" title="Editar Escritorio" icon="ph-pencil" triggerText="Editar" triggerIcon="ph-pencil" triggerVariant="secondary" action={`/site/offices/${o.id}`} submitLabel="Salvar" large>
+          <TextField label="Nome / Label" id="label" name="label" required value={o.label} />
+          <TextField label="Endereco" id="address" name="address" required value={o.address} />
+          <div class="grid grid-cols-2 gap-3">
+            <TextField label="Cidade" id="city" name="city" value={o.city ?? ""} />
+            <Select label="UF" id="state" name="state" options={["","AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map((uf) => ({value:uf,label:uf||"—"}))} selected={o.state ?? ""} />
+          </div>
+          <TextField label="CEP" id="zip" name="zip" value={o.zip ?? ""} />
+          <TextField label="Telefone" id="phone" name="phone" value={o.phone ?? ""} />
+          <TextField label="Email" id="email" name="email" type="email" value={o.email ?? ""} />
+          <TextField label="Ordem" id="sort_order" name="sort_order" type="number" value={String(o.sort_order)} />
+          <Select label="Publicado?" id="is_published" name="is_published" options={[{value:"true",label:"Sim"},{value:"false",label:"Nao"}]} selected={o.is_published ? "true" : "false"} />
+        </Modal>
+        <form method="post" action={`/site/offices/${o.id}/delete`}><button type="submit" class="btn btn-danger inline-flex items-center gap-1" onclick="return confirm('Excluir?')"><i class="ph ph-trash" aria-hidden="true"></i>Excluir</button></form>
+      </div>
+    )} />
+    <Panel title="Escritorio" icon="ph-buildings">
+      <dl class="flex flex-col gap-2 text-body-sm">
+        <div><dt class="font-semibold inline">Nome: </dt><dd class="inline">{o.label}</dd></div>
+        <div><dt class="font-semibold inline">Endereco: </dt><dd class="inline">{o.address}</dd></div>
+        {o.city && <div><dt class="font-semibold inline">Cidade: </dt><dd class="inline">{o.city}/{o.state ?? ""}</dd></div>}
+        {o.zip && <div><dt class="font-semibold inline">CEP: </dt><dd class="inline">{o.zip}</dd></div>}
+        {o.phone && <div><dt class="font-semibold inline">Telefone: </dt><dd class="inline">{o.phone}</dd></div>}
+        {o.email && <div><dt class="font-semibold inline">Email: </dt><dd class="inline">{o.email}</dd></div>}
+      </dl>
+    </Panel>
+  </>);
+});
+
+siteAdminRoutes.post("/offices/:id", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.parseBody();
+  await supabase.from("offices").update({
+    label: body.label as string,
+    address: body.address as string,
+    city: (body.city as string) || null,
+    state: (body.state as string) || null,
+    zip: (body.zip as string) || null,
+    phone: (body.phone as string) || null,
+    email: (body.email as string) || null,
+    sort_order: parseInt(body.sort_order as string) || 0,
+    is_published: body.is_published === "true",
+  }).eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect(`/site/offices/${c.req.param("id")}`);
+});
+
+siteAdminRoutes.post("/offices/:id/delete", async (c) => {
+  const user = c.get("user");
+  await supabase.from("offices").delete().eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
+  return c.redirect("/site/offices");
+});

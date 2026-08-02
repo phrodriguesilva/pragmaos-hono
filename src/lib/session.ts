@@ -3,6 +3,8 @@ import type { Context } from "hono";
 import { createClient } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./env";
+import { getSubscriptionState, shouldBlockAccess, autoExpireTrials } from "./subscription";
+import { needsOnboarding } from "./onboarding";
 
 export type SessionUser = {
   id: string;
@@ -76,4 +78,53 @@ export function requireRole(...roles: string[]) {
     }
     await next();
   };
+}
+
+// Paths that bypass onboarding + subscription enforcement.
+// These must always be reachable so the user can complete onboarding
+// or upgrade their subscription when blocked.
+const ENFORCEMENT_BYPASS_PATHS = [
+  "/onboarding",
+  "/assinatura",
+  "/configuracoes-empresa",
+  "/profile",
+  "/logout",
+  "/login",
+  "/signup",
+];
+
+function isBypassed(path: string): boolean {
+  return ENFORCEMENT_BYPASS_PATHS.some((p) => path === p || path.startsWith(p + "/"));
+}
+
+// Middleware: enforce onboarding completion + active subscription.
+// Apply AFTER requireAuth (so user is already resolved).
+// - If onboarding not complete and path isn't bypassed -> redirect to /onboarding
+// - If trial expired / subscription suspended -> redirect to /assinatura
+export async function requireActiveTenant(c: Context, next: () => Promise<void>) {
+  const user = c.get("user") as SessionUser | undefined;
+  if (!user) {
+    return next();
+  }
+
+  const path = c.req.path;
+  if (isBypassed(path)) {
+    return next();
+  }
+
+  // 1. Onboarding enforcement
+  const onboardNeeded = await needsOnboarding(user.tenantId);
+  if (onboardNeeded) {
+    return c.redirect("/onboarding");
+  }
+
+  // 2. Subscription enforcement
+  let state = await getSubscriptionState(user.tenantId);
+  state = await autoExpireTrials(user.tenantId, state);
+  const blockReason = shouldBlockAccess(state);
+  if (blockReason) {
+    return c.redirect("/assinatura?reason=" + blockReason);
+  }
+
+  await next();
 }

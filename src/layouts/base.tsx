@@ -27,8 +27,11 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       <meta name="apple-mobile-web-app-title" content="PragmaOS" />
       <title>{title} - PragmaOS</title>
+      <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
       <link rel="manifest" href="/manifest.json" />
       <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
+      <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
@@ -76,8 +79,11 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <meta name="theme-color" content="#c2410c" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <title>{title} - PragmaOS</title>
+      <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
       <link rel="manifest" href="/manifest.json" />
       <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
+      <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="" />
+      <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
