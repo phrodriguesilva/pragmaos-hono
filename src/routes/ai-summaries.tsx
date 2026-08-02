@@ -80,7 +80,7 @@ aiSummariesRoutes.get("/", async (c) => {
         <a href={`/ai-summaries/${s.id}`} class="text-[#0568ff] hover:underline inline-flex items-center gap-1">
           <i class="ph ph-eye" aria-hidden="true"></i>Ver
         </a>
-        <form method="post" action={`/ai-summaries/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+        <form method="post" action={`/ai-summaries/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
       </div> as unknown as string,
     ];
   });

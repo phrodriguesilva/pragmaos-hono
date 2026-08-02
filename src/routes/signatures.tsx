@@ -110,7 +110,7 @@ signatureRoutes.get("/", async (c) => {
     r.signed_at ? new Date(r.signed_at).toLocaleDateString("pt-BR") : "-",
     <div class="flex items-center gap-2">
       <a href={`/signatures/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
-      <form method="post" action={`/signatures/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      <form method="post" action={`/signatures/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
     </div> as unknown as string,
   ]);
 

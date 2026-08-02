@@ -158,7 +158,7 @@ workflowsRoutes.get("/", async (c) => {
       <div class="flex items-center gap-2">
         <a href={`/workflows/${w.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
         <a href={`/workflows/${w.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
-        <form method="post" action={`/workflows/${w.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+        <form method="post" action={`/workflows/${w.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
       </div> as unknown as string,
     ];
   });

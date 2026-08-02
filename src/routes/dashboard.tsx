@@ -61,7 +61,7 @@ function DonutChart({ data, size = 160 }: {
         <text x={cx} y={cy - 4} text-anchor="middle" class="fill-gray-800" style="font-size:22px;font-weight:700">
           {total}
         </text>
-        <text x={cx} y={cy + 14} text-anchor="middle" class="fill-gray-400" style="font-size:11px">
+        <text x={cx} y={cy + 14} text-anchor="middle" class="fill-gray-400" style="font-size:12px">
           Total
         </text>
       </svg>
@@ -124,14 +124,14 @@ function LineChart({ data, height = 140 }: {
       {points.map((p) => (
         <g>
           <circle cx={p.x} cy={p.y} r="3.5" fill="var(--color-carvao-500)" />
-          <text x={p.x} y={p.y - 8} text-anchor="middle" class="fill-gray-600" style="font-size:10px;font-weight:600">
+          <text x={p.x} y={p.y - 8} text-anchor="middle" class="fill-gray-600" style="font-size:12px;font-weight:600">
             {fmtK(p.value)}
           </text>
         </g>
       ))}
       {/* X labels */}
       {points.map((p) => (
-        <text x={p.x} y={height - 6} text-anchor="middle" class="fill-gray-400" style="font-size:10px">
+        <text x={p.x} y={height - 6} text-anchor="middle" class="fill-gray-400" style="font-size:12px">
           {p.label}
         </text>
       ))}
@@ -162,10 +162,10 @@ function BarChart({ data, height = 140 }: {
             <rect x={x} y={y} width={barW} height={barH} rx="4" fill={d.color}>
               <title>{`${d.label}: ${d.value}`}</title>
             </rect>
-            <text x={x + barW / 2} y={y - 4} text-anchor="middle" class="fill-gray-700" style="font-size:11px;font-weight:600">
+            <text x={x + barW / 2} y={y - 4} text-anchor="middle" class="fill-gray-700" style="font-size:12px;font-weight:600">
               {d.value}
             </text>
-            <text x={x + barW / 2} y={height - 8} text-anchor="middle" class="fill-gray-500" style="font-size:10px">
+            <text x={x + barW / 2} y={height - 8} text-anchor="middle" class="fill-gray-500" style="font-size:12px">
               {d.label.length > 8 ? d.label.slice(0, 7) + "…" : d.label}
             </text>
           </g>
@@ -318,7 +318,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
 
       {/* Row 3: Agenda + Movimentacoes */}
       <div class="grid grid-cols-2 gap-4">
-        <Panel title="Agenda" icon="ph-calendar">
+        <Panel title="Agenda" icon="ph-calendar" action={<a href="/calendar" class="text-body-sm text-[#0568ff] hover:underline">Ver agenda</a>}>
           <div class="flex flex-col gap-4">
             <div>
               <div class="text-body-sm font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
@@ -362,7 +362,7 @@ dashboardRoutes.get("/dashboard", async (c) => {
           </div>
         </Panel>
 
-        <Panel title="Ultimas movimentacoes" icon="ph-list-dashes">
+        <Panel title="Ultimas movimentacoes" icon="ph-list-dashes" action={<a href="/proceedings" class="text-body-sm text-[#0568ff] hover:underline">Ver todos</a>}>
           {(recentMovements.data ?? []).length === 0 ? (
             <div class="text-body-sm text-gray-400 py-8 text-center">
               <i class="ph ph-tray text-h2 block mb-1 text-gray-300" aria-hidden="true" />

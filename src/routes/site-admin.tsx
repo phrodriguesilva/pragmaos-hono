@@ -1231,7 +1231,7 @@ siteAdminRoutes.get("/stats", async (c) => {
     <div class="flex items-center gap-2">
       <a href={`/site/stats/${s.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
       <form method="post" action={`/site/stats/${s.id}/delete`} class="inline" onsubmit="return confirm('Excluir esta estatistica?')">
-        <button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button>
+        <button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button>
       </form>
     </div> as unknown as string,
   ]);
@@ -1410,7 +1410,7 @@ siteAdminRoutes.get("/testimonials", async (c) => {
     t.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
       <a href={`/site/testimonials/${t.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
-      <form method="post" action={`/site/testimonials/${t.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      <form method="post" action={`/site/testimonials/${t.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
     </div> as unknown as string,
   ]);
 
@@ -1513,7 +1513,7 @@ siteAdminRoutes.get("/clients", async (c) => {
     cl.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
       <a href={`/site/clients/${cl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
-      <form method="post" action={`/site/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      <form method="post" action={`/site/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
     </div> as unknown as string,
   ]);
 
@@ -1608,7 +1608,7 @@ siteAdminRoutes.get("/recognitions", async (c) => {
     r.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
       <a href={`/site/recognitions/${r.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
-      <form method="post" action={`/site/recognitions/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      <form method="post" action={`/site/recognitions/${r.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
     </div> as unknown as string,
   ]);
 
@@ -1735,7 +1735,7 @@ siteAdminRoutes.get("/offices", async (c) => {
     o.is_published ? <Badge color="green">Publicado</Badge> : <Badge color="gray">Oculto</Badge> as unknown as string,
     <div class="flex items-center gap-2">
       <a href={`/site/offices/${o.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
-      <form method="post" action={`/site/offices/${o.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      <form method="post" action={`/site/offices/${o.id}/delete`} class="inline" onsubmit="return confirm('Excluir?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
     </div> as unknown as string,
   ]);
 

@@ -769,7 +769,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
             <span {...{ "x-show": "s === 3" }} x-cloak class="text-xs text-green-600">Forte</span>
           </div>
         </div>
-        <div {...{ "x-data": "{ show: false }" }} class="flex flex-col gap-1">
+        <div {...{ "x-data": "{ show: false, match: true }" }} class="flex flex-col gap-1">
           <label for="confirm_password" class="text-body-sm font-semibold text-gray-700">
             Confirmar senha<span class="text-status-red"> *</span>
           </label>
@@ -784,7 +784,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
               placeholder="Repita a nova senha"
               autocomplete="new-password"
               class="input w-full pl-7 pr-8"
-              {...{ ":type": "show ? 'text' : 'password'" }}
+              {...{ ":type": "show ? 'text' : 'password'", "@input": "match = $el.value === document.getElementById('password').value" }}
             />
             <button
               type="button"
@@ -795,6 +795,13 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
               <i {...{ ":class": "show ? 'ph ph-eye-slash' : 'ph ph-eye'" }} class="ph ph-eye text-body" aria-hidden="true" />
             </button>
           </div>
+          {/* Password match indicator */}
+          <p {...{ "x-show": "!match", "x-cloak": "" }} class="text-body-xs text-status-red mt-1">
+            <i class="ph ph-warning" aria-hidden="true" /> As senhas nao coincidem
+          </p>
+          <p {...{ "x-show": "match", "x-cloak": "" }} class="text-body-xs text-green-600 mt-1">
+            <i class="ph ph-check-circle" aria-hidden="true" /> Senhas coincidem
+          </p>
         </div>
         <AuthButton icon="ph-check" label="Redefinir senha" />
         <div class="text-center">

@@ -13,6 +13,27 @@ export const SkeletonRow: FC<{ cols: number }> = ({ cols }) => (
   </tr>
 );
 
+// EmptyState — reusable empty state for lists with no data.
+export const EmptyState: FC<{ icon?: string; title: string; description?: string; action?: PropsWithChildren["children"] }> = ({ icon = "ph-inbox", title, description, action }) => (
+  <div class="flex flex-col items-center justify-center py-12 text-center">
+    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+      <i class={`ph ${icon} text-h2 text-gray-400`} aria-hidden="true" />
+    </div>
+    <h3 class="text-h4 font-semibold text-gray-700 mb-1">{title}</h3>
+    {description ? <p class="text-body-sm text-gray-500 max-w-sm">{description}</p> : null}
+    {action ? <div class="mt-4">{action}</div> : null}
+  </div>
+);
+
+// SkeletonCard — placeholder for cards/panels while data loads.
+export const SkeletonCard: FC<{ lines?: number }> = ({ lines = 3 }) => (
+  <div class="bg-white rounded-xl border border-gray-100 p-5">
+    {Array.from({ length: lines }).map((_, i) => (
+      <div key={i} class="h-4 bg-gray-100 rounded animate-pulse mb-3" style={`width: ${i === 0 ? "40%" : i === lines - 1 ? "60%" : "100%"};`} />
+    ))}
+  </div>
+);
+
 // LoadingButton — button with Alpine.js loading state (spinner + disabled).
 export const LoadingButton: FC<{
   type?: "submit" | "button";
@@ -198,12 +219,13 @@ export const PageHeader: FC<PropsWithChildren<{ title: string; icon?: string; ac
   </div>
 );
 
-export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string; hover?: boolean }>> = ({ title, icon, hover, children }) => (
+export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string; hover?: boolean; action?: PropsWithChildren["children"] }>> = ({ title, icon, hover, action, children }) => (
   <div class={`border border-gray-100 bg-white rounded-xl shadow-sm ${hover ? "card-hover" : ""}`}>
     {title ? (
       <div class="border-b border-gray-100 px-5 py-4 flex items-center gap-2.5">
         {icon ? <i class={`ph ${icon} text-body text-[#0568ff]`} aria-hidden="true" /> : null}
-        <h2 class="text-h3 font-semibold text-gray-800">{title}</h2>
+        <h2 class="text-h3 font-semibold text-gray-800 flex-1">{title}</h2>
+        {action}
       </div>
     ) : null}
     <div class="p-5">{children}</div>
@@ -821,6 +843,7 @@ export const FileUpload: FC<{
           <i class="ph ph-folder-open" aria-hidden="true"></i> Selecionar arquivo
         </button>
         {help ? <p class="text-body-xs text-gray-400 mt-2">{help}</p> : null}
+        <p class="text-body-xs text-gray-400 mt-1">Tamanho maximo: {maxSize}MB</p>
       </div>
 
       {/* Estado: uploading (progress bar) */}
