@@ -2,6 +2,45 @@ import type { FC, PropsWithChildren } from "hono/jsx";
 
 export type BadgeColor = "green" | "red" | "yellow" | "blue" | "gray";
 
+// SkeletonRow — placeholder for table rows while data loads.
+export const SkeletonRow: FC<{ cols: number }> = ({ cols }) => (
+  <tr>
+    {Array.from({ length: cols }).map((_, i) => (
+      <td key={i}>
+        <div class="h-4 bg-gray-100 rounded animate-pulse" style="width: 60%;" />
+      </td>
+    ))}
+  </tr>
+);
+
+// LoadingButton — button with Alpine.js loading state (spinner + disabled).
+export const LoadingButton: FC<{
+  type?: "submit" | "button";
+  variant?: "primary" | "secondary";
+  children: PropsWithChildren["children"];
+  icon?: string;
+  loadingText?: string;
+}> = ({ type = "submit", variant = "primary", children, icon, loadingText }) => (
+  <button
+    type={type}
+    class={`btn btn-${variant} inline-flex items-center gap-2`}
+    {...{ "x-data": "{ loading: false }", "@click": "loading = true", ":disabled": "loading", ":class": "loading ? 'opacity-60 cursor-wait' : ''" }}
+  >
+    <template {...{ "x-if": "loading" }}>
+      <span class="flex items-center gap-2">
+        <i class="ph ph-spinner animate-spin" aria-hidden="true" />
+        {loadingText ?? "Salvando..."}
+      </span>
+    </template>
+    <template {...{ "x-if": "!loading" }}>
+      <span class="flex items-center gap-2">
+        {icon ? <i class={`ph ${icon}`} aria-hidden="true" /> : null}
+        {children}
+      </span>
+    </template>
+  </button>
+);
+
 export const Badge: FC<{ color: BadgeColor; children: PropsWithChildren["children"]; icon?: string }> = ({
   color,
   children,
@@ -59,46 +98,48 @@ export const Table: FC<TableProps> = ({ columns, rows, emptyMsg, ariaLabel, empt
 
   return (
     <>
-      <table class="data-table" aria-label={ariaLabel}>
-        <thead>
-          <tr>
-            {columns.map((c) => (
-              <th class={c.align === "center" ? "text-center" : c.align === "right" ? "text-right" : ""}>
-                {c.icon ? <i class={`ph ${c.icon} mr-1`} aria-hidden="true" /> : null}
-                {c.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 ? (
+      <div class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+        <table class="data-table" aria-label={ariaLabel}>
+          <thead>
             <tr>
-              <td colspan={columns.length} class="text-center text-gray-500 py-4">
-                {emptyIcon ? <i class={`ph ${emptyIcon} text-h2 block mb-1 text-gray-300`} aria-hidden="true" /> : null}
-                {emptyMsg ?? "Nenhum registro encontrado."}
-              </td>
+              {columns.map((c) => (
+                <th class={c.align === "center" ? "text-center" : c.align === "right" ? "text-right" : ""}>
+                  {c.icon ? <i class={`ph ${c.icon} mr-1`} aria-hidden="true" /> : null}
+                  {c.label}
+                </th>
+              ))}
             </tr>
-          ) : (
-            rows.map((row) => (
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
               <tr>
-                {row.map((cell, i) => (
-                  <td
-                    class={
-                      columns[i]?.align === "center"
-                        ? "text-center"
-                        : columns[i]?.align === "right"
-                          ? "text-right"
-                          : ""
-                    }
-                  >
-                    {cell}
-                  </td>
-                ))}
+                <td colspan={columns.length} class="text-center text-gray-500 py-4">
+                  {emptyIcon ? <i class={`ph ${emptyIcon} text-h2 block mb-1 text-gray-300`} aria-hidden="true" /> : null}
+                  {emptyMsg ?? "Nenhum registro encontrado."}
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              rows.map((row) => (
+                <tr>
+                  {row.map((cell, i) => (
+                    <td
+                      class={
+                        columns[i]?.align === "center"
+                          ? "text-center"
+                          : columns[i]?.align === "right"
+                            ? "text-right"
+                            : ""
+                      }
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       {showCount || showPagination ? (
         <div class="flex items-center justify-between mt-2">
           {showCount ? (
@@ -261,10 +302,15 @@ export const ComboBox: FC<{
       </label>
       <div
         class="combobox"
+        role="combobox"
+        aria-expanded="false"
+        {...{ ":aria-expanded": "open" }}
+        aria-haspopup="listbox"
         {...{
-          "x-data": `{ 
+          "x-data": `{
             open: false,
             query: '',
+            activeIndex: -1,
             selectedValue: ${selected ? `'${selected.replace(/'/g, "\\'")}'` : "''"},
             selectedLabel: ${selectedLabel ? `'${selectedLabel.replace(/'/g, "\\'")}'` : "''"},
             options: ${optionsJson},
@@ -278,18 +324,26 @@ export const ComboBox: FC<{
               this.selectedLabel = opt.l;
               this.open = false;
               this.query = '';
+              this.activeIndex = -1;
+            },
+            navigate(e) {
+              if (!this.open) return;
+              const len = this.filtered.length;
+              if (e.key === 'ArrowDown') { e.preventDefault(); this.activeIndex = Math.min(this.activeIndex + 1, len - 1); }
+              else if (e.key === 'ArrowUp') { e.preventDefault(); this.activeIndex = Math.max(this.activeIndex - 1, 0); }
+              else if (e.key === 'Enter' && this.activeIndex >= 0) { e.preventDefault(); if (this.filtered[this.activeIndex]) this.select(this.filtered[this.activeIndex]); }
+              else if (e.key === 'Escape') { this.open = false; this.activeIndex = -1; }
             }
           }`,
         }}
       >
         {/* Hidden input that submits the actual value */}
-        <input type="hidden" name={name} value={selected ?? ""} {...{ ":value": "selectedValue" }} />
+        <input type="hidden" name={name} value={selected ?? ""} {...{ ":value": "selectedValue" }} aria-hidden="true" />
 
         {/* Trigger button */}
         <div
           class="combobox-trigger"
-          {...{ "@click": "open = !open; if (open) $nextTick(() => $refs.search.focus())" }}
-          {...{ "@click.away": "open = false" }}
+          {...{ tabindex: "0", role: "button", "aria-label": label, "@click": "open = !open; if (open) $nextTick(() => $refs.search.focus())", "@click.away": "open = false", "@keydown.enter.prevent": "open = !open; if (open) $nextTick(() => $refs.search.focus())", "@keydown.space.prevent": "open = !open; if (open) $nextTick(() => $refs.search.focus())" } as Record<string, unknown>}
         >
           {icon ? <i class={`ph ${icon} text-body text-gray-400`} aria-hidden="true" /> : null}
           <span
@@ -309,24 +363,28 @@ export const ComboBox: FC<{
         </div>
 
         {/* Dropdown */}
-        <div class="combobox-dropdown" {...{ "x-show": "open" }} x-cloak>
+        <div class="combobox-dropdown" {...{ "x-show": "open" }} x-cloak role="listbox" aria-label={label} {...{ "@keydown": "navigate($event)" }}>
           <input
             type="text"
             x-ref="search"
             class="combobox-search"
             placeholder={placeholder}
+            aria-label="Buscar opcoes"
             {...{ "x-model": "query" }}
           />
-          <template {...{ "x-for": "opt in filtered", ":key": "opt.v" }}>
+          <template {...{ "x-for": "(opt, i) in filtered", ":key": "opt.v" }}>
             <div
               class="combobox-option"
-              {...{ ":class": "selectedValue === opt.v ? 'combobox-option-selected' : ''" }}
+              role="option"
+              {...{ ":aria-selected": "selectedValue === opt.v" }}
+              {...{ ":class": "selectedValue === opt.v ? 'combobox-option-selected' : (i === activeIndex ? 'combobox-option-active' : '')" }}
               {...{ "@click": "select(opt)" }}
+              {...{ "@mouseenter": "activeIndex = i" }}
             >
               <span {...{ "x-text": "opt.l" }} />
             </div>
           </template>
-          <div class="combobox-empty" {...{ "x-show": "filtered.length === 0" }} x-cloak>
+          <div class="combobox-empty" {...{ "x-show": "filtered.length === 0" }} x-cloak role="status">
             Nenhum resultado encontrado
           </div>
         </div>
@@ -423,18 +481,18 @@ export const Modal: FC<{
   submitIcon = "ph-floppy-disk",
   children,
 }) => (
-  <div {...{ "x-data": `{ open: false }` }}>
+  <div {...{ "x-data": `{ open: false, previousFocus: null, trapFocus(e) { const panel = this.$refs.panel; if (!panel) return; const focusable = panel.querySelectorAll('input, select, textarea, button:not([disabled]), a[href], [tabindex]:not([tabindex=\"-1\"])'); if (focusable.length === 0) return; const first = focusable[0]; const last = focusable[focusable.length - 1]; if (e.key === 'Tab') { if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } } } }` }}>
     <button
       type="button"
-      {...{ "@click": "open = true; document.body.classList.add('modal-open')" }}
+      {...{ "@click": "open = true; document.body.classList.add('modal-open'); previousFocus = document.activeElement; $nextTick(() => { const f = $refs.panel?.querySelector('input, select, textarea'); if (f) f.focus(); })" }}
       class={`btn btn-${triggerVariant} inline-flex items-center gap-1`}
     >
       {triggerIcon ? <i class={`ph ${triggerIcon}`} aria-hidden="true" /> : null}
       {triggerText}
     </button>
 
-    <div {...{ "x-show": "open" }} x-cloak class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
-      <div class={`modal-panel${large ? " modal-lg" : ""}`}>
+    <div {...{ "x-show": "open", "@keydown.escape.window": "open = false; document.body.classList.remove('modal-open'); if (previousFocus) previousFocus.focus()", "@keydown.tab": "trapFocus($event)" }} x-cloak class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
+      <div class={`modal-panel${large ? " modal-lg" : ""}`} {...{ "x-ref": "panel" }}>
         <div class="modal-header">
           <div class="flex items-center gap-2">
             {icon ? <i class={`ph-bold ${icon} text-h3 text-carvao-700`} aria-hidden="true" /> : null}
@@ -442,7 +500,7 @@ export const Modal: FC<{
           </div>
           <button
             type="button"
-            {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+            {...{ "@click": "open = false; document.body.classList.remove('modal-open'); if (previousFocus) previousFocus.focus()" }}
             aria-label="Fechar"
             class="text-gray-400 hover:text-gray-700"
           >
@@ -456,7 +514,7 @@ export const Modal: FC<{
           <div class="modal-footer">
             <button
               type="button"
-              {...{ "@click": "open = false; document.body.classList.remove('modal-open')" }}
+              {...{ "@click": "open = false; document.body.classList.remove('modal-open'); if (previousFocus) previousFocus.focus()" }}
               class="btn btn-secondary inline-flex items-center gap-1"
             >
               <i class="ph ph-x" aria-hidden="true" />Cancelar

@@ -4,8 +4,9 @@ import { $ } from "bun";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
 // 0. Typecheck — fail fast on type errors before building.
+// Uses tsconfig.json which excludes auto-generated and broken files.
 console.log("Running typecheck (tsc --noEmit)...");
-await $`bunx tsc --noEmit`;
+await $`bunx tsc --noEmit --project tsconfig.json`;
 console.log("Typecheck passed.");
 
 // 1. Generate CSS with Tailwind CLI.

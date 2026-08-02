@@ -138,7 +138,7 @@ casesRoutes.get("/", async (c) => {
                       options={clientOptions}
                     />
                     <TextField label="Titulo" id="title" name="title" required placeholder="Titulo do processo" />
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <TextField label="Numero" id="case_number" name="case_number" placeholder="CNJ ou numero interno" />
                       <Select label="Tipo" id="case_type" name="case_type" required
                         options={CASE_TYPES.map((t) => ({ value: t, label: t }))}
@@ -154,11 +154,11 @@ casesRoutes.get("/", async (c) => {
                   <>
                     <TextField label="Parte contraria" id="opposing_party" name="opposing_party" placeholder="Nome da parte contraria" />
                     <TextField label="Advogado contrario" id="opposing_lawyer" name="opposing_lawyer" placeholder="Nome do advogado contrario" />
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <TextField label="Juiz" id="judge" name="judge" placeholder="Juiz responsavel" />
                       <TextField label="Tribunal" id="tribunal" name="tribunal" />
                     </div>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <TextField label="Comarca" id="district" name="district" />
                       <TextField label="Vara" id="court_branch" name="court_branch" />
                       <Select label="Instancia" id="instance" name="instance" selected="1"
@@ -170,7 +170,7 @@ casesRoutes.get("/", async (c) => {
                         ]}
                       />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <TextField label="Classe" id="case_class" name="case_class" placeholder="Classe processual" />
                       <TextField label="Assunto" id="subject" name="subject" placeholder="Assunto" />
                     </div>
@@ -340,7 +340,7 @@ casesRoutes.get("/:id", async (c) => {
                         options={clientOptions}
                       />
                       <TextField label="Titulo" id="title" name="title" required value={caseRow.title} />
-                      <div class="grid grid-cols-2 gap-4">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <TextField label="Numero" id="case_number" name="case_number" value={caseRow.case_number ?? ""} />
                         <Select label="Tipo" id="case_type" name="case_type" required selected={caseRow.case_type}
                           options={CASE_TYPES.map((t) => ({ value: t, label: t }))}
@@ -356,11 +356,11 @@ casesRoutes.get("/:id", async (c) => {
                     <>
                       <TextField label="Parte contraria" id="opposing_party" name="opposing_party" value={caseRow.opposing_party ?? ""} />
                       <TextField label="Advogado contrario" id="opposing_lawyer" name="opposing_lawyer" />
-                      <div class="grid grid-cols-2 gap-4">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <TextField label="Juiz" id="judge" name="judge" value={caseRow.judge ?? ""} />
                         <TextField label="Tribunal" id="tribunal" name="tribunal" value={caseRow.tribunal ?? ""} />
                       </div>
-                      <div class="grid grid-cols-3 gap-4">
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <TextField label="Comarca" id="district" name="district" value={caseRow.district ?? ""} />
                         <TextField label="Vara" id="court_branch" name="court_branch" value={caseRow.court_branch ?? ""} />
                         <Select label="Instancia" id="instance" name="instance" selected={caseRow.instance ?? "1"}
@@ -372,7 +372,7 @@ casesRoutes.get("/:id", async (c) => {
                           ]}
                         />
                       </div>
-                      <div class="grid grid-cols-2 gap-4">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <TextField label="Classe" id="case_class" name="case_class" value={caseRow.case_class ?? ""} />
                         <TextField label="Assunto" id="subject" name="subject" value={caseRow.subject ?? ""} />
                       </div>
@@ -406,7 +406,7 @@ casesRoutes.get("/:id", async (c) => {
         )}
       />
 
-      <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Panel title="Dados do processo" icon="ph-folder">
           <dl class="flex flex-col gap-1 text-body-sm">
             <div><dt class="font-semibold text-gray-700 inline">Cliente: </dt><dd class="inline"><a href={`/clients/${caseRow.client_id}`} class="text-terracota-600 hover:underline">{client?.name ?? "-"}</a></dd></div>

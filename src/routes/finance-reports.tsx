@@ -126,7 +126,7 @@ financeReportsRoutes.get("/", async (c) => {
       <PageHeader title="Relatorios Financeiros" icon="ph-chart-pie" />
       {PeriodSelector(month, year)}
 
-      <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Panel>
           <div class="text-body-sm text-gray-500 flex items-center gap-2">
             <i class="ph ph-arrow-fat-line-up text-h3 text-status-green" aria-hidden="true"></i>Receita Total

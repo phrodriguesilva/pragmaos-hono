@@ -581,7 +581,7 @@ importRoutes.post("/confirm", async (c) => {
       <PageHeader title="Resultado da Importacao" icon="ph-check-circle" />
 
       <Panel title="Resumo" icon="ph-info">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
             <i class="ph ph-check-circle text-h2 text-status-green" aria-hidden="true" />
             <div>

@@ -367,6 +367,9 @@
   .combobox-option-selected {
     @apply bg-terracota-50 text-terracota-700 font-semibold;
   }
+  .combobox-option-active {
+    @apply bg-gray-100;
+  }
   .combobox-empty {
     @apply px-3.5 py-3 text-body-sm text-gray-400 text-center;
   }

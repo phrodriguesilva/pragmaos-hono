@@ -279,7 +279,7 @@ dashboardRoutes.get("/", async (c) => {
       <PageHeader title="Painel Executivo" icon="ph-squares-four" />
 
       {/* Row 1: 4 KPIs principais */}
-      <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="#b06432" />
         <KpiCard icon="ph-hand-coins" label="A receber" value={fmt(toReceiveCents)} color="#94640c" />
         <KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="#36332e" />
@@ -287,7 +287,7 @@ dashboardRoutes.get("/", async (c) => {
       </div>
 
       {/* Row 2: 3 graficos */}
-      <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Panel title="Processos por status" icon="ph-circle-half">
           <div class="py-2">
             <DonutChart data={statusChart} />
