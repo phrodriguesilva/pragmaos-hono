@@ -74,6 +74,7 @@ export const MENU: MenuItem[] = [
     icon: "ph-file-text",
     children: [
       { key: "documents", label: "Documentos", href: "/documents", icon: "ph-file-text" },
+      { key: "doc-search", label: "Busca em Docs", href: "/search/documents", icon: "ph-file-search" },
       { key: "templates", label: "Modelos", href: "/templates", icon: "ph-files" },
       { key: "signatures", label: "Assinaturas", href: "/signatures", icon: "ph-pen-nib" },
       { key: "diario-oficial", label: "Diario Oficial", href: "/diario-oficial", icon: "ph-newspaper" },
