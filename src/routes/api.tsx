@@ -192,3 +192,118 @@ apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), async (c) =>
 
   return c.json({ results });
 });
+
+// ============================================================
+// Browser Extension (PJe capture)
+// ============================================================
+
+// POST /api/v1/extension/capture — receive captured data from the PJe browser extension.
+// The extension scrapes case movements, documents, and metadata from PJe pages
+// and sends them here for ingestion.
+apiRoutes.post("/v1/extension/capture", requireScope("cases:write"), async (c) => {
+  const tenantId = c.get("apiTenantId") as string;
+  const body = await c.req.json().catch(() => null);
+
+  if (!body) {
+    return c.json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const { case_number, source, movements, documents } = body as {
+    case_number?: string;
+    source?: string;
+    movements?: { date: string; description: string; content?: string }[];
+    documents?: { title: string; url: string; type?: string }[];
+  };
+
+  if (!case_number) {
+    return c.json({ error: "case_number is required" }, 400);
+  }
+
+  // Find the case by CNJ number.
+  const { data: caseRecord } = await supabase
+    .from("cases")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .or(`case_number.eq.${case_number},cnj_number.eq.${case_number}`)
+    .maybeSingle();
+
+  if (!caseRecord) {
+    return c.json({ error: "Case not found. Import the case first or create it with the matching CNJ number." }, 404);
+  }
+
+  const results: { movements: number; documents: number; errors: string[] } = {
+    movements: 0,
+    documents: 0,
+    errors: [],
+  };
+
+  // Insert movements.
+  if (movements && Array.isArray(movements)) {
+    for (const m of movements) {
+      const { error } = await supabase
+        .from("case_movements")
+        .insert({
+          tenant_id: tenantId,
+          case_id: caseRecord.id,
+          date: m.date,
+          title: m.description.slice(0, 200),
+          content: m.content ?? null,
+          source: source ?? "pje_extension",
+        });
+
+      if (error) {
+        results.errors.push(`Movement ${m.date}: ${error.message}`);
+      } else {
+        results.movements++;
+      }
+    }
+  }
+
+  // Insert documents (as records — the actual file would need to be uploaded separately).
+  if (documents && Array.isArray(documents)) {
+    for (const doc of documents) {
+      const { error } = await supabase
+        .from("documents")
+        .insert({
+          tenant_id: tenantId,
+          case_id: caseRecord.id,
+          title: doc.title,
+          doc_type: doc.type ?? "outro",
+          storage_path: doc.url, // URL from PJe
+          source: "pje_extension",
+        });
+
+      if (error) {
+        results.errors.push(`Document ${doc.title}: ${error.message}`);
+      } else {
+        results.documents++;
+      }
+    }
+  }
+
+  return c.json({
+    success: true,
+    case_id: caseRecord.id,
+    captured: results,
+  });
+});
+
+// GET /api/v1/extension/cases — search cases by CNJ (for the extension popup).
+apiRoutes.get("/v1/extension/cases", requireScope("cases:read"), async (c) => {
+  const tenantId = c.get("apiTenantId") as string;
+  const q = c.req.query("q") ?? "";
+
+  if (q.length < 2) {
+    return c.json({ cases: [] });
+  }
+
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title, case_number, status")
+    .eq("tenant_id", tenantId)
+    .is("deleted_at", null)
+    .or(`title.ilike.%${q}%,case_number.ilike.%${q}%`)
+    .limit(10);
+
+  return c.json({ cases: cases ?? [] });
+});

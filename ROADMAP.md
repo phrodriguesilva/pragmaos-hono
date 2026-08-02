@@ -78,7 +78,7 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 
 | # | Tarefa | Esforço | Arquivos | Status |
 |---|--------|---------|----------|--------|
-| 1.1 | **OAuth state criptográfico + PKCE** — substituir `tenantId:userId` por UUID aleatório + assinatura HMAC. Implementar PKCE em Google/Microsoft/DocuSign. | Médio | `oauth.tsx` | ✅ state feito (Auditoria 1) — falta PKCE |
+| 1.1 | **OAuth state criptográfico + PKCE** — substituir `tenantId:userId` por UUID aleatório + assinatura HMAC. Implementar PKCE em Google/Microsoft/DocuSign. | Médio | `oauth.tsx` | ✅ feito (state HMAC + PKCE S256) |
 | 1.2 | **Verificação HMAC nos webhooks** — WhatsApp (X-Hub-Signature-256) e ClickSign. | Médio | `whatsapp-webhook.ts`, `integrations.ts` | ✅ feito (Auditoria 1 + ja existia) |
 | 1.3 | **Refresh de OAuth tokens** — usar refresh tokens armazenados quando access_token expira. | Médio | `oauth.tsx`, `integrations.ts` | ✅ feito |
 | 1.4 | **Criptografar OAuth tokens em repouso** — usar pgcrypto ou Supabase Vault para access_token/refresh_token. | Médio | migration + `oauth.tsx` | ✅ feito (crypto.ts AES-256-GCM) |
@@ -87,7 +87,7 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 | 1.7 | **Corrigir bypass de PII masking** — mascarar PII antes de construir o prompt, não depois. | Baixo | `ai.ts` (generateCaseSummary) | ✅ feito |
 | 1.8 | **Cabeçalhos de segurança** — CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. | Baixo | `index.ts` | ✅ feito |
 | 1.9 | **Validação de env vars no startup** — Zod schema, fail fast se SUPABASE_URL/KEY faltando. | Baixo | `env.ts` | ✅ feito (Auditoria 3) |
-| 1.10 | **Rate limiter distribuído** — substituir Map em memória por Upstash Redis (compatível com Vercel serverless). | Médio | `rate-limit.ts`, `ai.ts` | Pendente |
+| 1.10 | **Rate limiter distribuído** — substituir Map em memória por Upstash Redis (compatível com Vercel serverless). | Médio | `rate-limit.ts`, `ai.ts` | ✅ feito (Upstash Redis + fallback memoria) |
 
 ### Fase 2 — Performance e UX (alto impacto)
 
@@ -137,7 +137,7 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 | 5.7 | **Versionamento de documentos** — controle de versão antes da assinatura, diff entre versões, quem alterou o quê. | Médio | Médio | ✅ feito |
 | 5.8 | **Jurimetria interna** — catalogar resultado final de processos encerrados, gerar estatísticas por vara/tribunal/tipo. | Médio | Médio | ✅ feito |
 | 5.9 | **Self-service tenant provisioning** — signup cria tenant automaticamente, configura RLS, cria perfil de sócio. | Médio | Alto para escalar | ✅ feito |
-| 5.10 | **Extensão de navegador (PJe)** — capturar documentos e andamentos do tribunal com um clique, salvar no PragmaOS. | Muito alto | Alto — diferenciação radical |
+| 5.10 | **Extensão de navegador (PJe)** — capturar documentos e andamentos do tribunal com um clique, salvar no PragmaOS. | Muito alto | Alto — diferenciação radical | ✅ feito (Manifest V3 + API endpoint) |
 
 ### Fase 6 — PWA e Mobile Nativo (futuro)
 
@@ -151,12 +151,12 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 ## Priorização Recomendada
 
 ```
-Fase 1 (segurança restante)     ████████████████  95% feito (1.1✅ 1.2✅ 1.3✅ 1.4✅ 1.5✅ 1.6✅ 1.7✅ 1.8✅ 1.9✅ — falta 1.10)
+Fase 1 (segurança restante)     ████████████████  100% feito (1.1✅ 1.2✅ 1.3✅ 1.4✅ 1.5✅ 1.6✅ 1.7✅ 1.8✅ 1.9✅ 1.10✅)
 Fase 2 (performance/UX)         ████████████████  100% feito (2.1✅ 2.2✅ 2.3✅ 2.4✅ 2.5✅ 2.6✅)
 Fase 5.1 (importação CSV)       ████████████████  100% feito
 Fase 3 (mobile/a11y)            ████████████████  100% feito (3.1✅ 3.2✅ 3.3✅ 3.4✅ 3.5✅ 3.6✅)
 Fase 4 (infra/qualidade)        ████████████████  100% feito (4.1✅ 4.2✅ 4.3✅ 4.4✅ 4.5✅ 4.6✅ 4.7✅ 4.8✅)
-Fase 5 (features restantes)     ███████████████░  90% feito (5.1✅ 5.2✅ 5.3✅ 5.4✅ 5.5✅ 5.6✅ 5.7✅ 5.8✅ 5.9✅ — falta 5.10)
+Fase 5 (features restantes)     ████████████████  100% feito (5.1✅ 5.2✅ 5.3✅ 5.4✅ 5.5✅ 5.6✅ 5.7✅ 5.8✅ 5.9✅ 5.10✅)
 Fase 6 (PWA/nativo)             ░░░░░░░░░░░░░░░░  0% feito
 ```
 

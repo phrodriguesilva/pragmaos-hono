@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Configuracoes — PragmaOS PJe</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 480px; margin: 40px auto; padding: 20px; }
+    h1 { font-size: 20px; color: #1f2937; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+    .field input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    .field .help { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    button { background: #c2410c; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    button:hover { background: #9a3412; }
+    .saved { display: none; color: #059669; font-size: 14px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Configuracoes do PragmaOS</h1>
+  <p style="color: #6b7280; font-size: 14px;">Configure a conexao com seu PragmaOS para capturar dados do PJe.</p>
+
+  <div class="field">
+    <label>URL do PragmaOS</label>
+    <input type="url" id="url" placeholder="https://app.pragmaos.com.br" />
+    <div class="help">A URL base da sua instancia do PragmaOS.</div>
+  </div>
+
+  <div class="field">
+    <label>API Key</label>
+    <input type="password" id="apiKey" placeholder="pragma_xxxxxxxxxxxx" />
+    <div class="help">Gere uma API key em PragmaOS > Administracao > API e Webhooks. Escopo necessario: cases:read e cases:write.</div>
+  </div>
+
+  <button id="save">Salvar</button>
+  <div id="saved" class="saved">Configuracoes salvas!</div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { pragmaosUrl = "", pragmaosApiKey = "" } = await chrome.storage.sync.get(["pragmaosUrl", "pragmaosApiKey"]);
+      document.getElementById("url").value = pragmaosUrl;
+      document.getElementById("apiKey").value = pragmaosApiKey;
+
+      document.getElementById("save").onclick = async () => {
+        const url = document.getElementById("url").value.replace(/\/$/, "");
+        const apiKey = document.getElementById("apiKey").value;
+        await chrome.storage.sync.set({ pragmaosUrl: url, pragmaosApiKey: apiKey });
+        const saved = document.getElementById("saved");
+        saved.style.display = "block";
+        setTimeout(() => { saved.style.display = "none"; }, 3000);
+      };
+    });
+  </script>
+</body>
+</html>

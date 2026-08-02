@@ -1,0 +1,23 @@
+/* PragmaOS PJe Extension — content script styles */
+/* Floating capture button injected on PJe pages */
+
+pragmaos-capture-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  background: #c2410c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s;
+}
+
+pragmaos-capture-btn:hover {
+  background: #9a3412;
+}

@@ -1,0 +1,44 @@
+// PragmaOS PJe Extension — popup page.
+// Shows connection status and capture button.
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { width: 320px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 16px; }
+    h1 { font-size: 16px; margin: 0 0 12px; color: #1f2937; }
+    .status { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+    .status.connected { color: #059669; }
+    .status.disconnected { color: #dc2626; }
+    .case-info { background: #f3f4f6; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 13px; }
+    .case-info .label { color: #6b7280; font-size: 11px; }
+    .case-info .value { color: #1f2937; font-weight: 500; }
+    button { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 8px; }
+    .btn-primary { background: #c2410c; color: white; }
+    .btn-primary:hover { background: #9a3412; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-secondary:hover { background: #d1d5db; }
+    .result { font-size: 12px; margin-top: 8px; padding: 8px; border-radius: 6px; }
+    .result.success { background: #d1fae5; color: #065f46; }
+    .result.error { background: #fee2e2; color: #991b1b; }
+    .link { font-size: 11px; color: #c2410c; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>PragmaOS — PJe</h1>
+  <div id="status" class="status disconnected">Verificando conexao...</div>
+  <div id="case-info" class="case-info" style="display: none;">
+    <div class="label">Processo detectado</div>
+    <div id="case-number" class="value">—</div>
+  </div>
+  <button id="capture" class="btn-primary" disabled>Capturar Andamentos</button>
+  <button id="settings" class="btn-secondary">Configuracoes</button>
+  <div id="result"></div>
+  <div style="margin-top: 12px; text-align: center;">
+    <a href="#" id="open-pragmaos" class="link">Abrir PragmaOS</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
