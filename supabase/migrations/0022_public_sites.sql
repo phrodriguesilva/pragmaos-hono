@@ -27,11 +27,12 @@ alter table tenants
   add column if not exists site_published boolean not null default false;
 
 -- Backfill slug from name for existing tenants (if slug is null).
+-- Uses translate() instead of unaccent() to avoid requiring the unaccent extension.
 update tenants
   set slug = lower(
     regexp_replace(
       regexp_replace(
-        unaccent(name),
+        translate(name, 'áàâãäéèêëíìîïóòôõöúùûüçÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ', 'aaaaaeeeeiiiiooooouuuucAAAAAEEEEIIIIOOOOUUUUC'),
         '[^a-z0-9]+', '-', 'g'
       ),
       '^-+|-+$', '', 'g'
@@ -203,10 +204,12 @@ begin
 end;
 $$ language plpgsql;
 
-create trigger if not exists trg_site_settings_updated
+drop trigger if exists trg_site_settings_updated on site_settings;
+create trigger trg_site_settings_updated
   before update on site_settings
   for each row execute function update_updated_at();
 
-create trigger if not exists trg_articles_updated
+drop trigger if exists trg_articles_updated on articles;
+create trigger trg_articles_updated
   before update on articles
   for each row execute function update_updated_at();
