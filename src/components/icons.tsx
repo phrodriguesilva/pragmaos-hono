@@ -136,6 +136,7 @@ export const MENU: MenuItem[] = [
       { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-hash" },
       { key: "import", label: "Importar Dados", href: "/import", icon: "ph-upload-simple" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
+      { key: "docs", label: "Docs Tecnicas", href: "/docs", icon: "ph-book-open" },
     ],
   },
 ];
@@ -293,6 +294,9 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
             {userRole ? <span class="text-body-xs text-gray-400 font-normal">{userRole}</span> : null}
           </span>
         </button>
+        <a href="/help" aria-label="Ajuda" class="ml-1 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-terracota-600 hover:bg-gray-50 rounded-lg transition" title="Ajuda">
+          <i class="ph ph-question text-h4" aria-hidden="true"></i>
+        </a>
         <div
           {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}
           role="menu"

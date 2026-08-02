@@ -27,5 +27,5 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": ["scripts/gen-docs.ts", "src/generated/docs.ts", "_wip"]
+  "exclude": ["scripts/gen-docs.ts", "src/generated/docs.ts"]
 }
