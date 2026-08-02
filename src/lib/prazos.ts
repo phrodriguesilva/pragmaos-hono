@@ -13,7 +13,7 @@ function isIndependencia(d: Date): boolean { return d.getMonth() === 8 && d.getD
 function isNossaSenhora(d: Date): boolean { return d.getMonth() === 9 && d.getDate() === 12; }
 function isFinados(d: Date): boolean { return d.getMonth() === 10 && d.getDate() === 2; }
 function isProclamacao(d: Date): boolean { return d.getMonth() === 10 && d.getDate() === 15; }
-function isConstituicao(d: Date): boolean { return d.getMonth() === 10 && d.getDate() === 20; }
+// Consciência Negra: 20 de novembro (Lei 14.759/2023 — feriado nacional)
 function isConscienciaNegra(d: Date): boolean { return d.getMonth() === 10 && d.getDate() === 20; }
 function isNatal(d: Date): boolean { return d.getMonth() === 11 && d.getDate() === 25; }
 
@@ -58,9 +58,15 @@ function isCorpusChristi(d: Date): boolean {
   return d.getDate() === cc.getDate() && d.getMonth() === cc.getMonth() && d.getFullYear() === cc.getFullYear();
 }
 
-// Resso forense: 20 de dezembro a 31 de dezembro (Resolução CNJ)
+// Recesso forense: 20 de dezembro a 20 de janeiro (Resolução CNJ nº 1/2020)
 function isRecessoForense(d: Date): boolean {
-  return d.getMonth() === 11 && d.getDate() >= 20;
+  const m = d.getMonth();
+  const day = d.getDate();
+  // Dezembro: dia 20 a 31
+  if (m === 11 && day >= 20) return true;
+  // Janeiro: dia 1 a 20
+  if (m === 0 && day <= 20) return true;
+  return false;
 }
 
 // Verifica se uma data é feriado nacional
@@ -76,7 +82,6 @@ export function isFeriadoNacional(d: Date): boolean {
     isNossaSenhora(d) ||
     isFinados(d) ||
     isProclamacao(d) ||
-    isConstituicao(d) ||
     isConscienciaNegra(d) ||
     isNatal(d)
   );

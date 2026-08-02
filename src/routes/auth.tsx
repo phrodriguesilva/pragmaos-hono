@@ -8,8 +8,17 @@ import { APP_URL } from "../lib/env";
 import { generateTOTPSecret, validateTOTP, generateQRCodeDataURL, generateBackupCodes, buildTOTPUri } from "../lib/totp";
 import { getGovBrAuthUrl, getGovBrConfig, exchangeGovBrCode, getGovBrUserInfo } from "../lib/govbr";
 import { appCss } from "../generated/css";
+import { loginRateLimit, passwordResetRateLimit, twoFactorRateLimit } from "../lib/rate-limit";
 
 export const authRoutes = new Hono<AppEnv>();
+
+// Hash a token (SHA-256) for secure storage. The plaintext is sent to the user
+// via email/URL, but only the hash is stored in the database.
+async function hashToken(token: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const hash = await crypto.subtle.digest("SHA-256", encoder.encode(token));
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 // ============================================================
 // Shared UI helpers
@@ -184,7 +193,7 @@ function loginForm(errorMsg?: string, emailValue?: string) {
 authRoutes.get("/login", (c) => c.html(loginForm()));
 
 // POST /login -- authenticate, check 2FA, redirect accordingly.
-authRoutes.post("/login", async (c) => {
+authRoutes.post("/login", loginRateLimit, async (c) => {
   const body = await c.req.parseBody();
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
@@ -315,7 +324,7 @@ authRoutes.get("/2fa/verify", (c) => {
 });
 
 // POST /2fa/verify
-authRoutes.post("/2fa/verify", async (c) => {
+authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
   const userId = getCookie(c, "auth-user-id");
   if (!userId) return c.redirect("/login");
 
@@ -630,7 +639,7 @@ function forgotPasswordForm(errorMsg?: string, success?: boolean) {
 authRoutes.get("/forgot-password", (c) => c.html(forgotPasswordForm()));
 
 // POST /forgot-password -- generate reset token and "send" email.
-authRoutes.post("/forgot-password", async (c) => {
+authRoutes.post("/forgot-password", passwordResetRateLimit, async (c) => {
   const body = await c.req.parseBody();
   const email = String(body.email ?? "").trim().toLowerCase();
 
@@ -649,16 +658,17 @@ authRoutes.post("/forgot-password", async (c) => {
   if (profile) {
     // Generate a reset token.
     const token = crypto.randomUUID() + crypto.randomUUID();
+    const tokenHash = await hashToken(token);
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     // Invalidate previous tokens.
     await supabase.from("password_resets").update({ used: true }).eq("email", email).eq("used", false);
 
-    // Insert new token.
+    // Insert new token (store hash, not plaintext).
     await supabase.from("password_resets").insert({
       tenant_id: profile.tenant_id,
       email,
-      token,
+      token: tokenHash,
       expires_at: expiresAt.toISOString(),
       used: false,
     });
@@ -775,11 +785,12 @@ authRoutes.get("/reset-password", async (c) => {
     );
   }
 
-  // Verify token is valid and not expired.
+  // Verify token is valid and not expired (hash the incoming token before lookup).
+  const tokenHash = await hashToken(token);
   const { data: resetRow } = await supabase
     .from("password_resets")
     .select("email, expires_at, used")
-    .eq("token", token)
+    .eq("token", tokenHash)
     .single();
 
   if (!resetRow || resetRow.used || new Date(resetRow.expires_at) < new Date()) {
@@ -798,7 +809,7 @@ authRoutes.get("/reset-password", async (c) => {
 });
 
 // POST /reset-password -- update password with valid token.
-authRoutes.post("/reset-password", async (c) => {
+authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
   const token = c.req.query("token") ?? "";
   const body = await c.req.parseBody();
   const password = String(body.password ?? "");
@@ -816,11 +827,12 @@ authRoutes.post("/reset-password", async (c) => {
     return c.html(resetPasswordForm(token, "As senhas nao coincidem."));
   }
 
-  // Verify token.
+  // Verify token (hash before lookup).
+  const tokenHash = await hashToken(token);
   const { data: resetRow } = await supabase
     .from("password_resets")
     .select("email, expires_at, used, tenant_id, user_id")
-    .eq("token", token)
+    .eq("token", tokenHash)
     .single();
 
   if (!resetRow || resetRow.used || new Date(resetRow.expires_at) < new Date()) {
@@ -838,7 +850,7 @@ authRoutes.post("/reset-password", async (c) => {
   }
 
   // Mark token as used.
-  await supabase.from("password_resets").update({ used: true }).eq("token", token);
+  await supabase.from("password_resets").update({ used: true }).eq("token", tokenHash);
 
   // Log the reset.
   await supabase.from("auth_logs").insert({

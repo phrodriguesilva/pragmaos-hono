@@ -5,8 +5,57 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { Panel } from "../components/ui";
+import { SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
 
 export const oauthRoutes = new Hono<AppEnv>();
+
+// ============================================================
+// OAuth state helpers — sign with HMAC to prevent CSRF/forgery.
+// Format: base64url(tenantId:userId:timestamp:hmac)
+// ============================================================
+
+async function hmacSha256(data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(SUPABASE_SERVICE_ROLE_KEY),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+  return btoa(String.fromCharCode(...new Uint8Array(sig)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+async function createOAuthState(tenantId: string, userId: string): Promise<string> {
+  const ts = Date.now();
+  const payload = `${tenantId}:${userId}:${ts}`;
+  const sig = await hmacSha256(payload);
+  const encoded = btoa(payload).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `${encoded}.${sig}`;
+}
+
+async function verifyOAuthState(state: string): Promise<{ tenantId: string; userId: string } | null> {
+  const parts = state.split(".");
+  if (parts.length !== 2) return null;
+  const [encoded = "", sig = ""] = parts;
+  try {
+    const payload = atob(encoded.replace(/-/g, "+").replace(/_/g, "/"));
+    const expectedSig = await hmacSha256(payload);
+    if (sig !== expectedSig) return null;
+    const [tenantId, userId, ts] = payload.split(":");
+    if (!tenantId || !userId || !ts) return null;
+    // Expire after 10 minutes
+    const ageMs = Date.now() - Number(ts);
+    if (ageMs > 600_000 || ageMs < 0) return null;
+    return { tenantId, userId };
+  } catch {
+    return null;
+  }
+}
 
 // Default OAuth scopes for Google Workspace.
 const GOOGLE_SCOPES = [
@@ -73,7 +122,7 @@ oauthRoutes.get("/google", requireAuth, async (c) => {
     );
   }
 
-  const state = `${user.tenantId}:${user.id}`;
+  const state = await createOAuthState(user.tenantId, user.id);
   const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("client_id", config.client_id);
@@ -95,10 +144,11 @@ oauthRoutes.get("/google/callback", async (c) => {
     return c.redirect("/integrations?error=google_missing_params");
   }
 
-  const [tenantId, userId] = state.split(":");
-  if (!tenantId || !userId) {
+  const stateData = await verifyOAuthState(state);
+  if (!stateData) {
     return c.redirect("/integrations?error=google_invalid_state");
   }
+  const { tenantId, userId } = stateData;
 
   const { data: integration } = await supabase
     .from("integrations")
@@ -231,7 +281,7 @@ oauthRoutes.get("/microsoft", requireAuth, async (c) => {
     );
   }
 
-  const state = `${user.tenantId}:${user.id}`;
+  const state = await createOAuthState(user.tenantId, user.id);
   const authUrl = new URL(
     `https://login.microsoftonline.com/${config.tenant_id}/oauth2/v2.0/authorize`,
   );
@@ -253,10 +303,11 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
     return c.redirect("/integrations?error=microsoft_missing_params");
   }
 
-  const [tenantId, userId] = state.split(":");
-  if (!tenantId || !userId) {
+  const stateData = await verifyOAuthState(state);
+  if (!stateData) {
     return c.redirect("/integrations?error=microsoft_invalid_state");
   }
+  const { tenantId, userId } = stateData;
 
   const { data: integration } = await supabase
     .from("integrations")
@@ -393,7 +444,7 @@ oauthRoutes.get("/docusign", requireAuth, async (c) => {
   }
 
   const env = config.environment === "production" ? "" : "d";
-  const state = `${user.tenantId}:${user.id}`;
+  const state = await createOAuthState(user.tenantId, user.id);
   const authUrl = new URL(`https://account-${env}.docusign.com/oauth/auth`);
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("client_id", config.client_id);
@@ -413,10 +464,11 @@ oauthRoutes.get("/docusign/callback", async (c) => {
     return c.redirect("/integrations?error=docusign_missing_params");
   }
 
-  const [tenantId, userId] = state.split(":");
-  if (!tenantId || !userId) {
+  const stateData = await verifyOAuthState(state);
+  if (!stateData) {
     return c.redirect("/integrations?error=docusign_invalid_state");
   }
+  const { tenantId, userId } = stateData;
 
   const { data: integration } = await supabase
     .from("integrations")

@@ -4,6 +4,30 @@
 
 import type { FC } from "hono/jsx";
 
+// Basic HTML sanitizer — removes script tags, event handlers, and dangerous elements.
+// For production, consider using DOMPurify on the client side as well.
+function sanitizeHtml(html: string): string {
+  if (!html) return "";
+  return html
+    // Remove script tags and their content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    // Remove style tags
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+    // Remove iframe, object, embed tags
+    .replace(/<\/?(iframe|object|embed|applet|meta|link|base|form)\b[^>]*>/gi, "")
+    // Remove on* event handlers (onclick, onload, onerror, etc.)
+    .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
+    .replace(/\son\w+\s*=\s*[^\s>]+/gi, "")
+    // Remove javascript: URLs
+    .replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"')
+    .replace(/src\s*=\s*"javascript:[^"]*"/gi, "")
+    // Remove data: URLs in src (can be used for XSS)
+    .replace(/src\s*=\s*"data:[^"]*"/gi, "")
+    // Remove vbscript: URLs
+    .replace(/href\s*=\s*"vbscript:[^"]*"/gi, 'href="#"');
+}
+
 interface EditorProps {
   id: string;
   name: string;
@@ -72,7 +96,7 @@ export const WysiwygEditor: FC<EditorProps> = ({
           {...{ "@input": "syncHidden()" }}
           class="p-4 outline-none prose prose-sm max-w-none min-h-96 text-body text-gray-800"
           style={`min-height: ${rows * 1.5}rem;`}
-          dangerouslySetInnerHTML={{ __html: value }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
         />
         {/* Hidden input to submit with form */}
         <input

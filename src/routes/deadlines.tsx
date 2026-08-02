@@ -128,6 +128,128 @@ deadlinesRoutes.get("/", async (c) => {
   );
 });
 
+// GET /deadlines/new -- form to create a new deadline (supports pre-fill from prazos calculator).
+deadlinesRoutes.get("/new", async (c) => {
+  const user = c.get("user");
+  const dueDate = c.req.query("due_date") ?? "";
+  const title = c.req.query("title") ?? "";
+  const caseId = c.req.query("case_id") ?? "";
+
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("title");
+
+  return renderPage(
+    c,
+    { title: "Novo Prazo", active: "deadlines" },
+    <>
+      <PageHeader title="Novo Prazo" icon="ph-calendar-x" />
+      <div class="max-w-xl">
+        <form method="post" action="/deadlines" class="space-y-4 bg-white p-6 rounded-xl border border-gray-100">
+          <Select label="Processo" id="case_id" name="case_id" required
+            options={(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))}
+            selected={caseId}
+          />
+          <TextField label="Titulo" id="title" name="title" required value={title} icon="ph-text-aa" />
+          <TextField label="Data de vencimento" id="due_date" name="due_date" type="date" required value={dueDate} icon="ph-calendar" />
+          <Select label="Prioridade" id="priority" name="priority"
+            options={[
+              { value: "1", label: "1 - Baixa" },
+              { value: "2", label: "2" },
+              { value: "3", label: "3 - Media" },
+              { value: "4", label: "4" },
+              { value: "5", label: "5 - Alta" },
+            ]}
+            selected="3"
+          />
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn btn-primary">Salvar Prazo</button>
+            <a href="/deadlines" class="btn btn-ghost">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </>,
+  );
+});
+
+// GET /deadlines/:id -- view/edit a deadline.
+deadlinesRoutes.get("/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  const { data: deadline } = await supabase
+    .from("deadlines")
+    .select("*, cases(title)")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (!deadline) return c.notFound();
+
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title")
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
+    .order("title");
+
+  const dueDateStr = deadline.due_date ? new Date(deadline.due_date).toISOString().split("T")[0] : "";
+
+  return renderPage(
+    c,
+    { title: deadline.title, active: "deadlines" },
+    <>
+      <PageHeader title={deadline.title} icon="ph-calendar-x" />
+      <div class="max-w-xl">
+        <form method="post" action={`/deadlines/${id}`} class="space-y-4 bg-white p-6 rounded-xl border border-gray-100">
+          <Select label="Processo" id="case_id" name="case_id" required
+            options={(cases ?? []).map((cs) => ({ value: cs.id, label: cs.title }))}
+            selected={deadline.case_id ?? ""}
+          />
+          <TextField label="Titulo" id="title" name="title" required value={deadline.title} icon="ph-text-aa" />
+          <TextField label="Data de vencimento" id="due_date" name="due_date" type="date" required value={dueDateStr} icon="ph-calendar" />
+          <Select label="Prioridade" id="priority" name="priority"
+            options={[
+              { value: "1", label: "1 - Baixa" },
+              { value: "2", label: "2" },
+              { value: "3", label: "3 - Media" },
+              { value: "4", label: "4" },
+              { value: "5", label: "5 - Alta" },
+            ]}
+            selected={String(deadline.priority ?? 3)}
+          />
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn btn-primary">Salvar Alteracoes</button>
+            <a href="/deadlines" class="btn btn-ghost">Voltar</a>
+          </div>
+        </form>
+      </div>
+    </>,
+  );
+});
+
+// POST /deadlines/:id -- update.
+deadlinesRoutes.post("/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.parseBody();
+  const parsed = deadlineSchema.safeParse(body);
+  if (!parsed.success) return c.redirect(`/deadlines/${id}`);
+
+  await supabase.from("deadlines").update({
+    case_id: parsed.data.case_id,
+    title: parsed.data.title,
+    due_date: new Date(parsed.data.due_date).toISOString(),
+    priority: parsed.data.priority,
+  }).eq("id", id).eq("tenant_id", user.tenantId);
+
+  return c.redirect("/deadlines");
+});
+
 // POST /deadlines -- create.
 deadlinesRoutes.post("/", async (c) => {
   const user = c.get("user");

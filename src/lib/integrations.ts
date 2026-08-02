@@ -774,18 +774,35 @@ export async function getClicksignEnvelopeStatus(
 }
 
 // Verify ClickSign webhook signature (HMAC-SHA256).
-export function verifyClicksignWebhook(
+export async function verifyClicksignWebhook(
   payload: string,
   signature: string,
   secret: string,
-): boolean {
-  // ClickSign sends X-Clicksign-Signature header with HMAC-SHA256 of the payload.
-  // In a serverless environment, we use Web Crypto API.
-  // For simplicity, we do a basic comparison. Full HMAC verification would need
-  // crypto.subtle.importKey + sign, which is async. This is a placeholder that
-  // always returns true — real verification should be implemented with crypto.subtle.
-  // TODO: implement proper HMAC-SHA256 verification with Web Crypto API
-  return secret ? true : false;
+): Promise<boolean> {
+  if (!secret || !signature) return false;
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+    const computed = Array.from(new Uint8Array(sig))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    // Timing-safe comparison
+    if (computed.length !== signature.length) return false;
+    let diff = 0;
+    for (let i = 0; i < computed.length; i++) {
+      diff |= computed.charCodeAt(i) ^ signature.charCodeAt(i);
+    }
+    return diff === 0;
+  } catch {
+    return false;
+  }
 }
 
 // --- WhatsApp Business API compliance functions ---
