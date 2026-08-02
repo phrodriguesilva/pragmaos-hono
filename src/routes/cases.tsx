@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { setFlash } from "../lib/flash";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
@@ -278,6 +279,7 @@ casesRoutes.post("/", async (c) => {
     });
   }
 
+  setFlash(c, "success", "Processo criado com sucesso!");
   return c.redirect("/cases");
 });
 
@@ -774,6 +776,7 @@ casesRoutes.post("/:id", async (c) => {
     subject: parsed.data.subject || null,
   }).eq("id", id).eq("tenant_id", user.tenantId);
 
+  setFlash(c, "success", "Processo atualizado com sucesso!");
   return c.redirect(`/cases/${id}`);
 });
 
@@ -782,5 +785,6 @@ casesRoutes.post("/:id/delete", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   await supabase.from("cases").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
+  setFlash(c, "success", "Processo excluido com sucesso.");
   return c.redirect("/cases");
 });

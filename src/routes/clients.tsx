@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { setFlash } from "../lib/flash";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, BtnLink, Modal } from "../components/ui";
 import { checkConflict } from "../lib/conflict";
 
@@ -336,6 +337,7 @@ clientsRoutes.post("/:id", async (c) => {
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 
+  setFlash(c, "success", "Cliente atualizado com sucesso!");
   return c.redirect(`/clients/${id}`);
 });
 
@@ -350,5 +352,6 @@ clientsRoutes.post("/:id/delete", async (c) => {
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 
+  setFlash(c, "success", "Cliente excluido com sucesso.");
   return c.redirect("/clients");
 });

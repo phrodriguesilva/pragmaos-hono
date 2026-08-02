@@ -78,8 +78,8 @@ export const MENU: MenuItem[] = [
       { key: "signatures", label: "Assinaturas", href: "/signatures", icon: "ph-pen-nib" },
       { key: "diario-oficial", label: "Diario Oficial", href: "/diario-oficial", icon: "ph-newspaper" },
       { key: "intimacoes", label: "Intimacoes", href: "/intimacoes", icon: "ph-envelope-open" },
-      { key: "prazos", label: "Calc. de Prazos", href: "/prazos", icon: "ph-calendar-x" },
-      { key: "calendar", label: "Calendario", href: "/calendar", icon: "ph-calendar-blank" },
+      { key: "prazos", label: "Calc. de Prazos", href: "/prazos", icon: "ph-calendar" },
+      { key: "calendar", label: "Calendario", href: "/calendar", icon: "ph-calendar-plus" },
     ],
   },
   {
@@ -103,7 +103,7 @@ export const MENU: MenuItem[] = [
       { key: "cashflow", label: "Fluxo de Caixa", href: "/cashflow", icon: "ph-chart-line-up" },
       { key: "timesheet", label: "Timesheet", href: "/timesheet", icon: "ph-timer" },
       { key: "finance-reports", label: "Relatorios", href: "/finance-reports", icon: "ph-chart-pie" },
-      { key: "trust-accounts", label: "Contas de Clientes", href: "/trust-accounts", icon: "ph-piggy-bank" },
+      { key: "trust-accounts", label: "Contas de Clientes", href: "/trust-accounts", icon: "ph-bank" },
     ],
   },
   {
@@ -129,7 +129,7 @@ export const MENU: MenuItem[] = [
       { key: "workflows", label: "Workflows", href: "/workflows", icon: "ph-gear-six" },
       { key: "permissions", label: "Permissoes", href: "/permissions", icon: "ph-key" },
       { key: "integrations", label: "Integracoes", href: "/integrations", icon: "ph-plugs-connected" },
-      { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-code" },
+      { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-hash" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
     ],
   },

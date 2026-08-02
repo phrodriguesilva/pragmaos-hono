@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { setFlash } from "../lib/flash";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const tasksRoutes = new Hono<AppEnv>();
@@ -273,6 +274,7 @@ tasksRoutes.post("/", async (c) => {
     created_by: user.id,
   });
 
+  setFlash(c, "success", "Tarefa criada com sucesso!");
   return c.redirect("/tasks");
 });
 
@@ -434,6 +436,7 @@ tasksRoutes.post("/:id", async (c) => {
     billable: parsed.data.billable === "1",
   }).eq("id", id).eq("tenant_id", user.tenantId);
 
+  setFlash(c, "success", "Tarefa atualizada com sucesso!");
   return c.redirect(`/tasks/${id}`);
 });
 
@@ -442,5 +445,6 @@ tasksRoutes.post("/:id/delete", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   await supabase.from("tasks").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
+  setFlash(c, "success", "Tarefa excluida com sucesso.");
   return c.redirect("/tasks");
 });

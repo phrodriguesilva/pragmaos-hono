@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { setFlash } from "../lib/flash";
 import { PageHeader, Table, TextField, Select, ComboBox, Badge, Modal } from "../components/ui";
 
 export const deadlinesRoutes = new Hono<AppEnv>();
@@ -247,6 +248,7 @@ deadlinesRoutes.post("/:id", async (c) => {
     priority: parsed.data.priority,
   }).eq("id", id).eq("tenant_id", user.tenantId);
 
+  setFlash(c, "success", "Prazo atualizado com sucesso!");
   return c.redirect("/deadlines");
 });
 
@@ -255,7 +257,10 @@ deadlinesRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = deadlineSchema.safeParse(body);
-  if (!parsed.success) return c.redirect("/deadlines");
+  if (!parsed.success) {
+    setFlash(c, "error", "Dados invalidos. Verifique os campos obrigatórios.");
+    return c.redirect("/deadlines");
+  }
 
   await supabase.from("deadlines").insert({
     tenant_id: user.tenantId,
@@ -265,6 +270,7 @@ deadlinesRoutes.post("/", async (c) => {
     priority: parsed.data.priority,
   });
 
+  setFlash(c, "success", "Prazo criado com sucesso!");
   return c.redirect("/deadlines");
 });
 
@@ -273,6 +279,7 @@ deadlinesRoutes.post("/:id/complete", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   await supabase.from("deadlines").update({ completed_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
+  setFlash(c, "success", "Prazo concluido!");
   return c.redirect("/deadlines");
 });
 
@@ -281,6 +288,7 @@ deadlinesRoutes.post("/:id/reopen", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   await supabase.from("deadlines").update({ completed_at: null }).eq("id", id).eq("tenant_id", user.tenantId);
+  setFlash(c, "info", "Prazo reaberto.");
   return c.redirect("/deadlines");
 });
 
@@ -289,5 +297,6 @@ deadlinesRoutes.post("/:id/delete", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   await supabase.from("deadlines").update({ deleted_at: new Date().toISOString() }).eq("id", id).eq("tenant_id", user.tenantId);
+  setFlash(c, "success", "Prazo excluido.");
   return c.redirect("/deadlines");
 });
