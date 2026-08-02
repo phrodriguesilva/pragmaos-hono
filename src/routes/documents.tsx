@@ -7,6 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { processDocumentOCR, batchProcessDocuments } from "../lib/ocr";
+import { listDocumentVersions, createDocumentVersion, getVersionDownloadUrl, restoreDocumentVersion, formatFileSize, type DocumentVersion } from "../lib/document-versions";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Modal, FileUpload, WizardModal } from "../components/ui";
 
 export const documentsRoutes = new Hono<AppEnv>();
@@ -537,4 +538,158 @@ documentsRoutes.post("/ocr/batch", async (c) => {
   }
 
   return c.redirect("/documents");
+});
+
+// GET /:id/versions -- list all versions of a document.
+documentsRoutes.get("/:id/versions", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  const [versions, docRes] = await Promise.all([
+    listDocumentVersions(user.tenantId, id),
+    supabase.from("documents").select("id, title").eq("id", id).eq("tenant_id", user.tenantId).maybeSingle(),
+  ]);
+
+  if (!docRes.data) {
+    return c.redirect("/documents");
+  }
+
+  return renderPage(
+    c,
+    { title: "Versoes do Documento", active: "documents" },
+    <>
+      <PageHeader title={`Versoes: ${docRes.data.title}`} icon="ph-files" />
+
+      <Panel>
+        {versions.length > 0 ? (
+          <div class="space-y-3">
+            {versions.map((v: DocumentVersion) => (
+              <div key={v.id} class="flex items-center justify-between border-b border-gray-100 py-4">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium">v{v.versionNumber}</span>
+                    {v.versionNumber === versions[0]!.versionNumber && (
+                      <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Atual</span>
+                    )}
+                  </div>
+                  <div class="text-sm text-gray-500 mt-1">
+                    {v.uploadedByName ?? "Usuario"} — {new Date(v.createdAt).toLocaleString("pt-BR")}
+                  </div>
+                  <div class="text-xs text-gray-400 mt-0.5">
+                    {formatFileSize(v.fileSizeBytes)} — {v.mimeType}
+                  </div>
+                  {v.changeSummary && (
+                    <div class="text-sm text-gray-600 mt-1 italic">"{v.changeSummary}"</div>
+                  )}
+                </div>
+                <div class="flex items-center gap-2 ml-4">
+                  <a href={`/documents/${id}/versions/${v.versionNumber}/download`}
+                    class="text-sm text-terracota-600 hover:underline">Baixar</a>
+                  {v.versionNumber !== versions[0]!.versionNumber && (
+                    <form method="post" action={`/documents/${id}/versions/${v.versionNumber}/restore`} class="inline">
+                      <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+                        Restaurar
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="text-gray-500 text-sm">Nenhuma versao registrada ainda.</p>
+        )}
+      </Panel>
+
+      {/* Upload new version */}
+      <Panel>
+        <h2 class="text-lg font-semibold mb-4">Nova Versao</h2>
+        <form method="post" action={`/documents/${id}/versions`} enctype="multipart/form-data" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Arquivo</label>
+            <input type="file" name="file" required
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Resumo da alteracao (opcional)</label>
+            <input type="text" name="change_summary" placeholder="Ex: Revisao apos correcao"
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg" />
+          </div>
+          <button type="submit" class="bg-terracota-600 hover:bg-terracota-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            Upload Nova Versao
+          </button>
+        </form>
+      </Panel>
+    </>,
+  );
+});
+
+// POST /:id/versions -- upload a new version.
+documentsRoutes.post("/:id/versions", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  const body = await c.req.formData();
+  const file = body.get("file") as File | null;
+  const changeSummary = body.get("change_summary") as string | null;
+
+  if (!file) {
+    setFlash(c, "error", "Nenhum arquivo enviado.");
+    return c.redirect(`/documents/${id}/versions`);
+  }
+
+  const version = await createDocumentVersion(
+    user.tenantId,
+    id,
+    file,
+    file.type || "application/octet-stream",
+    user.id,
+    changeSummary ?? undefined,
+  );
+
+  if (version) {
+    setFlash(c, "success", `Versao ${version.versionNumber} criada com sucesso!`);
+  } else {
+    setFlash(c, "error", "Erro ao criar versao.");
+  }
+
+  return c.redirect(`/documents/${id}/versions`);
+});
+
+// GET /:id/versions/:num/download -- download a specific version.
+documentsRoutes.get("/:id/versions/:num/download", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const versionNum = parseInt(c.req.param("num"), 10);
+
+  const versions = await listDocumentVersions(user.tenantId, id);
+  const version = versions.find((v) => v.versionNumber === versionNum);
+
+  if (!version) {
+    return c.text("Versao nao encontrada", 404);
+  }
+
+  const url = await getVersionDownloadUrl(user.tenantId, version.storagePath);
+  if (!url) {
+    return c.text("Erro ao gerar URL de download", 500);
+  }
+
+  return c.redirect(url);
+});
+
+// POST /:id/versions/:num/restore -- restore a previous version.
+documentsRoutes.post("/:id/versions/:num/restore", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const versionNum = parseInt(c.req.param("num"), 10);
+
+  const version = await restoreDocumentVersion(user.tenantId, id, versionNum, user.id);
+
+  if (version) {
+    setFlash(c, "success", `Versao ${versionNum} restaurada (nova versao ${version.versionNumber} criada).`);
+  } else {
+    setFlash(c, "error", "Erro ao restaurar versao.");
+  }
+
+  return c.redirect(`/documents/${id}/versions`);
 });
