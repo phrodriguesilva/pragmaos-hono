@@ -220,7 +220,7 @@ casesRoutes.get("/", async (c) => {
           { label: "Tipo" }, { label: "Status" }, { label: "Acoes" },
         ]}
         rows={rows}
-        emptyMsg="Nenhum processo encontrado."
+        emptyMsg={search ? `Nenhum processo encontrado para "${search}".` : "Nenhum processo cadastrado ainda."}
         emptyIcon="ph-folder-open"
         ariaLabel="Lista de processos"
         count={count ?? 0}

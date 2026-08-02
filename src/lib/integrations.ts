@@ -4,7 +4,7 @@
 // performs the actual API call.
 
 import { supabase } from "./supabase";
-import { fetchWithTimeout } from "./fetch-with-timeout";
+import { fetchWithTimeout, friendlyApiError } from "./fetch-with-timeout";
 
 // --- Type definitions ---
 
@@ -127,7 +127,7 @@ export async function syncClicksign(config: IntegrationConfig): Promise<SyncResu
     });
     if (!resp.ok) {
       const body = await resp.text();
-      return { success: false, message: `Clicksign API erro ${resp.status}: ${body.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError('Clicksign', resp.status, body) };
     }
     const data = await resp.json() as { data?: unknown[] };
     const count = Array.isArray(data.data) ? data.data.length : 0;
@@ -154,7 +154,7 @@ export async function syncWhatsApp(config: IntegrationConfig): Promise<SyncResul
     );
     if (!resp.ok) {
       const body = await resp.text();
-      return { success: false, message: `WhatsApp API erro ${resp.status}: ${body.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError('WhatsApp', resp.status, body) };
     }
     const data = await resp.json() as { display_phone_number?: string; status?: string };
     return {
@@ -245,7 +245,7 @@ export async function syncIntegration(type: string, config: IntegrationConfig): 
         });
         if (!resp.ok) {
           const body = await resp.text();
-          return { success: false, message: `Digesto erro ${resp.status}: ${body.slice(0, 200)}` };
+          return { success: false, message: friendlyApiError("Digesto", resp.status, "") };
         }
         return { success: true, message: "Conectado ao Digesto com sucesso.", data: await resp.json() };
       } catch (err) {
@@ -291,7 +291,7 @@ export async function sendWhatsAppMessage(
     );
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `WhatsApp erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("WhatsApp", resp.status, "") };
     }
     const data = await resp.json() as { messages?: { id?: string }[] };
     const msgId = data.messages?.[0]?.id ?? "";
@@ -330,7 +330,7 @@ export async function queryCNJProcess(
     });
     if (!resp.ok) {
       const body = await resp.text();
-      return { success: false, message: `DataJud erro ${resp.status}: ${body.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError("DataJud", resp.status, "") };
     }
     const data = await resp.json() as { hits?: { hits?: { _source?: unknown }[] } };
     const hits = data.hits?.hits ?? [];
@@ -369,7 +369,7 @@ export async function sendGmailEmail(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `Gmail erro ${resp.status}: ${errBody.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError("Gmail", resp.status, "") };
     }
     const data = await resp.json() as { id?: string };
     return { success: true, message: `Email enviado via Gmail. ID: ${data.id}`, data };
@@ -407,7 +407,7 @@ export async function sendOutlookEmail(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `Outlook erro ${resp.status}: ${errBody.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError("Outlook", resp.status, "") };
     }
     return { success: true, message: "Email enviado via Outlook." };
   } catch (err) {
@@ -506,7 +506,7 @@ export async function createDocusignEnvelope(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `DocuSign erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("DocuSign", resp.status, "") };
     }
     const data = await resp.json() as { envelopeId?: string };
     const envelopeId = data.envelopeId;
@@ -537,7 +537,7 @@ export async function getDocusignEnvelopeStatus(
       },
     );
     if (!resp.ok) {
-      return { success: false, message: `DocuSign status erro ${resp.status}` };
+      return { success: false, message: friendlyApiError("DocuSign status", resp.status, "") };
     }
     const data = await resp.json() as { status?: string };
     return { success: true, message: `Status: ${data.status}`, data };
@@ -578,7 +578,7 @@ export async function getDocusignSigningUrl(
     );
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `DocuSign view erro ${resp.status}: ${errBody.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError("DocuSign view", resp.status, "") };
     }
     const data = await resp.json() as { url?: string };
     if (!data.url) {
@@ -618,7 +618,7 @@ export async function createClicksignEnvelope(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `ClickSign erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("ClickSign", resp.status, "") };
     }
     const data = await resp.json() as { envelope?: { id?: string } };
     const envelopeId = data.envelope?.id;
@@ -655,7 +655,7 @@ export async function uploadClicksignDocument(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `ClickSign doc erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("ClickSign doc", resp.status, "") };
     }
     const data = await resp.json() as { document?: { id?: string } };
     const docId = data.document?.id;
@@ -691,7 +691,7 @@ export async function addClicksignSigner(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `ClickSign signer erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("ClickSign signer", resp.status, "") };
     }
     const data = await resp.json() as { signer?: { id?: string; url?: string } };
     return { success: true, message: `Signatario adicionado: ${data.signer?.id}`, data };
@@ -723,7 +723,7 @@ export async function createClicksignRequirement(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `ClickSign req erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("ClickSign req", resp.status, "") };
     }
     return { success: true, message: "Requisito de assinatura criado" };
   } catch (err) {
@@ -745,7 +745,7 @@ export async function activateClicksignEnvelope(
     });
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `ClickSign activate erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("ClickSign activate", resp.status, "") };
     }
     return { success: true, message: "Envelope ativado e enviado aos signatarios" };
   } catch (err) {
@@ -765,7 +765,7 @@ export async function getClicksignEnvelopeStatus(
       headers: { "Content-Type": "application/json" },
     });
     if (!resp.ok) {
-      return { success: false, message: `ClickSign status erro ${resp.status}` };
+      return { success: false, message: friendlyApiError("ClickSign status", resp.status, "") };
     }
     const data = await resp.json() as { envelope?: { status?: string; signers?: { email?: string; url?: string }[] } };
     return { success: true, message: `Status: ${data.envelope?.status}`, data };
@@ -908,7 +908,7 @@ export async function sendWhatsAppTemplate(
 
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `WhatsApp erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("WhatsApp", resp.status, "") };
     }
 
     const data = await resp.json() as { messages?: { id?: string }[] };
@@ -941,7 +941,7 @@ export async function fetchWhatsAppTemplates(
 
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `WhatsApp templates erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("WhatsApp templates", resp.status, "") };
     }
 
     const data = await resp.json() as { data?: { id: string; name: string; status: string; category: string; language: string; components: unknown[] }[] };
@@ -982,7 +982,7 @@ export async function createWhatsAppTemplate(
 
     if (!resp.ok) {
       const errBody = await resp.text();
-      return { success: false, message: `WhatsApp template create erro ${resp.status}: ${errBody.slice(0, 300)}` };
+      return { success: false, message: friendlyApiError("WhatsApp template create", resp.status, "") };
     }
 
     const data = await resp.json() as { id: string; status: string };
@@ -1026,7 +1026,7 @@ export async function queryQueridoDiario(
     const resp = await fetchWithTimeout(`${baseUrl}?${params.toString()}`);
     if (!resp.ok) {
       const body = await resp.text();
-      return { success: false, message: `Querido Diario erro ${resp.status}: ${body.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError("Querido Diario", resp.status, "") };
     }
 
     const data = await resp.json() as { gazettes?: { id: string; territorio_nome?: string; municipio?: string; estado?: string; publicacao?: string; titulo?: string; subtitulo?: string; section?: string; edition?: string; url?: string; txt_url?: string; excerpt?: string; content?: string }[]; total?: number };
@@ -1069,7 +1069,7 @@ export async function queryDigesto(
     });
     if (!resp.ok) {
       const body = await resp.text();
-      return { success: false, message: `Digesto erro ${resp.status}: ${body.slice(0, 200)}` };
+      return { success: false, message: friendlyApiError("Digesto", resp.status, "") };
     }
 
     const data = await resp.json() as { results?: { id: string; titulo?: string; subtitulo?: string; secao?: string; edicao?: string; data?: string; url?: string; txt_url?: string; trecho?: string }[]; total?: number };

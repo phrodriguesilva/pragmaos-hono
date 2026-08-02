@@ -131,7 +131,7 @@ clientsRoutes.get("/", async (c) => {
             { label: "Acoes" },
           ]}
           rows={rows}
-          emptyMsg="Nenhum cliente encontrado."
+          emptyMsg={search ? `Nenhum cliente encontrado para "${search}".` : "Nenhum cliente cadastrado ainda."}
           emptyIcon="ph-users"
           ariaLabel="Lista de clientes"
           count={count ?? 0}
