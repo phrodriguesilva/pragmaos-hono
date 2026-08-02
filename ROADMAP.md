@@ -7,7 +7,7 @@
 
 ## Estado Atual
 
-**48 rotas** | **20 migrations** | **18 libs** | SaaS multi-tenant para advocacia
+**48 rotas** | **21 migrations** | **18 libs** | SaaS multi-tenant para advocacia
 
 ### O que já está feito e funcionando
 
@@ -47,6 +47,27 @@
 - [x] Rota de intimações (`intimacoes.tsx`)
 - [x] Rota de prazos processuais (`prazos.tsx`)
 
+#### Correções da Auditoria 2 (tenant isolation + compliance)
+- [x] `timer.tsx`: adicionar `tenant_id` nos UPDATEs de `time_entries`
+- [x] `auth.tsx`: adicionar `tenant_id` nos UPDATEs de `password_resets`
+- [x] `conflict.ts`: normalizar acentos no nome (NFD) — "Joao" agora bate com "João"
+- [x] `billing.tsx`: normalizar acentos no nome/cidade do PIX (NFD)
+- [x] `auth.tsx`: cookies Gov.br com `secure` e `sameSite`
+- [x] `intimacoes.ts`: endpoint correto `app.intima.ai/api/v2` + auth via `api_token`
+- [x] `prazos.ts`: referência legal correta (CPC art. 220, Res. CNJ 244/2016)
+
+#### Correções da Auditoria 3 (rotas quebradas + PIX configurável)
+- [x] `timesheet.tsx`: corrigir 3 redirects para rotas inexistentes (`/new`, `/:id/edit`)
+- [x] `billing.tsx`: corrigir redirect para `/:id/edit` (404)
+- [x] `honorarios.tsx`: corrigir redirect para `/:id/edit` (404)
+- [x] `workflows.tsx`: adicionar `tenant_id` nos UPDATEs de `workflow_executions`
+- [x] `billing.tsx`: chave PIX configurável por tenant (migration 0021 + UI no profile)
+- [x] Migration 0021: RLS em `tenants` (única tabela sem RLS)
+- [x] `env.ts`: validação de env vars com Zod no startup (fail fast em produção)
+- [x] `index.ts`: health checks (`/health`, `/health/ready`)
+- [x] `build.ts`: typecheck (`tsc --noEmit`) integrado no build
+- [x] Alpine.js self-hosted (removido CDN unpkg, CSP mais restritivo)
+
 ---
 
 ## Roadmap
@@ -55,29 +76,29 @@
 
 Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 
-| # | Tarefa | Esforço | Arquivos |
-|---|--------|---------|----------|
-| 1.1 | **OAuth state criptográfico + PKCE** — substituir `tenantId:userId` por UUID aleatório + assinatura HMAC. Implementar PKCE em Google/Microsoft/DocuSign. | Médio | `oauth.tsx` |
-| 1.2 | **Verificação HMAC nos webhooks** — WhatsApp (X-Hub-Signature-256) e ClickSign (substituir stub que sempre retorna true). | Médio | `whatsapp-webhook.ts`, `integrations.ts` |
-| 1.3 | **Refresh de OAuth tokens** — usar refresh tokens armazenados quando access_token expira. | Médio | `oauth.tsx`, `integrations.ts` |
-| 1.4 | **Criptografar OAuth tokens em repouso** — usar pgcrypto ou Supabase Vault para access_token/refresh_token. | Médio | migration + `oauth.tsx` |
-| 1.5 | **CSRF protection** — token CSRF em forms POST ou usar Hono CSRF middleware com header Origin check. | Baixo | `index.ts` + todas as rotas POST |
-| 1.6 | **Validação de MIME type no upload** — verificar magic bytes, não confiar no `file.type` do browser. | Baixo | `upload.ts` |
-| 1.7 | **Corrigir bypass de PII masking** — mascarar PII antes de construir o prompt, não depois. | Baixo | `ai.ts` (generateCaseSummary) |
-| 1.8 | **Cabeçalhos de segurança** — CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. | Baixo | `index.ts` |
-| 1.9 | **Validação de env vars no startup** — Zod schema, fail fast se SUPABASE_URL/KEY faltando. | Baixo | `env.ts` |
-| 1.10 | **Rate limiter distribuído** — substituir Map em memória por Upstash Redis (compatível com Vercel serverless). | Médio | `rate-limit.ts`, `ai.ts` |
+| # | Tarefa | Esforço | Arquivos | Status |
+|---|--------|---------|----------|--------|
+| 1.1 | **OAuth state criptográfico + PKCE** — substituir `tenantId:userId` por UUID aleatório + assinatura HMAC. Implementar PKCE em Google/Microsoft/DocuSign. | Médio | `oauth.tsx` | ✅ state feito (Auditoria 1) — falta PKCE |
+| 1.2 | **Verificação HMAC nos webhooks** — WhatsApp (X-Hub-Signature-256) e ClickSign. | Médio | `whatsapp-webhook.ts`, `integrations.ts` | ✅ feito (Auditoria 1 + ja existia) |
+| 1.3 | **Refresh de OAuth tokens** — usar refresh tokens armazenados quando access_token expira. | Médio | `oauth.tsx`, `integrations.ts` | ✅ feito |
+| 1.4 | **Criptografar OAuth tokens em repouso** — usar pgcrypto ou Supabase Vault para access_token/refresh_token. | Médio | migration + `oauth.tsx` | Pendente |
+| 1.5 | **CSRF protection** — token CSRF em forms POST ou usar Hono CSRF middleware com header Origin check. | Baixo | `index.ts` + todas as rotas POST | Pendente |
+| 1.6 | **Validação de MIME type no upload** — verificar magic bytes, não confiar no `file.type` do browser. | Baixo | `upload.ts` | Pendente |
+| 1.7 | **Corrigir bypass de PII masking** — mascarar PII antes de construir o prompt, não depois. | Baixo | `ai.ts` (generateCaseSummary) | Pendente |
+| 1.8 | **Cabeçalhos de segurança** — CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. | Baixo | `index.ts` | ✅ feito |
+| 1.9 | **Validação de env vars no startup** — Zod schema, fail fast se SUPABASE_URL/KEY faltando. | Baixo | `env.ts` | ✅ feito (Auditoria 3) |
+| 1.10 | **Rate limiter distribuído** — substituir Map em memória por Upstash Redis (compatível com Vercel serverless). | Médio | `rate-limit.ts`, `ai.ts` | Pendente |
 
 ### Fase 2 — Performance e UX (alto impacto)
 
-| # | Tarefa | Esforço | Impacto |
-|---|--------|---------|---------|
-| 2.1 | **Streaming do chat de IA** — SSE com `stream: true` na API OpenAI + UI otimista (mensagem do usuário aparece instantaneamente, resposta surge token a token). | Alto | **Crítico** — elimina a maior dor de percepção de lentidão |
-| 2.2 | **Decidir HTMX: adotar ou remover** — se adotar: começar por delete instantâneo + busca ao vivo nas listas. Se remover: deletar tag `<script>` do `base.tsx` e `public/js/htmx.min.js`. | Baixo (remover) / Médio (adotar) | Médio |
-| 2.3 | **Corrigir N+1 queries restantes** — reports.tsx, teams.tsx, messages.tsx usam loops com queries por item. Migrar para agregação ou JOIN. | Médio | Médio |
-| 2.4 | **Paginação em timesheet e messages** — adicionar `range()` como nas outras rotas. | Baixo | Baixo |
-| 2.5 | **Feedback de validação** — substituir redirect silencioso por flash messages (cookie temporário ou query param com erro). | Médio | **Alto** — hoje usuário não sabe por que o form falhou |
-| 2.6 | **Toast/notificação de sucesso/erro** — usar o sistema de notifications já criado + Alpine.js para toast transitório. | Baixo | Médio |
+| # | Tarefa | Esforço | Impacto | Status |
+|---|--------|---------|---------|--------|
+| 2.1 | **Streaming do chat de IA** — SSE com `stream: true` na API OpenAI + UI otimista (mensagem do usuário aparece instantaneamente, resposta surge token a token). | Alto | **Crítico** — elimina a maior dor de percepção de lentidão | ✅ feito |
+| 2.2 | **Decidir HTMX: adotar ou remover** — se adotar: começar por delete instantâneo + busca ao vivo nas listas. Se remover: deletar tag `<script>` do `base.tsx` e `public/js/htmx.min.js`. | Baixo (remover) / Médio (adotar) | Médio | ✅ removido |
+| 2.3 | **Corrigir N+1 queries restantes** — reports.tsx, teams.tsx, messages.tsx usam loops com queries por item. Migrar para agregação ou JOIN. | Médio | Médio | Pendente |
+| 2.4 | **Paginação em timesheet e messages** — adicionar `range()` como nas outras rotas. | Baixo | Baixo | Pendente |
+| 2.5 | **Feedback de validação** — substituir redirect silencioso por flash messages (cookie temporário ou query param com erro). | Médio | **Alto** — hoje usuário não sabe por que o form falhou | Pendente |
+| 2.6 | **Toast/notificação de sucesso/erro** — usar o sistema de notifications já criado + Alpine.js para toast transitório. | Baixo | Médio | Pendente |
 
 ### Fase 3 — Mobile e Acessibilidade
 
@@ -92,16 +113,16 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 
 ### Fase 4 — Infraestrutura e Qualidade
 
-| # | Tarefa | Esforço | Impacto |
-|---|--------|---------|---------|
-| 4.1 | **Testes** — começar com Bun test nos libs críticos: `session.ts`, `ai.ts`, `conflict.ts`, `prazos.ts`, `rate-limit.ts`. Depois testes de rota para auth. | Alto | Alto |
-| 4.2 | **CI/CD com GitHub Actions** — typecheck + build + test em PRs. Auto-deploy no merge para main. | Médio | Alto |
-| 4.3 | **Observabilidade** — Sentry para erros, structured logging (pino ou console estruturado), request IDs. | Médio | Alto |
-| 4.4 | **Health checks** — `GET /health` (liveness), `GET /health/ready` (readiness com DB check). | Baixo | Médio |
-| 4.5 | **Remover package-lock.json** — manter apenas `bun.lock`. | Trivial | Baixo |
-| 4.6 | **Self-hostar Alpine.js** — usar `public/js/alpine.min.js` em vez de CDN unpkg. | Trivial | Baixo |
-| 4.7 | **Graceful shutdown** — SIGTERM handler, completar requests em andamento. | Baixo | Médio |
-| 4.8 | **Build com typecheck** — adicionar `tsc --noEmit` antes do build no Vercel. | Trivial | Médio |
+| # | Tarefa | Esforço | Impacto | Status |
+|---|--------|---------|---------|--------|
+| 4.1 | **Testes** — começar com Bun test nos libs críticos: `session.ts`, `ai.ts`, `conflict.ts`, `prazos.ts`, `rate-limit.ts`. Depois testes de rota para auth. | Alto | Alto | Pendente |
+| 4.2 | **CI/CD com GitHub Actions** — typecheck + build + test em PRs. Auto-deploy no merge para main. | Médio | Alto | Pendente |
+| 4.3 | **Observabilidade** — Sentry para erros, structured logging (pino ou console estruturado), request IDs. | Médio | Alto | Pendente |
+| 4.4 | **Health checks** — `GET /health` (liveness), `GET /health/ready` (readiness com DB check). | Baixo | Médio | ✅ feito (Auditoria 3) |
+| 4.5 | **Remover package-lock.json** — manter apenas `bun.lock`. | Trivial | Baixo | ✅ feito |
+| 4.6 | **Self-hostar Alpine.js** — usar `public/js/alpine.min.js` em vez de CDN unpkg. | Trivial | Baixo | ✅ feito (Auditoria 3) |
+| 4.7 | **Graceful shutdown** — SIGTERM handler, completar requests em andamento. | Baixo | Médio | Pendente |
+| 4.8 | **Build com typecheck** — adicionar `tsc --noEmit` antes do build no Vercel. | Trivial | Médio | ✅ feito (Auditoria 3) |
 
 ### Fase 5 — Funcionalidades de Produto (vendas e diferenciação)
 
@@ -130,25 +151,24 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 ## Priorização Recomendada
 
 ```
-Fase 1 (segurança restante)     ████████████░░░░  70% feito, falta ~30%
-Fase 2 (performance/UX)         ░░░░░░░░░░░░░░░░  0% feito
+Fase 1 (segurança restante)     ████████████░░░░  70% feito (1.1✅ 1.2✅ 1.3✅ 1.8✅ 1.9✅ — falta 1.4 1.5 1.6 1.7 1.10)
+Fase 2 (performance/UX)         ████░░░░░░░░░░░░  25% feito (2.1✅ 2.2✅ — falta 2.3-2.6)
 Fase 5.1 (importação CSV)       ░░░░░░░░░░░░░░░░  0% feito — fazer em paralelo com Fase 2
 Fase 3 (mobile/a11y)            ░░░░░░░░░░░░░░░░  0% feito
-Fase 4 (infra/qualidade)        ░░░░░░░░░░░░░░░░  0% feito
+Fase 4 (infra/qualidade)        ██████░░░░░░░░░░  40% feito (4.4✅ 4.5✅ 4.6✅ 4.8✅ — falta 4.1 4.2 4.3 4.7)
 Fase 5 (features restantes)     ░░░░░░░░░░░░░░░░  0% feito
 Fase 6 (PWA/nativo)             ░░░░░░░░░░░░░░░░  0% feito
 ```
 
 ### Ordem sugerida de execução
 
-1. **Fase 1** — completar segurança restante (1.1-1.10)
-2. **Fase 2.1** — streaming do chat de IA (maior impacto em percepção de performance)
-3. **Fase 5.1** — importação CSV/Excel (maior impacto em vendas)
-4. **Fase 2.5 + 2.6** — feedback de validação + toasts (UX imediato)
-5. **Fase 3** — mobile responsivo + acessibilidade
-6. **Fase 4** — testes, CI/CD, observabilidade
-7. **Fase 5** — features restantes por prioridade de negócio
-8. **Fase 6** — PWA depois app nativo se necessário
+1. **Fase 1** — completar segurança restante (1.4, 1.5, 1.6, 1.7, 1.10)
+2. **Fase 5.1** — importação CSV/Excel (maior impacto em vendas)
+3. **Fase 2.5 + 2.6** — feedback de validação + toasts (UX imediato)
+4. **Fase 3** — mobile responsivo + acessibilidade
+5. **Fase 4** — testes, CI/CD, observabilidade
+6. **Fase 5** — features restantes por prioridade de negócio
+7. **Fase 6** — PWA depois app nativo se necessário
 
 ---
 
@@ -156,12 +176,12 @@ Fase 6 (PWA/nativo)             ░░░░░░░░░░░░░░░░
 
 | Métrica | Hoje | Meta |
 |---------|------|------|
-| Tempo de resposta do chat de IA | 5-30s (tela travada) | < 1s para primeiro token (streaming) |
+| Tempo de resposta do chat de IA | < 1s para primeiro token (streaming ✅) | < 1s |
 | Tempo de carregamento de listas | 300-500ms (full reload) | < 100ms (HTMX swap ou otimizado) |
 | Cobertura de testes | 0% | 60% nos libs críticos |
 | Lighthouse mobile score | ~30 (estimado) | > 80 |
 | Tempo de onboarding de novo cliente | Manual (horas) | < 10 min (importação CSV) |
-| Vulnerabilidades críticas | 3 restantes (OAuth, HMAC, CSRF) | 0 |
+| Vulnerabilidades críticas | 2 restantes (CSRF, encrypt tokens) | 0 |
 
 ---
 

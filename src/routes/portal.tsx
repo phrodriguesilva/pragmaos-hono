@@ -55,7 +55,7 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <title>{title} - Portal do Cliente - PragmaOS</title>
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="https://unpkg.com/alpinejs@3.14.8" defer />
+        <script src="/static/js/alpine.min.js" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
@@ -292,7 +292,7 @@ portalRoutes.get("/login", (c) => {
         <title>Portal do Cliente - PragmaOS</title>
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="https://unpkg.com/alpinejs@3.14.8" defer />
+        <script src="/static/js/alpine.min.js" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">

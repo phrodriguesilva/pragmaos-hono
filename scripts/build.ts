@@ -1,7 +1,12 @@
-// Build script: runs Tailwind CLI to generate CSS, then inlines it
+// Build script: runs typecheck, then Tailwind CLI to generate CSS, then inlines it
 // into a TS module so it gets bundled into the serverless function.
 import { $ } from "bun";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+
+// 0. Typecheck — fail fast on type errors before building.
+console.log("Running typecheck (tsc --noEmit)...");
+await $`bunx tsc --noEmit`;
+console.log("Typecheck passed.");
 
 // 1. Generate CSS with Tailwind CLI.
 await $`bunx @tailwindcss/cli -i src/input.css -o public/css/app.css --minify`;

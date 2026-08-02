@@ -226,62 +226,6 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   <header class="w-full bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 py-3.5 sticky top-0 z-30">
     <span class="text-h3 text-gray-800 font-semibold">{firmName ?? "PragmaOS"}</span>
     <div class="flex items-center gap-5">
-      {/* Global search (Cmd+K) */}
-      <div {...{ "x-data": "{ open: false, q: '', results: [], async search() { if (this.q.length < 2) { this.results = []; return; } try { const r = await fetch('/search/api?q=' + encodeURIComponent(this.q)); const d = await r.json(); this.results = d.results ?? []; } catch(e) {} } }" }}>
-        <button
-          {...{ "@click": "open = true", "@keydown.cmd.k.prevent": "open = true", "@keydown.ctrl+k.prevent": "open = true" }}
-          class="flex items-center gap-2 bg-gray-50 text-body-sm text-gray-500 px-3 py-2 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-200 w-64 justify-between"
-          aria-label="Buscar (Cmd+K)"
-        >
-          <span class="flex items-center gap-2">
-            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-            <span class="hidden sm:inline">Buscar processos, clientes...</span>
-          </span>
-          <kbd class="hidden sm:inline text-body-xs text-gray-400 bg-white border border-gray-200 rounded px-1.5 py-0.5">Cmd+K</kbd>
-        </button>
-        {/* Search modal */}
-        <div
-          {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}
-          x-cloak
-          class="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/30"
-        >
-          <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden" {...{ "@click.stop": "" }}>
-            <div class="flex items-center gap-3 p-4 border-b border-gray-100">
-              <i class="ph ph-magnifying-glass text-gray-400" aria-hidden="true"></i>
-              <input
-                type="text"
-                {...{ "x-model": "q", "@input.debounce.150ms": "search()", "x-ref": "searchInput", "@keydown.enter.prevent": "results[0] && (window.location = results[0].link)" }}
-                placeholder="Buscar processos, clientes, prazos..."
-                class="flex-1 text-body outline-none placeholder:text-gray-400"
-                aria-label="Campo de busca"
-              />
-              <kbd class="text-body-xs text-gray-400 bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5">ESC</kbd>
-            </div>
-            <div class="max-h-96 overflow-y-auto">
-              <template {...{ "x-if": "q.length < 2" }}>
-                <div class="p-8 text-center text-gray-400 text-body-sm">
-                  Digite pelo menos 2 caracteres para buscar.
-                </div>
-              </template>
-              <template {...{ "x-if": "q.length >= 2 && results.length === 0" }}>
-                <div class="p-8 text-center text-gray-400 text-body-sm">
-                  Nenhum resultado encontrado.
-                </div>
-              </template>
-              <template {...{ "x-for": "(r, i) in results", ":key": "r.id" }}>
-                <a {...{ ":href": "r.link" }} class="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0">
-                  <i {...{ ":class": "r.icon" }} class="ph text-h4 text-gray-400" aria-hidden="true"></i>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-body-sm font-medium text-gray-800 truncate" {...{ "x-text": "r.title" }}></div>
-                    <div class="text-body-xs text-gray-500 truncate" {...{ "x-text": "r.subtitle" }}></div>
-                  </div>
-                  <span class="text-body-xs text-gray-400 capitalize" {...{ "x-text": "r.type" }}></span>
-                </a>
-              </template>
-            </div>
-          </div>
-        </div>
-      </div>
       {/* Notifications bell with badge */}
       <div {...{ "x-data": "{ count: 0, open: false, async fetch() { try { const r = await fetch('/notifications/api/count'); const d = await r.json(); this.count = d.count ?? 0; } catch(e) {} }, init() { this.fetch(); setInterval(() => this.fetch(), 30000); } }" }} class="relative flex items-center">
         {/* Notifications bell */}

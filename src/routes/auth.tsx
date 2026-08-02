@@ -36,7 +36,7 @@ function authShell(title: string, children: unknown, opts?: { wide?: boolean }) 
         <title>{title} - PragmaOS</title>
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
-        <script src="https://unpkg.com/alpinejs@3.14.8" defer />
+        <script src="/static/js/alpine.min.js" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4">

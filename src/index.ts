@@ -3,6 +3,7 @@ import type { AppEnv } from "./lib/types";
 
 import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
+import { supabase } from "./lib/supabase";
 import { authRoutes } from "./routes/auth";
 import { dashboardRoutes } from "./routes/dashboard";
 import { clientsRoutes } from "./routes/clients";
@@ -65,10 +66,11 @@ app.use("*", async (c, next) => {
   c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   // HSTS — only meaningful over HTTPS, tells browser to always use HTTPS.
   c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
-  // CSP — allow self, unpkg (Alpine), and inline scripts/styles (needed for Hono JSX + Alpine).
+  // CSP — allow self and inline scripts/styles (needed for Hono JSX + Alpine).
+  // Alpine.js is self-hosted at /static/js/alpine.min.js (no external CDN).
   c.header("Content-Security-Policy", [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",
@@ -81,6 +83,18 @@ app.use("*", async (c, next) => {
 
 // Static assets (CSS, JS).
 app.use("/static/*", serveStatic({ root: "./public" }));
+
+// Health checks (public, no auth).
+app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
+app.get("/health/ready", async (c) => {
+  try {
+    const { error } = await supabase.from("tenants").select("id").limit(1).maybeSingle();
+    if (error) return c.json({ status: "not_ready", error: error.message }, 503);
+    return c.json({ status: "ready", timestamp: new Date().toISOString() });
+  } catch (err) {
+    return c.json({ status: "not_ready", error: String(err) }, 503);
+  }
+});
 
 // Auth (public).
 app.route("/", authRoutes);

@@ -26,7 +26,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-      <script src="https://unpkg.com/alpinejs@3.14.8" defer />
+      <script src="/static/js/alpine.min.js" defer />
     </head>
     <body class="bg-gray-50 text-body font-sans antialiased lg:flex" {...{ "x-data": "{ sidebarOpen: false }" }}>
       {/* Mobile sidebar overlay */}
@@ -68,7 +68,7 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-      <script src="https://unpkg.com/alpinejs@3.14.8" defer />
+      <script src="/static/js/alpine.min.js" defer />
     </head>
     <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #1f1d1a 0%, #2b2925 50%, #36332e 100%);">
       <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl">
