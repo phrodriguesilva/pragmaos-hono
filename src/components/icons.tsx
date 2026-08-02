@@ -294,9 +294,6 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
             {userRole ? <span class="text-body-xs text-gray-400 font-normal">{userRole}</span> : null}
           </span>
         </button>
-        <a href="/help" aria-label="Ajuda" class="ml-1 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-terracota-600 hover:bg-gray-50 rounded-lg transition" title="Ajuda">
-          <i class="ph ph-chats-teardrop text-h4" aria-hidden="true"></i>
-        </a>
         <div
           {...{ "x-show": "open", "@click.outside": "open = false", "@keydown.escape.window": "open = false" }}
           role="menu"
