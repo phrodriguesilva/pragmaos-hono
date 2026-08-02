@@ -180,7 +180,7 @@ function KpiCard({ icon, label, value, color, sub }: {
   icon: string; label: string; value: string | number; color: string; sub?: string;
 }) {
   return (
-    <Panel>
+    <Panel hover>
       <div class="flex items-center gap-3">
         <div class={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0`} style={`background:${color}15`}>
           <i class={`ph ${icon} text-h3`} style={`color:${color}`} aria-hidden="true" />
@@ -284,10 +284,10 @@ dashboardRoutes.get("/dashboard", async (c) => {
 
       {/* Row 1: 4 KPIs principais */}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="#0568ff" />
-        <KpiCard icon="ph-hand-coins" label="A receber" value={fmt(toReceiveCents)} color="#94640c" />
-        <KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="#4d8bff" />
-        <KpiCard icon="ph-clock-countdown" label="Prazos criticos" value={deadlinesCritical.count ?? 0} color="#ba1a1a" sub="proximos 3 dias" />
+        <div class="fade-in-up" style="animation-delay:0ms"><KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="#0568ff" /></div>
+        <div class="fade-in-up" style="animation-delay:60ms"><KpiCard icon="ph-hand-coins" label="A receber" value={fmt(toReceiveCents)} color="#94640c" /></div>
+        <div class="fade-in-up" style="animation-delay:120ms"><KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="#4d8bff" /></div>
+        <div class="fade-in-up" style="animation-delay:180ms"><KpiCard icon="ph-clock-countdown" label="Prazos criticos" value={deadlinesCritical.count ?? 0} color="#ba1a1a" sub="proximos 3 dias" /></div>
       </div>
 
       {/* Row 2: 3 graficos */}

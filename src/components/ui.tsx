@@ -198,8 +198,8 @@ export const PageHeader: FC<PropsWithChildren<{ title: string; icon?: string; ac
   </div>
 );
 
-export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string }>> = ({ title, icon, children }) => (
-  <div class="border border-gray-100 bg-white rounded-xl shadow-sm">
+export const Panel: FC<PropsWithChildren<{ title?: string; icon?: string; hover?: boolean }>> = ({ title, icon, hover, children }) => (
+  <div class={`border border-gray-100 bg-white rounded-xl shadow-sm ${hover ? "card-hover" : ""}`}>
     {title ? (
       <div class="border-b border-gray-100 px-5 py-4 flex items-center gap-2.5">
         {icon ? <i class={`ph ${icon} text-body text-terracota-500`} aria-hidden="true" /> : null}

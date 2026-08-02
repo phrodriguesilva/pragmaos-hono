@@ -104,12 +104,22 @@
   /* Animations */
   --animate-spin: spin 0.8s linear infinite;
   --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-fade-in-up: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
   @keyframes fade-in {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
   }
 
   /* Font family — Plus Jakarta Sans is now the global default (Lexis Modern) */
@@ -323,28 +333,42 @@
     color: var(--color-gray-400);
   }
 
-  /* Buttons -- modern, with hover lift effect */
+  /* Buttons — 3D with colored shadow, hover lift, active press */
   .btn {
     @apply border px-4 py-2 text-body-sm rounded-md font-medium inline-flex items-center gap-1.5;
     border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .btn:active {
+    transform: translateY(1px);
     box-shadow: var(--shadow-xs);
   }
   .btn-primary {
     @apply bg-carvao-800 text-white;
     border-color: var(--color-carvao-800);
+    box-shadow: 0 4px 12px rgba(5, 104, 255, 0.25), 0 1px 2px rgba(5, 104, 255, 0.15);
   }
   .btn-primary:hover {
     @apply bg-carvao-600;
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(5, 104, 255, 0.35), 0 2px 4px rgba(5, 104, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  .btn-primary:active {
+    @apply bg-carvao-800;
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(5, 104, 255, 0.2);
   }
   .btn-secondary {
     @apply bg-white text-gray-700;
     border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
   }
   .btn-secondary:hover {
     @apply bg-gray-50 text-gray-900;
     border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
   }
   .btn-danger {
     @apply text-status-red bg-white;
@@ -352,6 +376,8 @@
   }
   .btn-danger:hover {
     background-color: var(--color-status-red-bg);
+    box-shadow: 0 6px 16px rgba(185, 26, 26, 0.15);
+    transform: translateY(-1px);
   }
   .btn-sm {
     @apply px-3 py-1.5 text-body-sm;
@@ -367,7 +393,7 @@
     @apply bg-white border border-gray-100 w-full my-8 rounded-xl;
     max-width: 640px;
     box-shadow: var(--shadow-2xl);
-    animation: var(--animate-fade-in);
+    animation: var(--animate-scale-in);
   }
   .modal-panel.modal-lg {
     max-width: 800px;
@@ -409,6 +435,23 @@
   }
   .wizard-step-number-pending {
     @apply bg-gray-200 text-gray-400;
+  }
+
+  /* Card hover — subtle lift for interactive panels */
+  .card-hover {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(35, 40, 86, 0.12), 0 4px 8px -4px rgba(35, 40, 86, 0.08);
+  }
+
+  /* Fade-in-up — for elements appearing on page load or scroll */
+  .fade-in-up {
+    animation: var(--animate-fade-in-up);
+  }
+  .scale-in {
+    animation: var(--animate-scale-in);
   }
 
   /* ComboBox -- modern */
