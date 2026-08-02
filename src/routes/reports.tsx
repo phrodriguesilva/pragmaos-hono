@@ -141,22 +141,19 @@ reportsRoutes.get("/export", async (c) => {
   }
 
   if (type === "clients") {
+    // Single query with nested join to get case count per client (avoids N+1).
     const { data: clients } = await supabase
       .from("clients")
-      .select("id, name, email, phone")
+      .select("id, name, email, phone, cases(id)")
       .eq("tenant_id", user.tenantId)
       .is("deleted_at", null)
       .order("name");
-    const rows: (string | number)[][] = [];
-    for (const cl of clients ?? []) {
-      const { count } = await supabase
-        .from("cases")
-        .select("id", { count: "exact", head: true })
-        .eq("client_id", cl.id)
-        .eq("tenant_id", user.tenantId)
-        .is("deleted_at", null);
-      rows.push([cl.name, cl.email ?? "", cl.phone ?? "", count ?? 0]);
-    }
+    const rows: (string | number)[][] = (clients ?? []).map((cl: { name: string; email?: string; phone?: string; cases: unknown[] }) => [
+      cl.name,
+      cl.email ?? "",
+      cl.phone ?? "",
+      Array.isArray(cl.cases) ? cl.cases.length : 0,
+    ]);
     return csvResponse("clientes.csv", toCSV(rows, ["Nome", "Email", "Telefone", "Processos"]));
   }
 

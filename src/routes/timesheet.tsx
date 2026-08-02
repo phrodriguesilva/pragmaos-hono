@@ -67,17 +67,25 @@ function durationMinutes(start?: string | null, end?: string | null): number | n
 timesheetRoutes.get("/", async (c) => {
   const user = c.get("user");
   const all = c.req.query("all") === "1";
+  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10));
+  const limit = 25;
+  const offset = (page - 1) * limit;
+
+  const queryParams: Record<string, string> = {};
+  if (all) queryParams.all = "1";
 
   let query = supabase
     .from("time_entries")
-    .select("id, description, start_time, end_time, duration_minutes, billable, invoiced, user_id, case_id, task_id, cases(title), tasks(title), profiles!time_entries_user_id_fkey(full_name)")
+    .select("id, description, start_time, end_time, duration_minutes, billable, invoiced, user_id, case_id, task_id, cases(title), tasks(title), profiles!time_entries_user_id_fkey(full_name)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .order("start_time", { ascending: false, nullsFirst: false });
+    .order("start_time", { ascending: false, nullsFirst: false })
+    .range(offset, offset + limit - 1);
 
   if (!all) query = query.eq("user_id", user.id);
 
-  const { data: entries } = await query;
+  const { data: entries, count } = await query;
+  const totalPages = count ? Math.ceil(count / limit) : 1;
 
   // Fetch cases and tasks for the modal selects.
   const [casesRes, tasksRes] = await Promise.all([
@@ -161,6 +169,14 @@ timesheetRoutes.get("/", async (c) => {
         emptyMsg="Nenhum registro de tempo."
         emptyIcon="ph-timer"
         ariaLabel="Lista de registros de tempo"
+        count={count ?? 0}
+        countLabel="registro(s)"
+        pagination={{
+          currentPage: page,
+          totalPages,
+          basePath: "/timesheet",
+          queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        }}
       />
     </>,
   );

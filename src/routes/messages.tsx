@@ -109,23 +109,32 @@ messagesRoutes.get("/", async (c) => {
     .in("id", channelIds)
     .order("created_at", { ascending: false });
 
-  // Fetch member counts and last messages for each channel.
-  const rows = await Promise.all((channels ?? []).map(async (ch) => {
-    const [membersRes, lastMsgRes] = await Promise.all([
-      supabase
-        .from("chat_channel_members")
-        .select("id", { count: "exact", head: true })
-        .eq("channel_id", ch.id),
-      supabase
-        .from("chat_messages")
-        .select("content, created_at")
-        .eq("channel_id", ch.id)
-        .order("created_at", { ascending: false })
-        .limit(1),
-    ]);
+  // Batch fetch member counts and last messages (avoids N+1 per channel).
+  const channelIdsList = (channels ?? []).map((ch) => ch.id);
+  const [allMembersRes, allMessagesRes] = await Promise.all([
+    channelIdsList.length > 0
+      ? supabase.from("chat_channel_members").select("channel_id").in("channel_id", channelIdsList)
+      : Promise.resolve({ data: [], error: null }),
+    channelIdsList.length > 0
+      ? supabase.from("chat_messages").select("channel_id, content, created_at").in("channel_id", channelIdsList).order("created_at", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
-    const memberCount = membersRes.count ?? 0;
-    const lastMsg = lastMsgRes.data?.[0];
+  // Build maps: channel_id -> member count, channel_id -> last message.
+  const memberCountMap = new Map<string, number>();
+  for (const m of allMembersRes.data ?? []) {
+    memberCountMap.set(m.channel_id, (memberCountMap.get(m.channel_id) ?? 0) + 1);
+  }
+  const lastMsgMap = new Map<string, { content: string; created_at: string }>();
+  for (const msg of allMessagesRes.data ?? []) {
+    if (!lastMsgMap.has(msg.channel_id)) {
+      lastMsgMap.set(msg.channel_id, { content: msg.content, created_at: msg.created_at });
+    }
+  }
+
+  const rows = (channels ?? []).map((ch) => {
+    const memberCount = memberCountMap.get(ch.id) ?? 0;
+    const lastMsg = lastMsgMap.get(ch.id);
     const lastMsgText = lastMsg ? `${lastMsg.content.slice(0, 40)}${lastMsg.content.length > 40 ? "..." : ""}` : "-";
 
     return [
@@ -134,7 +143,7 @@ messagesRoutes.get("/", async (c) => {
       String(memberCount),
       lastMsg ? `${lastMsgText} (${formatDateTime(lastMsg.created_at)})` : "-",
     ];
-  }));
+  });
 
   return renderPage(
     c,
