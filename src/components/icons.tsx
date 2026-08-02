@@ -130,6 +130,7 @@ export const MENU: MenuItem[] = [
       { key: "permissions", label: "Permissoes", href: "/permissions", icon: "ph-key" },
       { key: "integrations", label: "Integracoes", href: "/integrations", icon: "ph-plugs-connected" },
       { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-hash" },
+      { key: "import", label: "Importar Dados", href: "/import", icon: "ph-upload-simple" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
     ],
   },

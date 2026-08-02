@@ -128,7 +128,7 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 
 | # | Tarefa | Esforço | Impacto no negócio |
 |---|--------|---------|-------------------|
-| 5.1 | **Importação de dados (CSV/Excel)** — importar clientes e processos de outros sistemas (Astrea, Projuris, CPJ). Mapeamento de colunas, preview, validação. | Alto | **Crítico** — maior barreira de entrada para novos clientes |
+| 5.1 | **Importação de dados (CSV/Excel)** — importar clientes e processos de outros sistemas (Astrea, Projuris, CPJ). Mapeamento de colunas, preview, validação. | Alto | **Crítico** — maior barreira de entrada para novos clientes | ✅ feito |
 | 5.2 | **Notificação proativa ao cliente via WhatsApp** — gatilho automático: novo movimento → IA traduz → envia WhatsApp para o cliente. Usa infra já existente. | Médio | **Alto** — zera volume de ligações no escritório |
 | 5.3 | **Análise de rentabilidade por processo** — cruzar timesheet (horas gastas) com honorarios (valor recebido). Relatório de lucro/prejuízo por processo. | Médio | Alto — diferencial competitivo |
 | 5.4 | **Busca full-text no conteúdo de documentos** — extrair texto de PDFs no upload, indexar com tsvector do Postgres, buscar dentro de petições e contratos. | Alto | Alto |

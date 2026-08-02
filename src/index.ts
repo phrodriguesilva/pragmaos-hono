@@ -52,6 +52,7 @@ import { apiRoutes } from "./routes/api";
 import { apiKeysRoutes } from "./routes/api-keys";
 import { searchRoutes } from "./routes/search";
 import { timerRoutes } from "./routes/timer";
+import { importRoutes } from "./routes/import";
 
 const app = new Hono<AppEnv>();
 
@@ -176,6 +177,7 @@ app.route("/api", apiRoutes);
 app.route("/api-keys", apiKeysRoutes);
 app.route("/search", searchRoutes);
 app.route("/timer", timerRoutes);
+app.route("/import", importRoutes);
 
 // 404 fallback.
 app.notFound((c) => c.html("Pagina nao encontrada.", 404));

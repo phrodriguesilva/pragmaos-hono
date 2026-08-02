@@ -17,10 +17,10 @@ profileRoutes.get("/", async (c) => {
   const twofaParam = c.req.query("2fa");
   const pixParam = c.req.query("pix");
 
-  const [profileRes, totpRes] = await Promise.all([
+  const [profileRes, totpRes, tenantBasicRes, tenantPixRes] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, email, full_name, role, active, created_at, tenants(name, pix_key, pix_merchant_name, pix_merchant_city)")
+      .select("id, email, full_name, role, active, created_at, tenants(name)")
       .eq("id", user.id)
       .single(),
     supabase
@@ -28,12 +28,29 @@ profileRoutes.get("/", async (c) => {
       .select("enabled, created_at, updated_at")
       .eq("user_id", user.id)
       .single(),
+    supabase
+      .from("tenants")
+      .select("name")
+      .eq("id", user.tenantId)
+      .single(),
+    supabase
+      .from("tenants")
+      .select("pix_key, pix_merchant_name, pix_merchant_city")
+      .eq("id", user.tenantId)
+      .single(),
   ]);
 
   if (!profileRes.data) return c.html("Perfil nao encontrado.", 404);
 
   const profile = profileRes.data;
-  const tenant = profile.tenants as unknown as { name: string; pix_key?: string | null; pix_merchant_name?: string | null; pix_merchant_city?: string | null } | null;
+  const profileTenant = profile.tenants as unknown as { name: string } | null;
+  const tenantPix = tenantPixRes.data as Record<string, unknown> | null;
+  const tenant = {
+    name: tenantBasicRes.data?.name ?? profileTenant?.name ?? "",
+    pix_key: (tenantPix?.pix_key as string) ?? null,
+    pix_merchant_name: (tenantPix?.pix_merchant_name as string) ?? null,
+    pix_merchant_city: (tenantPix?.pix_merchant_city as string) ?? null,
+  };
   const totp = totpRes.data;
   const twoFAEnabled = totp?.enabled ?? false;
   const canManageBilling = user.role === "socio" || user.role === "financeiro";

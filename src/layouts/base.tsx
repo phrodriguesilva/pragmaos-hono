@@ -28,21 +28,21 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
       <script src="/static/js/alpine.min.js" defer />
     </head>
-    <body class="bg-gray-50 text-body font-sans antialiased lg:flex" {...{ "x-data": "{ sidebarOpen: false }" }}>
+    <body class="bg-gray-50 text-body font-sans antialiased" {...{ "x-data": "{ sidebarOpen: false }" }}>
       {/* Mobile sidebar overlay */}
       <div
         {...{ "x-show": "sidebarOpen", "@click": "sidebarOpen = false" }}
         x-cloak
         class="fixed inset-0 bg-black/50 z-40 lg:hidden"
       ></div>
-      {/* Sidebar — fixed on mobile, static on desktop */}
+      {/* Sidebar — fixed on all screens, slides in on mobile */}
       <div
         {...{ ":class": "sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'", "@keydown.escape.window": "sidebarOpen = false" }}
-        class="fixed lg:sticky top-0 left-0 z-50 lg:z-auto h-screen shrink-0 transition-transform duration-200"
+        class="fixed top-0 left-0 z-50 h-screen transition-transform duration-200"
       >
         <Sidebar active={active} />
       </div>
-      <div class="flex flex-col min-h-screen flex-1">
+      <div class="flex flex-col min-h-screen lg:ml-sidebar">
         {/* Mobile hamburger button */}
         <button
           {...{ "@click": "sidebarOpen = true" }}

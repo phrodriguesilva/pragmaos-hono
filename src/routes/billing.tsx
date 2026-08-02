@@ -471,14 +471,21 @@ billingRoutes.post("/:id/pix", async (c) => {
 
   if (!inv) return c.redirect("/billing");
 
-  // Fetch tenant PIX settings.
-  const { data: tenant } = await supabase
+  // Fetch tenant name first (always exists), then try PIX columns (may not exist yet).
+  const { data: tenantBasic } = await supabase
     .from("tenants")
-    .select("name, pix_key, pix_merchant_name, pix_merchant_city")
+    .select("name")
     .eq("id", user.tenantId)
     .single();
 
-  const pixKey = tenant?.pix_key ?? "";
+  // Try to fetch PIX settings — gracefully handles missing columns.
+  const { data: tenantPix } = await supabase
+    .from("tenants")
+    .select("pix_key, pix_merchant_name, pix_merchant_city")
+    .eq("id", user.tenantId)
+    .single();
+
+  const pixKey = (tenantPix as Record<string, unknown> | null)?.pix_key as string ?? "";
   if (!pixKey) {
     // No PIX key configured — redirect with error.
     return c.redirect(`/billing/${id}?error=pix_not_configured`);
@@ -487,8 +494,8 @@ billingRoutes.post("/:id/pix", async (c) => {
   const pixCode = generatePixBRCode({
     amountCents: inv.amount_cents,
     pixKey,
-    merchantName: tenant?.pix_merchant_name ?? tenant?.name ?? "ESCRITORIO",
-    merchantCity: tenant?.pix_merchant_city ?? "SAO PAULO",
+    merchantName: ((tenantPix as Record<string, unknown> | null)?.pix_merchant_name as string) ?? tenantBasic?.name ?? "ESCRITORIO",
+    merchantCity: ((tenantPix as Record<string, unknown> | null)?.pix_merchant_city as string) ?? "SAO PAULO",
     txid: `PRAGMA${inv.number}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 25),
   });
 
