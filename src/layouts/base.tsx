@@ -27,9 +27,9 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       <meta name="apple-mobile-web-app-title" content="PragmaOS" />
       <title>{title} - PragmaOS</title>
-      <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+      <link rel="icon" href="/static/img/pragmaos-icon.png" type="image/png" />
       <link rel="manifest" href="/manifest.json" />
-      <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
+      <link rel="apple-touch-icon" href="/static/img/pragmaos-icon.png" />
       <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
       <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
       <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
@@ -82,9 +82,9 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <meta name="theme-color" content="#006382" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <title>{title} - PragmaOS</title>
-      <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+      <link rel="icon" href="/static/img/pragmaos-icon.png" type="image/png" />
       <link rel="manifest" href="/manifest.json" />
-      <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
+      <link rel="apple-touch-icon" href="/static/img/pragmaos-icon.png" />
       <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
       <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
       <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
@@ -98,12 +98,7 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
     <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 50%, #006382 100%);">
       <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl">
         <div class="flex flex-col items-center mb-6">
-          <div class="flex items-center gap-2.5 mb-1">
-            <div class="w-11 h-11 rounded-xl bg-carvao-800 flex items-center justify-center">
-              <i class="ph-bold ph-scales text-white text-h2" aria-hidden="true" />
-            </div>
-            <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
-          </div>
+          <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-12 w-auto mb-1" />
         </div>
         {children}
       </div>

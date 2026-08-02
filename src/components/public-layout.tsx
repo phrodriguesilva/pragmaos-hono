@@ -21,7 +21,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
   const b = basePath;
   const title = pageTitle ?? `${tenant.name} — ${tenant.tagline ?? "Advocacia"}`;
   const description = pageDescription ?? (tenant.description ?? `${tenant.name} — escritório de advocacia`);
-  const favicon = tenant.logo_url ?? "/static/img/icon.svg";
+  const favicon = tenant.logo_url ?? "/static/img/pragmaos-icon.png";
   const canonicalUrl = canonical ?? undefined;
 
   return (
@@ -153,9 +153,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
               {tenant.logo_url ? (
                 <img src={tenant.logo_url} alt={tenant.name} class="h-9 w-auto" />
               ) : (
-                <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-scales text-white text-lg" aria-hidden="true" />
-                </div>
+                <img src="/static/img/pragmaos-icon.png" alt="PragmaOS" class="h-9 w-9 rounded-lg object-cover shrink-0" />
               )}
               <span class="text-lg font-semibold text-secondary tracking-tight">{tenant.name}</span>
             </a>
@@ -221,9 +219,11 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
               {/* Brand */}
               <div>
                 <div class="flex items-center gap-2.5 mb-3">
-                  <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                    <i class="ph-bold ph-scales text-white text-sm" aria-hidden="true" />
-                  </div>
+                  {tenant.logo_url ? (
+                    <img src={tenant.logo_url} alt={tenant.name} class="h-8 w-auto" />
+                  ) : (
+                    <img src="/static/img/pragmaos-icon.png" alt="PragmaOS" class="h-8 w-8 rounded-lg object-cover" />
+                  )}
                   <span class="text-base font-semibold text-white">{tenant.name}</span>
                 </div>
                 {tenant.tagline && <p class="text-sm text-gray-300">{tenant.tagline}</p>}

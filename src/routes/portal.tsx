@@ -61,11 +61,8 @@ function clientLayout(title: string, clientName: string, children: unknown) {
       <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
         <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-              <i class="ph-bold ph-scales text-white text-body" aria-hidden="true" />
-            </div>
-            <span class="text-h3 font-semibold text-white tracking-tight">PragmaOS</span>
-            <span class="text-body-sm text-gray-400 font-normal">Portal do Cliente</span>
+            <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
+            <span class="text-body-sm text-gray-300 font-normal">Portal do Cliente</span>
           </div>
           <div class="flex items-center gap-5 text-body-sm">
             <span class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-body-xs font-bold">{clientName.charAt(0).toUpperCase()}</div>{clientName}</span>
@@ -297,11 +294,8 @@ portalRoutes.get("/login", (c) => {
       </head>
       <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center">
         <div class="w-full max-w-sm border border-carvao-700 bg-white p-8">
-          <div class="flex items-center gap-2.5 mb-2">
-            <div class="w-10 h-10 rounded-xl bg-terracota-500 flex items-center justify-center">
-              <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
-            </div>
-            <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
+          <div class="flex flex-col items-center mb-2">
+            <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
           </div>
           <p class="text-body-sm text-gray-500 mb-6">Portal do Cliente — acesse seus processos e documentos.</p>
           <form method="post" action="/portal/login" class="flex flex-col gap-4">

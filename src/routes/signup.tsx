@@ -58,12 +58,7 @@ function signupShell(title: string, children: unknown) {
 function SignupBrand(subtitle?: string) {
   return (
     <div class="mb-6">
-      <div class="flex items-center gap-2.5 mb-2">
-        <div class="w-10 h-10 rounded-xl bg-carvao-800 flex items-center justify-center">
-          <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
-        </div>
-        <span class="text-h2 font-bold text-carvao-800 tracking-tight">PragmaOS</span>
-      </div>
+      <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-10 w-auto mb-2" />
       {subtitle ? <p class="text-body-sm text-gray-500">{subtitle}</p> : null}
     </div>
   );

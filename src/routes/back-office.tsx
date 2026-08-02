@@ -51,7 +51,7 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="robots" content="noindex, nofollow" />
         <title>{title} — Back-office PragmaOS</title>
-        <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/static/img/pragmaos-icon.png" type="image/png" />
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
@@ -73,13 +73,8 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         >
           {/* Logo */}
           <div class="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-              <i class="ph-bold ph-scales text-white text-sm" aria-hidden="true" />
-            </div>
-            <div>
-              <div class="text-white font-semibold text-sm">PragmaOS</div>
-              <div class="text-xs text-carvao-300">Back-office</div>
-            </div>
+            <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
+            <div class="text-xs text-carvao-300 ml-1">Back-office</div>
           </div>
 
           {/* Nav */}

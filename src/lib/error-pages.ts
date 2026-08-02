@@ -18,7 +18,7 @@ export function renderErrorPage({ code, title, message, detail }: ErrorPageOpts)
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${code} — ${title} — PragmaOS</title>
-    <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/static/img/pragmaos-icon.png" type="image/png" />
     <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
@@ -31,10 +31,7 @@ export function renderErrorPage({ code, title, message, detail }: ErrorPageOpts)
   <body class="bg-carvao-800 text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased">
     <div class="w-full max-w-md text-center">
       <div class="flex items-center justify-center gap-2.5 mb-8">
-        <div class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center">
-          <i class="ph-bold ph-scales text-white text-h2" aria-hidden="true"></i>
-        </div>
-        <span class="text-h2 font-bold text-white tracking-tight">PragmaOS</span>
+        <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-10 w-auto brightness-0 invert" />
       </div>
       <div class="text-7xl font-extrabold text-white mb-2">${code}</div>
       <h1 class="text-xl font-semibold text-white mb-3">${title}</h1>

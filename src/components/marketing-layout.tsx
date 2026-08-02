@@ -75,7 +75,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
         {/* Additional page-specific JSON-LD (e.g. FAQPage) */}
         {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
 
-        <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/static/img/pragmaos-icon.png" type="image/png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font/woff2" crossorigin="anonymous" />
@@ -302,10 +302,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
         <header {...{ "x-data": "{ open: false }" }} class="sticky top-0 z-50 bg-[#f5f8fa]/90 backdrop-blur-md border-b border-[#c5cdd3]">
           <div class="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2.5" aria-label="PragmaOS inicio">
-              <div class="w-9 h-9 rounded-xl bg-[#006382] flex items-center justify-center shrink-0">
-                <i class="ph-bold ph-scales text-white text-lg" aria-hidden="true" />
-              </div>
-              <span class="text-lg font-extrabold tracking-tight text-[#006382]">PragmaOS</span>
+              <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
             </a>
 
             <nav class="hidden md:flex items-center gap-7">
@@ -341,10 +338,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div class="col-span-2 md:col-span-1">
                 <div class="flex items-center gap-2.5 mb-3">
-                  <div class="w-8 h-8 rounded-lg bg-[#00b3e6] flex items-center justify-center">
-                    <i class="ph-bold ph-scales text-white text-sm" aria-hidden="true" />
-                  </div>
-                  <span class="text-base font-bold text-white">PragmaOS</span>
+                  <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
                 </div>
                 <p class="text-sm text-[#6b7b8a] max-w-xs">A plataforma all-in-one de gestão jurídica para escritórios que querem crescer com dados, não com planilhas.</p>
               </div>

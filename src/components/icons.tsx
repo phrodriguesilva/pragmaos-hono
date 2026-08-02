@@ -165,10 +165,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
   return (
     <aside class="h-full w-sidebar flex flex-col overflow-y-auto" style="background: linear-gradient(180deg, #006382 0%, #00b3e6 100%);">
       <div class="h-16 flex items-center gap-2.5 px-5 shrink-0 border-b border-white/5">
-        <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-          <i class="ph-bold ph-scales text-white text-h3" aria-hidden="true" />
-        </div>
-        <span class="text-h3 font-semibold text-white tracking-tight">PragmaOS</span>
+        <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
       </div>
       <nav class="flex-1 flex flex-col py-3 gap-0.5 px-3">
         {MENU.map((item) => {

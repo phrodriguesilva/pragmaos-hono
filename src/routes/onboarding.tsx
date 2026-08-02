@@ -27,7 +27,7 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{title} — Onboarding — PragmaOS</title>
-        <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/static/img/pragmaos-icon.png" type="image/png" />
         <link rel="preload" href="/static/fonts/Phosphor.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/Phosphor-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         <link rel="preload" href="/static/fonts/PlusJakartaSans-400.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
@@ -44,10 +44,7 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
           <header class="bg-white border-b border-carvao-100">
             <div class="max-w-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-carvao-800 flex items-center justify-center">
-                  <i class="ph-bold ph-scales text-white text-lg" aria-hidden="true" />
-                </div>
-                <span class="text-lg font-bold tracking-tight">PragmaOS</span>
+                <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
               </div>
               <a href="/dashboard" class="text-sm text-carvao-400 hover:text-carvao-600 transition">Pular por agora</a>
               {skipHref && <a href={skipHref} class="text-sm text-carvao-600 hover:text-carvao-800 transition ml-3">Pular esta etapa →</a>}
