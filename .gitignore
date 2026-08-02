@@ -41,3 +41,5 @@ src/generated/bundle.js
 !.vercel/project.json
 .vercel/output
 .vercel/output
+ANALISE-ARQUITETURA.md
+pragmaos-hono-log-export-*.json

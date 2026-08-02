@@ -114,6 +114,43 @@
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --font-jakarta: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Lexis Modern design system — marketing/landing pages */
+  --color-lexis-surface: #f7fafc;
+  --color-lexis-surface-dim: #d7dadc;
+  --color-lexis-surface-bright: #f7fafc;
+  --color-lexis-surface-lowest: #ffffff;
+  --color-lexis-surface-low: #f1f4f6;
+  --color-lexis-surface-container: #ebeef0;
+  --color-lexis-surface-high: #e5e9eb;
+  --color-lexis-surface-highest: #e0e3e5;
+  --color-lexis-on-surface: #181c1e;
+  --color-lexis-on-surface-variant: #44474c;
+  --color-lexis-outline: #75777c;
+  --color-lexis-outline-variant: #c4c6cc;
+  --color-lexis-primary: #05111e;
+  --color-lexis-on-primary: #ffffff;
+  --color-lexis-primary-container: #1a2634;
+  --color-lexis-on-primary-container: #818d9f;
+  --color-lexis-secondary: #555f6c;
+  --color-lexis-secondary-container: #d9e3f2;
+  --color-lexis-on-secondary-container: #5b6572;
+  --color-lexis-tertiary: #051121;
+  --color-lexis-tertiary-container: #1b2637;
+  --color-lexis-error: #ba1a1a;
+  --color-lexis-error-container: #ffdad6;
+  --color-lexis-primary-fixed: #d7e3f7;
+  --color-lexis-primary-fixed-dim: #bbc7da;
+  --color-lexis-secondary-fixed: #d9e3f2;
+  --color-lexis-secondary-fixed-dim: #bdc7d6;
+  --color-lexis-tertiary-fixed: #d8e3fa;
+  --color-lexis-tertiary-fixed-dim: #bcc7dd;
+  --color-lexis-inverse-surface: #2d3133;
+  --color-lexis-inverse-on-surface: #eef1f3;
+  --color-lexis-inverse-primary: #bbc7da;
+  --color-lexis-surface-tint: #535f6f;
+  --color-lexis-surface-variant: #e0e3e5;
 }
 
 /* Self-hosted fonts — Inter (UI) + Source Serif 4 (document content) */
@@ -165,6 +202,36 @@
   font-weight: 600;
   font-display: swap;
   src: url("/static/fonts/SourceSerif-600.woff2") format("woff2");
+}
+
+/* Plus Jakarta Sans — used by marketing/landing pages (Lexis Modern design system) */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/PlusJakartaSans-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/PlusJakartaSans-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/fonts/PlusJakartaSans-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/static/fonts/PlusJakartaSans-800.woff2") format("woff2");
 }
 
 /* Smooth transitions */

@@ -25,7 +25,7 @@ const PLANS = [
       "Acesso completo a todos os recursos",
       "Até 3 usuários",
       "Até 25 processos",
-      "IA jurídica incluída",
+      "50 interações de IA/mês",
       "Suporte por e-mail",
     ],
     cta: "Começar agora",
@@ -35,13 +35,13 @@ const PLANS = [
   {
     id: "starter",
     name: "Starter",
-    tagline: "Para escritórios iniciantes",
+    tagline: "Para advogados solo e pequenos escritórios",
     price: "R$ 199",
     period: "/mês",
     features: [
-      "Até 10 usuários",
+      "Até 3 usuários",
       "Até 500 processos",
-      "IA jurídica ilimitada",
+      "50 interações de IA/mês",
       "Site público da advocacia",
       "Suporte prioritário",
       "Relatórios financeiros",
@@ -57,15 +57,16 @@ const PLANS = [
     price: "R$ 499",
     period: "/mês",
     features: [
-      "Até 50 usuários",
+      "Até 10 usuários",
       "Processos ilimitados",
-      "IA jurídica ilimitada",
-      "WhatsApp Business integrado",
+      "300 interações de IA/mês",
+      "WhatsApp Business integrado*",
       "Site público + API",
       "Integrações (DataJud, assinaturas)",
       "Gestão de equipe e permissões",
       "Suporte dedicado",
     ],
+    footnote: "*Custos de conversas da Meta (WhatsApp) são repassados ao cliente.",
     cta: "Assinar Pro",
     href: "/signup?plan=pro",
     highlight: true,
@@ -79,11 +80,11 @@ const PLANS = [
     features: [
       "Usuários ilimitados",
       "Processos ilimitados",
+      "Franquia de IA sob medida",
       "Tudo do Pro +",
       "Onboarding personalizado",
       "SLA e suporte 24/7",
       "Integrações sob medida",
-      "Treinamento da equipe",
       "Gerente de conta dedicado",
     ],
     cta: "Falar com comercial",
@@ -176,57 +177,62 @@ marketingRoutes.get("/", (c) => {
         })),
       }}
     >
-      {/* Hero */}
-      <section class="gradient-hero text-white">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
+      {/* Hero — navy cinematic with scroll reveal */}
+      <section class="gradient-hero-navy text-white relative overflow-hidden">
+        <div class="noise-overlay absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 pointer-events-none" />
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-20 md:py-28 lg:py-32 relative">
           <div class="max-w-3xl">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm mb-6">
-              <i class="ph-fill ph-check-circle text-terracota-300" aria-hidden="true" />
+            <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs sm:text-sm mb-6 backdrop-blur-sm">
+              <i class="ph-fill ph-sparkle text-[#bbc7da]" aria-hidden="true" />
               <span>Novo: IA jurídica com jurisprudência em tempo real</span>
             </div>
-            <h1 class="text-4xl md:text-6xl font-bold font-serif leading-tight text-balance mb-6">
-              A gestão jurídica do seu escritório, <span class="text-terracota-300">finalmente em um só lugar.</span>
+            <h1 class="reveal text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-[-0.02em] text-balance mb-6">
+              A gestão jurídica do seu escritório, <span class="text-[#bbc7da] italic font-serif font-normal">finalmente</span> em um só lugar.
             </h1>
-            <p class="text-lg md:text-xl text-carvao-200 text-pretty mb-8 max-w-2xl">
+            <p class="reveal text-base sm:text-lg md:text-xl text-[#bbc7da]/80 text-pretty mb-8 max-w-2xl leading-relaxed">
               Processos, prazos, financeiro, clientes, IA jurídica e WhatsApp — tudo integrado. Pare de perder tempo com planilhas e ferramentas avulsas. Comece grátis em 2 minutos.
             </p>
-            <div class="flex flex-col sm:flex-row gap-4">
-              <a href="/signup" class="btn btn-primary text-base px-8 py-3.5 inline-flex items-center justify-center gap-2">
+            <div class="reveal flex flex-col sm:flex-row gap-4">
+              <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#05111e] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#bbc7da] transition-all hover:gap-4">
                 <i class="ph-bold ph-rocket-launch" aria-hidden="true" />
                 Começar teste grátis
+                <span class="w-8 h-8 rounded-full bg-[#05111e] flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <i class="ph-bold ph-arrow-right text-white text-sm" aria-hidden="true" />
+                </span>
               </a>
-              <a href="/contato" class="px-8 py-3.5 rounded-lg border border-white/30 text-white font-semibold hover:bg-white/10 transition inline-flex items-center justify-center gap-2">
+              <a href="/contato" class="px-6 py-3.5 rounded-full border border-white/20 text-white font-semibold text-sm sm:text-base hover:bg-white/10 transition inline-flex items-center justify-center gap-2 backdrop-blur-sm">
                 <i class="ph ph-calendar-blank" aria-hidden="true" />
                 Agendar demonstração
               </a>
             </div>
-            <p class="text-sm text-carvao-300 mt-4">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
+            <p class="reveal text-xs sm:text-sm text-[#818d9f] mt-5">14 dias grátis. Sem cartão. Cancele quando quiser.</p>
           </div>
         </div>
       </section>
 
       {/* Logos / social proof */}
-      <section class="border-b border-carvao-100 py-8">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-          <p class="text-center text-xs uppercase tracking-wider text-carvao-400 font-semibold mb-6">Escritórios que confiam no PragmaOS</p>
-          <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-carvao-300">
-            <span class="text-lg font-serif font-semibold opacity-60">Mendes &amp; Associados</span>
-            <span class="text-lg font-serif font-semibold opacity-60">Souza Advocacia</span>
-            <span class="text-lg font-serif font-semibold opacity-60">Braga Lima</span>
-            <span class="text-lg font-serif font-semibold opacity-60">Oliveira Castro</span>
-            <span class="text-lg font-serif font-semibold opacity-60">Ferreira Neto</span>
+      <section class="border-b border-[#c4c6cc] py-8 bg-[#f7fafc]">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <p class="reveal text-center text-xs uppercase tracking-wider text-[#75777c] font-semibold mb-6">Escritórios que confiam no PragmaOS</p>
+          <div class="reveal flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-[#75777c]">
+            <span class="text-lg font-bold opacity-60">Mendes &amp; Associados</span>
+            <span class="text-lg font-bold opacity-60">Souza Advocacia</span>
+            <span class="text-lg font-bold opacity-60">Braga Lima</span>
+            <span class="text-lg font-bold opacity-60">Oliveira Castro</span>
+            <span class="text-lg font-bold opacity-60">Ferreira Neto</span>
           </div>
         </div>
       </section>
 
       {/* Stats */}
-      <section class="py-16 bg-carvao-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section class="py-16 bg-[#f1f4f6]">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {STATS.map((s) => (
               <div>
-                <div class="text-3xl md:text-4xl font-bold text-terracota-600 font-serif stat-counter" data-value={s.value}>{s.value}</div>
-                <div class="text-sm text-carvao-500 mt-1">{s.label}</div>
+                <div class="text-3xl md:text-4xl font-extrabold text-[#05111e] stat-counter" data-value={s.value}>{s.value}</div>
+                <div class="text-sm text-[#44474c] mt-1">{s.label}</div>
               </div>
             ))}
           </div>
@@ -234,64 +240,68 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Problem / solution */}
-      <section class="py-20 px-4 sm:px-6">
-        <div class="max-w-4xl mx-auto text-center">
-          <p class="text-sm font-semibold text-terracota-600 uppercase tracking-wider mb-3">O problema</p>
-          <h2 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 text-balance mb-6">
-            Seu escritório não deveria ser gerido em planilhas.
-          </h2>
-          <p class="text-lg text-carvao-500 text-pretty mb-12 max-w-2xl mx-auto">
-            Prazos perdidos em e-mails. Financeiro espalhado em abas. Clientes sem visibilidade. Equipe sem clareza. Cada ferramenta avulsa resolve um pedaço — e cria um novo problema de integração.
-          </p>
-        </div>
-
-        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
-          <div class="rounded-2xl border border-status-red-border bg-status-red-bg p-6">
-            <div class="flex items-center gap-2 mb-4">
-              <i class="ph-bold ph-x-circle text-status-red text-xl" aria-hidden="true" />
-              <h3 class="font-semibold text-status-red">Sem PragmaOS</h3>
-            </div>
-            <ul class="space-y-2 text-sm text-carvao-600">
-              <li class="flex gap-2"><i class="ph ph-x text-status-red mt-0.5" aria-hidden="true" />Prazos rastreados manualmente em planilhas</li>
-              <li class="flex gap-2"><i class="ph ph-x text-status-red mt-0.5" aria-hidden="true" />Financeiro separado dos processos</li>
-              <li class="flex gap-2"><i class="ph ph-x text-status-red mt-0.5" aria-hidden="true" />Clientes ligando para saber o andamento</li>
-              <li class="flex gap-2"><i class="ph ph-x text-status-red mt-0.5" aria-hidden="true" />Sem visão de produtividade da equipe</li>
-              <li class="flex gap-2"><i class="ph ph-x text-status-red mt-0.5" aria-hidden="true" />Pesquisa de jurisprudência manual e lenta</li>
-            </ul>
+      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+        <div class="max-w-[1200px] mx-auto">
+          <div class="reveal max-w-3xl mx-auto text-center mb-14">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">O problema</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance mb-6 tracking-[-0.01em]">
+              Seu escritório não deveria ser gerido em planilhas.
+            </h2>
+            <p class="text-base md:text-lg text-[#44474c] text-pretty max-w-2xl mx-auto leading-relaxed">
+              Prazos perdidos em e-mails. Financeiro espalhado em abas. Clientes sem visibilidade. Equipe sem clareza. Cada ferramenta avulsa resolve um pedaço — e cria um novo problema de integração.
+            </p>
           </div>
-          <div class="rounded-2xl border border-status-green-border bg-status-green-bg p-6">
-            <div class="flex items-center gap-2 mb-4">
-              <i class="ph-bold ph-check-circle text-status-green text-xl" aria-hidden="true" />
-              <h3 class="font-semibold text-status-green">Com PragmaOS</h3>
+
+          <div class="reveal-stagger max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
+            <div class="rounded-xl border border-[#ffdad6] bg-[#ffdad6]/10 p-8">
+              <div class="flex items-center gap-2 mb-6">
+                <i class="ph-bold ph-x-circle text-[#ba1a1a] text-xl" aria-hidden="true" />
+                <h3 class="font-bold text-[#ba1a1a] text-lg">Sem PragmaOS</h3>
+              </div>
+              <ul class="space-y-3 text-sm text-[#44474c]">
+                <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Prazos rastreados manualmente em planilhas</li>
+                <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Financeiro separado dos processos</li>
+                <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Clientes ligando para saber o andamento</li>
+                <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Sem visão de produtividade da equipe</li>
+                <li class="flex gap-2"><i class="ph ph-x text-[#ba1a1a] mt-0.5" aria-hidden="true" />Pesquisa de jurisprudência manual e lenta</li>
+              </ul>
             </div>
-            <ul class="space-y-2 text-sm text-carvao-600">
-              <li class="flex gap-2"><i class="ph ph-check text-status-green mt-0.5" aria-hidden="true" />Prazos calculados e alertados automaticamente</li>
-              <li class="flex gap-2"><i class="ph ph-check text-status-green mt-0.5" aria-hidden="true" />Financeiro vinculado a cada processo</li>
-              <li class="flex gap-2"><i class="ph ph-check text-status-green mt-0.5" aria-hidden="true" />Portal do cliente com transparência total</li>
-              <li class="flex gap-2"><i class="ph ph-check text-status-green mt-0.5" aria-hidden="true" />Dashboards de performance em tempo real</li>
-              <li class="flex gap-2"><i class="ph ph-check text-status-green mt-0.5" aria-hidden="true" />IA que resume, pesquisa e redige por você</li>
-            </ul>
+            <div class="rounded-xl border-2 border-[#1a2634] bg-white p-8 relative shadow-[0_20px_40px_-15px_rgba(5,17,33,0.06)]">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1a2634] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">A Solução</div>
+              <div class="flex items-center gap-2 mb-6">
+                <i class="ph-bold ph-check-circle text-[#05111e] text-xl" aria-hidden="true" />
+                <h3 class="font-bold text-[#05111e] text-lg">Com PragmaOS</h3>
+              </div>
+              <ul class="space-y-3 text-sm text-[#44474c]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Prazos calculados e alertados automaticamente</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Financeiro vinculado a cada processo</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Portal do cliente com transparência total</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />Dashboards de performance em tempo real</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" />IA que resume, pesquisa e redige por você</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features grid */}
-      <section id="recursos" class="py-20 px-4 sm:px-6 bg-carvao-50">
-        <div class="max-w-6xl mx-auto">
-          <div class="text-center mb-14">
-            <p class="text-sm font-semibold text-terracota-600 uppercase tracking-wider mb-3">Tudo em um</p>
-            <h2 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 text-balance">
+      <section id="recursos" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+        <div class="max-w-[1200px] mx-auto">
+          <div class="reveal text-center mb-14">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Tudo em um</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em]">
               Uma plataforma. Tudo que seu escritório precisa.
             </h2>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURES.map((f) => (
-              <div class="bg-white rounded-2xl p-6 border border-carvao-100 hover:border-terracota-300 hover:shadow-lg transition group">
-                <div class="w-12 h-12 rounded-xl bg-terracota-50 flex items-center justify-center mb-4 group-hover:bg-terracota-500 transition">
-                  <i class={`ph-bold ${f.icon} text-2xl text-terracota-600 group-hover:text-white transition`} aria-hidden="true" />
+          <div class="reveal-stagger grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {FEATURES.map((f, i) => (
+              <div class={`card-lexis p-6 group ${i === 3 ? "border-[#1a2634] bg-[#d9e3f2]/30" : ""}`}>
+                <div class={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition ${i === 3 ? "bg-[#1a2634]" : "bg-[#f1f4f6] group-hover:bg-[#05111e]"}`}>
+                  <i class={`ph-bold ${f.icon} text-2xl ${i === 3 ? "text-white" : "text-[#05111e] group-hover:text-white"} transition`} aria-hidden="true" />
                 </div>
-                <h3 class="font-semibold text-carvao-800 mb-2">{f.title}</h3>
-                <p class="text-sm text-carvao-500 leading-relaxed">{f.desc}</p>
+                {i === 3 && <div class="inline-block bg-[#1a2634] text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold mb-2">Novo</div>}
+                <h3 class="font-bold text-[#05111e] mb-2 text-base">{f.title}</h3>
+                <p class="text-sm text-[#44474c] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -299,40 +309,41 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* AI highlight */}
-      <section class="py-20 px-4 sm:px-6">
+      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
         <div class="max-w-5xl mx-auto">
-          <div class="rounded-3xl gradient-cta text-white p-8 md:p-14">
-            <div class="grid md:grid-cols-2 gap-10 items-center">
+          <div class="reveal rounded-2xl gradient-cta-navy text-white p-8 md:p-14 relative overflow-hidden">
+            <div class="noise-overlay absolute inset-0 opacity-[0.1] mix-blend-overlay pointer-events-none" />
+            <div class="grid md:grid-cols-2 gap-10 items-center relative">
               <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-sm mb-5">
-                  <i class="ph-fill ph-sparkle" aria-hidden="true" /> IA Jurídica
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs sm:text-sm mb-5 backdrop-blur-sm">
+                  <i class="ph-fill ph-sparkle text-[#bbc7da]" aria-hidden="true" /> IA Jurídica
                 </div>
-                <h2 class="text-3xl md:text-4xl font-bold font-serif mb-4 text-balance">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-balance tracking-[-0.01em]">
                   Sua equipe produtiva como nunca antes.
                 </h2>
-                <p class="text-white/90 text-pretty mb-6">
+                <p class="text-[#bbc7da] text-pretty mb-6 leading-relaxed">
                   Resumos automáticos de processos, pesquisa de jurisprudência em segundos, redação assistida de peças e análise preditiva de resultados. A IA do PragmaOS entende o contexto jurídico brasileiro.
                 </p>
                 <ul class="space-y-2 text-sm">
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle" aria-hidden="true" /> Resumo de andamentos em 1 clique</li>
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle" aria-hidden="true" /> Jurisprudência pesquisada por relevância</li>
-                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle" aria-hidden="true" /> Redação de peças com sua voz</li>
+                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#bbc7da]" aria-hidden="true" /> Resumo de andamentos em 1 clique</li>
+                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#bbc7da]" aria-hidden="true" /> Jurisprudência pesquisada por relevância</li>
+                  <li class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-[#bbc7da]" aria-hidden="true" /> Redação de peças com sua voz</li>
                 </ul>
               </div>
-              <div class="bg-white/10 rounded-2xl p-6 backdrop-blur border border-white/20">
+              <div class="bg-white/5 rounded-2xl p-6 backdrop-blur border border-white/10">
                 <div class="flex items-start gap-3 mb-4">
-                  <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                  <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
                     <i class="ph-bold ph-user text-white" aria-hidden="true" />
                   </div>
-                  <div class="bg-white/15 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
+                  <div class="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
                     Resuma o processo 0012345-67.2024 e identifique os riscos.
                   </div>
                 </div>
                 <div class="flex items-start gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-terracota-300 flex items-center justify-center shrink-0">
-                    <i class="ph-bold ph-sparkle text-carvao-800" aria-hidden="true" />
+                  <div class="w-9 h-9 rounded-lg bg-[#bbc7da] flex items-center justify-center shrink-0">
+                    <i class="ph-bold ph-sparkle text-[#05111e]" aria-hidden="true" />
                   </div>
-                  <div class="bg-white text-carvao-700 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
+                  <div class="bg-white text-[#181c1e] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm">
                     Processo de indenização por responsabilidade civil. Risco médio: 65% de procedência. Audiência de conciliação agendada. Recomendo proposta de acordo...
                   </div>
                 </div>
@@ -343,14 +354,14 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Integrations */}
-      <section id="integracoes" class="py-20 px-4 sm:px-6 bg-carvao-50">
+      <section id="integracoes" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
         <div class="max-w-5xl mx-auto text-center">
-          <p class="text-sm font-semibold text-terracota-600 uppercase tracking-wider mb-3">Integrações nativas</p>
-          <h2 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 mb-4 text-balance">
+          <p class="reveal text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Integrações nativas</p>
+          <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
             Conectado ao que já importa para você.
           </h2>
-          <p class="text-carvao-500 mb-12 max-w-2xl mx-auto">Dados que antes exigiam cópia manual, agora sincronizados automaticamente.</p>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <p class="reveal text-[#44474c] mb-12 max-w-2xl mx-auto">Dados que antes exigiam cópia manual, agora sincronizados automaticamente.</p>
+          <div class="reveal-stagger grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: "ph-database", name: "DataJud CNJ" },
               { icon: "ph-whatsapp-logo", name: "WhatsApp Business" },
@@ -361,9 +372,9 @@ marketingRoutes.get("/", (c) => {
               { icon: "ph-barcode", name: "Boleto + PIX" },
               { icon: "ph-plugs-connected", name: "API aberta" },
             ].map((i) => (
-              <div class="bg-white rounded-xl p-5 border border-carvao-100 flex flex-col items-center gap-2">
-                <i class={`ph-bold ${i.icon} text-3xl text-terracota-500`} aria-hidden="true" />
-                <span class="text-sm font-medium text-carvao-600">{i.name}</span>
+              <div class="card-lexis p-5 flex flex-col items-center gap-2">
+                <i class={`ph-bold ${i.icon} text-3xl text-[#05111e]`} aria-hidden="true" />
+                <span class="text-sm font-semibold text-[#44474c]">{i.name}</span>
               </div>
             ))}
           </div>
@@ -371,24 +382,24 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Testimonials */}
-      <section id="depoimentos" class="py-20 px-4 sm:px-6">
+      <section id="depoimentos" class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
         <div class="max-w-5xl mx-auto">
-          <div class="text-center mb-14">
-            <p class="text-sm font-semibold text-terracota-600 uppercase tracking-wider mb-3">Quem usa, recomenda</p>
-            <h2 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 text-balance">
+          <div class="reveal text-center mb-14">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Quem usa, recomenda</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em]">
               Escritórios que transformaram sua operação.
             </h2>
           </div>
-          <div class="grid md:grid-cols-3 gap-6">
+          <div class="reveal-stagger grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t) => (
-              <figure class="bg-carvao-50 rounded-2xl p-6 border border-carvao-100">
-                <div class="flex gap-0.5 text-terracota-500 mb-4">
+              <figure class="card-lexis p-6">
+                <div class="flex gap-0.5 text-[#05111e] mb-4">
                   {[1, 2, 3, 4, 5].map(() => <i class="ph-fill ph-star" aria-hidden="true" />)}
                 </div>
-                <blockquote class="text-carvao-700 text-pretty mb-5 leading-relaxed">"{t.quote}"</blockquote>
+                <blockquote class="text-[#181c1e] text-pretty mb-5 leading-relaxed text-sm">"{t.quote}"</blockquote>
                 <figcaption>
-                  <div class="font-semibold text-carvao-800 text-sm">{t.author}</div>
-                  <div class="text-xs text-carvao-400">{t.role}</div>
+                  <div class="font-bold text-[#05111e] text-sm">{t.author}</div>
+                  <div class="text-xs text-[#75777c]">{t.role}</div>
                 </figcaption>
               </figure>
             ))}
@@ -397,91 +408,94 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Pricing */}
-      <section id="planos" class="py-20 px-4 sm:px-6 bg-carvao-50">
-        <div class="max-w-6xl mx-auto">
-          <div class="text-center mb-14">
-            <p class="text-sm font-semibold text-terracota-600 uppercase tracking-wider mb-3">Planos</p>
-            <h2 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 mb-4 text-balance">
+      <section id="planos" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+        <div class="max-w-[1200px] mx-auto">
+          <div class="reveal text-center mb-14">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Planos</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
               Preço justo. Sem surpresas.
             </h2>
-            <p class="text-carvao-500">Escolha o plano ideal para o momento do seu escritório.</p>
+            <p class="text-[#44474c]">Escolha o plano ideal para o momento do seu escritório.</p>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="reveal-stagger grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {PLANS.map((p) => (
-              <div class={`rounded-2xl p-6 flex flex-col transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${p.highlight ? "bg-carvao-800 text-white border-2 border-terracota-500 shadow-xl scale-105" : "bg-white border border-carvao-100 hover:border-terracota-300"}`}>
+              <div class={`rounded-xl p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${p.highlight ? "bg-[#05111e] text-white border-2 border-[#1a2634] shadow-[0_20px_40px_-15px_rgba(5,17,33,0.15)] scale-[1.02]" : "card-lexis"}`}>
                 {p.highlight && (
-                  <div class="inline-flex self-start items-center gap-1 px-2.5 py-1 rounded-full bg-terracota-500 text-white text-xs font-semibold mb-3">
+                  <div class="inline-flex self-start items-center gap-1 px-2.5 py-1 rounded-full bg-white text-[#05111e] text-xs font-bold mb-3">
                     <i class="ph-fill ph-star" aria-hidden="true" /> Mais popular
                   </div>
                 )}
-                <h3 class={`text-lg font-bold mb-1 ${p.highlight ? "text-white" : "text-carvao-800"}`}>{p.name}</h3>
-                <p class={`text-sm mb-4 ${p.highlight ? "text-carvao-300" : "text-carvao-400"}`}>{p.tagline}</p>
+                <h3 class={`text-lg font-extrabold mb-1 ${p.highlight ? "text-white" : "text-[#05111e]"}`}>{p.name}</h3>
+                <p class={`text-sm mb-4 ${p.highlight ? "text-[#bbc7da]" : "text-[#75777c]"}`}>{p.tagline}</p>
                 <div class="mb-5">
-                  <span class={`text-3xl font-bold font-serif ${p.highlight ? "text-white" : "text-carvao-800"}`}>{p.price}</span>
-                  {p.period && <span class={`text-sm ${p.highlight ? "text-carvao-300" : "text-carvao-400"}`}>{p.period}</span>}
+                  <span class={`text-3xl font-extrabold ${p.highlight ? "text-white" : "text-[#05111e]"}`}>{p.price}</span>
+                  {p.period && <span class={`text-sm ${p.highlight ? "text-[#bbc7da]" : "text-[#75777c]"}`}>{p.period}</span>}
                 </div>
                 <ul class="space-y-2.5 text-sm mb-6 flex-1">
                   {p.features.map((f) => (
                     <li class="flex gap-2">
-                      <i class={`ph-fill ph-check-circle mt-0.5 ${p.highlight ? "text-terracota-300" : "text-terracota-500"}`} aria-hidden="true" />
-                      <span class={p.highlight ? "text-carvao-200" : "text-carvao-600"}>{f}</span>
+                      <i class={`ph-fill ph-check-circle mt-0.5 ${p.highlight ? "text-[#bbc7da]" : "text-[#05111e]"}`} aria-hidden="true" />
+                      <span class={p.highlight ? "text-[#bbc7da]" : "text-[#44474c]"}>{f}</span>
                     </li>
                   ))}
                 </ul>
+                {p.footnote && (
+                  <p class={`text-xs mb-4 ${p.highlight ? "text-[#818d9f]" : "text-[#75777c]"}`}>{p.footnote}</p>
+                )}
                 <a
                   href={p.href}
-                  class={`text-center py-2.5 rounded-lg font-semibold text-sm transition ${p.highlight ? "bg-terracota-500 text-white hover:bg-terracota-600" : "border border-carvao-200 text-carvao-700 hover:border-terracota-400 hover:text-terracota-600"}`}
+                  class={`text-center py-2.5 rounded-lg font-semibold text-sm transition ${p.highlight ? "bg-white text-[#05111e] hover:bg-[#bbc7da]" : "border border-[#c4c6cc] text-[#05111e] hover:border-[#05111e] hover:bg-[#f1f4f6]"}`}
                 >
                   {p.cta}
                 </a>
               </div>
             ))}
           </div>
-          <p class="text-center text-sm text-carvao-400 mt-8">
-            Todos os planos incluem: criptografia, backup diário, suporte e atualizações gratuitas.
+          <p class="reveal text-center text-sm text-[#75777c] mt-8">
+            Todos os planos incluem: criptografia, backup diário, suporte e atualizações gratuitas. Créditos adicionais de IA disponíveis como add-on.
           </p>
         </div>
       </section>
 
       {/* Security */}
-      <section id="seguranca" class="py-20 px-4 sm:px-6">
-        <div class="max-w-4xl mx-auto">
-          <div class="grid md:grid-cols-2 gap-10 items-center">
+      <section id="seguranca" class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+        <div class="max-w-5xl mx-auto">
+          <div class="reveal grid md:grid-cols-2 gap-10 items-center">
             <div>
-              <div class="w-14 h-14 rounded-2xl bg-terracota-50 flex items-center justify-center mb-5">
-                <i class="ph-bold ph-shield-check text-3xl text-terracota-600" aria-hidden="true" />
+              <div class="w-14 h-14 rounded-2xl bg-[#05111e] flex items-center justify-center mb-5">
+                <i class="ph-bold ph-shield-check text-3xl text-white" aria-hidden="true" />
               </div>
-              <h2 class="text-3xl font-bold font-serif text-carvao-800 mb-4 text-balance">
+              <h2 class="text-3xl md:text-4xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
                 Segurança de nível bancário. Conformidade com a LGPD.
               </h2>
-              <p class="text-carvao-500 mb-6 text-pretty">
+              <p class="text-[#44474c] mb-6 text-pretty leading-relaxed">
                 Seus dados são o seu negócio. Por isso tratamos segurança como prioridade absoluta — não como recurso.
               </p>
               <ul class="space-y-3 text-sm">
-                <li class="flex items-center gap-3"><i class="ph-bold ph-lock-key text-terracota-500 text-lg" aria-hidden="true" /><span class="text-carvao-600">Criptografia AES-256 em repouso e TLS 1.3 em trânsito</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-user-circle-check text-terracota-500 text-lg" aria-hidden="true" /><span class="text-carvao-600">Autenticação de dois fatores (2FA) e login com Gov.br</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-database text-terracota-500 text-lg" aria-hidden="true" /><span class="text-carvao-600">Backup automático diário com retenção de 30 dias</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-map-pin text-terracota-500 text-lg" aria-hidden="true" /><span class="text-carvao-600">Dados hospedados em datacenters no Brasil</span></li>
-                <li class="flex items-center gap-3"><i class="ph-bold ph-file-text text-terracota-500 text-lg" aria-hidden="true" /><span class="text-carvao-600">Conformidade plena com a LGPD</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-lock-key text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Criptografia AES-256 em repouso e TLS 1.3 em trânsito</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-user-circle-check text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Autenticação de dois fatores (2FA) e login com Gov.br</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-database text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Backup automático diário com retenção de 30 dias</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-map-pin text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Dados hospedados em datacenters no Brasil</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-file-text text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Conformidade plena com a LGPD</span></li>
               </ul>
             </div>
-            <div class="bg-carvao-50 rounded-3xl p-8 border border-carvao-100">
+            <div class="reveal-stagger bg-[#f1f4f6] rounded-2xl p-8 border border-[#e0e3e5]">
               <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white rounded-xl p-5 text-center border border-carvao-100">
-                  <i class="ph-bold ph-shield-check text-3xl text-status-green mb-2" aria-hidden="true" />
-                  <div class="text-xs font-semibold text-carvao-600">LGPD</div>
+                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
+                  <i class="ph-bold ph-shield-check text-3xl text-[#05111e] mb-2" aria-hidden="true" />
+                  <div class="text-xs font-bold text-[#44474c]">LGPD</div>
                 </div>
-                <div class="bg-white rounded-xl p-5 text-center border border-carvao-100">
-                  <i class="ph-bold ph-lock text-3xl text-status-blue mb-2" aria-hidden="true" />
-                  <div class="text-xs font-semibold text-carvao-600">AES-256</div>
+                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
+                  <i class="ph-bold ph-lock text-3xl text-[#05111e] mb-2" aria-hidden="true" />
+                  <div class="text-xs font-bold text-[#44474c]">AES-256</div>
                 </div>
-                <div class="bg-white rounded-xl p-5 text-center border border-carvao-100">
-                  <i class="ph-bold ph-clock-countdown text-3xl text-terracota-600 mb-2" aria-hidden="true" />
-                  <div class="text-xs font-semibold text-carvao-600">99,9% uptime</div>
+                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
+                  <i class="ph-bold ph-clock-countdown text-3xl text-[#05111e] mb-2" aria-hidden="true" />
+                  <div class="text-xs font-bold text-[#44474c]">99,9% uptime</div>
                 </div>
-                <div class="bg-white rounded-xl p-5 text-center border border-carvao-100">
-                  <i class="ph-bold ph-flag-banner text-3xl text-carvao-700 mb-2" aria-hidden="true" />
-                  <div class="text-xs font-semibold text-carvao-600">100% Brasil</div>
+                <div class="bg-white rounded-xl p-5 text-center border border-[#e0e3e5]">
+                  <i class="ph-bold ph-flag-banner text-3xl text-[#05111e] mb-2" aria-hidden="true" />
+                  <div class="text-xs font-bold text-[#44474c]">100% Brasil</div>
                 </div>
               </div>
             </div>
@@ -490,25 +504,25 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* FAQ */}
-      <section id="faq" class="py-20 px-4 sm:px-6 bg-carvao-50">
+      <section id="faq" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
         <div class="max-w-3xl mx-auto">
-          <div class="text-center mb-12">
-            <p class="text-sm font-semibold text-terracota-600 uppercase tracking-wider mb-3">Dúvidas frequentes</p>
-            <h2 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 text-balance">
+          <div class="reveal text-center mb-12">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Dúvidas frequentes</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em]">
               Tudo que você precisa saber.
             </h2>
           </div>
-          <div class="space-y-3" {...{ "x-data": "{ open: 0 }" }}>
+          <div class="reveal-stagger space-y-3" {...{ "x-data": "{ open: 0 }" }}>
             {FAQS.map((f, i) => (
-              <div class="bg-white rounded-xl border border-carvao-100 overflow-hidden">
+              <div class="bg-white rounded-xl border border-[#e0e3e5] overflow-hidden">
                 <button
                   class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
                   {...{ "@click": `open = open === ${i + 1} ? 0 : ${i + 1}` }}
                 >
-                  <span class="font-semibold text-carvao-800">{f.q}</span>
-                  <i class="ph ph-caret-down text-terracota-500 transition-transform" {...{ ":class": `open === ${i + 1} ? 'rotate-180' : ''` }} aria-hidden="true" />
+                  <span class="font-bold text-[#05111e]">{f.q}</span>
+                  <i class="ph ph-caret-down text-[#05111e] transition-transform" {...{ ":class": `open === ${i + 1} ? 'rotate-180' : ''` }} aria-hidden="true" />
                 </button>
-                <div {...{ "x-show": `open === ${i + 1}` }} x-cloak {...{ "x-transition": "" }} class="px-5 pb-4 text-sm text-carvao-500 leading-relaxed">
+                <div {...{ "x-show": `open === ${i + 1}` }} x-cloak {...{ "x-transition": "" }} class="px-5 pb-4 text-sm text-[#44474c] leading-relaxed">
                   {f.a}
                 </div>
               </div>
@@ -518,20 +532,24 @@ marketingRoutes.get("/", (c) => {
       </section>
 
       {/* Final CTA */}
-      <section class="gradient-hero text-white py-20 px-4 sm:px-6">
-        <div class="max-w-3xl mx-auto text-center">
-          <h2 class="text-3xl md:text-5xl font-bold font-serif mb-5 text-balance">
+      <section class="gradient-hero-navy text-white py-20 px-4 sm:px-6 relative overflow-hidden">
+        <div class="noise-overlay absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" />
+        <div class="max-w-3xl mx-auto text-center relative">
+          <h2 class="reveal text-3xl md:text-5xl font-extrabold mb-5 text-balance tracking-[-0.02em]">
             Pronto para transformar seu escritório?
           </h2>
-          <p class="text-lg text-carvao-200 mb-8 text-pretty">
+          <p class="reveal text-base md:text-lg text-[#bbc7da] mb-8 text-pretty">
             Comece hoje. 14 dias grátis, sem cartão de crédito. Em 2 minutos você está dentro.
           </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/signup" class="btn btn-primary text-base px-8 py-3.5 inline-flex items-center justify-center gap-2">
+          <div class="reveal flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/signup" class="group inline-flex items-center justify-center gap-3 bg-white text-[#05111e] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full hover:bg-[#bbc7da] transition-all hover:gap-4">
               <i class="ph-bold ph-rocket-launch" aria-hidden="true" />
               Criar conta grátis
+              <span class="w-8 h-8 rounded-full bg-[#05111e] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="ph-bold ph-arrow-right text-white text-sm" aria-hidden="true" />
+              </span>
             </a>
-            <a href="/contato" class="px-8 py-3.5 rounded-lg border border-white/30 text-white font-semibold hover:bg-white/10 transition inline-flex items-center justify-center gap-2">
+            <a href="/contato" class="px-6 py-3.5 rounded-full border border-white/20 text-white font-semibold text-sm sm:text-base hover:bg-white/10 transition inline-flex items-center justify-center gap-2 backdrop-blur-sm">
               <i class="ph ph-chats-circle" aria-hidden="true" />
               Falar com o comercial
             </a>
@@ -548,34 +566,34 @@ marketingRoutes.get("/", (c) => {
 marketingRoutes.get("/sobre", (c) => {
   return c.html(
     <MarketingLayout title="Sobre o PragmaOS — Nossa Missão" active="Sobre" description="O PragmaOS nasceu para devolver tempo aos advogados. Conheça nossa história e missão.">
-      <section class="py-20 px-4 sm:px-6">
+      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
         <div class="max-w-3xl mx-auto">
-          <h1 class="text-4xl md:text-5xl font-bold font-serif text-carvao-800 mb-6 text-balance">Construído por quem entende o jurídico brasileiro.</h1>
-          <p class="text-lg text-carvao-500 mb-8 text-pretty">
+          <h1 class="reveal text-4xl md:text-5xl font-extrabold text-[#05111e] mb-6 text-balance tracking-[-0.02em]">Construído por quem entende o jurídico brasileiro.</h1>
+          <p class="reveal text-lg text-[#44474c] mb-8 text-pretty leading-relaxed">
             O PragmaOS nasceu de uma frustração simples: escritórios de advocacia no Brasil operavam com ferramentas pensadas para outros setores — ou pior, com planilhas. Prazos se perdiam, o financeiro vivia desconectado dos processos, e a equipe gastava horas em tarefas que a tecnologia já conseguia resolver.
           </p>
-          <p class="text-lg text-carvao-500 mb-8 text-pretty">
+          <p class="reveal text-lg text-[#44474c] mb-8 text-pretty leading-relaxed">
             Nossa missão é clara: devolver tempo aos advogados. Cada feature do PragmaOS existe para eliminar uma fricção real, vivida por escritórios reais. Não construímos para o mercado global — construímos para o Brasil, com DataJud, OAB, LGPD e a realidade do foro brasileiro no DNA.
           </p>
-          <div class="grid grid-cols-3 gap-6 my-12 text-center">
+          <div class="reveal-stagger grid grid-cols-3 gap-6 my-12 text-center">
             <div>
-              <div class="text-3xl font-bold text-terracota-600 font-serif">2024</div>
-              <div class="text-sm text-carvao-400">Fundação</div>
+              <div class="text-3xl font-extrabold text-[#05111e]">2024</div>
+              <div class="text-sm text-[#75777c]">Fundação</div>
             </div>
             <div>
-              <div class="text-3xl font-bold text-terracota-600 font-serif">LGPD</div>
-              <div class="text-sm text-carvao-400">Conformidade total</div>
+              <div class="text-3xl font-extrabold text-[#05111e]">LGPD</div>
+              <div class="text-sm text-[#75777c]">Conformidade total</div>
             </div>
             <div>
-              <div class="text-3xl font-bold text-terracota-600 font-serif">BR</div>
-              <div class="text-sm text-carvao-400">100% nacional</div>
+              <div class="text-3xl font-extrabold text-[#05111e]">BR</div>
+              <div class="text-sm text-[#75777c]">100% nacional</div>
             </div>
           </div>
-          <h2 class="text-2xl font-bold font-serif text-carvao-800 mb-4">Nossos valores</h2>
-          <ul class="space-y-4 text-carvao-600">
-            <li class="flex gap-3"><i class="ph-bold ph-target text-terracota-500 text-xl mt-0.5" aria-hidden="true" /><div><strong>Tempo é o ativo mais valioso.</strong> Tudo que automatizamos é tempo que devolvemos ao advogado para o que importa: estratégia e relacionamento.</div></li>
-            <li class="flex gap-3"><i class="ph-bold ph-shield-check text-terracota-500 text-xl mt-0.5" aria-hidden="true" /><div><strong>Segurança não é negociável.</strong> Dados jurídicos são sensíveis. Tratamos cada byte como se fosse nosso.</div></li>
-            <li class="flex gap-3"><i class="ph-bold ph-flag-banner text-terracota-500 text-xl mt-0.5" aria-hidden="true" /><div><strong>Feito para o Brasil.</strong> Não adaptamos um produto gringo. Construímos do zero para a realidade do foro brasileiro.</div></li>
+          <h2 class="reveal text-2xl font-extrabold text-[#05111e] mb-4">Nossos valores</h2>
+          <ul class="reveal-stagger space-y-4 text-[#44474c]">
+            <li class="flex gap-3"><i class="ph-bold ph-target text-[#05111e] text-xl mt-0.5" aria-hidden="true" /><div><strong>Tempo é o ativo mais valioso.</strong> Tudo que automatizamos é tempo que devolvemos ao advogado para o que importa: estratégia e relacionamento.</div></li>
+            <li class="flex gap-3"><i class="ph-bold ph-shield-check text-[#05111e] text-xl mt-0.5" aria-hidden="true" /><div><strong>Segurança não é negociável.</strong> Dados jurídicos são sensíveis. Tratamos cada byte como se fosse nosso.</div></li>
+            <li class="flex gap-3"><i class="ph-bold ph-flag-banner text-[#05111e] text-xl mt-0.5" aria-hidden="true" /><div><strong>Feito para o Brasil.</strong> Não adaptamos um produto gringo. Construímos do zero para a realidade do foro brasileiro.</div></li>
           </ul>
         </div>
       </section>
@@ -605,87 +623,87 @@ marketingRoutes.get("/contato", (c) => {
   const pref = (k: string) => c.req.query(k) ?? "";
   return c.html(
     <MarketingLayout title="Fale com o Comercial — PragmaOS" active="Contato" description="Agende uma demonstração do PragmaOS com nosso time comercial. Soluções para escritórios de qualquer tamanho.">
-      <section class="py-16 md:py-24 px-4 sm:px-6">
+      <section class="py-16 md:py-24 px-4 sm:px-6 bg-[#f7fafc]">
         <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Copy side */}
           <div>
-            <h1 class="text-3xl md:text-4xl font-bold font-serif text-carvao-800 mb-5 text-balance">
+            <h1 class="reveal text-3xl md:text-4xl font-extrabold text-[#05111e] mb-5 text-balance tracking-[-0.01em]">
               Vamos conversar sobre o seu escritório.
             </h1>
-            <p class="text-lg text-carvao-500 mb-8 text-pretty">
+            <p class="reveal text-lg text-[#44474c] mb-8 text-pretty leading-relaxed">
               Preencha o formulário e nosso time comercial entra em contato em até 1 dia útil. Para o plano Enterprise, agendamos uma demonstração personalizada.
             </p>
-            <div class="space-y-4">
+            <div class="reveal-stagger space-y-4">
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-lg bg-terracota-50 flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-envelope text-terracota-600" aria-hidden="true" />
+                <div class="w-10 h-10 rounded-lg bg-[#f1f4f6] flex items-center justify-center shrink-0">
+                  <i class="ph-bold ph-envelope text-[#05111e]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-semibold text-carvao-800 text-sm">E-mail comercial</div>
-                  <a href="mailto:comercial@pragmaos.com.br" class="text-sm text-terracota-600 hover:underline">comercial@pragmaos.com.br</a>
+                  <div class="font-bold text-[#05111e] text-sm">E-mail comercial</div>
+                  <a href="mailto:comercial@pragmaos.com.br" class="text-sm text-[#05111e] hover:underline">comercial@pragmaos.com.br</a>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-lg bg-terracota-50 flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-whatsapp-logo text-terracota-600" aria-hidden="true" />
+                <div class="w-10 h-10 rounded-lg bg-[#f1f4f6] flex items-center justify-center shrink-0">
+                  <i class="ph-bold ph-whatsapp-logo text-[#05111e]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-semibold text-carvao-800 text-sm">WhatsApp</div>
-                  <a href="https://wa.me/5535984641515" class="text-sm text-terracota-600 hover:underline">+55 (35) 98464-1515</a>
+                  <div class="font-bold text-[#05111e] text-sm">WhatsApp</div>
+                  <a href="https://wa.me/5535984641515" class="text-sm text-[#05111e] hover:underline">+55 (35) 98464-1515</a>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-lg bg-terracota-50 flex items-center justify-center shrink-0">
-                  <i class="ph-bold ph-clock text-terracota-600" aria-hidden="true" />
+                <div class="w-10 h-10 rounded-lg bg-[#f1f4f6] flex items-center justify-center shrink-0">
+                  <i class="ph-bold ph-clock text-[#05111e]" aria-hidden="true" />
                 </div>
                 <div>
-                  <div class="font-semibold text-carvao-800 text-sm">Tempo de resposta</div>
-                  <span class="text-sm text-carvao-500">Até 1 dia útil</span>
+                  <div class="font-bold text-[#05111e] text-sm">Tempo de resposta</div>
+                  <span class="text-sm text-[#44474c]">Até 1 dia útil</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Form side */}
-          <div class="bg-carvao-50 rounded-2xl p-6 md:p-8 border border-carvao-100">
+          <div class="reveal bg-[#f1f4f6] rounded-2xl p-6 md:p-8 border border-[#e0e3e5]">
             {success ? (
               <div class="text-center py-10">
-                <div class="w-16 h-16 rounded-full bg-status-green-bg flex items-center justify-center mx-auto mb-4">
-                  <i class="ph-bold ph-check-circle text-3xl text-status-green" aria-hidden="true" />
+                <div class="w-16 h-16 rounded-full bg-[#d9e3f2] flex items-center justify-center mx-auto mb-4">
+                  <i class="ph-bold ph-check-circle text-3xl text-[#05111e]" aria-hidden="true" />
                 </div>
-                <h2 class="text-xl font-bold text-carvao-800 mb-2">Recebemos seu contato!</h2>
-                <p class="text-sm text-carvao-500 mb-6">Nosso time comercial entrará em contato em breve. Obrigado pelo interesse.</p>
-                <a href="/" class="btn btn-secondary text-sm">Voltar ao início</a>
+                <h2 class="text-xl font-extrabold text-[#05111e] mb-2">Recebemos seu contato!</h2>
+                <p class="text-sm text-[#44474c] mb-6">Nosso time comercial entrará em contato em breve. Obrigado pelo interesse.</p>
+                <a href="/" class="inline-flex items-center gap-2 px-4 py-2 border border-[#c4c6cc] rounded-lg text-sm font-semibold text-[#05111e] hover:bg-white transition">Voltar ao início</a>
               </div>
             ) : (
               <>
                 {error && (
-                  <div class="bg-status-red-bg border border-status-red text-status-red px-4 py-3 rounded-lg mb-4 text-sm">
+                  <div class="bg-[#ffdad6] border border-[#ba1a1a] text-[#ba1a1a] px-4 py-3 rounded-lg mb-4 text-sm">
                     {decodeURIComponent(error).replace(/</g, "&lt;").replace(/>/g, "&gt;")}
                   </div>
                 )}
                 <form method="post" action="/contato" class="flex flex-col gap-4">
                 <div>
-                  <label for="name" class="block text-sm font-semibold text-carvao-700 mb-1">Nome completo *</label>
+                  <label for="name" class="block text-sm font-bold text-[#05111e] mb-1">Nome completo *</label>
                   <input id="name" name="name" type="text" required placeholder="Seu nome" value={pref("name")} class="input w-full" />
                 </div>
                 <div>
-                  <label for="email" class="block text-sm font-semibold text-carvao-700 mb-1">E-mail *</label>
+                  <label for="email" class="block text-sm font-bold text-[#05111e] mb-1">E-mail *</label>
                   <input id="email" name="email" type="email" required placeholder="voce@escritorio.com" value={pref("email")} class="input w-full" />
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label for="phone" class="block text-sm font-semibold text-carvao-700 mb-1">Telefone</label>
+                    <label for="phone" class="block text-sm font-bold text-[#05111e] mb-1">Telefone</label>
                     <input id="phone" name="phone" type="tel" placeholder="(35) 98464-1515" value={pref("phone")} class="input w-full" />
                   </div>
                   <div>
-                    <label for="company" class="block text-sm font-semibold text-carvao-700 mb-1">Escritório</label>
+                    <label for="company" class="block text-sm font-bold text-[#05111e] mb-1">Escritório</label>
                     <input id="company" name="company" type="text" placeholder="Nome do escritório" value={pref("company")} class="input w-full" />
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label for="role" class="block text-sm font-semibold text-carvao-700 mb-1">Cargo</label>
+                    <label for="role" class="block text-sm font-bold text-[#05111e] mb-1">Cargo</label>
                     <select id="role" name="role" class="input w-full">
                       <option value="">Selecione</option>
                       <option value="socio" selected={pref("role") === "socio"}>Sócio / Sócia</option>
@@ -696,7 +714,7 @@ marketingRoutes.get("/contato", (c) => {
                     </select>
                   </div>
                   <div>
-                    <label for="team_size" class="block text-sm font-semibold text-carvao-700 mb-1">Tamanho da equipe</label>
+                    <label for="team_size" class="block text-sm font-bold text-[#05111e] mb-1">Tamanho da equipe</label>
                     <select id="team_size" name="team_size" class="input w-full">
                       <option value="">Selecione</option>
                       <option value="1-5" selected={pref("team_size") === "1-5"}>1-5 pessoas</option>
@@ -707,7 +725,7 @@ marketingRoutes.get("/contato", (c) => {
                   </div>
                 </div>
                 <div>
-                  <label for="interested_plan" class="block text-sm font-semibold text-carvao-700 mb-1">Plano de interesse</label>
+                  <label for="interested_plan" class="block text-sm font-bold text-[#05111e] mb-1">Plano de interesse</label>
                   <select id="interested_plan" name="interested_plan" class="input w-full">
                     <option value="">Selecione</option>
                     <option value="starter" selected={interestedPlan === "starter"}>Starter — R$ 199/mês</option>
@@ -717,14 +735,14 @@ marketingRoutes.get("/contato", (c) => {
                   </select>
                 </div>
                 <div>
-                  <label for="message" class="block text-sm font-semibold text-carvao-700 mb-1">Mensagem (opcional)</label>
+                  <label for="message" class="block text-sm font-bold text-[#05111e] mb-1">Mensagem (opcional)</label>
                   <textarea id="message" name="message" rows={3} placeholder="Conte-nos sobre seu escritório e o que procura." class="input w-full">{pref("message")}</textarea>
                 </div>
-                <button type="submit" class="btn btn-primary w-full flex items-center justify-center gap-2">
+                <button type="submit" class="bg-[#05111e] text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-[#1a2634] transition flex items-center justify-center gap-2">
                   <i class="ph-bold ph-paper-plane-tilt" aria-hidden="true" />
                   Enviar para o comercial
                 </button>
-                <p class="text-xs text-carvao-400 text-center">Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos seus dados.</p>
+                <p class="text-xs text-[#75777c] text-center">Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos seus dados.</p>
               </form>
               </>
             )}
