@@ -4,6 +4,7 @@
 // performs the actual API call.
 
 import { supabase } from "./supabase";
+import { fetchWithTimeout } from "./fetch-with-timeout";
 
 // --- Type definitions ---
 
@@ -118,7 +119,7 @@ export async function syncClicksign(config: IntegrationConfig): Promise<SyncResu
     : "https://sandbox.clicksign.com/api/v3";
 
   try {
-    const resp = await fetch(`${baseUrl}/envelopes?per_page=5`, {
+    const resp = await fetchWithTimeout(`${baseUrl}/envelopes?per_page=5`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.api+json",
@@ -147,7 +148,7 @@ export async function syncWhatsApp(config: IntegrationConfig): Promise<SyncResul
 
   // Just verify the phone number status (GET request, no message sent).
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `https://graph.facebook.com/${version}/${phoneNumberId}?fields=status,verified_name,display_phone_number`,
       { headers: { Authorization: `Bearer ${token}` } },
     );
@@ -181,7 +182,7 @@ export async function syncIntegration(type: string, config: IntegrationConfig): 
       try {
         const env = config.environment as string ?? "sandbox";
         const base = docusignBaseUrl(env);
-        const resp = await fetch(`${base}/restapi/v2.1/accounts/${config.account_id}/envelopes?from_date=2024-01-01`, {
+        const resp = await fetchWithTimeout(`${base}/restapi/v2.1/accounts/${config.account_id}/envelopes?from_date=2024-01-01`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resp.ok) {
@@ -200,7 +201,7 @@ export async function syncIntegration(type: string, config: IntegrationConfig): 
       }
       // Verify token by getting user info
       try {
-        const resp = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+        const resp = await fetchWithTimeout("https://www.googleapis.com/oauth2/v2/userinfo", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resp.ok) {
@@ -218,7 +219,7 @@ export async function syncIntegration(type: string, config: IntegrationConfig): 
         return { success: false, message: "Microsoft 365 nao conectado. Clique em 'Conectar Microsoft' para autorizar via OAuth." };
       }
       try {
-        const resp = await fetch("https://graph.microsoft.com/v1.0/me", {
+        const resp = await fetchWithTimeout("https://graph.microsoft.com/v1.0/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resp.ok) {
@@ -239,7 +240,7 @@ export async function syncIntegration(type: string, config: IntegrationConfig): 
       const baseUrl = (config.base_url as string) ?? "https://op.digesto.com.br";
       if (!token) return { success: false, message: "API Token nao configurado." };
       try {
-        const resp = await fetch(`${baseUrl}/api/diario/fontes_recortes`, {
+        const resp = await fetchWithTimeout(`${baseUrl}/api/diario/fontes_recortes`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!resp.ok) {
@@ -271,7 +272,7 @@ export async function sendWhatsAppMessage(
   }
 
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `https://graph.facebook.com/${version}/${phoneNumberId}/messages`,
       {
         method: "POST",
@@ -313,7 +314,7 @@ export async function queryCNJProcess(
 
   const index = `api_publica_${tribunal.toLowerCase()}`;
   try {
-    const resp = await fetch(`${baseUrl}/${index}/_search`, {
+    const resp = await fetchWithTimeout(`${baseUrl}/${index}/_search`, {
       method: "POST",
       headers: {
         Authorization: `APIKey ${apiKey}`,
@@ -358,7 +359,7 @@ export async function sendGmailEmail(
   const encoded = base64UrlEncode(rawEmail);
 
   try {
-    const resp = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    const resp = await fetchWithTimeout("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -388,7 +389,7 @@ export async function sendOutlookEmail(
   cc?: string,
 ): Promise<SyncResult> {
   try {
-    const resp = await fetch("https://graph.microsoft.com/v1.0/me/sendMail", {
+    const resp = await fetchWithTimeout("https://graph.microsoft.com/v1.0/me/sendMail", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -469,7 +470,7 @@ export async function createDocusignEnvelope(
     return { success: false, message: "DocuSign nao conectado. Faca o fluxo OAuth primeiro." };
   }
   try {
-    const resp = await fetch(`${base}/restapi/v2.1/accounts/${config.account_id}/envelopes`, {
+    const resp = await fetchWithTimeout(`${base}/restapi/v2.1/accounts/${config.account_id}/envelopes`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -529,7 +530,7 @@ export async function getDocusignEnvelopeStatus(
     return { success: false, message: "DocuSign nao conectado." };
   }
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `${base}/restapi/v2.1/accounts/${config.account_id}/envelopes/${envelopeId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -559,7 +560,7 @@ export async function getDocusignSigningUrl(
     return { success: false, message: "DocuSign nao conectado." };
   }
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `${base}/restapi/v2.1/accounts/${config.account_id}/envelopes/${envelopeId}/views/recipient`,
       {
         method: "POST",
@@ -608,7 +609,7 @@ export async function createClicksignEnvelope(
 ): Promise<SyncResult> {
   const base = clicksignBaseUrl(config.environment);
   try {
-    const resp = await fetch(`${base}/api/v3/envelopes?access_token=${config.access_token}`, {
+    const resp = await fetchWithTimeout(`${base}/api/v3/envelopes?access_token=${config.access_token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -640,7 +641,7 @@ export async function uploadClicksignDocument(
 ): Promise<SyncResult> {
   const base = clicksignBaseUrl(config.environment);
   try {
-    const resp = await fetch(`${base}/api/v3/documents?access_token=${config.access_token}`, {
+    const resp = await fetchWithTimeout(`${base}/api/v3/documents?access_token=${config.access_token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -674,7 +675,7 @@ export async function addClicksignSigner(
 ): Promise<SyncResult> {
   const base = clicksignBaseUrl(config.environment);
   try {
-    const resp = await fetch(`${base}/api/v3/signers?access_token=${config.access_token}`, {
+    const resp = await fetchWithTimeout(`${base}/api/v3/signers?access_token=${config.access_token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -708,7 +709,7 @@ export async function createClicksignRequirement(
 ): Promise<SyncResult> {
   const base = clicksignBaseUrl(config.environment);
   try {
-    const resp = await fetch(`${base}/api/v3/requirements?access_token=${config.access_token}`, {
+    const resp = await fetchWithTimeout(`${base}/api/v3/requirements?access_token=${config.access_token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -737,7 +738,7 @@ export async function activateClicksignEnvelope(
 ): Promise<SyncResult> {
   const base = clicksignBaseUrl(config.environment);
   try {
-    const resp = await fetch(`${base}/api/v3/envelopes/${envelopeId}?access_token=${config.access_token}`, {
+    const resp = await fetchWithTimeout(`${base}/api/v3/envelopes/${envelopeId}?access_token=${config.access_token}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ envelope: { status: "running" } }),
@@ -759,7 +760,7 @@ export async function getClicksignEnvelopeStatus(
 ): Promise<SyncResult> {
   const base = clicksignBaseUrl(config.environment);
   try {
-    const resp = await fetch(`${base}/api/v3/envelopes/${envelopeId}?access_token=${config.access_token}`, {
+    const resp = await fetchWithTimeout(`${base}/api/v3/envelopes/${envelopeId}?access_token=${config.access_token}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -884,7 +885,7 @@ export async function sendWhatsAppTemplate(
   }
 
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `https://graph.facebook.com/${version}/${phoneId}/messages`,
       {
         method: "POST",
@@ -931,7 +932,7 @@ export async function fetchWhatsAppTemplates(
   }
 
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `https://graph.facebook.com/${version}/${wabaId}/message_templates`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -967,7 +968,7 @@ export async function createWhatsAppTemplate(
   }
 
   try {
-    const resp = await fetch(
+    const resp = await fetchWithTimeout(
       `https://graph.facebook.com/${version}/${wabaId}/message_templates`,
       {
         method: "POST",
@@ -1022,7 +1023,7 @@ export async function queryQueridoDiario(
   if (dateTo) params.set("until", dateTo);
 
   try {
-    const resp = await fetch(`${baseUrl}?${params.toString()}`);
+    const resp = await fetchWithTimeout(`${baseUrl}?${params.toString()}`);
     if (!resp.ok) {
       const body = await resp.text();
       return { success: false, message: `Querido Diario erro ${resp.status}: ${body.slice(0, 200)}` };
@@ -1063,7 +1064,7 @@ export async function queryDigesto(
   if (dateTo) params.set("data_final", dateTo);
 
   try {
-    const resp = await fetch(`${baseUrl}?${params.toString()}`, {
+    const resp = await fetchWithTimeout(`${baseUrl}?${params.toString()}`, {
       headers: { Authorization: `Bearer ${apiToken}` },
     });
     if (!resp.ok) {

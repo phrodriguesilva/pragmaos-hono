@@ -39,6 +39,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
       <script src="/static/js/alpine.min.js" defer />
+      <script dangerouslySetInnerHTML={{ __html: `document.addEventListener('submit',function(e){var f=e.target;if(f.dataset.submitted)return;f.dataset.submitted='1';var btns=f.querySelectorAll('button[type="submit"]');btns.forEach(function(b){b.disabled=true;b.dataset.origText=b.innerHTML;b.innerHTML='<i class="ph ph-spinner animate-spin"></i> Aguarde...';});setTimeout(function(){f.removeAttribute('data-submitted');btns.forEach(function(b){b.disabled=false;b.innerHTML=b.dataset.origText||b.innerHTML;});},10000);},true);` }} />
     </head>
     <body class="bg-gray-50 text-body font-sans antialiased" {...{ "x-data": "{ sidebarOpen: false }" }}>
       <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-[#0568ff] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold">Pular para o conteúdo</a>

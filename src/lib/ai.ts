@@ -8,6 +8,7 @@
 // Supports per-tenant LLM config (from integrations table) with fallback to global env vars.
 
 import { AI_API_KEY, AI_BASE_URL, AI_MODEL, AI_RATE_LIMIT_PER_TENANT } from "./env";
+import { fetchWithTimeout } from "./fetch-with-timeout";
 
 // --- LLM config type ---
 
@@ -129,7 +130,7 @@ export async function callLLM(
   }
 
   try {
-    const resp = await fetch(`${config.baseUrl}/chat/completions`, {
+    const resp = await fetchWithTimeout(`${config.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -191,7 +192,7 @@ export async function callLLMStream(
     return { stream, getFullReply: () => fullReply, getTokens: () => 0 };
   }
 
-  const resp = await fetch(`${config.baseUrl}/chat/completions`, {
+  const resp = await fetchWithTimeout(`${config.baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

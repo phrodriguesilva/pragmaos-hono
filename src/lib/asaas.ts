@@ -9,6 +9,7 @@
 // 4. Webhook updates payment status
 
 import { log } from "./logger";
+import { fetchWithTimeout } from "./fetch-with-timeout";
 
 const ASAAS_BASE_URL = "https://api.asaas.com/v3";
 
@@ -28,7 +29,7 @@ async function asaasRequest<T = any>(path: string, opts: { method: string; body?
   const key = getApiKey();
   if (!key) throw new Error("Asaas API key not configured");
 
-  const res = await fetch(`${ASAAS_BASE_URL}${path}`, {
+  const res = await fetchWithTimeout(`${ASAAS_BASE_URL}${path}`, {
     method: opts.method,
     headers: {
       "Content-Type": "application/json",

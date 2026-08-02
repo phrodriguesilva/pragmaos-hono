@@ -135,14 +135,15 @@ const AuthButton = ({ icon, label }: { icon: string; label: string }) => (
 // Login
 // ============================================================
 
-function loginForm(errorMsg?: string, emailValue?: string) {
+function loginForm(errorMsg?: string, redirect?: string) {
   return (
     <AuthLayout title="Entrar">
       <p class="text-body-sm text-gray-500 mb-6 text-center">Gestão jurídica para escritórios.</p>
       {errorMsg ? ErrorAlert(errorMsg) : null}
       <form method="post" action="/login" class="flex flex-col gap-4" {...{ "x-data": "{ loading: false }", "@submit": "loading = true" }}>
+        {redirect ? <input type="hidden" name="redirect" value={redirect} /> : null}
         <AuthInput id="email" name="email" label="Email" type="email" required icon="ph-envelope"
-          placeholder="voce@escritorio.com" value={emailValue} autocomplete="email" />
+          placeholder="voce@escritorio.com" autocomplete="email" />
         <div class="flex flex-col gap-1">
           <label for="password" class="text-body-sm font-semibold text-gray-700">
             Senha<span class="text-status-red"> *</span>
@@ -209,7 +210,8 @@ function loginForm(errorMsg?: string, emailValue?: string) {
 authRoutes.get("/login", async (c) => {
   const user = await getSessionUser(c);
   if (user) return c.redirect("/dashboard");
-  return c.html(loginForm());
+  const redirect = c.req.query("redirect");
+  return c.html(loginForm(undefined, redirect));
 });
 
 // POST /login -- authenticate, check 2FA, redirect accordingly.
@@ -218,9 +220,10 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
   const remember = String(body.remember ?? "") === "on";
+  const redirect = String(body.redirect ?? "");
 
   if (!email || !password) {
-    return c.html(loginForm("Email e senha são obrigatórios.", email));
+    return c.html(loginForm("Email e senha são obrigatórios."));
   }
 
   // Authenticate via Supabase Auth.
@@ -292,7 +295,9 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
     });
   }
 
-  return c.redirect("/dashboard");
+  // Redirect to original page if specified, otherwise dashboard
+  const safeRedirect = redirect && redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard";
+  return c.redirect(safeRedirect);
 });
 
 // ============================================================
@@ -916,6 +921,9 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
 authRoutes.post("/logout", async (c) => {
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
+  c.header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  c.header("Pragma", "no-cache");
+  c.header("Expires", "0");
   return c.redirect("/login");
 });
 
@@ -923,6 +931,9 @@ authRoutes.post("/logout", async (c) => {
 authRoutes.get("/logout", (c) => {
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
+  c.header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  c.header("Pragma", "no-cache");
+  c.header("Expires", "0");
   return c.redirect("/login");
 });
 

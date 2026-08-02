@@ -107,7 +107,7 @@ function buildPageUrl(p: PaginationProps, page: number): string {
 export const Table: FC<TableProps> = ({ columns, rows, emptyMsg, ariaLabel, emptyIcon, count, countLabel, pagination }) => {
   const showCount = count !== undefined;
   const showPagination = pagination && pagination.totalPages > 1;
-  const p = pagination;
+  const p = pagination ? { ...pagination, currentPage: Math.min(Math.max(1, pagination.currentPage), pagination.totalPages) } : undefined;
 
   // Build page numbers to display (show up to 5 pages around current).
   let pages: number[] = [];

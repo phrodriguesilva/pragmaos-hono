@@ -65,7 +65,8 @@ export async function getSessionUser(c: Context): Promise<SessionUser | null> {
 export async function requireAuth(c: Context, next: () => Promise<void>) {
   const user = await getSessionUser(c);
   if (!user) {
-    return c.redirect("/login");
+    const path = c.req.path;
+    return c.redirect(`/login?redirect=${encodeURIComponent(path)}`);
   }
   c.set("user", user);
   await next();

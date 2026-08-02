@@ -9,6 +9,7 @@
 
 import { BIGDATA_ACCESS_TOKEN, BIGDATA_TOKEN_ID } from "./env";
 import { supabase } from "./supabase";
+import { fetchWithTimeout } from "./fetch-with-timeout";
 
 const BIGDATA_BASE_URL = "https://plataforma.bigdatacorp.com.br";
 
@@ -178,7 +179,7 @@ export async function callBigData(
   }
 
   try {
-    const response = await fetch(`${BIGDATA_BASE_URL}/${endpoint}`, {
+    const response = await fetchWithTimeout(`${BIGDATA_BASE_URL}/${endpoint}`, {
       method: "POST",
       headers: {
         "AccessToken": BIGDATA_ACCESS_TOKEN,

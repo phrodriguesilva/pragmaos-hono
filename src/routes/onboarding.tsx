@@ -101,7 +101,9 @@ onboardingRoutes.get("/", async (c) => {
     return c.redirect("/dashboard");
   }
 
-  return c.redirect(`/onboarding/${state.currentStep}`);
+  // Guard against invalid currentStep (prevents redirect loop)
+  const validStep = ONBOARDING_STEPS.includes(state.currentStep) ? state.currentStep : "company";
+  return c.redirect(`/onboarding/${validStep}`);
 });
 
 // ============================================================
