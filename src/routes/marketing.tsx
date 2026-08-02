@@ -94,68 +94,102 @@ const PLANS = [
 ];
 
 // ============================================================
-// Features grid data
+// Plan comparison table data
+// ============================================================
+const COMPARE_ROWS = [
+  { label: "Usuários", trial: "3", starter: "3", pro: "10", enterprise: "Ilimitado" },
+  { label: "Processos", trial: "25", starter: "500", pro: "Ilimitado", enterprise: "Ilimitado" },
+  { label: "IA jurídica (interações/mês)", trial: "50", starter: "50", pro: "300", enterprise: "Sob medida" },
+  { label: "Monitoramento DataJud (OAB/CNJ)", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
+  { label: "Site público da advocacia", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
+  { label: "Portal do cliente", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
+  { label: "Assinaturas digitais (Clicksign)", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
+  { label: "Login com Gov.br", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
+  { label: "WhatsApp Business integrado", trial: "—", starter: "—", pro: "✓", enterprise: "✓" },
+  { label: "API aberta", trial: "—", starter: "—", pro: "✓", enterprise: "✓" },
+  { label: "Gestão de equipe e permissões", trial: "—", starter: "—", pro: "✓", enterprise: "✓" },
+  { label: "Relatórios e jurimetria", trial: "—", starter: "Básico", pro: "Avançado", enterprise: "Custom" },
+  { label: "Suporte", trial: "E-mail", starter: "Prioritário", pro: "Dedicado", enterprise: "24/7 + SLA" },
+  { label: "Onboarding personalizado", trial: "—", starter: "—", pro: "—", enterprise: "✓" },
+  { label: "Gerente de conta", trial: "—", starter: "—", pro: "—", enterprise: "✓" },
+];
 // ============================================================
 const FEATURES = [
-  { icon: "ph-folder-open", title: "Gestão de Processos", desc: "Centralize todos os processos, andamentos e prazos em um só lugar. Integração automática com DataJud do CNJ." },
-  { icon: "ph-calendar-check", title: "Prazos e Audiências", desc: "Cálculo automático de prazos, alertas inteligentes e calendário unificado. Nunca mais perca um prazo." },
-  { icon: "ph-currency-dollar", title: "Financeiro Completo", desc: "Honorários, cobranças, fluxo de caixa, relatórios. PIX, boleto e controle de contas trust." },
-  { icon: "ph-robot", title: "IA Jurídica", desc: "Resumos de processos, pesquisa de jurisprudência, redação de peças e análise preditiva de resultados." },
-  { icon: "ph-whatsapp-logo", title: "WhatsApp Integrado", desc: "Comunique com clientes diretamente da plataforma. Mensagens, arquivos e histórico centralizados." },
-  { icon: "ph-signature", title: "Assinaturas Digitais", desc: "Coleta de assinaturas com validade jurídica via Clicksign. Documentos assinados em minutos." },
-  { icon: "ph-buildings", title: "Portal do Cliente", desc: "Área exclusiva para clientes acompanharem processos, documentos e faturas. Transparência total." },
-  { icon: "ph-chart-line-up", title: "Relatórios e Jurimetria", desc: "Dashboards executivos, análise de performance da equipe e jurimetria preditiva para tomada de decisão." },
+  { icon: "ph-folder-open", title: "Gestão de Processos", desc: "Centralize todos os processos, andamentos e prazos em um só lugar. Robôs monitoram seus processos 24/7 pela OAB ou CNJ via DataJud." },
+  { icon: "ph-calendar-check", title: "Prazos e Audiências", desc: "Cálculo automático de prazos, alertas inteligentes e calendário unificado. Nunca mais perca um prazo — o sistema alerta antes que seja tarde." },
+  { icon: "ph-currency-dollar", title: "Financeiro Completo", desc: "Honorários, cobranças, fluxo de caixa, relatórios. PIX, boleto, controle de contas trust e lembretes automáticos de pagamento." },
+  { icon: "ph-robot", title: "IA Jurídica", desc: "Resumos de processos em 1 clique, pesquisa de jurisprudência em segundos, redação de peças com sua voz e tradução do juridiquês para o cliente." },
+  { icon: "ph-whatsapp-logo", title: "WhatsApp Integrado", desc: "Comunique com clientes diretamente da plataforma. Mensagens, arquivos e histórico centralizados — sem trocar de aba." },
+  { icon: "ph-signature", title: "Assinaturas Digitais", desc: "Coleta de assinaturas com validade jurídica via Clicksign. Documentos assinados em minutos, sem imprimir nem escanear." },
+  { icon: "ph-buildings", title: "Portal do Cliente", desc: "App exclusivo para clientes acompanharem processos, documentos e faturas. Transparência total — seu WhatsApp livre de cobranças." },
+  { icon: "ph-chart-line-up", title: "Relatórios e Jurimetria", desc: "Dashboards executivos, análise de performance da equipe e jurimetria preditiva. Decisões com dados, não com achismos." },
 ];
 
 const STATS = [
-  { value: "99,9%", label: "disponibilidade garantida" },
   { value: "14 dias", label: "teste grátis, sem cartão" },
-  { value: "LGPD", label: "conformidade total" },
-  { value: "24/7", label: "suporte e monitoramento" },
+  { value: "24/7", label: "monitoramento automático de processos" },
+  { value: "100%", label: "dados no Brasil — conformidade LGPD" },
+  { value: "2 min", label: "para começar — sem instalação" },
 ];
 
 const TESTIMONIALS = [
   {
-    quote: "Reduzimos em 60% o tempo gasto com gestão de prazos. A IA jurídica sozinha já paga a mensalidade.",
-    author: "Dr. Rafael Mendes",
-    role: "Sócio Fundador, Mendes & Associados",
+    quote: "O monitoramento automático pela OAB mudou minha rotina. Não preciso mais abrir o tribunal todo dia — os andamentos chegam sozinhos.",
+    author: "Advogada autônoma",
+    role: "Cível e família · plano Starter",
   },
   {
-    quote: "Finalmente uma plataforma que entende o fluxo de um escritório brasileiro. O portal do cliente virou diferencial competitivo.",
-    author: "Dra. Carolina Souza",
-    role: "Sócia, Souza Advocacia Empresarial",
+    quote: "O portal do cliente virou diferencial competitivo. Meus clientes acompanham processos sem me ligar. O WhatsApp ficou livre para o que importa.",
+    author: "Sócio de pequeno escritório",
+    role: "Empresarial · 4 advogados · plano Pro",
   },
   {
-    quote: "Migramos de planilhas para o PragmaOS em uma semana. A equipe adotou naturalmente. ROI imediato.",
-    author: "Dr. Paulo Braga",
-    role: "CEO, Braga Lima Advocacia",
+    quote: "A IA resume andamentos em 1 clique e traduz o juridiquês para o cliente. Economizo pelo menos 2 horas por dia. Só isso já paga a mensalidade.",
+    author: "Advogado de escritório em crescimento",
+    role: "Trabalhista · 8 advogados · plano Pro",
   },
 ];
 
 const FAQS = [
   {
     q: "Preciso instalar algo?",
-    a: "Não. O PragmaOS é 100% na nuvem. Você acessa pelo navegador, do computador ou celular. Sem instalação, sem backup manual, sem servidor para manter.",
+    a: "Não. O PragmaOS é 100% na nuvem — um PWA (Progressive Web App). Você acessa pelo navegador do computador ou celular. Se quiser, pode instalar na tela inicial do celular como um app nativo, sem passar por loja de apps. Funciona até offline.",
   },
   {
     q: "Meus dados estão seguros?",
-    a: "Sim. Usamos criptografia em trânsito e em repouso, autenticação de dois fatores, backup automático diário e conformidade com a LGPD. Seus dados ficam em datacenters no Brasil.",
+    a: "Sim. Usamos criptografia AES-256 em repouso e TLS 1.3 em trânsito, autenticação de dois fatores (2FA), login com Gov.br, backup automático diário com retenção de 30 dias e conformidade plena com a LGPD. Seus dados ficam em datacenters no Brasil.",
   },
   {
     q: "Consigo migrar meus processos existentes?",
-    a: "Sim. Oferecemos importação automática via DataJud do CNJ e ferramentas de importação em massa (CSV/Excel). No plano Enterprise, nossa equipe faz a migração completa para você.",
+    a: "Sim. O PragmaOS monitora processos automaticamente via DataJud do CNJ — basta informar sua OAB. Também oferecemos importação em massa (CSV/Excel). No plano Enterprise, nossa equipe faz a migração completa para você.",
   },
   {
     q: "O trial tem alguma limitação?",
-    a: "Não. Durante os 14 dias você tem acesso a todos os recursos do plano Pro, sem restrição e sem cartão de crédito. Ao final, escolhe o plano que faz sentido para o seu escritório.",
+    a: "Não. Durante os 14 dias você tem acesso a todos os recursos do plano Pro, sem restrição e sem cartão de crédito. Ao final, escolhe o plano que faz sentido para o seu escritório. Se não escolher, a conta simplesmente expira — sem cobrança automática.",
   },
   {
     q: "Como funciona o cancelamento?",
-    a: "Você pode cancelar a qualquer momento, direto na plataforma, sem multa nem fidelidade. O acesso continua até o fim do período já pago.",
+    a: "Você pode cancelar a qualquer momento, direto na plataforma, sem multa nem fidelidade. O acesso continua até o fim do período já pago. Seus dados ficam disponíveis para exportação por 90 dias após o cancelamento.",
   },
   {
     q: "Vocês atendem escritórios de qualquer tamanho?",
-    a: "Sim. Desde advogados solo até escritórios com centenas de profissionais. Os planos são escaláveis e o Enterprise é desenhado sob medida para grandes operações.",
+    a: "Sim. Desde advogados solo (plano Starter, R$ 199/mês) até escritórios com dezenas de profissionais (plano Pro, R$ 499/mês) e grandes operações (Enterprise, sob consulta). Os planos são escaláveis — comece pequeno e cresça sem trocar de plataforma.",
+  },
+  {
+    q: "Como funciona a IA jurídica?",
+    a: "A IA do PragmaOS entende contexto jurídico brasileiro. Ela resume andamentos de processos em 1 clique, pesquisa jurisprudência por relevância, redige peças com a voz do seu escritório e traduz o juridiquês para uma linguagem que o cliente entende. A franquia mensal varia por plano (50 a 300 interações) e créditos adicionais estão disponíveis como add-on.",
+  },
+  {
+    q: "O PragmaOS funciona no celular?",
+    a: "Sim. O PragmaOS é um PWA — funciona em qualquer dispositivo com navegador moderno (Chrome, Safari, Firefox, Edge). No celular, você pode instalar na tela inicial e usar como app nativo, com notificações push de prazos e audiências. Funciona offline para consultas, anotações e documentos.",
+  },
+  {
+    q: "Posso integrar com WhatsApp?",
+    a: "Sim. No plano Pro e Enterprise, o WhatsApp Business está integrado — você envia e recebe mensagens de clientes diretamente da plataforma, sem trocar de aba. Histórico, arquivos e conversas ficam centralizados no processo. Os custos de conversas da Meta são repassados ao cliente.",
+  },
+  {
+    q: "Tem assinatura digital?",
+    a: "Sim. O PragmaOS tem integração nativa com Clicksign — assinaturas digitais com validade jurídica (ICP-Brasil). Você envia documentos para assinatura diretamente da plataforma e acompanha o status em tempo real. Disponível em todos os planos.",
   },
 ];
 
@@ -212,16 +246,17 @@ marketingRoutes.get("/", (c) => {
         </div>
       </section>
 
-      {/* Logos / social proof */}
+      {/* Logos / social proof — trust signals */}
       <section class="border-b border-[#c4c6cc] py-8 bg-[#f7fafc]">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <p class="reveal text-center text-xs uppercase tracking-wider text-[#75777c] font-semibold mb-6">Escritórios que confiam no PragmaOS</p>
-          <div class="reveal flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-[#75777c]">
-            <span class="text-lg font-bold opacity-60">Mendes &amp; Associados</span>
-            <span class="text-lg font-bold opacity-60">Souza Advocacia</span>
-            <span class="text-lg font-bold opacity-60">Braga Lima</span>
-            <span class="text-lg font-bold opacity-60">Oliveira Castro</span>
-            <span class="text-lg font-bold opacity-60">Ferreira Neto</span>
+          <p class="reveal text-center text-xs uppercase tracking-wider text-[#75777c] font-semibold mb-6">Tecnologia jurídica confiável, feita no Brasil</p>
+          <div class="reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[#75777c]">
+            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-shield-check text-[#05111e] text-lg" aria-hidden="true" /> Conformidade LGPD</span>
+            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-database text-[#05111e] text-lg" aria-hidden="true" /> DataJud CNJ integrado</span>
+            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-identification-card text-[#05111e] text-lg" aria-hidden="true" /> Login com Gov.br</span>
+            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-signature text-[#05111e] text-lg" aria-hidden="true" /> Clicksign integrado</span>
+            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-whatsapp-logo text-[#05111e] text-lg" aria-hidden="true" /> WhatsApp Business</span>
+            <span class="flex items-center gap-2 text-sm font-semibold"><i class="ph-bold ph-map-pin text-[#05111e] text-lg" aria-hidden="true" /> 100% Brasil</span>
           </div>
         </div>
       </section>
@@ -236,6 +271,60 @@ marketingRoutes.get("/", (c) => {
                 <div class="text-sm text-[#44474c] mt-1">{s.label}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Segmentação — Para quem é o PragmaOS */}
+      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+        <div class="max-w-[1200px] mx-auto">
+          <div class="reveal text-center mb-14">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Para quem é</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em] mb-4">
+              Do advogado solo ao escritório em crescimento.
+            </h2>
+            <p class="text-base md:text-lg text-[#44474c] text-pretty max-w-2xl mx-auto leading-relaxed">
+              Planos escaláveis. Comece pequeno e cresça sem trocar de plataforma.
+            </p>
+          </div>
+          <div class="reveal-stagger grid md:grid-cols-3 gap-6">
+            <div class="card-lexis p-8">
+              <div class="w-12 h-12 rounded-xl bg-[#f1f4f6] flex items-center justify-center mb-5">
+                <i class="ph-bold ph-user text-2xl text-[#05111e]" aria-hidden="true" />
+              </div>
+              <h3 class="text-lg font-bold text-[#05111e] mb-2">Advogados solo</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed mb-4">Centralize processos, prazos e financeiro sem contratar secretaria. A IA faz o trabalho repetitivo por você.</p>
+              <ul class="space-y-2 text-sm text-[#44474c]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Monitoramento automático pela OAB</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Site público da advocacia incluso</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> A partir de R$ 199/mês</li>
+              </ul>
+            </div>
+            <div class="card-lexis p-8 border-2 border-[#1a2634] bg-[#d9e3f2]/20 relative">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1a2634] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Mais popular</div>
+              <div class="w-12 h-12 rounded-xl bg-[#1a2634] flex items-center justify-center mb-5">
+                <i class="ph-bold ph-users-three text-2xl text-white" aria-hidden="true" />
+              </div>
+              <h3 class="text-lg font-bold text-[#05111e] mb-2">Pequenos escritórios</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed mb-4">Gestão de equipe, permissões, portal do cliente e WhatsApp integrado. Tudo que um escritório de 2 a 10 advogados precisa.</p>
+              <ul class="space-y-2 text-sm text-[#44474c]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Até 10 usuários com permissões</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> WhatsApp Business integrado</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> A partir de R$ 499/mês</li>
+              </ul>
+            </div>
+            <div class="card-lexis p-8">
+              <div class="w-12 h-12 rounded-xl bg-[#f1f4f6] flex items-center justify-center mb-5">
+                <i class="ph-bold ph-building-office text-2xl text-[#05111e]" aria-hidden="true" />
+              </div>
+              <h3 class="text-lg font-bold text-[#05111e] mb-2">Escritórios em escala</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed mb-4">Onboarding personalizado, SLA 24/7, integrações sob medida e gerente de conta dedicado. Para operações que não podem parar.</p>
+              <ul class="space-y-2 text-sm text-[#44474c]">
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Usuários e processos ilimitados</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> API aberta + integrações custom</li>
+                <li class="flex gap-2"><i class="ph ph-check text-[#05111e] mt-0.5" aria-hidden="true" /> Sob consulta</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -354,6 +443,75 @@ marketingRoutes.get("/", (c) => {
         </div>
       </section>
 
+      {/* PWA / Mobile — acesse de qualquer lugar */}
+      <section class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
+        <div class="max-w-5xl mx-auto">
+          <div class="reveal grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#05111e] text-white text-xs sm:text-sm mb-5">
+                <i class="ph-bold ph-device-mobile" aria-hidden="true" /> App nativo no seu bolso
+              </div>
+              <h2 class="text-3xl md:text-4xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+                Acesse de qualquer lugar. Até offline.
+              </h2>
+              <p class="text-[#44474c] mb-6 text-pretty leading-relaxed">
+                O PragmaOS é um PWA (Progressive Web App). Instale no celular ou use no navegador — same experience. Funciona offline, envia notificações de prazos e sincroniza quando você volta online.
+              </p>
+              <ul class="space-y-3 text-sm">
+                <li class="flex items-center gap-3"><i class="ph-bold ph-bell-ringing text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Notificações push de prazos e audiências</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-wifi-slash text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Funciona offline (consultas, anotações, documentos)</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-install text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Instale na tela inicial — sem loja de apps</span></li>
+                <li class="flex items-center gap-3"><i class="ph-bold ph-sync text-[#05111e] text-lg" aria-hidden="true" /><span class="text-[#44474c]">Sincronização automática entre dispositivos</span></li>
+              </ul>
+              <div class="flex gap-3 mt-6">
+                <a href="/signup" class="inline-flex items-center gap-2 bg-[#05111e] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-[#1a2634] transition">
+                  <i class="ph-bold ph-rocket-launch" aria-hidden="true" /> Começar grátis
+                </a>
+              </div>
+            </div>
+            <div class="reveal-stagger flex justify-center">
+              <div class="relative">
+                <div class="w-[260px] h-[520px] rounded-[2.5rem] border-4 border-[#05111e] bg-white shadow-2xl shadow-black/20 overflow-hidden relative">
+                  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#05111e] rounded-b-2xl z-10" />
+                  <div class="gradient-hero-navy h-32 px-5 pt-10 flex flex-col justify-end pb-4">
+                    <div class="flex items-center gap-2 text-white">
+                      <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                        <i class="ph-bold ph-scales text-white text-sm" aria-hidden="true" />
+                      </div>
+                      <span class="font-bold text-sm">PragmaOS</span>
+                    </div>
+                  </div>
+                  <div class="p-4 space-y-3">
+                    <div class="bg-[#f1f4f6] rounded-xl p-3">
+                      <div class="text-xs text-[#75777c] mb-1">Processos ativos</div>
+                      <div class="text-2xl font-extrabold text-[#05111e]">47</div>
+                    </div>
+                    <div class="bg-[#ffdad6]/30 rounded-xl p-3 border border-[#e6caca]">
+                      <div class="flex items-center gap-2 mb-1">
+                        <i class="ph-bold ph-clock-countdown text-[#ba1a1a] text-sm" aria-hidden="true" />
+                        <div class="text-xs font-semibold text-[#ba1a1a]">Prazo crítico</div>
+                      </div>
+                      <div class="text-sm font-bold text-[#181c1e]">Audiência amanhã 14h</div>
+                    </div>
+                    <div class="bg-[#d9e3f2]/40 rounded-xl p-3 border border-[#bbc7da]">
+                      <div class="flex items-center gap-2 mb-1">
+                        <i class="ph-bold ph-robot text-[#05111e] text-sm" aria-hidden="true" />
+                        <div class="text-xs font-semibold text-[#05111e]">IA Jurídica</div>
+                      </div>
+                      <div class="text-xs text-[#44474c]">Resumo do processo pronto</div>
+                    </div>
+                    <div class="bg-[#f1f4f6] rounded-xl p-3">
+                      <div class="text-xs text-[#75777c] mb-1">A receber</div>
+                      <div class="text-lg font-bold text-[#05111e]">R$ 28.450</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Integrations */}
       <section id="integracoes" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
         <div class="max-w-5xl mx-auto text-center">
@@ -408,6 +566,51 @@ marketingRoutes.get("/", (c) => {
         </div>
       </section>
 
+      {/* Diferenciais únicos — por que PragmaOS */}
+      <section class="py-20 px-4 sm:px-6 bg-[#f7fafc]">
+        <div class="max-w-[1200px] mx-auto">
+          <div class="reveal text-center mb-14">
+            <p class="text-xs font-bold text-[#05111e] uppercase tracking-wider mb-3">Por que PragmaOS</p>
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] text-balance tracking-[-0.01em] mb-4">
+              Diferenciais que você não encontra em outro lugar.
+            </h2>
+            <p class="text-base md:text-lg text-[#44474c] text-pretty max-w-2xl mx-auto leading-relaxed">
+              Construído do zero para o Brasil. Não adaptamos um produto gringo.
+            </p>
+          </div>
+          <div class="reveal-stagger grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card-lexis p-6">
+              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
+                <i class="ph-bold ph-globe text-2xl text-white" aria-hidden="true" />
+              </div>
+              <h3 class="font-bold text-[#05111e] mb-2">Site público multi-tenant</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed">Cada escritório tem seu próprio site público dentro da plataforma. Processos, áreas de atuação, equipe e artigos — sem contratar um desenvolvedor.</p>
+            </div>
+            <div class="card-lexis p-6">
+              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
+                <i class="ph-bold ph-identification-card text-2xl text-white" aria-hidden="true" />
+              </div>
+              <h3 class="font-bold text-[#05111e] mb-2">Login com Gov.br</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed">Autenticação oficial do governo brasileiro. Seus clientes e equipe fazem login com a mesma conta que acessam serviços federais.</p>
+            </div>
+            <div class="card-lexis p-6">
+              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
+                <i class="ph-bold ph-signature text-2xl text-white" aria-hidden="true" />
+              </div>
+              <h3 class="font-bold text-[#05111e] mb-2">Clicksign integrado</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed">Assinaturas digitais com validade jurídica diretamente da plataforma. Documentos assinados em minutos, sem imprimir, sem escanear.</p>
+            </div>
+            <div class="card-lexis p-6">
+              <div class="w-12 h-12 rounded-xl bg-[#05111e] flex items-center justify-center mb-4">
+                <i class="ph-bold ph-plugs-connected text-2xl text-white" aria-hidden="true" />
+              </div>
+              <h3 class="font-bold text-[#05111e] mb-2">API aberta</h3>
+              <p class="text-sm text-[#44474c] leading-relaxed">Integre com seus sistemas existentes. Webhooks, REST API e documentação completa. Seus dados, sua regra.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="planos" class="py-20 px-4 sm:px-6 bg-[#f1f4f6]">
         <div class="max-w-[1200px] mx-auto">
@@ -455,6 +658,32 @@ marketingRoutes.get("/", (c) => {
           <p class="reveal text-center text-sm text-[#75777c] mt-8">
             Todos os planos incluem: criptografia, backup diário, suporte e atualizações gratuitas. Créditos adicionais de IA disponíveis como add-on.
           </p>
+
+          {/* Comparison table */}
+          <div class="reveal mt-12 overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr class="border-b-2 border-[#c4c6cc]">
+                  <th class="text-left py-4 px-4 font-bold text-[#05111e]">Recurso</th>
+                  <th class="text-center py-4 px-3 font-bold text-[#44474c]">Trial</th>
+                  <th class="text-center py-4 px-3 font-bold text-[#44474c]">Starter</th>
+                  <th class="text-center py-4 px-3 font-bold text-white bg-[#05111e] rounded-t-lg">Pro</th>
+                  <th class="text-center py-4 px-3 font-bold text-[#44474c]">Enterprise</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARE_ROWS.map((row, i) => (
+                  <tr class={i % 2 === 0 ? "bg-[#f7fafc]" : "bg-white"}>
+                    <td class="py-3 px-4 font-medium text-[#181c1e]">{row.label}</td>
+                    <td class="text-center py-3 px-3 text-[#44474c]">{row.trial}</td>
+                    <td class="text-center py-3 px-3 text-[#44474c]">{row.starter}</td>
+                    <td class="text-center py-3 px-3 text-[#05111e] font-semibold bg-[#d9e3f2]/20">{row.pro}</td>
+                    <td class="text-center py-3 px-3 text-[#44474c]">{row.enterprise}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
