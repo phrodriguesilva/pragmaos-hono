@@ -18,14 +18,38 @@ export const subscriptionRoutes = new Hono<AppEnv>();
 subscriptionRoutes.use("*", requireAuth);
 
 // ============================================================
-// Plan catalog (mirrors plans table)
+// Plan catalog — features mirror the marketing page (marketing.tsx PLANS)
 // ============================================================
 const PLAN_INFO: Record<string, { name: string; price: number; tagline: string }> = {
   trial: { name: "Trial", price: 0, tagline: "14 dias grátis" },
-  starter: { name: "Starter", price: 19900, tagline: "Para escritórios iniciantes" },
+  starter: { name: "Starter", price: 19900, tagline: "Para advogados solo e pequenos escritórios" },
   pro: { name: "Pro", price: 49900, tagline: "Para escritórios em crescimento" },
-  enterprise: { name: "Enterprise", price: 0, tagline: "Sob consulta" },
+  enterprise: { name: "Enterprise", price: 0, tagline: "Sob consulta — fale com o comercial" },
 };
+
+// Feature list per plan — must match marketing.tsx PLANS[].features
+const PLAN_FEATURES: Record<string, string[]> = {
+  starter: [
+    "Até 3 usuários",
+    "Até 500 processos",
+    "50 interações de IA/mês",
+    "Site público da advocacia",
+    "Suporte prioritário",
+    "Relatórios financeiros",
+  ],
+  pro: [
+    "Até 10 usuários",
+    "Processos ilimitados",
+    "300 interações de IA/mês",
+    "WhatsApp Business integrado*",
+    "Site público + API",
+    "Integrações (DataJud, assinaturas)",
+    "Gestão de equipe e permissões",
+    "Suporte dedicado",
+  ],
+};
+
+const PRO_FOOTNOTE = "*Custos de conversas da Meta (WhatsApp) são repassados ao cliente.";
 
 function formatCurrency(cents: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
@@ -73,7 +97,7 @@ subscriptionRoutes.get("/", async (c) => {
 
   return renderPage(
     c,
-    { title: "Assinatura", active: "billing" },
+    { title: "Assinatura", active: "subscription" },
     <>
       <PageHeader title="Assinatura" icon="ph-credit-card" />
 
@@ -148,7 +172,7 @@ subscriptionRoutes.get("/", async (c) => {
               <div class={`fade-in-up card-hover rounded-xl p-6 border-2 flex flex-col ${p.id === "pro" ? "border-[#0568ff] bg-[#0568ff] text-white shadow-[0_20px_40px_-15px_rgba(5,104,255,0.3)] scale-[1.02]" : "border-gray-200 bg-white"}`}>
                 {p.id === "pro" && <div class="inline-flex self-start items-center gap-1 px-2.5 py-1 rounded-full bg-white text-[#0568ff] text-xs font-bold mb-3"><i class="ph-fill ph-star" aria-hidden="true" /> Mais popular</div>}
                 <h3 class={`text-h4 font-extrabold mb-1 ${p.id === "pro" ? "text-white" : ""}`}>{p.name}</h3>
-                <p class={`text-body-sm mb-3 ${p.id === "pro" ? "text-white/80" : "text-gray-500"}`}>{p.tagline}</p>
+                <p class={`text-body-sm mb-3 ${p.id === "pro" ? "text-white/80" : "text-gray-500"}`}>{PLAN_INFO[p.id]?.tagline ?? p.tagline}</p>
                 <div class="mb-4">
                   {/* Monthly price */}
                   <div {...{ "x-show": "!annual" }} class="flex items-baseline gap-1">
@@ -162,14 +186,15 @@ subscriptionRoutes.get("/", async (c) => {
                   </div>
                 </div>
                 <ul class="space-y-2 text-body-sm mb-6 flex-1">
-                  <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> {p.max_users} usuários</li>
-                  <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> {p.max_cases ? `${p.max_cases} processos` : "Processos ilimitados"}</li>
-                  {p.has_ai && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> IA jurídica</li>}
-                  {p.has_whatsapp && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> WhatsApp integrado</li>}
-                  {p.has_public_site && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> Site público</li>}
-                  {p.has_api && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> API</li>}
-                  {p.has_integrations && <li class="flex gap-2"><i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> Integrações</li>}
+                  {(PLAN_FEATURES[p.id] ?? []).map((f) => (
+                    <li class={`flex gap-2 ${p.id === "pro" ? "text-white/90" : "text-gray-700"}`}>
+                      <i class={`ph ph-check ${p.id === "pro" ? "text-white" : "text-[#0568ff]"}`} aria-hidden="true" /> {f}
+                    </li>
+                  ))}
                 </ul>
+                {p.id === "pro" && (
+                  <p class={`text-xs mb-4 ${p.id === "pro" ? "text-white/70" : "text-gray-500"}`}>{PRO_FOOTNOTE}</p>
+                )}
                 {isCurrent ? (
                   <span class={`btn w-full text-center cursor-default ${p.id === "pro" ? "bg-white/15 text-white border-white/20" : "btn-secondary"}`}>Plano atual</span>
                 ) : (
