@@ -1,6 +1,11 @@
-// Vercel serverless entry point.
-// Re-exports the Hono app from src/index.ts.
-// Having this in /api/ makes Vercel detect it as a serverless function
-// and handle the bundling correctly, avoiding the Bun runtime ESM/CJS
-// interop bug that occurs when Vercel uses src/index.ts directly.
-export { default } from "../src/index";
+// Minimal Vercel serverless entry point.
+// This file avoids importing from src/ to test if the Bun runtime bug
+// is caused by the module graph in src/index.ts.
+import { Hono } from "hono";
+
+const app = new Hono();
+
+app.get("/", (c) => c.json({ ok: true, message: "PragmaOS API" }));
+app.get("/health", (c) => c.json({ status: "ok" }));
+
+export default app;
