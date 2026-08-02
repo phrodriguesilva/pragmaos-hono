@@ -41,6 +41,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <script src="/static/js/alpine.min.js" defer />
     </head>
     <body class="bg-gray-50 text-body font-sans antialiased" {...{ "x-data": "{ sidebarOpen: false }" }}>
+      <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-[#0568ff] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold">Pular para o conteúdo</a>
       {/* Mobile sidebar overlay */}
       <div
         {...{ "x-show": "sidebarOpen", "@click": "sidebarOpen = false" }}
@@ -64,7 +65,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
           <i class="ph ph-list text-h4 text-gray-700" aria-hidden="true"></i>
         </button>
         <Topbar firmName={firmName} userName={userName} userRole={userRole} />
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
       <script {...{ type: "application/javascript" }} dangerouslySetInnerHTML={{
         __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)})}`,

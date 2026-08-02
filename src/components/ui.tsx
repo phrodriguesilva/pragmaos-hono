@@ -223,7 +223,9 @@ export const TextField: FC<{
   min?: string;
   max?: string;
   icon?: string;
-}> = ({ label, id, name, type = "text", value, placeholder, required, error, step, min, max, icon }) => (
+  pattern?: string;
+  autocomplete?: string;
+}> = ({ label, id, name, type = "text", value, placeholder, required, error, step, min, max, icon, pattern, autocomplete }) => (
   <div class="flex flex-col gap-1">
     <label for={id} class="text-body-sm font-semibold text-gray-700">
       {label}
@@ -241,6 +243,8 @@ export const TextField: FC<{
         step={step}
         min={min}
         max={max}
+        pattern={pattern}
+        autocomplete={autocomplete}
         class={`input${icon ? " pl-7" : ""}`}
       />
     </div>

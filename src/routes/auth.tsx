@@ -731,7 +731,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
       {errorMsg ? ErrorAlert(errorMsg) : null}
       {success ? SuccessAlert("Senha redefinida com sucesso! Faca login.") : null}
       <form method="post" action={`/reset-password?token=${token}`} class="flex flex-col gap-4">
-        <div {...{ "x-data": "{ show: false }" }} class="flex flex-col gap-1">
+        <div {...{ "x-data": "{ show: false, pw: '', s: 0 }" }} class="flex flex-col gap-1">
           <label for="password" class="text-body-sm font-semibold text-gray-700">
             Nova senha<span class="text-status-red"> *</span>
           </label>
@@ -746,7 +746,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
               placeholder="Minimo 6 caracteres"
               autocomplete="new-password"
               class="input w-full pl-7 pr-8"
-              {...{ ":type": "show ? 'text' : 'password'" }}
+              {...{ ":type": "show ? 'text' : 'password'", "x-model": "pw", "@input": "s = pw.length >= 6 ? (pw.length >= 10 && /[^a-zA-Z0-9]/.test(pw) ? 3 : pw.length >= 8 ? 2 : 1) : 0" }}
             />
             <button
               type="button"
@@ -756,6 +756,17 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
             >
               <i {...{ ":class": "show ? 'ph ph-eye-slash' : 'ph ph-eye'" }} class="ph ph-eye text-body" aria-hidden="true" />
             </button>
+          </div>
+          {/* Password strength indicator */}
+          <div {...{ "x-show": "pw.length > 0" }} x-cloak class="flex items-center gap-2 mt-1">
+            <div class="flex gap-1 flex-1">
+              <div {...{ ":class": "s >= 1 ? 'bg-red-400' : 'bg-gray-200'" }} class="h-1 flex-1 rounded-full transition-colors" />
+              <div {...{ ":class": "s >= 2 ? 'bg-yellow-400' : 'bg-gray-200'" }} class="h-1 flex-1 rounded-full transition-colors" />
+              <div {...{ ":class": "s >= 3 ? 'bg-green-500' : 'bg-gray-200'" }} class="h-1 flex-1 rounded-full transition-colors" />
+            </div>
+            <span {...{ "x-show": "s === 1" }} class="text-xs text-red-500">Fraca</span>
+            <span {...{ "x-show": "s === 2" }} x-cloak class="text-xs text-yellow-600">Media</span>
+            <span {...{ "x-show": "s === 3" }} x-cloak class="text-xs text-green-600">Forte</span>
           </div>
         </div>
         <div {...{ "x-data": "{ show: false }" }} class="flex flex-col gap-1">

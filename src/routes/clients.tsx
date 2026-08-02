@@ -61,7 +61,7 @@ clientsRoutes.get("/", async (c) => {
     <div class="flex items-center gap-2">
       <a href={`/clients/${cl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Ver</a>
       <a href={`/clients/${cl.id}`} class="text-[#0568ff] hover:underline text-body-sm">Editar</a>
-      <form method="post" action={`/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm">Excluir</button></form>
+      <form method="post" action={`/clients/${cl.id}/delete`} class="inline" onsubmit="return confirm('Excluir este registro?')"><button type="submit" class="text-status-red hover:underline text-body-sm" aria-label="Excluir">Excluir</button></form>
     </div> as unknown as string,
   ]);
 
@@ -96,8 +96,8 @@ clientsRoutes.get("/", async (c) => {
             />
             <TextField label="Nome" id="name" name="name" required placeholder="Nome completo ou razao social" />
             <div class="grid grid-cols-2 gap-4">
-              <TextField label="CPF" id="cpf" name="cpf" placeholder="00000000000" />
-              <TextField label="CNPJ" id="cnpj" name="cnpj" placeholder="00000000000000" />
+              <TextField label="CPF" id="cpf" name="cpf" placeholder="000.000.000-00" pattern="\d{3}\.?\d{3}\.?\d{3}-?\d{2}" />
+              <TextField label="CNPJ" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" pattern="\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}" />
             </div>
             <div class="grid grid-cols-2 gap-4">
               <TextField label="Email" id="email" name="email" type="email" placeholder="cliente@email.com" />
@@ -249,8 +249,8 @@ clientsRoutes.get("/:id", async (c) => {
               />
               <TextField label="Nome" id="name" name="name" required value={client.name} />
               <div class="grid grid-cols-2 gap-4">
-                <TextField label="CPF" id="cpf" name="cpf" value={client.cpf ?? ""} />
-                <TextField label="CNPJ" id="cnpj" name="cnpj" value={client.cnpj ?? ""} />
+                <TextField label="CPF" id="cpf" name="cpf" value={client.cpf ?? ""} placeholder="000.000.000-00" pattern="\d{3}\.?\d{3}\.?\d{3}-?\d{2}" />
+                <TextField label="CNPJ" id="cnpj" name="cnpj" value={client.cnpj ?? ""} placeholder="00.000.000/0000-00" pattern="\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <TextField label="Email" id="email" name="email" type="email" value={client.email ?? ""} />
@@ -345,6 +345,19 @@ clientsRoutes.post("/:id", async (c) => {
 clientsRoutes.post("/:id/delete", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
+
+  // Check for linked cases before deleting
+  const { count } = await supabase
+    .from("cases")
+    .select("id", { count: "exact", head: true })
+    .eq("client_id", id)
+    .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null);
+
+  if (count && count > 0) {
+    setFlash(c, "error", `Nao foi possivel excluir: cliente possui ${count} processo(s) vinculado(s).`);
+    return c.redirect(`/clients/${id}`);
+  }
 
   await supabase
     .from("clients")

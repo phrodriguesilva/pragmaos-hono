@@ -625,6 +625,11 @@ signatureRoutes.post("/:id/check-status", async (c) => {
     return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Nenhum envelope externo vinculado")}`);
   }
 
+  // Prevent status sync on already-final signatures
+  if (sig.status === "signed" || sig.status === "rejected" || sig.status === "cancelled") {
+    return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Assinatura ja finalizada (status: " + sig.status + ")")}`);
+  }
+
   try {
     let mappedStatus = sig.status;
 

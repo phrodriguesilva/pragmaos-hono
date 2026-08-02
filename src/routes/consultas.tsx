@@ -487,7 +487,7 @@ consultasRoutes.get("/", async (c) => {
                     <div class="font-medium text-gray-800 truncate">
                       {ct?.label ?? r.type_id}: {r.input_label ?? formatDoc(r.input_value)}
                     </div>
-                    <div class="text-body-xs text-gray-400">{formatDateTime(r.created_at)}</div>
+                    <div class="text-body-xs text-gray-500">{formatDateTime(r.created_at)}</div>
                   </div>
                   <Badge color={statusCfg.color} icon={statusCfg.icon}>{statusCfg.label}</Badge>
                 </a>
@@ -676,7 +676,7 @@ consultasRoutes.get("/lote", async (c) => {
                 required
                 class="input"
               />
-              <p class="text-body-xs text-gray-400">
+              <p class="text-body-xs text-gray-500">
                 Formato: uma coluna com CPF/CNPJ/placa por linha. Primeira linha pode ser cabecalho (sera ignorada se nao for um documento valido).
               </p>
             </div>
@@ -695,6 +695,7 @@ consultasRoutes.get("/lote", async (c) => {
         {/* Recent batches */}
         {(batches ?? []).length > 0 && (
           <Panel title="Lotes Recentes" icon="ph-clock">
+            <div class="overflow-x-auto">
             <table class="data-table">
               <thead>
                 <tr><th>Arquivo</th><th>Tipo</th><th>Progresso</th><th>Status</th><th>Data</th></tr>
@@ -715,6 +716,7 @@ consultasRoutes.get("/lote", async (c) => {
                 })}
               </tbody>
             </table>
+            </div>
           </Panel>
         )}
       </div>
@@ -908,19 +910,19 @@ consultasRoutes.post("/lote", async (c) => {
       <div class="bg-white rounded-xl border border-gray-100 p-5 mb-4">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-body-sm">
           <div>
-            <div class="text-gray-400">Arquivo</div>
+            <div class="text-gray-500">Arquivo</div>
             <div class="font-semibold text-gray-800">{file.name}</div>
           </div>
           <div>
-            <div class="text-gray-400">Tipo</div>
+            <div class="text-gray-500">Tipo</div>
             <div class="font-semibold text-gray-800">{t.label}</div>
           </div>
           <div>
-            <div class="text-gray-400">Processadas</div>
+            <div class="text-gray-500">Processadas</div>
             <div class="font-semibold text-gray-800">{processed}/{batchInputs.length}</div>
           </div>
           <div>
-            <div class="text-gray-400">Com dados</div>
+            <div class="text-gray-500">Com dados</div>
             <div class="font-semibold text-green-600">{successCount}</div>
           </div>
         </div>
@@ -1025,7 +1027,7 @@ consultasRoutes.get("/:type", async (c) => {
 
           <div class="flex items-center gap-2 mb-4 text-body-sm">
             <Badge color="gray" icon="ph-coins">{t.credits_cost} credito{t.credits_cost !== 1 ? "s" : ""}</Badge>
-            <span class="text-gray-400">Saldo: {balance.remaining} creditos</span>
+            <span class="text-gray-500">Saldo: {balance.remaining} creditos</span>
           </div>
 
           {!configured && (
@@ -1271,19 +1273,19 @@ consultasRoutes.get("/resultado/:id", async (c) => {
       <div class="bg-white rounded-xl border border-gray-100 p-5 mb-4">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-body-sm">
           <div>
-            <div class="text-gray-400">Documento consultado</div>
+            <div class="text-gray-500">Documento consultado</div>
             <div class="font-semibold text-gray-800">{r.input_label ?? formatDoc(r.input_value)}</div>
           </div>
           <div>
-            <div class="text-gray-400">Tipo</div>
+            <div class="text-gray-500">Tipo</div>
             <div class="font-semibold text-gray-800">{t.label}</div>
           </div>
           <div>
-            <div class="text-gray-400">Status</div>
+            <div class="text-gray-500">Status</div>
             <Badge color={statusCfg.color} icon={statusCfg.icon}>{statusCfg.label}</Badge>
           </div>
           <div>
-            <div class="text-gray-400">Data</div>
+            <div class="text-gray-500">Data</div>
             <div class="font-semibold text-gray-800">{formatDateTime(r.created_at)}</div>
           </div>
         </div>
@@ -1753,6 +1755,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
       {/* QSA */}
       {entity.QSA && entity.QSA.length > 0 && (
         <Panel title="Quadro Societario (QSA)" icon="ph-users-three">
+          <div class="overflow-x-auto">
           <table class="data-table">
             <thead>
               <tr><th>Nome</th><th>CPF/CNPJ</th><th>Cargo</th></tr>
@@ -1767,6 +1770,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
               ))}
             </tbody>
           </table>
+          </div>
         </Panel>
       )}
 
@@ -1775,19 +1779,19 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
         <Panel title="Contatos" icon="ph-address-book">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-body-sm">
             <div>
-              <div class="text-gray-400 mb-1">E-mails</div>
+              <div class="text-gray-500 mb-1">E-mails</div>
               {(entity.Contacts.Emails ?? []).length > 0 ? (
                 <ul class="space-y-1">{entity.Contacts.Emails!.map((e, i) => <li key={i}>{e}</li>)}</ul>
               ) : <span class="text-gray-300">Nenhum</span>}
             </div>
             <div>
-              <div class="text-gray-400 mb-1">Telefones</div>
+              <div class="text-gray-500 mb-1">Telefones</div>
               {(entity.Contacts.Phones ?? []).length > 0 ? (
                 <ul class="space-y-1">{entity.Contacts.Phones!.map((p, i) => <li key={i}>{p}</li>)}</ul>
               ) : <span class="text-gray-300">Nenhum</span>}
             </div>
             <div>
-              <div class="text-gray-400 mb-1">Enderecos</div>
+              <div class="text-gray-500 mb-1">Enderecos</div>
               {(entity.Contacts.Addresses ?? []).length > 0 ? (
                 <ul class="space-y-1">
                   {entity.Contacts.Addresses!.map((a, i) => (
@@ -1803,6 +1807,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
       {/* Vehicles */}
       {entity.Vehicles && entity.Vehicles.length > 0 && (
         <Panel title="Veiculos Encontrados" icon="ph-car">
+          <div class="overflow-x-auto">
           <table class="data-table">
             <thead>
               <tr><th>Placa</th><th>Marca/Modelo</th><th>Ano</th><th>Cor</th><th>RENAVAM</th></tr>
@@ -1819,6 +1824,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
               ))}
             </tbody>
           </table>
+          </div>
         </Panel>
       )}
 
@@ -1855,6 +1861,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
             <DataRow label="Licenciamento" value={entity.VehicleDebits.Licensing} />
           </dl>
           {entity.VehicleDebits.Fines && entity.VehicleDebits.Fines.length > 0 && (
+            <div class="overflow-x-auto">
             <table class="data-table">
               <thead><tr><th>Descricao</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
               <tbody>
@@ -1868,6 +1875,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </Panel>
       )}
@@ -1882,6 +1890,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
           {entity.RiskData.NegativeRecords && entity.RiskData.NegativeRecords.length > 0 && (
             <div>
               <div class="font-semibold text-gray-700 mb-2">Registros Negativos</div>
+              <div class="overflow-x-auto">
               <table class="data-table">
                 <thead><tr><th>Fonte</th><th>Valor</th><th>Data</th></tr></thead>
                 <tbody>
@@ -1894,6 +1903,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </Panel>
@@ -1908,6 +1918,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
             </Badge>
           </div>
           {entity.DebtCollection.Debts && entity.DebtCollection.Debts.length > 0 && (
+            <div class="overflow-x-auto">
             <table class="data-table">
               <thead><tr><th>Credor</th><th>Valor</th><th>Data</th></tr></thead>
               <tbody>
@@ -1920,6 +1931,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </Panel>
       )}
@@ -1927,6 +1939,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
       {/* Relationships */}
       {entity.Relationships && entity.Relationships.length > 0 && (
         <Panel title="Relacionamentos" icon="ph-users-three">
+          <div class="overflow-x-auto">
           <table class="data-table">
             <thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Tipo de Relacionamento</th></tr></thead>
             <tbody>
@@ -1939,12 +1952,14 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
               ))}
             </tbody>
           </table>
+          </div>
         </Panel>
       )}
 
       {/* Processes */}
       {entity.Processes && entity.Processes.length > 0 && (
         <Panel title="Processos Judiciais" icon="ph-scales">
+          <div class="overflow-x-auto">
           <table class="data-table">
             <thead><tr><th>Numero</th><th>Tribunal</th><th>Assunto</th><th>Valor</th><th>Data</th></tr></thead>
             <tbody>
@@ -1959,6 +1974,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
               ))}
             </tbody>
           </table>
+          </div>
         </Panel>
       )}
 
@@ -1978,7 +1994,7 @@ function ConsultaResultRenderer({ type, result }: { type: ConsultaType; result: 
 function DataRow({ label, value, highlight }: { label: string; value?: string | null; highlight?: boolean }) {
   return (
     <div>
-      <dt class="text-gray-400 text-body-xs">{label}</dt>
+      <dt class="text-gray-500 text-body-xs">{label}</dt>
       <dd class={`font-medium ${highlight ? "text-status-red" : "text-gray-800"}`}>{value || "-"}</dd>
     </div>
   );
