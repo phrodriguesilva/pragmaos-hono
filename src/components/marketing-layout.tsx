@@ -85,6 +85,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
         <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/aurora.js" defer />
         <style dangerouslySetInnerHTML={{ __html: `
           /* === Lexis Modern marketing styles === */
           .mkt-body {
@@ -272,6 +273,25 @@ export const MarketingLayout: FC<PropsWithChildren<{
               document.querySelectorAll('.pull-up').forEach(el => revealObs.observe(el));
               document.querySelectorAll('.stat-counter').forEach(el => statObs.observe(el));
               setupScrollText();
+
+              // Aurora WebGL background for hero
+              if (window.Aurora) {
+                var auroraCanvas = document.getElementById('aurora-hero');
+                if (auroraCanvas) {
+                  // Respect reduced motion preference
+                  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    window.Aurora.init('#aurora-hero', {
+                      colorStops: ['#05111e', '#1a2634', '#bbc7da'],
+                      speed: 0.4,
+                      blend: 0.6,
+                      amplitude: 1.2
+                    });
+                  } else {
+                    // Static fallback: hide canvas, keep gradient
+                    auroraCanvas.style.display = 'none';
+                  }
+                }
+              }
             });
           })();
         ` }} />

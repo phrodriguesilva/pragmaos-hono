@@ -177,8 +177,9 @@ marketingRoutes.get("/", (c) => {
         })),
       }}
     >
-      {/* Hero — navy cinematic with scroll reveal */}
+      {/* Hero — navy cinematic with aurora WebGL background */}
       <section class="gradient-hero-navy text-white relative overflow-hidden">
+        <canvas id="aurora-hero" class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true" />
         <div class="noise-overlay absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" />
         <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 pointer-events-none" />
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-20 md:py-28 lg:py-32 relative">
