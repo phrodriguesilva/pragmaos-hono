@@ -1,3 +1,6 @@
 {
-  "buildCommand": "bun run build"
+  "buildCommand": "bun run build",
+  "functions": {
+    "api/index.ts": {}
+  }
 }

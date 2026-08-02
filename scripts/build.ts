@@ -1,5 +1,7 @@
-// Build script: generates CSS first (so typecheck can find the module),
-// then runs typecheck, then bundles the app into a single JS file for Vercel.
+// Build script: generates CSS, runs typecheck, then bundles the app into
+// a single JS file for Vercel serverless (Node.js runtime).
+// Bundling is required because Node.js ESM requires file extensions in
+// imports, but our codebase uses extensionless imports (Bun-style).
 import { $ } from "bun";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
@@ -21,9 +23,8 @@ console.log("Running typecheck (tsc --noEmit)...");
 await $`bunx tsc --noEmit --project tsconfig.json`;
 console.log("Typecheck passed.");
 
-// 4. Bundle the app into a single JS file for Vercel serverless.
-// This avoids the "Requested module is not instantiated yet" Bun runtime bug
-// on Vercel, which happens with ESM/CJS interop in the module graph.
-console.log("Bundling app for Vercel...");
-await $`bun build src/index.ts --outdir .vercel/output --target bun --format esm --external @supabase/supabase-js`;
-console.log("Bundle written to .vercel/output/index.js");
+// 4. Bundle the app into a single JS file for Vercel.
+// Target node, ESM format. All dependencies are bundled except node builtins.
+console.log("Bundling app for Vercel (Node.js ESM)...");
+await $`bun build src/index.ts --outfile api/index.js --target node --format esm --external @supabase/supabase-js --external hono`;
+console.log("Bundle written to api/index.js");
