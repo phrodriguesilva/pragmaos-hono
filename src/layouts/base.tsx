@@ -22,7 +22,13 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="theme-color" content="#c2410c" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="PragmaOS" />
       <title>{title} - PragmaOS</title>
+      <link rel="manifest" href="/manifest.json" />
+      <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
@@ -54,6 +60,9 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
         <Topbar firmName={firmName} userName={userName} userRole={userRole} />
         <main class="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
+      <script {...{ type: "application/javascript" }} dangerouslySetInnerHTML={{
+        __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
+      }} />
     </body>
   </html>
 );
@@ -64,7 +73,11 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="theme-color" content="#c2410c" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
       <title>{title} - PragmaOS</title>
+      <link rel="manifest" href="/manifest.json" />
+      <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />

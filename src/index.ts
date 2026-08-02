@@ -100,6 +100,11 @@ app.use("*", async (c, next) => {
 // Static assets (CSS, JS).
 app.use("/static/*", serveStatic({ root: "./public" }));
 
+// PWA: manifest, service worker, offline page.
+app.use("/manifest.json", serveStatic({ root: "./public", path: "manifest.json" }));
+app.use("/sw.js", serveStatic({ root: "./public", path: "sw.js" }));
+app.use("/offline.html", serveStatic({ root: "./public", path: "offline.html" }));
+
 // Health checks (public, no auth).
 app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 app.get("/health/ready", async (c) => {
