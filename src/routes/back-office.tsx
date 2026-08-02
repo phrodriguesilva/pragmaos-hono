@@ -69,12 +69,12 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         {/* Sidebar — fixed, full height, white background */}
         <div
           {...{ ":class": "sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'", "@keydown.escape.window": "sidebarOpen = false" }}
-          class="fixed top-0 left-0 z-50 h-screen w-60 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-200 flex flex-col"
+          class="fixed top-0 left-0 z-50 h-screen w-sidebar overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-200 flex flex-col"
         >
           {/* Logo */}
-          <div class="px-5 py-5 border-b border-gray-100 flex items-center gap-2.5">
+          <div class="px-5 py-5 border-b border-gray-100 flex flex-col gap-1">
             <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto" />
-            <div class="text-xs text-gray-500 ml-1">Back-office</div>
+            <div class="text-xs text-gray-400 font-medium tracking-wide uppercase">Back-office</div>
           </div>
 
           {/* Nav */}
@@ -108,7 +108,7 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         </div>
 
         {/* Main */}
-        <div class="flex flex-col min-h-screen lg:ml-[264px]">
+        <div class="flex flex-col min-h-screen lg:ml-sidebar">
           {/* Mobile hamburger */}
           <button
             {...{ "@click": "sidebarOpen = true" }}
@@ -119,10 +119,8 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
           </button>
 
           {/* Topbar */}
-          <header class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between" style="background: linear-gradient(135deg, #232856 0%, #0568ff 100%);">
-            <div>
-              <h1 class="text-h4 font-bold text-white">{title}</h1>
-            </div>
+          <header class="w-full h-16 flex items-center justify-between px-6 sticky top-0 z-30" style="background: linear-gradient(135deg, #232856 0%, #0568ff 100%);">
+            <span class="text-h3 text-white font-semibold">{title}</span>
             <div class="flex items-center gap-3">
               <span class="badge bg-white/15 text-white">Platform Admin</span>
             </div>
