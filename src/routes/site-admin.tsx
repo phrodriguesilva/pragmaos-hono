@@ -36,11 +36,11 @@ siteAdminRoutes.get("/appearance", async (c) => {
     return c.html(<PageHeader title="Erro" icon="ph-warning" />);
   }
 
-  const baseUrl = tenant.subdomain
-    ? `https://${tenant.subdomain}.pragmaos-hono.vercel.app`
-    : tenant.custom_domain
+  const appDomain = "pragmaos-hono.vercel.app";
+  const slug = tenant.subdomain ?? tenant.slug ?? "seu-escritorio";
+  const baseUrl = tenant.custom_domain
     ? `https://${tenant.custom_domain}`
-    : `https://${tenant.slug ?? "seu-escritorio"}.pragmaos-hono.vercel.app`;
+    : `https://${appDomain}/site/${slug}`;
 
   return renderPage(
     c,
@@ -84,7 +84,7 @@ siteAdminRoutes.get("/appearance", async (c) => {
           <div>
             <span class="text-gray-500">Subdominio:</span>{" "}
             <span class="font-mono font-semibold text-gray-800">{tenant.subdomain ?? tenant.slug ?? "(nao definido)"}</span>
-            <span class="text-gray-400">.pragmaos-hono.vercel.app</span>
+            <span class="text-gray-400">/site/{tenant.subdomain ?? tenant.slug ?? "seu-escritorio"}</span>
           </div>
           {tenant.custom_domain && (
             <div>
@@ -849,9 +849,9 @@ siteAdminRoutes.get("/settings", async (c) => {
                   placeholder="seu-escritorio"
                   class="flex-1 px-4 py-2.5 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-terracota-500 focus:border-terracota-500"
                 />
-                <span class="px-4 py-2.5 bg-gray-100 border border-l-0 border-gray-200 rounded-r-lg text-gray-500 text-body-sm">.pragmaos-hono.vercel.app</span>
+                <span class="px-4 py-2.5 bg-gray-100 border border-l-0 border-gray-200 rounded-r-lg text-gray-500 text-body-sm">.pragmaos-hono.vercel.app/site/...</span>
               </div>
-              <p class="text-body-xs text-gray-400 mt-1">Seu site sera acessivel em <strong>{tenant.subdomain ?? tenant.slug ?? "seu-escritorio"}.pragmaos-hono.vercel.app</strong></p>
+              <p class="text-body-xs text-gray-400 mt-1">Seu site sera acessivel em <strong>pragmaos-hono.vercel.app/site/{tenant.subdomain ?? tenant.slug ?? "seu-escritorio"}</strong></p>
             </div>
 
             <div>

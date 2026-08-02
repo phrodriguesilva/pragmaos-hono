@@ -64,7 +64,7 @@ import { docsRoutes } from "./routes/docs";
 import { helpRoutes } from "./routes/help";
 import { publicSiteRoutes } from "./routes/public-site";
 import { siteAdminRoutes } from "./routes/site-admin";
-import { resolveTenantByHost, isPublicSiteRequest } from "./lib/tenant-resolver";
+import { resolveTenantByHost, resolveTenantBySlug, isPublicSiteRequest } from "./lib/tenant-resolver";
 
 const app = new Hono<AppEnv>();
 
@@ -113,9 +113,12 @@ app.use("/offline.html", serveStatic({ root: "./public", path: "offline.html" })
 app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
 // =========================================================================
-// Public site detection — if the host is a subdomain or custom domain,
-// resolve the tenant and serve the public site routes instead of the app.
+// Public site detection — two modes:
+// 1. Subdomain/custom domain: escritorio.pragmaos.app or www.advogado.com.br
+// 2. Path-based: /site/:slug/... (works without wildcard DNS)
 // =========================================================================
+
+// Mode 1: subdomain or custom domain detection via Host header
 app.use("*", async (c, next) => {
   const host = c.req.header("host") ?? "";
   if (!isPublicSiteRequest(host)) {
@@ -127,11 +130,47 @@ app.use("*", async (c, next) => {
     return next(); // No tenant found, fall through to app
   }
 
-  // Store the resolved tenant and dispatch to public site routes
   c.set("publicTenant", tenant);
-
-  // Dispatch to the public site sub-app
   const res = await publicSiteRoutes.fetch(c.req.raw, c.env);
+  return res;
+});
+
+// Mode 2: path-based public sites — /site/:slug, /site/:slug/sobre, etc.
+// Admin routes (/site/appearance, /site/areas, etc.) are handled by siteAdminRoutes
+// mounted below, so we only intercept paths that don't match admin routes.
+const ADMIN_SITE_PATHS = ["/appearance", "/areas", "/articles", "/contacts", "/settings"];
+
+app.get("/site/:slug", async (c, next) => {
+  const slug = c.req.param("slug");
+  // If slug is an admin path, let siteAdminRoutes handle it
+  if (ADMIN_SITE_PATHS.includes(`/${slug}`)) return next();
+
+  const tenant = await resolveTenantBySlug(slug);
+  if (!tenant) return next();
+
+  c.set("publicTenant", tenant);
+  // Rewrite path to "/" for the public site sub-app
+  const url = new URL(c.req.url);
+  url.pathname = "/";
+  const res = await publicSiteRoutes.fetch(new Request(url.toString(), c.req.raw), c.env);
+  return res;
+});
+
+app.get("/site/:slug/*", async (c, next) => {
+  const slug = c.req.param("slug");
+  const rest = c.req.path.replace(`/site/${slug}/`, "");
+
+  // If slug is an admin path, let siteAdminRoutes handle it
+  if (ADMIN_SITE_PATHS.includes(`/${slug}`)) return next();
+
+  const tenant = await resolveTenantBySlug(slug);
+  if (!tenant) return next();
+
+  c.set("publicTenant", tenant);
+  // Rewrite path for the public site sub-app
+  const url = new URL(c.req.url);
+  url.pathname = `/${rest}`;
+  const res = await publicSiteRoutes.fetch(new Request(url.toString(), c.req.raw), c.env);
   return res;
 });
 app.get("/health/ready", async (c) => {

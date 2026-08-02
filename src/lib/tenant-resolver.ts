@@ -135,3 +135,27 @@ export async function resolveTenantByHost(host: string): Promise<ResolvedTenant 
 export function isPublicSiteRequest(host: string): boolean {
   return extractSubdomain(host) !== null || isCustomDomain(host);
 }
+
+// Resolve a tenant by slug (for path-based public sites: /site/:slug/...).
+// Returns null if no published tenant with that slug/subdomain exists.
+export async function resolveTenantBySlug(slug: string): Promise<ResolvedTenant | null> {
+  const { data, error } = await supabase
+    .from("tenants")
+    .select(`
+      id, name, slug, subdomain, custom_domain,
+      logo_url, primary_color, secondary_color,
+      tagline, description, founded_year, oab_number,
+      address, phone, whatsapp, email_public,
+      social_facebook, social_instagram, social_linkedin,
+      site_published, cnpj
+    `)
+    .or(`slug.eq.${slug},subdomain.eq.${slug}`)
+    .maybeSingle();
+
+  if (error || !data) {
+    log.debug("No tenant found for slug", { slug });
+    return null;
+  }
+
+  return data as ResolvedTenant;
+}

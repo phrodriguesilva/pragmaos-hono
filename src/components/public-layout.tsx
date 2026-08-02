@@ -4,13 +4,15 @@
 import type { FC, PropsWithChildren } from "hono/jsx";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
 
-export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active?: string }>> = ({
+export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active?: string; basePath?: string }>> = ({
   tenant,
   active,
+  basePath = "",
   children,
 }) => {
   const primary = tenant.primary_color || "#c8553d";
   const secondary = tenant.secondary_color || "#2b2925";
+  const b = basePath;
 
   return (
     <html lang="pt-BR">
@@ -48,7 +50,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         <header class="bg-white border-b border-gray-100 sticky top-0 z-30">
           <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             {/* Logo */}
-            <a href="/" class="flex items-center gap-2.5">
+            <a href={`${b}/`} class="flex items-center gap-2.5">
               {tenant.logo_url ? (
                 <img src={tenant.logo_url} alt={tenant.name} class="h-9 w-auto" />
               ) : (
@@ -61,11 +63,11 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
             {/* Nav */}
             <nav class="hidden md:flex items-center gap-6">
-              <a href="/" class={`text-sm font-medium ${active === "home" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Inicio</a>
-              <a href="/areas" class={`text-sm font-medium ${active === "areas" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Areas de Atuacao</a>
-              <a href="/artigos" class={`text-sm font-medium ${active === "artigos" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Artigos</a>
-              <a href="/sobre" class={`text-sm font-medium ${active === "sobre" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Sobre</a>
-              <a href="/contato" class="btn btn-primary text-sm">Contato</a>
+              <a href={`${b}/`} class={`text-sm font-medium ${active === "home" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Inicio</a>
+              <a href={`${b}/areas`} class={`text-sm font-medium ${active === "areas" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Areas de Atuacao</a>
+              <a href={`${b}/artigos`} class={`text-sm font-medium ${active === "artigos" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Artigos</a>
+              <a href={`${b}/sobre`} class={`text-sm font-medium ${active === "sobre" ? "text-primary" : "text-gray-600 hover:text-primary"}`}>Sobre</a>
+              <a href={`${b}/contato`} class="btn btn-primary text-sm">Contato</a>
             </nav>
 
             {/* Mobile menu button */}
@@ -76,11 +78,11 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
 
           {/* Mobile nav */}
           <div {...{ "x-show": "open", "x-transition": "" }} x-cloak class="md:hidden border-t border-gray-100 px-4 py-3 flex flex-col gap-3">
-            <a href="/" class="text-sm font-medium text-gray-600 hover:text-primary">Inicio</a>
-            <a href="/areas" class="text-sm font-medium text-gray-600 hover:text-primary">Areas de Atuacao</a>
-            <a href="/artigos" class="text-sm font-medium text-gray-600 hover:text-primary">Artigos</a>
-            <a href="/sobre" class="text-sm font-medium text-gray-600 hover:text-primary">Sobre</a>
-            <a href="/contato" class="btn btn-primary text-sm text-center">Contato</a>
+            <a href={`${b}/`} class="text-sm font-medium text-gray-600 hover:text-primary">Inicio</a>
+            <a href={`${b}/areas`} class="text-sm font-medium text-gray-600 hover:text-primary">Areas de Atuacao</a>
+            <a href={`${b}/artigos`} class="text-sm font-medium text-gray-600 hover:text-primary">Artigos</a>
+            <a href={`${b}/sobre`} class="text-sm font-medium text-gray-600 hover:text-primary">Sobre</a>
+            <a href={`${b}/contato`} class="btn btn-primary text-sm text-center">Contato</a>
           </div>
         </header>
 
@@ -132,11 +134,11 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
               <div>
                 <h4 class="text-sm font-semibold text-white mb-3">Navegacao</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href="/" class="hover:text-white">Inicio</a></li>
-                  <li><a href="/areas" class="hover:text-white">Areas de Atuacao</a></li>
-                  <li><a href="/artigos" class="hover:text-white">Artigos</a></li>
-                  <li><a href="/sobre" class="hover:text-white">Sobre</a></li>
-                  <li><a href="/contato" class="hover:text-white">Contato</a></li>
+                  <li><a href={`${b}/`} class="hover:text-white">Inicio</a></li>
+                  <li><a href={`${b}/areas`} class="hover:text-white">Areas de Atuacao</a></li>
+                  <li><a href={`${b}/artigos`} class="hover:text-white">Artigos</a></li>
+                  <li><a href={`${b}/sobre`} class="hover:text-white">Sobre</a></li>
+                  <li><a href={`${b}/contato`} class="hover:text-white">Contato</a></li>
                 </ul>
                 {(tenant.social_facebook || tenant.social_instagram || tenant.social_linkedin) && (
                   <div class="flex gap-3 mt-4">
@@ -154,8 +156,6 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
             </div>
           </div>
         </footer>
-
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer />
       </body>
     </html>
   );
