@@ -272,10 +272,16 @@ consultasRoutes.get("/", async (c) => {
               <div class="font-semibold">{balance.purchased_credits}</div>
             </div>
           </div>
-          <a href="/consultas/historico" class="btn btn-secondary inline-flex items-center gap-1">
-            <i class="ph ph-clock-countdown" aria-hidden="true"></i>
-            Historico
-          </a>
+          <div class="flex gap-2">
+            <a href="/consultas/lote" class="btn btn-secondary inline-flex items-center gap-1">
+              <i class="ph ph-stack" aria-hidden="true"></i>
+              Consulta em Lote
+            </a>
+            <a href="/consultas/historico" class="btn btn-secondary inline-flex items-center gap-1">
+              <i class="ph ph-clock-countdown" aria-hidden="true"></i>
+              Historico
+            </a>
+          </div>
         </div>
       </div>
 
@@ -444,6 +450,357 @@ consultasRoutes.get("/historico", async (c) => {
           {page < totalPages && <a href={`/consultas/historico?page=${page + 1}${statusFilter ? `&status=${statusFilter}` : ""}`} class="btn btn-secondary btn-sm"><i class="ph ph-caret-right" aria-hidden="true"></i></a>}
         </div>
       )}
+    </>,
+  );
+});
+
+// --- GET /consultas/lote — Batch consultation (CSV upload) ---
+
+consultasRoutes.get("/lote", async (c) => {
+  const user = c.get("user");
+  const subState = await getSubscriptionState(user.tenantId);
+  const balance = await getCreditBalance(user.tenantId, subState.plan);
+
+  // Fetch enabled consultation types for the dropdown.
+  const { data: types } = await supabase
+    .from("consulta_types")
+    .select("id, label, credits_cost, input_type")
+    .eq("enabled", true)
+    .order("sort_order", { ascending: true });
+
+  // Fetch recent batches.
+  const { data: batches } = await supabase
+    .from("consulta_batches")
+    .select("id, file_name, total_rows, processed_rows, status, created_at, completed_at, type_id")
+    .eq("tenant_id", user.tenantId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const configured = isBigDataConfigured();
+
+  return renderPage(
+    c,
+    { title: "Consulta em Lote", active: "consultas" },
+    <>
+      <PageHeader title="Consulta em Lote" icon="ph-stack">
+        <a href="/consultas" class="btn btn-secondary inline-flex items-center gap-1">
+          <i class="ph ph-arrow-left" aria-hidden="true"></i>
+          Voltar
+        </a>
+      </PageHeader>
+
+      <div class="max-w-2xl space-y-4">
+        <Panel title="Nova Consulta em Lote" icon="ph-upload-simple">
+          <p class="text-body-sm text-gray-500 mb-4">
+            Envie um arquivo CSV com uma coluna contendo CPFs, CNPJs ou placas.
+            Cada linha sera consultada individualmente. Limite de 50 consultas por lote.
+          </p>
+
+          <div class="flex items-center gap-2 mb-4 text-body-sm">
+            <Badge color="gray" icon="ph-coins">Saldo: {balance.remaining} creditos</Badge>
+          </div>
+
+          {!configured && (
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-body-sm text-amber-800">
+              <i class="ph ph-warning" aria-hidden="true"></i> Consultas Legais nao configuradas pelo administrador.
+            </div>
+          )}
+
+          <form action="/consultas/lote" method="post" enctype="multipart/form-data" class="space-y-4">
+            <div class="flex flex-col gap-1">
+              <label for="type_id" class="text-body-sm font-semibold text-gray-700">Tipo de consulta <span class="text-status-red">*</span></label>
+              <select id="type_id" name="type_id" required class="input">
+                <option value="">Selecione...</option>
+                {(types ?? []).map((t) => (
+                  <option value={t.id}>{t.label} ({t.credits_cost} credito{t.credits_cost !== 1 ? "s" : ""} cada)</option>
+                ))}
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="file" class="text-body-sm font-semibold text-gray-700">Arquivo CSV <span class="text-status-red">*</span></label>
+              <input
+                id="file"
+                name="file"
+                type="file"
+                accept=".csv,.txt"
+                required
+                class="input"
+              />
+              <p class="text-body-xs text-gray-400">
+                Formato: uma coluna com CPF/CNPJ/placa por linha. Primeira linha pode ser cabecalho (sera ignorada se nao for um documento valido).
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary inline-flex items-center gap-2"
+              disabled={!configured}
+            >
+              <i class="ph ph-upload-simple" aria-hidden="true"></i>
+              Processar lote
+            </button>
+          </form>
+        </Panel>
+
+        {/* Recent batches */}
+        {(batches ?? []).length > 0 && (
+          <Panel title="Lotes Recentes" icon="ph-clock">
+            <table class="data-table">
+              <thead>
+                <tr><th>Arquivo</th><th>Tipo</th><th>Progresso</th><th>Status</th><th>Data</th></tr>
+              </thead>
+              <tbody>
+                {(batches ?? []).map((b) => {
+                  const batchStatus = b.status;
+                  const statusCfg = getStatusConfig(batchStatus === "partial" ? "completed" : batchStatus === "processing" ? "processing" : batchStatus === "pending" ? "pending" : batchStatus === "error" ? "error" : "completed");
+                  return (
+                    <tr>
+                      <td class="font-medium">{b.file_name}</td>
+                      <td>{b.type_id}</td>
+                      <td>{b.processed_rows}/{b.total_rows}</td>
+                      <td><Badge color={statusCfg.color} icon={statusCfg.icon}>{b.status}</Badge></td>
+                      <td class="text-body-sm">{formatDateTime(b.created_at)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </Panel>
+        )}
+      </div>
+    </>,
+  );
+});
+
+// --- POST /consultas/lote — Process batch CSV ---
+
+consultasRoutes.post("/lote", async (c) => {
+  const user = c.get("user");
+  const subState = await getSubscriptionState(user.tenantId);
+
+  if (!isBigDataConfigured()) {
+    setFlash(c, "error", "Consultas Legais nao configuradas pelo administrador");
+    return c.redirect("/consultas/lote");
+  }
+
+  const formData = await c.req.formData();
+  const typeId = formData.get("type_id") as string;
+  const file = formData.get("file") as File | null;
+
+  if (!typeId || !file) {
+    setFlash(c, "error", "Tipo de consulta e arquivo sao obrigatorios");
+    return c.redirect("/consultas/lote");
+  }
+
+  // Fetch the consultation type.
+  const { data: type } = await supabase
+    .from("consulta_types")
+    .select("*")
+    .eq("id", typeId)
+    .eq("enabled", true)
+    .single();
+
+  if (!type) {
+    setFlash(c, "error", "Tipo de consulta invalido");
+    return c.redirect("/consultas/lote");
+  }
+
+  const t = type as ConsultaType;
+
+  // Read and parse the CSV file.
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+
+  if (lines.length === 0) {
+    setFlash(c, "error", "Arquivo vazio");
+    return c.redirect("/consultas/lote");
+  }
+
+  // Extract document values from each line. Handle CSV with potential commas/quotes.
+  const inputs: string[] = [];
+  for (const line of lines) {
+    // Simple CSV parsing: take the first column (split by comma or semicolon).
+    const cols = line.split(/[;,]/).map((c) => c.trim().replace(/^["']|["']$/g, ""));
+    const value = cols[0] ?? "";
+    if (value.length > 0) inputs.push(value);
+  }
+
+  // Filter out the header line if it's not a valid document.
+  if (inputs.length > 0) {
+    const first = inputs[0] ?? "";
+    const firstClean = first.replace(/\D/g, "");
+    const isValidFirst = firstClean.length === 11 || firstClean.length === 14 || isValidPlaca(first);
+    if (!isValidFirst) {
+      inputs.shift();
+    }
+  }
+
+  // Limit to 50 consultations per batch.
+  const MAX_BATCH = 50;
+  const batchInputs = inputs.slice(0, MAX_BATCH);
+
+  if (batchInputs.length === 0) {
+    setFlash(c, "error", "Nenhum documento valido encontrado no arquivo");
+    return c.redirect("/consultas/lote");
+  }
+
+  // Check credits.
+  const balance = await getCreditBalance(user.tenantId, subState.plan);
+  const totalCost = batchInputs.length * t.credits_cost;
+  if (balance.remaining < totalCost) {
+    setFlash(c, "error", `Creditos insuficientes. Voce tem ${balance.remaining} e precisa de ${totalCost} (${batchInputs.length} consultas x ${t.credits_cost} creditos)`);
+    return c.redirect("/consultas/lote");
+  }
+
+  // Create a batch record.
+  const { data: batch } = await supabase
+    .from("consulta_batches")
+    .insert({
+      tenant_id: user.tenantId,
+      user_id: user.id,
+      type_id: t.id,
+      file_name: file.name,
+      total_rows: batchInputs.length,
+      processed_rows: 0,
+      status: "processing",
+    })
+    .select("id")
+    .single();
+
+  const batchId = batch?.id ?? "";
+
+  // Process each consultation synchronously.
+  const results: Array<{ input: string; status: string; label: string | null; error: string | null; consultaId: string | null }> = [];
+  let processed = 0;
+  let successCount = 0;
+
+  for (const inputValue of batchInputs) {
+    const validationError = validateInput(t, inputValue);
+    if (validationError) {
+      results.push({ input: inputValue, status: "error", label: null, error: validationError, consultaId: null });
+      processed++;
+      continue;
+    }
+
+    const actualInputType = t.input_type === "cpf_cnpj" ? (detectDocType(inputValue) ?? "cpf") : t.input_type;
+    const query = buildQuery(actualInputType, inputValue);
+    const result = await callBigData(t.bigdata_endpoint as BigDataEndpoint, {
+      q: query,
+      Datasets: t.bigdata_datasets,
+    });
+
+    const hasData = result.success && result.data?.Result?.length && result.data.Result.length > 0;
+    const label = extractLabel(result.data ?? null);
+    const status = !result.success ? "error" : hasData ? "completed" : "no_data";
+
+    // Save the consultation record.
+    const { data: consulta } = await supabase
+      .from("consultas")
+      .insert({
+        tenant_id: user.tenantId,
+        user_id: user.id,
+        type_id: t.id,
+        input_value: inputValue,
+        input_type: actualInputType,
+        status,
+        result: result.data as unknown as Record<string, unknown> | null,
+        input_label: label,
+        error_message: result.error ?? null,
+        credits_used: hasData ? t.credits_cost : 0,
+        completed_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+
+    if (hasData) {
+      await deductCredits(user.tenantId, subState.plan, t.credits_cost);
+      successCount++;
+    }
+
+    results.push({
+      input: inputValue,
+      status,
+      label,
+      error: result.error ?? null,
+      consultaId: consulta?.id ?? null,
+    });
+    processed++;
+  }
+
+  // Update the batch record.
+  await supabase
+    .from("consulta_batches")
+    .update({
+      processed_rows: processed,
+      status: successCount > 0 ? (successCount < processed ? "partial" : "completed") : "error",
+      completed_at: new Date().toISOString(),
+    })
+    .eq("id", batchId);
+
+  // Render the results page.
+  return renderPage(
+    c,
+    { title: "Resultado do Lote", active: "consultas" },
+    <>
+      <PageHeader title="Resultado do Lote" icon="ph-stack">
+        <div class="flex gap-2">
+          <a href="/consultas/lote" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-upload-simple" aria-hidden="true"></i>
+            Novo lote
+          </a>
+          <a href="/consultas" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-arrow-left" aria-hidden="true"></i>
+            Dashboard
+          </a>
+        </div>
+      </PageHeader>
+
+      <div class="bg-white rounded-xl border border-gray-100 p-5 mb-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-body-sm">
+          <div>
+            <div class="text-gray-400">Arquivo</div>
+            <div class="font-semibold text-gray-800">{file.name}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">Tipo</div>
+            <div class="font-semibold text-gray-800">{t.label}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">Processadas</div>
+            <div class="font-semibold text-gray-800">{processed}/{batchInputs.length}</div>
+          </div>
+          <div>
+            <div class="text-gray-400">Com dados</div>
+            <div class="font-semibold text-green-600">{successCount}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Documento</th><th>Nome/Razao Social</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            {results.map((r, i) => {
+              const statusCfg = getStatusConfig(r.status);
+              return (
+                <tr key={i}>
+                  <td class="font-medium">{formatDoc(r.input)}</td>
+                  <td>{r.label ?? (r.error ? <span class="text-red-600 text-body-sm">{r.error}</span> : "-")}</td>
+                  <td><Badge color={statusCfg.color} icon={statusCfg.icon}>{statusCfg.label}</Badge></td>
+                  <td>
+                    {r.consultaId ? (
+                      <a href={`/consultas/resultado/${r.consultaId}`} class="text-terracota-600 hover:underline text-body-sm">Ver detalhes</a>
+                    ) : <span class="text-gray-300">-</span>}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>,
   );
 });
@@ -744,6 +1101,12 @@ consultasRoutes.get("/resultado/:id", async (c) => {
     <>
       <PageHeader title={`Resultado: ${t.label}`} icon={t.icon}>
         <div class="flex gap-2">
+          {r.status === "completed" && (
+            <a href={`/consultas/resultado/${r.id}/pdf`} target="_blank" class="btn btn-secondary inline-flex items-center gap-1">
+              <i class="ph ph-file-pdf" aria-hidden="true"></i>
+              Baixar PDF
+            </a>
+          )}
           <a href={`/consultas/${t.id}`} class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-clock" aria-hidden="true"></i>
             Nova consulta
@@ -844,6 +1207,351 @@ consultasRoutes.post("/:id/vincular", async (c) => {
   }
 
   return c.redirect(`/consultas/resultado/${id}`);
+});
+
+// --- GET /consultas/resultado/:id/pdf — Export result as PDF ---
+
+consultasRoutes.get("/resultado/:id/pdf", async (c) => {
+  const id = c.req.param("id");
+  const user = c.get("user");
+
+  const { data: record } = await supabase
+    .from("consultas")
+    .select("*, consulta_types(*), cases(id, title, case_number)")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+
+  if (!record) return c.html("Consulta nao encontrada.", 404);
+
+  const r = record as ConsultaRecord & {
+    consulta_types: ConsultaType;
+    cases: { id: string; title: string; case_number: string | null } | null;
+  };
+  const t = r.consulta_types;
+
+  if (r.status !== "completed" || !r.result) {
+    return c.html("Consulta sem dados para exportar.", 400);
+  }
+
+  // Fetch tenant data for the PDF header.
+  const { data: tenant }: any = await supabase
+    .from("tenants")
+    .select("name, cnpj, email_public, phone, address")
+    .eq("id", user.tenantId)
+    .single();
+
+  const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
+
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595.28, 841.89]); // A4
+  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const courier = await pdfDoc.embedFont(StandardFonts.Courier);
+
+  const dark = rgb(0.05, 0.07, 0.12);
+  const gray = rgb(0.4, 0.4, 0.4);
+  const lightGray = rgb(0.9, 0.9, 0.9);
+  const terracota = rgb(0.69, 0.39, 0.2);
+
+  const left = 50;
+  const right = 545;
+  let y = 800;
+
+  // Header — firm name
+  page.drawText(tenant?.name ?? "Escritorio", { x: left, y, size: 18, font: helveticaBold, color: dark });
+  y -= 16;
+  if (tenant?.cnpj) {
+    page.drawText(`CNPJ: ${tenant.cnpj}`, { x: left, y, size: 9, font: helvetica, color: gray });
+    y -= 12;
+  }
+  if (tenant?.email_public) {
+    page.drawText(tenant.email_public, { x: left, y, size: 9, font: helvetica, color: gray });
+    y -= 12;
+  }
+  if (tenant?.phone) {
+    page.drawText(tenant.phone, { x: left, y, size: 9, font: helvetica, color: gray });
+    y -= 12;
+  }
+
+  // Title (right side)
+  page.drawText("CONSULTA LEGAL", { x: right - 130, y: 800, size: 18, font: helveticaBold, color: terracota });
+  page.drawText(t.label, { x: right - 130, y: 780, size: 11, font: helvetica, color: dark });
+  page.drawText(formatDateTime(r.created_at), { x: right - 130, y: 765, size: 9, font: helvetica, color: gray });
+
+  // Separator
+  page.drawLine({ start: { x: left, y: 745 }, end: { x: right, y: 745 }, thickness: 1, color: lightGray });
+
+  // Consultation details
+  y = 720;
+  page.drawText("DADOS DA CONSULTA", { x: left, y, size: 10, font: helveticaBold, color: dark });
+  y -= 16;
+
+  const metaRows: [string, string][] = [
+    ["Tipo", t.label],
+    ["Documento", r.input_label ?? formatDoc(r.input_value)],
+    ["Status", "Concluida"],
+    ["Creditos utilizados", String(r.credits_used)],
+    ["Data", formatDateTime(r.created_at)],
+  ];
+  if (r.cases?.title) metaRows.push(["Processo vinculado", r.cases.title.slice(0, 50)]);
+
+  for (const [label, value] of metaRows) {
+    page.drawText(label, { x: left, y, size: 9, font: helveticaBold, color: dark });
+    page.drawText(value, { x: left + 140, y, size: 9, font: helvetica, color: gray });
+    y -= 14;
+  }
+
+  // Separator
+  y -= 10;
+  page.drawLine({ start: { x: left, y }, end: { x: right, y }, thickness: 1, color: lightGray });
+  y -= 20;
+
+  // Result data
+  page.drawText("RESULTADO", { x: left, y, size: 10, font: helveticaBold, color: dark });
+  y -= 16;
+
+  const entity = r.result.Result?.[0];
+  if (entity) {
+    // Basic data
+    if (entity.BasicData) {
+      const bd = entity.BasicData;
+      const fields: [string, string | undefined][] = [
+        ["Nome", bd.Name],
+        ["CPF", bd.TaxId ? formatCPF(bd.TaxId) : undefined],
+        ["Nascimento", bd.BirthDate],
+        ["Genero", bd.Gender],
+        ["Nome da Mae", bd.MothersName],
+        ["Nome do Pai", bd.FathersName],
+        ["Status", bd.Status],
+        ["Data de Obito", bd.DeathDate],
+      ];
+      for (const [label, value] of fields) {
+        if (!value) continue;
+        if (y < 80) { // Add new page if needed
+          const newPage = pdfDoc.addPage([595.28, 841.89]);
+          y = 800;
+          page.drawText(label, { x: left, y, size: 9, font: helveticaBold, color: dark });
+          newPage.drawText(value.slice(0, 70), { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        } else {
+          page.drawText(label, { x: left, y, size: 9, font: helveticaBold, color: dark });
+          page.drawText(value.slice(0, 70), { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        }
+        y -= 14;
+      }
+    }
+
+    // Company data
+    if (entity.CompanyData) {
+      const cd = entity.CompanyData;
+      y -= 10;
+      page.drawText("DADOS DA EMPRESA", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      const fields: [string, string | undefined][] = [
+        ["Razao Social", cd.CompanyName],
+        ["Nome Fantasia", cd.TradeName],
+        ["CNPJ", cd.TaxId ? formatCNPJ(cd.TaxId) : undefined],
+        ["Status", cd.Status],
+        ["CNAE", cd.CNAEDescription ? `${cd.CNAE} - ${cd.CNAEDescription}`.slice(0, 70) : cd.CNAE],
+        ["Capital", cd.Capital],
+        ["Abertura", cd.OpeningDate],
+      ];
+      for (const [label, value] of fields) {
+        if (!value) continue;
+        page.drawText(label, { x: left, y, size: 9, font: helveticaBold, color: dark });
+        page.drawText(value.slice(0, 70), { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        y -= 14;
+      }
+    }
+
+    // Contacts
+    if (entity.Contacts) {
+      const ct = entity.Contacts;
+      y -= 10;
+      page.drawText("CONTATOS", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+
+      if (ct.Emails?.length) {
+        page.drawText("E-mails:", { x: left, y, size: 9, font: helveticaBold, color: dark });
+        y -= 12;
+        for (const email of ct.Emails.slice(0, 10)) {
+          page.drawText(`  ${email}`.slice(0, 80), { x: left, y, size: 9, font: helvetica, color: gray });
+          y -= 12;
+        }
+      }
+      if (ct.Phones?.length) {
+        page.drawText("Telefones:", { x: left, y, size: 9, font: helveticaBold, color: dark });
+        y -= 12;
+        for (const phone of ct.Phones.slice(0, 10)) {
+          page.drawText(`  ${phone}`, { x: left, y, size: 9, font: helvetica, color: gray });
+          y -= 12;
+        }
+      }
+      if (ct.Addresses?.length) {
+        page.drawText("Enderecos:", { x: left, y, size: 9, font: helveticaBold, color: dark });
+        y -= 12;
+        for (const addr of ct.Addresses.slice(0, 10)) {
+          const addrStr = [addr.Street, addr.Number, addr.District, addr.City, addr.State, addr.ZipCode].filter(Boolean).join(", ");
+          page.drawText(`  ${addrStr}`.slice(0, 80), { x: left, y, size: 9, font: helvetica, color: gray });
+          y -= 12;
+        }
+      }
+    }
+
+    // Vehicles
+    if (entity.Vehicles?.length) {
+      y -= 10;
+      page.drawText("VEICULOS", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      for (const v of entity.Vehicles.slice(0, 20)) {
+        const vStr = `${v.Plate ?? "-"} | ${v.Brand ?? ""} ${v.Model ?? ""} | Ano: ${v.Year ?? "-"} | Cor: ${v.Color ?? "-"} | RENAVAM: ${v.Renavam ?? "-"}`;
+        page.drawText(vStr.slice(0, 85), { x: left, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+    }
+
+    // Plate data
+    if (entity.PlateData) {
+      const pd = entity.PlateData;
+      y -= 10;
+      page.drawText("DADOS DO VEICULO", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      const fields: [string, string | undefined][] = [
+        ["Placa", pd.Plate],
+        ["Marca/Modelo", [pd.Brand, pd.Model].filter(Boolean).join(" ")],
+        ["Ano", pd.Year],
+        ["Cor", pd.Color],
+        ["Chassi", pd.Chassis],
+        ["RENAVAM", pd.Renavam],
+        ["Proprietario", pd.OwnerName],
+        ["CPF/CNPJ", pd.OwnerTaxId ? formatDoc(pd.OwnerTaxId) : undefined],
+      ];
+      for (const [label, value] of fields) {
+        if (!value) continue;
+        page.drawText(label, { x: left, y, size: 9, font: helveticaBold, color: dark });
+        page.drawText(value.slice(0, 70), { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        y -= 14;
+      }
+      if (pd.Restrictions?.length) {
+        page.drawText("Restricoes:", { x: left, y, size: 9, font: helveticaBold, color: terracota });
+        y -= 12;
+        for (const restr of pd.Restrictions) {
+          page.drawText(`  ${restr}`.slice(0, 80), { x: left, y, size: 9, font: helvetica, color: terracota });
+          y -= 12;
+        }
+      }
+    }
+
+    // QSA
+    if (entity.QSA?.length) {
+      y -= 10;
+      page.drawText("QUADRO SOCIETARIO", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      for (const s of entity.QSA.slice(0, 30)) {
+        const sStr = `${s.Name ?? "-"} | ${s.TaxId ? formatDoc(s.TaxId) : "-"} | ${s.Role ?? "-"}`;
+        page.drawText(sStr.slice(0, 85), { x: left, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+    }
+
+    // Relationships
+    if (entity.Relationships?.length) {
+      y -= 10;
+      page.drawText("RELACIONAMENTOS", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      for (const rel of entity.Relationships.slice(0, 30)) {
+        const relStr = `${rel.Name ?? "-"} | ${rel.TaxId ? formatDoc(rel.TaxId) : "-"} | ${rel.RelationshipType ?? "-"}`;
+        page.drawText(relStr.slice(0, 85), { x: left, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+    }
+
+    // Processes
+    if (entity.Processes?.length) {
+      y -= 10;
+      page.drawText("PROCESSOS JUDICIAIS", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      for (const p of entity.Processes.slice(0, 30)) {
+        const pStr = `${p.Number ?? "-"} | ${p.Court ?? "-"} | ${p.Subject ?? "-"}`;
+        page.drawText(pStr.slice(0, 85), { x: left, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+    }
+
+    // Risk data
+    if (entity.RiskData) {
+      y -= 10;
+      page.drawText("ANALISE DE RISCO", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      if (entity.RiskData.RiskLevel) {
+        page.drawText("Nivel de Risco", { x: left, y, size: 9, font: helveticaBold, color: dark });
+        page.drawText(entity.RiskData.RiskLevel, { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+      if (entity.RiskData.RiskScore) {
+        page.drawText("Score", { x: left, y, size: 9, font: helveticaBold, color: dark });
+        page.drawText(entity.RiskData.RiskScore, { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+      if (entity.RiskData.NegativeRecords?.length) {
+        page.drawText("Registros Negativos:", { x: left, y, size: 9, font: helveticaBold, color: terracota });
+        y -= 12;
+        for (const n of entity.RiskData.NegativeRecords.slice(0, 20)) {
+          const nStr = `${n.Source ?? "-"} | ${n.Amount ?? "-"} | ${n.Date ?? "-"}`;
+          page.drawText(`  ${nStr}`.slice(0, 80), { x: left, y, size: 9, font: helvetica, color: terracota });
+          y -= 12;
+        }
+      }
+    }
+
+    // Debt collection
+    if (entity.DebtCollection) {
+      y -= 10;
+      page.drawText("COBRANCAS E DIVIDAS", { x: left, y, size: 10, font: helveticaBold, color: dark });
+      y -= 14;
+      page.drawText("Tem dividas", { x: left, y, size: 9, font: helveticaBold, color: dark });
+      page.drawText(entity.DebtCollection.HasDebts ? "Sim" : "Nao", { x: left + 140, y, size: 9, font: helvetica, color: gray });
+      y -= 12;
+      if (entity.DebtCollection.TotalDebts) {
+        page.drawText("Total", { x: left, y, size: 9, font: helveticaBold, color: dark });
+        page.drawText(entity.DebtCollection.TotalDebts, { x: left + 140, y, size: 9, font: helvetica, color: gray });
+        y -= 12;
+      }
+      if (entity.DebtCollection.Debts?.length) {
+        for (const d of entity.DebtCollection.Debts.slice(0, 20)) {
+          const dStr = `${d.Creditor ?? "-"} | ${d.Amount ?? "-"} | ${d.Date ?? "-"}`;
+          page.drawText(`  ${dStr}`.slice(0, 80), { x: left, y, size: 9, font: helvetica, color: gray });
+          y -= 12;
+        }
+      }
+    }
+  }
+
+  // Footer
+  const footerStr = `Documento gerado por PragmaOS em ${new Date().toLocaleDateString("pt-BR")} as ${new Date().toLocaleTimeString("pt-BR")}`;
+  const footerWidth = helvetica.widthOfTextAtSize(footerStr, 8);
+  page.drawText(footerStr, { x: (595.28 - footerWidth) / 2, y: 40, size: 8, font: helvetica, color: gray });
+
+  // Disclaimer
+  const discStr = "Os dados sao provenientes de fontes publicas via BigDataCorp. Use com responsabilidade e em conformidade com a LGPD.";
+  const discLines = discStr.match(/.{1,70}/g) ?? [];
+  let discY = 25;
+  for (const line of discLines) {
+    const lw = helvetica.widthOfTextAtSize(line, 7);
+    page.drawText(line, { x: (595.28 - lw) / 2, y: discY, size: 7, font: helvetica, color: lightGray });
+    discY -= 9;
+  }
+
+  const pdfBytes = await pdfDoc.save();
+
+  const safeName = (r.input_label ?? r.input_value).replace(/[^a-zA-Z0-9]/g, "_").slice(0, 40);
+  return new Response(pdfBytes, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="consulta-${t.id}-${safeName}.pdf"`,
+      "Cache-Control": "no-cache",
+    },
+  });
 });
 
 // --- Result Renderer ---

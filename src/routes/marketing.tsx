@@ -101,6 +101,7 @@ const COMPARE_ROWS = [
   { label: "Processos", trial: "25", starter: "500", pro: "Ilimitado", enterprise: "Ilimitado" },
   { label: "IA jurídica (interações/mês)", trial: "50", starter: "50", pro: "300", enterprise: "Sob medida" },
   { label: "Monitoramento DataJud (OAB/CNJ)", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
+  { label: "Consultas Legais (créditos/mês)", trial: "3", starter: "15", pro: "50", enterprise: "200" },
   { label: "Site público da advocacia", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
   { label: "Portal do cliente", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
   { label: "Assinaturas digitais (Clicksign)", trial: "✓", starter: "✓", pro: "✓", enterprise: "✓" },
@@ -116,6 +117,7 @@ const COMPARE_ROWS = [
 // ============================================================
 const FEATURES = [
   { icon: "ph-folder-open", title: "Gestão de Processos", desc: "Centralize todos os processos, andamentos e prazos em um só lugar. Robôs monitoram seus processos 24/7 pela OAB ou CNJ via DataJud." },
+  { icon: "ph-magnifying-glass", title: "Consultas Legais", desc: "Localize bens, pessoas, empresas e veículos em segundos. 10 tipos de consulta: CPF, CNPJ, placas, débitos veiculares, restrição de crédito e mais. Tudo integrado, com exportação em PDF." },
   { icon: "ph-calendar-check", title: "Prazos e Audiências", desc: "Cálculo automático de prazos, alertas inteligentes e calendário unificado. Nunca mais perca um prazo — o sistema alerta antes que seja tarde." },
   { icon: "ph-currency-dollar", title: "Financeiro Completo", desc: "Honorários, cobranças, fluxo de caixa, relatórios. PIX, boleto, controle de contas trust e lembretes automáticos de pagamento." },
   { icon: "ph-robot", title: "IA Jurídica", desc: "Resumos de processos em 1 clique, pesquisa de jurisprudência em segundos, redação de peças com sua voz e tradução do juridiquês para o cliente." },
@@ -190,6 +192,10 @@ const FAQS = [
   {
     q: "Tem assinatura digital?",
     a: "Sim. O PragmaOS tem integração nativa com Clicksign — assinaturas digitais com validade jurídica (ICP-Brasil). Você envia documentos para assinatura diretamente da plataforma e acompanha o status em tempo real. Disponível em todos os planos.",
+  },
+  {
+    q: "O que sao as Consultas Legais?",
+    a: "Consultas Legais e um modulo integrado que permite localizar bens, pessoas, empresas e veiculos em segundos. Sao 10 tipos de consulta: localizacao por CPF (enderecos, telefones, e-mails), situacao cadastral na Receita Federal, CNPJ completo com quadro societario, veiculos por CPF/CNPJ, dados de veiculo por placa, debitos veiculares, restricao de credito (Serasa/SPC), relacionamentos societarios, grupo economico e buscador processual. Cada plano inclui creditos mensais (3 no trial, 15 no Starter, 50 no Pro, 200 no Enterprise) e creditos adicionais podem ser comprados como add-on. Todas as consultas podem ser exportadas em PDF e vinculadas a processos.",
   },
 ];
 
@@ -508,6 +514,59 @@ marketingRoutes.get("/", (c) => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Consultas Legais — localização de bens e pessoas */}
+      <section id="consultas" class="py-20 px-4 sm:px-6">
+        <div class="max-w-5xl mx-auto">
+          <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#05111e] text-white text-xs sm:text-sm mb-5">
+              <i class="ph-bold ph-magnifying-glass" aria-hidden="true" /> Consultas Legais
+            </div>
+            <h2 class="reveal text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#05111e] mb-4 text-balance tracking-[-0.01em]">
+              Localize bens, pessoas e empresas em segundos.
+            </h2>
+            <p class="reveal text-[#44474c] max-w-2xl mx-auto text-pretty leading-relaxed">
+              10 tipos de consulta integrados — encontre veículos para penhora, localize devedores, analise a parte contrária e verifique restrições de crédito. Tudo sem sair da plataforma, com exportação em PDF.
+            </p>
+          </div>
+
+          <div class="reveal-stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: "ph-map-pin", title: "Localização por CPF", desc: "Nome, endereços, telefones e e-mails" },
+              { icon: "ph-id-card", title: "Situação Cadastral CPF", desc: "Status na Receita + verificação de óbito" },
+              { icon: "ph-building", title: "CNPJ Completo", desc: "Dados da empresa + quadro societário (QSA)" },
+              { icon: "ph-car", title: "Veículos por CPF/CNPJ", desc: "Todos os veículos em nome de uma pessoa" },
+              { icon: "ph-car-profile", title: "Dados do Veículo por Placa", desc: "Proprietário, RENAVAM e restrições" },
+              { icon: "ph-traffic-cone", title: "Débitos Veiculares", desc: "Multas, IPVA e status de licenciamento" },
+              { icon: "ph-credit-card", title: "Restrição de Crédito", desc: "Serasa/SPC e indicadores de risco" },
+              { icon: "ph-users-three", title: "Relacionamentos", desc: "Vínculos entre pessoas e empresas" },
+              { icon: "ph-buildings", title: "Grupo Econômico", desc: "Relações entre empresas do mesmo grupo" },
+              { icon: "ph-scales", title: "Buscador Processual", desc: "Processos judiciais por CPF/CNPJ" },
+            ].map((c) => (
+              <div class="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-[#05111e] flex items-center justify-center flex-shrink-0">
+                    <i class={`ph-bold ${c.icon} text-white text-lg`} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div class="font-semibold text-[#05111e] text-sm">{c.title}</div>
+                    <div class="text-xs text-[#75777c] mt-0.5">{c.desc}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div class="reveal text-center mt-8">
+            <p class="text-sm text-[#75777c] mb-4">
+              Créditos mensais inclusos: <strong class="text-[#05111e]">3</strong> (trial) · <strong class="text-[#05111e]">15</strong> (Starter) · <strong class="text-[#05111e]">50</strong> (Pro) · <strong class="text-[#05111e]">200</strong> (Enterprise). Créditos adicionais como add-on.
+            </p>
+            <a href="/signup" class="inline-flex items-center gap-2 bg-[#05111e] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:bg-[#1a2634] transition">
+              <i class="ph-bold ph-rocket-launch" aria-hidden="true" /> Experimentar grátis
+            </a>
           </div>
         </div>
       </section>
