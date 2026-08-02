@@ -29,6 +29,9 @@ const envSchema = z.object({
   SMTP_USER: z.string().or(z.literal("")).default(""),
   SMTP_PASS: z.string().or(z.literal("")).default(""),
   SMTP_FROM: z.string().or(z.literal("")).default(""),
+  // Upstash Redis (optional — for distributed rate limiting on serverless).
+  UPSTASH_REDIS_REST_URL: z.string().url().or(z.literal("")).default(""),
+  UPSTASH_REDIS_REST_TOKEN: z.string().or(z.literal("")).default(""),
 });
 
 const parsed = envSchema.safeParse(env);
@@ -70,6 +73,8 @@ type EnvValues = {
   SMTP_USER: string;
   SMTP_PASS: string;
   SMTP_FROM: string;
+  UPSTASH_REDIS_REST_URL: string;
+  UPSTASH_REDIS_REST_TOKEN: string;
 };
 
 const e: EnvValues = parsed.success ? parsed.data : {
@@ -96,6 +101,8 @@ const e: EnvValues = parsed.success ? parsed.data : {
   SMTP_USER: env.SMTP_USER ?? "",
   SMTP_PASS: env.SMTP_PASS ?? "",
   SMTP_FROM: env.SMTP_FROM ?? "",
+  UPSTASH_REDIS_REST_URL: env.UPSTASH_REDIS_REST_URL ?? "",
+  UPSTASH_REDIS_REST_TOKEN: env.UPSTASH_REDIS_REST_TOKEN ?? "",
 };
 
 export const SUPABASE_URL = e.SUPABASE_URL;
@@ -132,3 +139,7 @@ export const SMTP_PORT = e.SMTP_PORT;
 export const SMTP_USER = e.SMTP_USER;
 export const SMTP_PASS = e.SMTP_PASS;
 export const SMTP_FROM = e.SMTP_FROM;
+
+// Upstash Redis (optional — distributed rate limiting)
+export const UPSTASH_REDIS_REST_URL = e.UPSTASH_REDIS_REST_URL;
+export const UPSTASH_REDIS_REST_TOKEN = e.UPSTASH_REDIS_REST_TOKEN;

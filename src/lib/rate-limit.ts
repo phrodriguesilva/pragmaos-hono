@@ -1,44 +1,99 @@
-// Simple in-memory rate limiter for auth endpoints.
-// For production with multiple instances, use Redis or Upstash.
+// Rate limiter with Upstash Redis support.
+// Uses Upstash Redis REST API when UPSTASH_REDIS_REST_URL is configured
+// (required for Vercel serverless — in-memory Map doesn't work across instances).
+// Falls back to in-memory Map for local development.
+//
 // PragmaOS 2.
 
 import type { MiddlewareHandler } from "hono";
+import { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } from "./env";
 
 interface RateLimitEntry {
   count: number;
   resetAt: number;
 }
 
-const store = new Map<string, RateLimitEntry>();
+// In-memory fallback store.
+const memStore = new Map<string, RateLimitEntry>();
 
-// Cleanup expired entries every 5 minutes
+// Cleanup expired entries every 5 minutes (only for in-memory mode).
 setInterval(() => {
   const now = Date.now();
-  for (const [key, entry] of store) {
-    if (entry.resetAt < now) store.delete(key);
+  for (const [key, entry] of memStore) {
+    if (entry.resetAt < now) memStore.delete(key);
   }
 }, 300_000);
+
+// Check if Upstash Redis is configured.
+function isUpstashEnabled(): boolean {
+  return UPSTASH_REDIS_REST_URL !== "" && UPSTASH_REDIS_REST_TOKEN !== "";
+}
+
+// Upstash Redis REST API: INCR + EXPIRE for sliding window rate limiting.
+// Uses a simple fixed window approach: key per (ip + window).
+async function upstashIncrement(key: string, windowMs: number): Promise<{ count: number; resetAt: number }> {
+  const now = Date.now();
+  const windowKey = Math.floor(now / windowMs);
+  const redisKey = `rl:${key}:${windowKey}`;
+  const resetAt = (windowKey + 1) * windowMs;
+
+  // INCR the counter.
+  const incrResp = await fetch(`${UPSTASH_REDIS_REST_URL}/incr/${encodeURIComponent(redisKey)}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}` },
+  });
+
+  if (!incrResp.ok) {
+    // If Upstash fails, fall back to allowing the request (fail open).
+    return { count: 1, resetAt };
+  }
+
+  const incrData = await incrResp.json() as { result: number };
+  const count = incrData.result;
+
+  // Set expiry on first request in the window.
+  if (count === 1) {
+    const expireSeconds = Math.ceil(windowMs / 1000) + 1;
+    await fetch(`${UPSTASH_REDIS_REST_URL}/expire/${encodeURIComponent(redisKey)}/${expireSeconds}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}` },
+    });
+  }
+
+  return { count, resetAt };
+}
 
 // Rate limiter: maxRequests per windowMs per IP.
 export function rateLimit(maxRequests: number, windowMs: number): MiddlewareHandler {
   return async (c, next) => {
     const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? c.req.header("x-real-ip") ?? "unknown";
-    const key = `rl:${ip}`;
+    const key = `ip:${ip}`;
 
-    const now = Date.now();
-    const entry = store.get(key);
+    let count: number;
+    let resetAt: number;
 
-    if (!entry || entry.resetAt < now) {
-      // First request or window expired
-      store.set(key, { count: 1, resetAt: now + windowMs });
-      await next();
-      return;
+    if (isUpstashEnabled()) {
+      // Distributed mode via Upstash Redis.
+      const result = await upstashIncrement(key, windowMs);
+      count = result.count;
+      resetAt = result.resetAt;
+    } else {
+      // In-memory mode (local dev or single instance).
+      const now = Date.now();
+      const entry = memStore.get(key);
+
+      if (!entry || entry.resetAt < now) {
+        memStore.set(key, { count: 1, resetAt: now + windowMs });
+        await next();
+        return;
+      }
+
+      entry.count++;
+      count = entry.count;
+      resetAt = entry.resetAt;
     }
 
-    entry.count++;
-    if (entry.count > maxRequests) {
-      const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
-      c.header("Retry-After", String(retryAfter));
+    if (count > maxRequests) {
+      const retryAfter = Math.ceil((resetAt - Date.now()) / 1000);
+      c.header("Retry-After", String(Math.max(retryAfter, 1)));
       return c.json(
         { error: "Muitas tentativas. Tente novamente em alguns minutos." },
         429,
