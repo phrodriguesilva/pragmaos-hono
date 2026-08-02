@@ -47,14 +47,14 @@ describe("CSV Parser", () => {
   it("should parse quoted fields with commas", () => {
     const csv = 'name,description\n"Silva, Joao","Advogado"';
     const rows = parseCSV(csv);
-    expect(rows[1][0]).toBe("Silva, Joao");
-    expect(rows[1][1]).toBe("Advogado");
+    expect(rows[1]![0]).toBe("Silva, Joao");
+    expect(rows[1]![1]).toBe("Advogado");
   });
 
   it("should parse escaped quotes", () => {
     const csv = 'text\n"He said ""hello"""';
     const rows = parseCSV(csv);
-    expect(rows[1][0]).toBe('He said "hello"');
+    expect(rows[1]![0]).toBe('He said "hello"');
   });
 
   it("should handle empty fields", () => {
@@ -67,8 +67,8 @@ describe("CSV Parser", () => {
   it("should handle BOM", () => {
     const csv = "\uFEFFname,email\nJoao,joao@test.com";
     const rows = parseCSV(csv);
-    expect(rows[0][0]).toBe("name");
-    expect(rows[0][1]).toBe("email");
+    expect(rows[0]![0]).toBe("name");
+    expect(rows[0]![1]).toBe("email");
   });
 
   it("should handle CRLF line endings", () => {
@@ -100,6 +100,6 @@ describe("CSV Parser", () => {
     const csv = 'description\n"Line 1\nLine 2"';
     const rows = parseCSV(csv);
     expect(rows.length).toBe(2);
-    expect(rows[1][0]).toBe("Line 1\nLine 2");
+    expect(rows[1]![0]).toBe("Line 1\nLine 2");
   });
 });

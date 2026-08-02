@@ -41,10 +41,10 @@ describe("rate-limit.ts", () => {
 
     // 4th request should be blocked (429).
     const ctx = mockContext(ip);
-    const result = await limiter(ctx as never, async () => {});
+    const result = await limiter(ctx as never, async () => {}) as { status: number } | void;
     // When blocked, it returns c.json(..., 429) instead of calling next().
     expect(result).toBeDefined();
-    expect(result.status).toBe(429);
+    expect((result as { status: number }).status).toBe(429);
   });
 
   it("should track IPs independently", async () => {
@@ -57,8 +57,8 @@ describe("rate-limit.ts", () => {
       await limiter(mockContext(ip1) as never, async () => {});
     }
     // ip1 should be blocked now.
-    const blocked = await limiter(mockContext(ip1) as never, async () => {});
-    expect(blocked.status).toBe(429);
+    const blocked = await limiter(mockContext(ip1) as never, async () => {}) as { status: number } | void;
+    expect((blocked as { status: number }).status).toBe(429);
 
     // ip2 should still be allowed.
     let calledNext = false;

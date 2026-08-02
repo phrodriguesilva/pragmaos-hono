@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
 import { supabase } from "./lib/supabase";
 import { csrfProtection } from "./lib/csrf";
+import { log, requestLogger } from "./lib/logger";
 import { authRoutes } from "./routes/auth";
 import { dashboardRoutes } from "./routes/dashboard";
 import { clientsRoutes } from "./routes/clients";
@@ -58,6 +59,8 @@ import { importRoutes } from "./routes/import";
 
 const app = new Hono<AppEnv>();
 
+// Structured request logging (replaces basic hono/logger with JSON logs in prod).
+app.use("*", requestLogger());
 app.use("*", logger());
 
 // CSRF protection — reject state-changing requests with invalid Origin.
@@ -97,9 +100,13 @@ app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOStri
 app.get("/health/ready", async (c) => {
   try {
     const { error } = await supabase.from("tenants").select("id").limit(1).maybeSingle();
-    if (error) return c.json({ status: "not_ready", error: error.message }, 503);
+    if (error) {
+      log.warn("Health check failed — database error", { error: error.message });
+      return c.json({ status: "not_ready", error: error.message }, 503);
+    }
     return c.json({ status: "ready", timestamp: new Date().toISOString() });
   } catch (err) {
+    log.error("Health check failed — exception", { error: String(err) });
     return c.json({ status: "not_ready", error: String(err) }, 503);
   }
 });
@@ -185,10 +192,21 @@ app.route("/import", importRoutes);
 // 404 fallback.
 app.notFound((c) => c.html("Pagina nao encontrada.", 404));
 
-// Global error handler.
+// Global error handler — log structured error and return 500.
 app.onError((err, c) => {
-  console.error("Unhandled error:", err);
+  log.error("Unhandled error", {
+    error: err.message,
+    stack: err.stack,
+    path: c.req.path,
+    method: c.req.method,
+  });
   return c.html("Erro interno do servidor.", 500);
+});
+
+// Log startup.
+log.info("PragmaOS 2 server initialized", {
+  node_env: process.env.NODE_ENV ?? "development",
+  vercel_env: process.env.VERCEL_ENV ?? "local",
 });
 
 export default app;

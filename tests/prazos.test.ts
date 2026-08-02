@@ -87,7 +87,7 @@ describe("prazos.ts", () => {
   });
 
   it("should have known CPC prazos", () => {
-    expect(PRAZOS_CPC["contestacao"].dias).toBe(15);
-    expect(PRAZOS_CPC["embargos_declaracao"].dias).toBe(5);
+    expect(PRAZOS_CPC["contestacao"]!.dias).toBe(15);
+    expect(PRAZOS_CPC["embargos_declaracao"]!.dias).toBe(5);
   });
 });
