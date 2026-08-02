@@ -1,5 +1,5 @@
 // Build script: generates CSS first (so typecheck can find the module),
-// then runs typecheck, then inlines CSS into a TS module for bundling.
+// then runs typecheck, then bundles the app into a single JS file for Vercel.
 import { $ } from "bun";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
@@ -20,3 +20,10 @@ console.log(`CSS built and inlined: ${css.length} bytes -> src/generated/css.ts`
 console.log("Running typecheck (tsc --noEmit)...");
 await $`bunx tsc --noEmit --project tsconfig.json`;
 console.log("Typecheck passed.");
+
+// 4. Bundle the app into a single JS file for Vercel serverless.
+// This avoids the "Requested module is not instantiated yet" Bun runtime bug
+// on Vercel, which happens with ESM/CJS interop in the module graph.
+console.log("Bundling app for Vercel...");
+await $`bun build src/index.ts --outdir .vercel/output --target bun --format esm --external @supabase/supabase-js`;
+console.log("Bundle written to .vercel/output/index.js");
