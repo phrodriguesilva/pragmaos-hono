@@ -34,14 +34,14 @@ function authShell(title: string, children: unknown, opts?: { wide?: boolean }) 
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#006382" />
+        <meta name="theme-color" content="#0568ff" />
         <title>{title} - PragmaOS</title>
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
         <script src="/static/js/alpine.min.js" defer />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
-      <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 50%, #006382 100%);">
+      <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #0568ff 0%, #4d8bff 50%, #0568ff 100%);">
         <div class={`w-full ${maxW} bg-white p-8 rounded-2xl shadow-2xl`}>
           {children}
         </div>

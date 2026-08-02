@@ -176,7 +176,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <a
                 href={item.href}
                 class={`flex items-center gap-3 px-3 py-2.5 text-body-sm rounded-lg transition-all${
-                  isActive ? " bg-[#006382] text-white font-semibold" : " text-gray-600 hover:bg-gray-100 hover:text-[#006382]"
+                  isActive ? " bg-[#0568ff] text-white font-semibold" : " text-gray-600 hover:bg-gray-100 hover:text-[#0568ff]"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -194,7 +194,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
               <button
                 {...{ "@click": "open = !open" }}
                 class={`flex items-center justify-between px-3 py-2.5 text-body-sm rounded-lg transition-all w-full${
-                  isExpanded ? " text-[#006382] font-semibold" : " text-gray-600 hover:bg-gray-100 hover:text-[#006382]"
+                  isExpanded ? " text-[#0568ff] font-semibold" : " text-gray-600 hover:bg-gray-100 hover:text-[#0568ff]"
                 }`}
               >
                 <span class="flex items-center gap-3">
@@ -210,7 +210,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
                     <a
                       href={child.href}
                       class={`flex items-center gap-3 px-3 py-2 text-body-sm rounded-lg transition-all${
-                        isActive ? " bg-[#006382] text-white font-semibold" : " text-gray-500 hover:bg-gray-100 hover:text-[#006382]"
+                        isActive ? " bg-[#0568ff] text-white font-semibold" : " text-gray-500 hover:bg-gray-100 hover:text-[#0568ff]"
                       }`}
                       aria-current={isActive ? "page" : undefined}
                     >
@@ -225,7 +225,7 @@ export const Sidebar: FC<{ active: string }> = ({ active }) => {
         })}
       </nav>
       <div class="px-3 py-3 shrink-0 border-t border-gray-100 flex items-center justify-between">
-        <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-gray-500 hover:bg-gray-100 hover:text-[#006382] transition-colors">
+        <a href="/help" class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-body-xs text-gray-500 hover:bg-gray-100 hover:text-[#0568ff] transition-colors">
           <i class="ph ph-lifebuoy" aria-hidden="true" />
           Central de Ajuda
         </a>
@@ -240,7 +240,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   userName,
   userRole,
 }) => (
-  <header class="w-full h-16 flex items-center justify-between px-6 sticky top-0 z-30" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);">
+  <header class="w-full h-16 flex items-center justify-between px-6 sticky top-0 z-30" style="background: linear-gradient(135deg, #232856 0%, #0568ff 100%);">
     <span class="text-h3 text-white font-semibold">{firmName ?? "PragmaOS"}</span>
     <div class="flex items-center gap-4">
       {/* Notifications bell with badge */}

@@ -66,16 +66,15 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         {/* Mobile overlay */}
         <div {...{ "x-show": "sidebarOpen", "@click": "sidebarOpen = false" }} x-cloak class="fixed inset-0 bg-black/50 z-40 lg:hidden" />
 
-        {/* Sidebar — floating with margin and rounded corners */}
+        {/* Sidebar — fixed, full height, white background */}
         <div
           {...{ ":class": "sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'", "@keydown.escape.window": "sidebarOpen = false" }}
-          class="fixed top-3 left-3 z-50 h-[calc(100vh-1.5rem)] w-60 rounded-2xl overflow-hidden shadow-2xl shadow-black/20 transition-transform duration-200 flex flex-col"
-          style="background: linear-gradient(180deg, #006382 0%, #004556 100%);"
+          class="fixed top-0 left-0 z-50 h-screen w-60 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-200 flex flex-col"
         >
           {/* Logo */}
-          <div class="px-5 py-5 border-b border-white/10 flex items-center gap-2.5">
-            <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
-            <div class="text-xs text-white/50 ml-1">Back-office</div>
+          <div class="px-5 py-5 border-b border-gray-100 flex items-center gap-2.5">
+            <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto" />
+            <div class="text-xs text-gray-500 ml-1">Back-office</div>
           </div>
 
           {/* Nav */}
@@ -85,8 +84,8 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
                 href={item.href}
                 class={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
                   active === item.href
-                    ? "bg-white/15 text-white font-medium"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
+                    ? "bg-[#0568ff] text-white font-medium"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-[#0568ff]"
                 }`}
               >
                 <i class={`ph-bold ${item.icon} text-lg`} aria-hidden="true" />
@@ -96,12 +95,12 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
           </nav>
 
           {/* Footer */}
-          <div class="px-3 py-4 border-t border-white/10">
-            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition">
+          <div class="px-3 py-4 border-t border-gray-100">
+            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:text-[#0568ff] transition">
               <i class="ph-bold ph-arrow-left text-lg" aria-hidden="true" />
               Voltar ao app
             </a>
-            <a href="/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition">
+            <a href="/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:text-[#0568ff] transition">
               <i class="ph-bold ph-sign-out text-lg" aria-hidden="true" />
               Sair
             </a>
@@ -120,12 +119,12 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
           </button>
 
           {/* Topbar */}
-          <header class="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <header class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between" style="background: linear-gradient(135deg, #232856 0%, #0568ff 100%);">
             <div>
-              <h1 class="text-h4 font-bold text-carvao-800">{title}</h1>
+              <h1 class="text-h4 font-bold text-white">{title}</h1>
             </div>
             <div class="flex items-center gap-3">
-              <span class="badge badge-terracota">Platform Admin</span>
+              <span class="badge bg-white/15 text-white">Platform Admin</span>
             </div>
           </header>
 

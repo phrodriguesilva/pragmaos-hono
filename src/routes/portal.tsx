@@ -59,7 +59,7 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
-        <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);">
+        <header class="text-white px-8 py-4 flex items-center justify-between shadow-md" style="background: linear-gradient(135deg, #232856 0%, #0568ff 100%);">
           <div class="flex items-center gap-2.5">
             <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto brightness-0 invert" />
             <span class="text-body-sm text-white/80 font-normal">Portal do Cliente</span>
@@ -69,7 +69,7 @@ function clientLayout(title: string, clientName: string, children: unknown) {
             <a href="/portal/logout" class="flex items-center gap-1.5 hover:text-white text-white/80"><i class="ph ph-sign-out" aria-hidden="true" />Sair</a>
           </div>
         </header>
-        <nav class="px-8 py-3 flex gap-1 text-body-sm text-white" style="background: linear-gradient(180deg, #00b3e6 0%, #006382 100%);">
+        <nav class="px-8 py-3 flex gap-1 text-body-sm text-white" style="background: linear-gradient(180deg, #0568ff 0%, #232856 100%);">
           <a href="/portal/home" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-house" aria-hidden="true" />Inicio</a>
           <a href="/portal/cases" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-folder-open" aria-hidden="true" />Processos</a>
           <a href="/portal/documents" class="hover:bg-white/10 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"><i class="ph ph-file-text" aria-hidden="true" />Documentos</a>

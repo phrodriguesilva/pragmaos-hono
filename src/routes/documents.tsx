@@ -128,7 +128,7 @@ documentsRoutes.get("/", async (c) => {
                       <button type="button" id="modeTemplateBtn"
                         class="border-2 border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer"
                         onclick="document.getElementById('mode').value='template'; document.getElementById('modeTemplateBtn').classList.add('border-terracota-500','bg-terracota-50'); document.getElementById('modeTemplateBtn').classList.remove('border-gray-200','bg-white'); document.getElementById('modeUploadBtn').classList.add('border-gray-200','bg-white'); document.getElementById('modeUploadBtn').classList.remove('border-terracota-500','bg-terracota-50');">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #00b3e6 0%, #006382 100%);">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #4d8bff 0%, #0568ff 100%);">
                           <i class="ph ph-files text-h2 text-white" aria-hidden="true"></i>
                         </div>
                         <span class="text-h3 font-semibold text-gray-800">Criar de modelo</span>

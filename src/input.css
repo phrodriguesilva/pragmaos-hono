@@ -1,53 +1,53 @@
 @import "tailwindcss";
 
-/* PragmaOS theme -- modern 2026, refined and polished.
+/* PragmaOS theme -- BigDataCorp-inspired design system.
    Generous radius, soft shadows, filled badges, subtle gradients.
-   Palette: Petrol (#006382) + Cyan (#00B3E6) + Slate (#425563). */
+   Palette: Blue (#0568ff) + Navy (#232856) + Gold (#ffb800). */
 @theme {
-  /* Gray scale -- cool neutrals (slate-tinted) */
-  --color-gray-50: #f5f8fa;
-  --color-gray-100: #eef2f5;
-  --color-gray-200: #dce2e7;
-  --color-gray-300: #c5cdd3;
-  --color-gray-400: #9aa5af;
-  --color-gray-500: #6b7b8a;
-  --color-gray-600: #425563;
-  --color-gray-700: #2d3a45;
-  --color-gray-800: #1a2530;
-  --color-gray-900: #0f1820;
+  /* Gray scale -- cool neutrals (navy-tinted) */
+  --color-gray-50: #f5f6fa;
+  --color-gray-100: #eef0f5;
+  --color-gray-200: #dce0e8;
+  --color-gray-300: #c5cad6;
+  --color-gray-400: #9aa3b3;
+  --color-gray-500: #6b7290;
+  --color-gray-600: #4a5470;
+  --color-gray-700: #2d3258;
+  --color-gray-800: #232856;
+  --color-gray-900: #131838;
 
-  /* Carvao scale — petrol primary + cyan accent + slate neutrals.
+  /* Carvao scale — blue primary + lighter blue accent + navy neutrals.
      All 40+ files using carvao-* classes inherit the new design system. */
-  --color-carvao-50: #e5f4fb;   /* cyan tint surface */
-  --color-carvao-100: #dce2e7;  /* outline-variant */
-  --color-carvao-200: #c5cdd3;  /* outline */
-  --color-carvao-300: #00b3e6;  /* cyan accent (primary-fixed-dim) */
-  --color-carvao-400: #6b7b8a;  /* muted text */
-  --color-carvao-500: #425563;  /* slate (on-surface-variant) */
-  --color-carvao-600: #006382;  /* petrol (primary-container / hover) */
-  --color-carvao-700: #006382;  /* petrol */
-  --color-carvao-800: #006382;  /* petrol (primary) */
-  --color-carvao-900: #004556;  /* petrol deep */
+  --color-carvao-50: #e6efff;   /* blue tint surface */
+  --color-carvao-100: #dce0e8;  /* outline-variant */
+  --color-carvao-200: #c5cad6;  /* outline */
+  --color-carvao-300: #4d8bff;  /* lighter blue accent */
+  --color-carvao-400: #6b7290;  /* muted text */
+  --color-carvao-500: #4a5470;  /* navy-slate (on-surface-variant) */
+  --color-carvao-600: #0568ff;  /* blue (primary-container / hover) */
+  --color-carvao-700: #0568ff;  /* blue */
+  --color-carvao-800: #0568ff;  /* blue (primary) */
+  --color-carvao-900: #232856;  /* navy deep */
 
-  /* Terracota scale — remapped to cyan accent.
-     Buttons, links, and highlights use cyan/petrol now. */
-  --color-terracota-50: #e5f4fb;  /* cyan tint */
-  --color-terracota-100: #cce9f5; /* cyan light */
-  --color-terracota-200: #00b3e6; /* cyan accent */
-  --color-terracota-300: #00b3e6; /* cyan accent */
-  --color-terracota-400: #006382; /* petrol */
-  --color-terracota-500: #006382; /* petrol (primary) */
-  --color-terracota-600: #006382; /* petrol (hover) */
-  --color-terracota-700: #006382; /* petrol */
-  --color-terracota-800: #006382; /* petrol */
-  --color-terracota-900: #004556; /* petrol deep */
+  /* Terracota scale — remapped to gold accent.
+     Buttons, links, and highlights use gold/blue now. */
+  --color-terracota-50: #fff5d6;  /* gold tint */
+  --color-terracota-100: #ffe9a8; /* gold light */
+  --color-terracota-200: #ffb800; /* gold accent */
+  --color-terracota-300: #ffb800; /* gold accent */
+  --color-terracota-400: #0568ff; /* blue */
+  --color-terracota-500: #0568ff; /* blue (primary) */
+  --color-terracota-600: #004ad9; /* blue (hover) */
+  --color-terracota-700: #0568ff; /* blue */
+  --color-terracota-800: #0568ff; /* blue */
+  --color-terracota-900: #232856; /* navy deep */
 
   /* Border tokens */
-  --color-border: #dce2e7;
-  --color-border-strong: #c5cdd3;
-  --color-border-subtle: #eef2f5;
+  --color-border: #dce0e8;
+  --color-border-strong: #c5cad6;
+  --color-border-subtle: #eef0f5;
 
-  /* Status colors — aligned with petrol/cyan palette */
+  /* Status colors — aligned with blue/gold palette */
   --color-status-green: #2e6b3e;
   --color-status-green-bg: #ecf4ee;
   --color-status-green-border: #c3d8c9;
@@ -57,12 +57,12 @@
   --color-status-yellow: #94640c;
   --color-status-yellow-bg: #faf3e0;
   --color-status-yellow-border: #e8d5a0;
-  --color-status-blue: #006382;       /* petrol */
-  --color-status-blue-bg: #e5f4fb;    /* cyan tint */
-  --color-status-blue-border: #00b3e6;/* cyan */
-  --color-status-gray: #425563;       /* slate */
-  --color-status-gray-bg: #eef2f5;
-  --color-status-gray-border: #dce2e7;
+  --color-status-blue: #0568ff;       /* blue */
+  --color-status-blue-bg: #e6efff;    /* blue tint */
+  --color-status-blue-border: #4d8bff;/* lighter blue */
+  --color-status-gray: #4a5470;       /* navy-slate */
+  --color-status-gray-bg: #eef0f5;
+  --color-status-gray-border: #dce0e8;
 
   /* Font sizes -- slightly larger for readability */
   --text-table: 13px;
@@ -90,16 +90,16 @@
   --radius-lg: 14px;
   --radius-xl: 20px;
 
-  /* Shadows -- layered, soft, petrol-tinted */
-  --shadow-xs: 0 1px 2px rgba(0, 99, 130, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 99, 130, 0.07), 0 1px 2px rgba(0, 99, 130, 0.04);
-  --shadow-md: 0 4px 8px -2px rgba(0, 99, 130, 0.08), 0 2px 4px -1px rgba(0, 99, 130, 0.04);
-  --shadow-lg: 0 12px 20px -4px rgba(0, 99, 130, 0.1), 0 4px 8px -2px rgba(0, 99, 130, 0.05);
-  --shadow-xl: 0 24px 32px -8px rgba(0, 99, 130, 0.12), 0 8px 16px -4px rgba(0, 99, 130, 0.06);
-  --shadow-2xl: 0 32px 48px -12px rgba(0, 99, 130, 0.15);
+  /* Shadows -- layered, soft, blue-tinted */
+  --shadow-xs: 0 1px 2px rgba(5, 104, 255, 0.05);
+  --shadow-sm: 0 1px 3px rgba(5, 104, 255, 0.07), 0 1px 2px rgba(5, 104, 255, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(5, 104, 255, 0.08), 0 2px 4px -1px rgba(5, 104, 255, 0.04);
+  --shadow-lg: 0 12px 20px -4px rgba(5, 104, 255, 0.1), 0 4px 8px -2px rgba(5, 104, 255, 0.05);
+  --shadow-xl: 0 24px 32px -8px rgba(5, 104, 255, 0.12), 0 8px 16px -4px rgba(5, 104, 255, 0.06);
+  --shadow-2xl: 0 32px 48px -12px rgba(5, 104, 255, 0.15);
 
-  /* Focus ring — petrol */
-  --shadow-focus: 0 0 0 3px rgba(0, 179, 230, 0.25);
+  /* Focus ring — blue */
+  --shadow-focus: 0 0 0 3px rgba(77, 139, 255, 0.25);
 
   /* Animations */
   --animate-spin: spin 0.8s linear infinite;
@@ -119,40 +119,40 @@
   --font-jakarta: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   /* PragmaOS design system — marketing/landing pages */
-  --color-lexis-surface: #f5f8fa;
-  --color-lexis-surface-dim: #d7dde2;
-  --color-lexis-surface-bright: #f5f8fa;
+  --color-lexis-surface: #f5f6fa;
+  --color-lexis-surface-dim: #d7dae2;
+  --color-lexis-surface-bright: #f5f6fa;
   --color-lexis-surface-lowest: #ffffff;
-  --color-lexis-surface-low: #eef2f5;
-  --color-lexis-surface-container: #e8edf1;
-  --color-lexis-surface-high: #e2e8ed;
-  --color-lexis-surface-highest: #dce2e7;
-  --color-lexis-on-surface: #1a2530;
-  --color-lexis-on-surface-variant: #425563;
-  --color-lexis-outline: #7a8893;
-  --color-lexis-outline-variant: #c5cdd3;
-  --color-lexis-primary: #006382;
+  --color-lexis-surface-low: #eef0f5;
+  --color-lexis-surface-container: #e8eaf2;
+  --color-lexis-surface-high: #e2e5f0;
+  --color-lexis-surface-highest: #dce0e8;
+  --color-lexis-on-surface: #232856;
+  --color-lexis-on-surface-variant: #4a5470;
+  --color-lexis-outline: #7a82a0;
+  --color-lexis-outline-variant: #c5cad6;
+  --color-lexis-primary: #0568ff;
   --color-lexis-on-primary: #ffffff;
-  --color-lexis-primary-container: #006382;
-  --color-lexis-on-primary-container: #6b7b8a;
-  --color-lexis-secondary: #425563;
-  --color-lexis-secondary-container: #e5f4fb;
-  --color-lexis-on-secondary-container: #425563;
-  --color-lexis-tertiary: #004455;
-  --color-lexis-tertiary-container: #004556;
+  --color-lexis-primary-container: #0568ff;
+  --color-lexis-on-primary-container: #6b7290;
+  --color-lexis-secondary: #4a5470;
+  --color-lexis-secondary-container: #e6efff;
+  --color-lexis-on-secondary-container: #4a5470;
+  --color-lexis-tertiary: #232856;
+  --color-lexis-tertiary-container: #232856;
   --color-lexis-error: #ba1a1a;
   --color-lexis-error-container: #ffdad6;
-  --color-lexis-primary-fixed: #cce9f5;
-  --color-lexis-primary-fixed-dim: #00b3e6;
-  --color-lexis-secondary-fixed: #e5f4fb;
-  --color-lexis-secondary-fixed-dim: #b0d9e8;
-  --color-lexis-tertiary-fixed: #d8eef5;
-  --color-lexis-tertiary-fixed-dim: #a0c8d8;
-  --color-lexis-inverse-surface: #2d3a45;
-  --color-lexis-inverse-on-surface: #eef2f5;
-  --color-lexis-inverse-primary: #00b3e6;
-  --color-lexis-surface-tint: #425563;
-  --color-lexis-surface-variant: #dce2e7;
+  --color-lexis-primary-fixed: #cce0ff;
+  --color-lexis-primary-fixed-dim: #4d8bff;
+  --color-lexis-secondary-fixed: #e6efff;
+  --color-lexis-secondary-fixed-dim: #b0ccff;
+  --color-lexis-tertiary-fixed: #d8e4ff;
+  --color-lexis-tertiary-fixed-dim: #a0b8e8;
+  --color-lexis-inverse-surface: #2d3258;
+  --color-lexis-inverse-on-surface: #eef0f5;
+  --color-lexis-inverse-primary: #4d8bff;
+  --color-lexis-surface-tint: #4a5470;
+  --color-lexis-surface-variant: #dce0e8;
 }
 
 /* Self-hosted fonts — Inter (UI) + Source Serif 4 (document content) */
@@ -360,7 +360,7 @@
   /* Modal -- modern with blur and scale animation */
   .modal-overlay {
     @apply fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto;
-    background-color: rgba(0, 99, 130, 0.4);
+    background-color: rgba(5, 104, 255, 0.4);
     backdrop-filter: blur(4px);
   }
   .modal-panel {

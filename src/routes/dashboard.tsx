@@ -256,17 +256,17 @@ dashboardRoutes.get("/dashboard", async (c) => {
     empresarial: "Empresarial", familia: "Familia", tributario: "Tributario",
     previdenciario: "Previd.", consumidor: "Consumidor",
   };
-  const typeColors = ["#006382", "#00b3e6", "#00b3e6", "#6b7b8a", "#425563", "#e5f4fb"];
+  const typeColors = ["#0568ff", "#4d8bff", "#4d8bff", "#6b7290", "#4a5470", "#e6efff"];
   const typeChart = Object.entries(typeMap)
     .map(([key, value]) => ({ label: typeLabels[key] ?? key, value, color: typeColors[0] }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 6)
-    .map((d, i) => ({ ...d, color: typeColors[i % typeColors.length] ?? "#006382" }));
+    .map((d, i) => ({ ...d, color: typeColors[i % typeColors.length] ?? "#0568ff" }));
 
   const statusChart = [
-    { label: "Ativos", value: statusMap.active ?? 0, color: "#006382" },
-    { label: "Suspensos", value: statusMap.suspended ?? 0, color: "#00b3e6" },
-    { label: "Arquivados", value: statusMap.archived ?? 0, color: "#dce2e7" },
+    { label: "Ativos", value: statusMap.active ?? 0, color: "#0568ff" },
+    { label: "Suspensos", value: statusMap.suspended ?? 0, color: "#4d8bff" },
+    { label: "Arquivados", value: statusMap.archived ?? 0, color: "#dce0e8" },
   ];
 
   // Phase 2: Widgets — agenda + recent movements.
@@ -284,9 +284,9 @@ dashboardRoutes.get("/dashboard", async (c) => {
 
       {/* Row 1: 4 KPIs principais */}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="#006382" />
+        <KpiCard icon="ph-folder-open" label="Processos ativos" value={casesActive.count ?? 0} color="#0568ff" />
         <KpiCard icon="ph-hand-coins" label="A receber" value={fmt(toReceiveCents)} color="#94640c" />
-        <KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="#00b3e6" />
+        <KpiCard icon="ph-gavel" label="Audiencias hoje" value={hearingsToday.count ?? 0} color="#4d8bff" />
         <KpiCard icon="ph-clock-countdown" label="Prazos criticos" value={deadlinesCritical.count ?? 0} color="#ba1a1a" sub="proximos 3 dias" />
       </div>
 

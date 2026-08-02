@@ -33,7 +33,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#006382" />
+        <meta name="theme-color" content="#0568ff" />
         <title>{title}</title>
         <meta name="description" content={desc} />
         <meta name="author" content="PragmaOS" />
@@ -91,8 +91,8 @@ export const MarketingLayout: FC<PropsWithChildren<{
           /* === Lexis Modern marketing styles === */
           .mkt-body {
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-            background: #f5f8fa;
-            color: #1a2530;
+            background: #f5f6fa;
+            color: #232856;
           }
           .mkt-body * {
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -141,7 +141,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
           }
 
           /* Scroll-linked character opacity (progressive text reveal) */
-          .scroll-text { color: #425563; }
+          .scroll-text { color: #4a5470; }
           .scroll-text .char {
             opacity: 0.15;
             transition: opacity 0.1s linear;
@@ -167,31 +167,31 @@ export const MarketingLayout: FC<PropsWithChildren<{
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
           }
 
-          /* Hero gradient — petrol cinematic */
+          /* Hero gradient — navy cinematic */
           .gradient-hero-navy {
-            background: radial-gradient(1200px 600px at 80% -10%, rgba(0, 179, 230, 0.12), transparent),
-                        linear-gradient(180deg, #006382 0%, #004556 50%, #006382 100%);
+            background: radial-gradient(1200px 600px at 80% -10%, rgba(77, 139, 255, 0.15), transparent),
+                        linear-gradient(180deg, #232856 0%, #0568ff 50%, #232856 100%);
           }
           .gradient-cta-navy {
-            background: linear-gradient(135deg, #006382 0%, #00b3e6 100%);
+            background: linear-gradient(135deg, #232856 0%, #0568ff 100%);
           }
 
           /* Card hover depth (tonal) */
           .card-lexis {
             background: #ffffff;
-            border: 1px solid #dce2e7;
+            border: 1px solid #dce0e8;
             border-radius: 12px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
           }
           .card-lexis:hover {
-            border-color: #00b3e6;
-            box-shadow: 0 20px 40px -15px rgba(0, 99, 130, 0.12);
+            border-color: #4d8bff;
+            box-shadow: 0 20px 40px -15px rgba(5, 104, 255, 0.12);
             transform: translateY(-2px);
           }
 
           /* Focus visible */
           .mkt-body a:focus-visible, .mkt-body button:focus-visible {
-            outline: 2px solid #00b3e6;
+            outline: 2px solid #4d8bff;
             outline-offset: 2px;
           }
         ` }} />
@@ -282,7 +282,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
                   // Respect reduced motion preference
                   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     window.Aurora.init('#aurora-hero', {
-                      colorStops: ['#006382', '#00b3e6', '#00b3e6'],
+                      colorStops: ['#232856', '#0568ff', '#4d8bff'],
                       speed: 0.4,
                       blend: 0.6,
                       amplitude: 1.2
@@ -297,9 +297,9 @@ export const MarketingLayout: FC<PropsWithChildren<{
           })();
         ` }} />
       </head>
-      <body class="mkt-body bg-[#f5f8fa] text-[#1a2530] antialiased min-h-screen flex flex-col">
+      <body class="mkt-body bg-[#f5f6fa] text-[#232856] antialiased min-h-screen flex flex-col">
         {/* Header — sticky, tonal, minimal */}
-        <header {...{ "x-data": "{ open: false }" }} class="sticky top-0 z-50 bg-[#f5f8fa]/90 backdrop-blur-md border-b border-[#c5cdd3]">
+        <header {...{ "x-data": "{ open: false }" }} class="sticky top-0 z-50 bg-[#f5f6fa]/90 backdrop-blur-md border-b border-[#c5cad6]">
           <div class="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2.5" aria-label="PragmaOS inicio">
               <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-8 w-auto" />
@@ -307,25 +307,25 @@ export const MarketingLayout: FC<PropsWithChildren<{
 
             <nav class="hidden md:flex items-center gap-7">
               {NAV.map((n) => (
-                <a href={n.href} class={`text-sm font-semibold transition-colors ${active === n.label ? "text-[#006382] border-b-2 border-[#006382] pb-1" : "text-[#425563] hover:text-[#006382]"}`}>{n.label}</a>
+                <a href={n.href} class={`text-sm font-semibold transition-colors ${active === n.label ? "text-[#0568ff] border-b-2 border-[#0568ff] pb-1" : "text-[#4a5470] hover:text-[#0568ff]"}`}>{n.label}</a>
               ))}
             </nav>
 
             <div class="hidden md:flex items-center gap-3">
-              <a href="/login" class="text-sm font-semibold text-[#006382] hover:text-[#00b3e6] transition-colors px-4 py-2 border border-[#c5cdd3] rounded-lg hover:bg-[#eef2f5]">Entrar</a>
-              <a href="/signup" class="text-sm font-semibold bg-[#006382] text-white px-4 py-2 rounded-lg hover:bg-[#00b3e6] transition-colors">Teste grátis</a>
+              <a href="/login" class="text-sm font-semibold text-[#0568ff] hover:text-[#4d8bff] transition-colors px-4 py-2 border border-[#c5cad6] rounded-lg hover:bg-[#eef0f5]">Entrar</a>
+              <a href="/signup" class="text-sm font-semibold bg-[#0568ff] text-white px-4 py-2 rounded-lg hover:bg-[#4d8bff] transition-colors">Teste grátis</a>
             </div>
 
             {/* Mobile */}
-            <button class="md:hidden p-2 rounded-lg hover:bg-[#eef2f5]" {...{ "@click": "open = !open" }} aria-label="Menu">
-              <i class="ph ph-list text-xl text-[#006382]" aria-hidden="true" />
+            <button class="md:hidden p-2 rounded-lg hover:bg-[#eef0f5]" {...{ "@click": "open = !open" }} aria-label="Menu">
+              <i class="ph ph-list text-xl text-[#0568ff]" aria-hidden="true" />
             </button>
           </div>
-          <div {...{ "x-show": "open" }} x-cloak class="md:hidden border-t border-[#c5cdd3] px-4 py-3 flex flex-col gap-3 bg-white">
-            {NAV.map((n) => <a href={n.href} class="text-sm font-medium text-[#425563] hover:text-[#006382]">{n.label}</a>)}
-            <div class="flex gap-3 pt-2 border-t border-[#c5cdd3]">
-              <a href="/login" class="flex-1 text-center text-sm font-semibold text-[#006382] py-2 rounded-lg border border-[#c5cdd3]">Entrar</a>
-              <a href="/signup" class="flex-1 text-center text-sm font-semibold bg-[#006382] text-white py-2 rounded-lg">Teste grátis</a>
+          <div {...{ "x-show": "open" }} x-cloak class="md:hidden border-t border-[#c5cad6] px-4 py-3 flex flex-col gap-3 bg-white">
+            {NAV.map((n) => <a href={n.href} class="text-sm font-medium text-[#4a5470] hover:text-[#0568ff]">{n.label}</a>)}
+            <div class="flex gap-3 pt-2 border-t border-[#c5cad6]">
+              <a href="/login" class="flex-1 text-center text-sm font-semibold text-[#0568ff] py-2 rounded-lg border border-[#c5cad6]">Entrar</a>
+              <a href="/signup" class="flex-1 text-center text-sm font-semibold bg-[#0568ff] text-white py-2 rounded-lg">Teste grátis</a>
             </div>
           </div>
         </header>
@@ -333,46 +333,46 @@ export const MarketingLayout: FC<PropsWithChildren<{
         <main class="flex-1">{children}</main>
 
         {/* Footer — dark navy, cinematic */}
-        <footer class="bg-white border-t border-[#dce2e7] text-[#425563] mt-auto">
+        <footer class="bg-white border-t border-[#dce0e8] text-[#4a5470] mt-auto">
           <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div class="col-span-2 md:col-span-1">
                 <div class="flex items-center gap-2.5 mb-3">
                   <img src="/static/img/pragmaos-logo.png" alt="PragmaOS" class="h-7 w-auto" />
                 </div>
-                <p class="text-sm text-[#7a8893] max-w-xs">A plataforma all-in-one de gestão jurídica para escritórios que querem crescer com dados, não com planilhas.</p>
+                <p class="text-sm text-[#7a82a0] max-w-xs">A plataforma all-in-one de gestão jurídica para escritórios que querem crescer com dados, não com planilhas.</p>
               </div>
 
               <div>
-                <h4 class="text-sm font-semibold text-[#006382] mb-3">Produto</h4>
+                <h4 class="text-sm font-semibold text-[#0568ff] mb-3">Produto</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href="/#recursos" class="hover:text-[#006382] transition-colors">Recursos</a></li>
-                  <li><a href="/#planos" class="hover:text-[#006382] transition-colors">Planos</a></li>
-                  <li><a href="/#integracoes" class="hover:text-[#006382] transition-colors">Integrações</a></li>
-                  <li><a href="/#seguranca" class="hover:text-[#006382] transition-colors">Segurança</a></li>
+                  <li><a href="/#recursos" class="hover:text-[#0568ff] transition-colors">Recursos</a></li>
+                  <li><a href="/#planos" class="hover:text-[#0568ff] transition-colors">Planos</a></li>
+                  <li><a href="/#integracoes" class="hover:text-[#0568ff] transition-colors">Integrações</a></li>
+                  <li><a href="/#seguranca" class="hover:text-[#0568ff] transition-colors">Segurança</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 class="text-sm font-semibold text-[#006382] mb-3">Empresa</h4>
+                <h4 class="text-sm font-semibold text-[#0568ff] mb-3">Empresa</h4>
                 <ul class="space-y-2 text-sm">
-                  <li><a href="/sobre" class="hover:text-[#006382] transition-colors">Sobre</a></li>
-                  <li><a href="/contato" class="hover:text-[#006382] transition-colors">Fale com o comercial</a></li>
-                  <li><a href="/login" class="hover:text-[#006382] transition-colors">Entrar</a></li>
-                  <li><a href="/signup" class="hover:text-[#006382] transition-colors">Criar conta</a></li>
+                  <li><a href="/sobre" class="hover:text-[#0568ff] transition-colors">Sobre</a></li>
+                  <li><a href="/contato" class="hover:text-[#0568ff] transition-colors">Fale com o comercial</a></li>
+                  <li><a href="/login" class="hover:text-[#0568ff] transition-colors">Entrar</a></li>
+                  <li><a href="/signup" class="hover:text-[#0568ff] transition-colors">Criar conta</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 class="text-sm font-semibold text-[#006382] mb-3">Contato</h4>
+                <h4 class="text-sm font-semibold text-[#0568ff] mb-3">Contato</h4>
                 <ul class="space-y-2 text-sm">
-                  <li class="flex items-center gap-2"><i class="ph ph-envelope text-[#7a8893]" aria-hidden="true" /><a href="mailto:comercial@pragmaos.com.br" class="hover:text-[#006382]">comercial@pragmaos.com.br</a></li>
-                  <li class="flex items-center gap-2"><i class="ph ph-whatsapp-logo text-[#7a8893]" aria-hidden="true" /><a href="https://wa.me/5535984641515" class="hover:text-[#006382]">WhatsApp comercial</a></li>
+                  <li class="flex items-center gap-2"><i class="ph ph-envelope text-[#7a82a0]" aria-hidden="true" /><a href="mailto:comercial@pragmaos.com.br" class="hover:text-[#0568ff]">comercial@pragmaos.com.br</a></li>
+                  <li class="flex items-center gap-2"><i class="ph ph-whatsapp-logo text-[#7a82a0]" aria-hidden="true" /><a href="https://wa.me/5535984641515" class="hover:text-[#0568ff]">WhatsApp comercial</a></li>
                 </ul>
               </div>
             </div>
 
-            <div class="border-t border-[#dce2e7] mt-10 pt-6 flex flex-col md:flex-row justify-between gap-4 text-xs text-[#7a8893]">
+            <div class="border-t border-[#dce0e8] mt-10 pt-6 flex flex-col md:flex-row justify-between gap-4 text-xs text-[#7a82a0]">
               <p>&copy; {new Date().getFullYear()} PragmaOS. Todos os direitos reservados.</p>
               <p>Feito no Brasil para advogados brasileiros.</p>
             </div>

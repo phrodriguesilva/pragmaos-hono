@@ -103,8 +103,8 @@ intakePublicRoutes.get("/f/:slug", async (c) => {
         .flash { padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; }
         .flash.success { background: #d1fae5; color: #065f46; }
         .flash.error { background: #fee2e2; color: #991b1b; }
-        button { background: #006382; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; width: 100%; }
-        button:hover { background: #00b3e6; }
+        button { background: #0568ff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; width: 100%; }
+        button:hover { background: #4d8bff; }
       </style>
     </head>
     <body>
