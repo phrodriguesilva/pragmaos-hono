@@ -55,6 +55,8 @@ import { searchRoutes } from "./routes/search";
 import { timerRoutes } from "./routes/timer";
 import { importRoutes } from "./routes/import";
 import { proactiveRoutes } from "./routes/proactive";
+import { intakeAdminRoutes } from "./routes/intake";
+import { intakePublicRoutes } from "./routes/intake-public";
 // Help and docs routes — moved to _wip/ until type errors are fixed.
 // import { helpRoutes } from "./routes/help";
 
@@ -189,6 +191,8 @@ app.route("/search", searchRoutes);
 app.route("/timer", timerRoutes);
 app.route("/import", importRoutes);
 app.route("/proactive", proactiveRoutes);
+app.route("/intake", intakeAdminRoutes);
+app.route("/intake", intakePublicRoutes);
 // app.route("/help", helpRoutes);
 
 // 404 fallback.

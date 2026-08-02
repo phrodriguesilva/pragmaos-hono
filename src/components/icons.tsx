@@ -54,6 +54,7 @@ export const MENU: MenuItem[] = [
       { key: "leads", label: "Leads", href: "/leads", icon: "ph-user-plus" },
       { key: "clients", label: "Clientes", href: "/clients", icon: "ph-users" },
       { key: "companies", label: "Empresas", href: "/companies", icon: "ph-building" },
+      { key: "intake", label: "Intake Forms", href: "/intake", icon: "ph-clipboard-text" },
     ],
   },
   {
