@@ -44,12 +44,12 @@ export async function fetchIntimacoes(
 
   try {
     const params = new URLSearchParams();
+    params.append("api_token", apiKey);
     if (opts?.dataInicio) params.append("data_inicio", opts.dataInicio);
     if (opts?.dataFim) params.append("data_fim", opts.dataFim);
 
-    const response = await fetch(`https://api.intima.ai/v2/intimacoes?${params.toString()}`, {
+    const response = await fetch(`https://app.intima.ai/api/v2/intimacoes?${params.toString()}`, {
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
     });
@@ -85,10 +85,9 @@ export async function marcarIntimacaoLida(
   const apiKey = (integration.access_token as string) ?? "";
 
   try {
-    const response = await fetch(`https://api.intima.ai/v2/intimacoes/${intimaId}/ciencia`, {
+    const response = await fetch(`https://app.intima.ai/api/v2/intimacoes/${intimaId}/ciencia?api_token=${encodeURIComponent(apiKey)}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
     });

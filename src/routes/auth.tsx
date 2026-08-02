@@ -661,8 +661,8 @@ authRoutes.post("/forgot-password", passwordResetRateLimit, async (c) => {
     const tokenHash = await hashToken(token);
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    // Invalidate previous tokens.
-    await supabase.from("password_resets").update({ used: true }).eq("email", email).eq("used", false);
+    // Invalidate previous tokens (scoped to tenant).
+    await supabase.from("password_resets").update({ used: true }).eq("email", email).eq("tenant_id", profile.tenant_id).eq("used", false);
 
     // Insert new token (store hash, not plaintext).
     await supabase.from("password_resets").insert({
@@ -849,8 +849,8 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
     return c.html(resetPasswordForm(token, `Erro ao redefinir senha: ${error.message}`));
   }
 
-  // Mark token as used.
-  await supabase.from("password_resets").update({ used: true }).eq("token", tokenHash);
+  // Mark token as used (scoped to tenant).
+  await supabase.from("password_resets").update({ used: true }).eq("token", tokenHash).eq("tenant_id", resetRow.tenant_id);
 
   // Log the reset.
   await supabase.from("auth_logs").insert({
@@ -895,7 +895,7 @@ authRoutes.get("/govbr", (c) => {
     return c.html(loginForm("Login via Gov.br nao configurado. Contate o administrador."));
   }
   const state = crypto.randomUUID();
-  setCookie(c, "govbr-oauth-state", state, { path: "/", httpOnly: true, maxAge: 600 });
+  setCookie(c, "govbr-oauth-state", state, { path: "/", httpOnly: true, maxAge: 600, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
   return c.redirect(getGovBrAuthUrl(state));
 });
 
@@ -934,8 +934,8 @@ authRoutes.get("/govbr/callback", async (c) => {
   }
 
   // Set session cookies (same as regular login)
-  setCookie(c, "sb-access-token", tokenResult.token.access_token, { path: "/", httpOnly: true, maxAge: 86400 });
-  setCookie(c, "auth-user-id", profile.id, { path: "/", httpOnly: true, maxAge: 86400 });
+  setCookie(c, "sb-access-token", tokenResult.token.access_token, { path: "/", httpOnly: true, maxAge: 86400, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
+  setCookie(c, "auth-user-id", profile.id, { path: "/", httpOnly: true, maxAge: 86400, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
 
   return c.redirect("/");
 });

@@ -64,7 +64,8 @@ timerRoutes.post("/api/start", async (c) => {
     await supabase
       .from("time_entries")
       .update({ end_time: endTime.toISOString(), duration_minutes: durationMinutes })
-      .eq("id", r.id);
+      .eq("id", r.id)
+      .eq("tenant_id", user.tenantId);
   }
 
   // Create new timer entry
@@ -117,7 +118,8 @@ timerRoutes.post("/api/stop", async (c) => {
       end_time: endTime.toISOString(),
       duration_minutes: durationMinutes,
     })
-    .eq("id", entry.id);
+    .eq("id", entry.id)
+    .eq("tenant_id", user.tenantId);
 
   return c.json({
     running: false,

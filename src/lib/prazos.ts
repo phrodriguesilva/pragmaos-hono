@@ -3,7 +3,7 @@
 // Para feriados estaduais/municipais, o usuário pode fornecer datas adicionais.
 
 // ============================================================
-// Feriados nacionais (Lei 10.608/2002 + Lei 13.802/2019)
+// Feriados nacionais (Lei 6.802/1980, Lei 10.607/2002, Lei 13.802/2019, Lei 14.759/2023)
 // ============================================================
 
 function isAnoNovo(d: Date): boolean { return d.getMonth() === 0 && d.getDate() === 1; }
@@ -58,7 +58,7 @@ function isCorpusChristi(d: Date): boolean {
   return d.getDate() === cc.getDate() && d.getMonth() === cc.getMonth() && d.getFullYear() === cc.getFullYear();
 }
 
-// Recesso forense: 20 de dezembro a 20 de janeiro (Resolução CNJ nº 1/2020)
+// Recesso forense: 20 de dezembro a 20 de janeiro (CPC art. 220, Resolução CNJ nº 244/2016)
 function isRecessoForense(d: Date): boolean {
   const m = d.getMonth();
   const day = d.getDate();

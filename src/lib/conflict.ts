@@ -22,7 +22,13 @@ export async function checkConflict(
   opts: { name: string; document?: string; excludeClientId?: string }
 ): Promise<ConflictResult> {
   const conflicts: ConflictResult["conflicts"] = [];
-  const nameLower = opts.name.toLowerCase().trim();
+  // Normalize: lowercase, trim, remove accents (NFD), collapse spaces.
+  const nameLower = opts.name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 
   // 1. Check against existing clients (by name)
   const { data: clientsByName } = await supabase
@@ -34,7 +40,7 @@ export async function checkConflict(
 
   for (const cl of clientsByName ?? []) {
     if (opts.excludeClientId && cl.id === opts.excludeClientId) continue;
-    if (cl.name.toLowerCase().trim() === nameLower) {
+    if (cl.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase() === nameLower) {
       conflicts.push({
         type: "client_name",
         matchedName: cl.name,
@@ -83,7 +89,7 @@ export async function checkConflict(
     .ilike("name", `%${nameLower}%`);
 
   for (const p of partiesByName ?? []) {
-    if (p.name.toLowerCase().trim() === nameLower) {
+    if (p.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase() === nameLower) {
       const caseTitle = (p.cases as unknown as { title: string } | null)?.title ?? "Processo";
       conflicts.push({
         type: "party_name",

@@ -44,9 +44,9 @@ function generatePixBRCode(opts: {
   txid: string;
 }): string {
   const amount = (opts.amountCents / 100).toFixed(2);
-  // Remove special chars, uppercase, max 25 for name, max 15 for city
-  const name = opts.merchantName.replace(/[^A-Za-z0-9 ]/g, "").slice(0, 25).toUpperCase();
-  const city = opts.merchantCity.replace(/[^A-Za-z0-9 ]/g, "").slice(0, 15).toUpperCase();
+  // Normalize: remove accents (NFD), remove special chars, uppercase, max 25 for name, max 15 for city.
+  const name = opts.merchantName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9 ]/g, "").slice(0, 25).toUpperCase();
+  const city = opts.merchantCity.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9 ]/g, "").slice(0, 15).toUpperCase();
   const txid = opts.txid.slice(0, 25);
 
   // Build payload without CRC
