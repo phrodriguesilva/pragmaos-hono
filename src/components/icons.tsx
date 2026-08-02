@@ -54,7 +54,7 @@ export const MENU: MenuItem[] = [
       { key: "leads", label: "Leads", href: "/leads", icon: "ph-user-plus" },
       { key: "clients", label: "Clientes", href: "/clients", icon: "ph-users" },
       { key: "companies", label: "Empresas", href: "/companies", icon: "ph-building" },
-      { key: "intake", label: "Intake Forms", href: "/intake", icon: "ph-clipboard-text" },
+      { key: "intake", label: "Intake Forms", href: "/intake", icon: "ph-note" },
     ],
   },
   {
@@ -75,7 +75,7 @@ export const MENU: MenuItem[] = [
     icon: "ph-file-text",
     children: [
       { key: "documents", label: "Documentos", href: "/documents", icon: "ph-file-text" },
-      { key: "doc-search", label: "Busca em Docs", href: "/search/documents", icon: "ph-file-search" },
+      { key: "doc-search", label: "Busca em Docs", href: "/search/documents", icon: "ph-magnifying-glass" },
       { key: "templates", label: "Modelos", href: "/templates", icon: "ph-files" },
       { key: "signatures", label: "Assinaturas", href: "/signatures", icon: "ph-pen-nib" },
       { key: "diario-oficial", label: "Diario Oficial", href: "/diario-oficial", icon: "ph-newspaper" },
@@ -90,7 +90,7 @@ export const MENU: MenuItem[] = [
     icon: "ph-chats-circle",
     children: [
       { key: "whatsapp", label: "WhatsApp", href: "/whatsapp", icon: "ph-whatsapp-logo" },
-      { key: "proactive", label: "Notific. Proativas", href: "/proactive", icon: "ph-bell-ringing" },
+      { key: "proactive", label: "Notific. Proativas", href: "/proactive", icon: "ph-lightning" },
       { key: "emails", label: "E-mails", href: "/emails", icon: "ph-envelope" },
       { key: "messages", label: "Mensagens", href: "/messages", icon: "ph-chat-circle" },
       { key: "notifications", label: "Notificacoes", href: "/notifications", icon: "ph-bell" },
@@ -136,7 +136,7 @@ export const MENU: MenuItem[] = [
       { key: "api-keys", label: "API e Webhooks", href: "/api-keys", icon: "ph-hash" },
       { key: "import", label: "Importar Dados", href: "/import", icon: "ph-upload-simple" },
       { key: "audit", label: "Auditoria", href: "/audit", icon: "ph-shield-check" },
-      { key: "docs", label: "Docs Tecnicas", href: "/docs", icon: "ph-book-open" },
+      { key: "docs", label: "Docs Tecnicas", href: "/docs", icon: "ph-info" },
     ],
   },
 ];
@@ -235,7 +235,7 @@ export const Topbar: FC<{ firmName?: string; userName: string; userRole?: string
   userName,
   userRole,
 }) => (
-  <header class="w-full bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 py-3.5 sticky top-0 z-30">
+  <header class="w-full h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-30">
     <span class="text-h3 text-gray-800 font-semibold">{firmName ?? "PragmaOS"}</span>
     <div class="flex items-center gap-4">
       {/* Help button */}
