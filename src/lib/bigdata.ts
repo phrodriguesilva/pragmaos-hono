@@ -8,6 +8,7 @@
 // Pricing: R$ 0,04–0,14 per dataset (very affordable)
 
 import { BIGDATA_ACCESS_TOKEN, BIGDATA_TOKEN_ID } from "./env";
+import { supabase } from "./supabase";
 
 const BIGDATA_BASE_URL = "https://plataforma.bigdatacorp.com.br";
 
@@ -270,4 +271,24 @@ export function getPlanCredits(plan: string | null | undefined): number {
 export function getCurrentMonth(): string {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+}
+
+// --- Terms acceptance ---
+
+// Check if a user has accepted the Consultas Legais terms.
+export async function hasAcceptedConsultaTerms(userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("consulta_terms_accepted_at")
+    .eq("id", userId)
+    .single();
+  return !!data?.consulta_terms_accepted_at;
+}
+
+// Record the terms acceptance timestamp for a user.
+export async function acceptConsultaTerms(userId: string): Promise<void> {
+  await supabase
+    .from("profiles")
+    .update({ consulta_terms_accepted_at: new Date().toISOString() })
+    .eq("id", userId);
 }

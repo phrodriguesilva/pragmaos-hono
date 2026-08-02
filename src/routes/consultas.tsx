@@ -30,6 +30,8 @@ import {
   formatCNPJ,
   getPlanCredits,
   getCurrentMonth,
+  hasAcceptedConsultaTerms,
+  acceptConsultaTerms,
   type BigDataEndpoint,
   type BigDataResponse,
 } from "../lib/bigdata";
@@ -37,6 +39,18 @@ import {
 export const consultasRoutes = new Hono<AppEnv>();
 
 consultasRoutes.use("*", requireAuth);
+
+// Guard: redirect to terms page if user hasn't accepted the Consultas Legais terms.
+// Exempted paths: /consultas/termos (GET and POST) — otherwise infinite redirect.
+consultasRoutes.use("*", async (c, next) => {
+  const path = c.req.path;
+  if (path === "/consultas/termos") return next();
+  const user = c.get("user");
+  if (!user) return next();
+  const accepted = await hasAcceptedConsultaTerms(user.id);
+  if (!accepted) return c.redirect("/consultas/termos");
+  return next();
+});
 
 // --- Types ---
 
@@ -207,6 +221,141 @@ function extractLabel(result: BigDataResponse | null): string | null {
   if (!entity) return null;
   return entity.BasicData?.Name ?? entity.CompanyData?.CompanyName ?? null;
 }
+
+// --- GET /consultas/termos — Terms of use for Consultas Legais ---
+
+consultasRoutes.get("/termos", async (c) => {
+  const user = c.get("user");
+
+  // If already accepted, redirect to dashboard.
+  const accepted = await hasAcceptedConsultaTerms(user.id);
+  if (accepted) return c.redirect("/consultas");
+
+  return renderPage(
+    c,
+    { title: "Termos de Uso — Consultas Legais", active: "consultas" },
+    <>
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 rounded-2xl bg-carvao-800 flex items-center justify-center mx-auto mb-4">
+            <i class="ph-bold ph-shield-check text-white text-3xl" aria-hidden="true"></i>
+          </div>
+          <h1 class="text-h2 font-extrabold text-carvao-800 mb-2">Termos de Uso — Consultas Legais</h1>
+          <p class="text-body-sm text-gray-500">Leia com atencao antes de continuar.</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 p-6 mb-6 space-y-4 text-body-sm text-gray-700 leading-relaxed">
+          <p>
+            As Consultas Legais do PragmaOS sao powered by <strong>BigDataCorp</strong>, empresa brasileira
+            especializada em dados publicos e regulada pela LGPD (Lei nº 13.709/2018).
+          </p>
+
+          <div class="border-l-4 border-carvao-800 bg-carvao-50 rounded-r-lg p-4">
+            <p class="font-semibold text-carvao-800 mb-1">Base legal</p>
+            <p class="text-gray-600">
+              O tratamento de dados pessoais nas Consultas Legais esta fundamentado no
+              <strong> art. 7º, VI da LGPD</strong> — exercicio regular de direitos em processo judicial,
+              administrativo ou arbitral — e no <strong>art. 7º, IX</strong> (legitimo interesse) e
+              <strong> art. 7º, X</strong> (protecao do credito).
+            </p>
+          </div>
+
+          <p class="font-semibold text-carvao-800">Ao utilizar as Consultas Legais, voce declara que:</p>
+
+          <ol class="list-decimal list-inside space-y-2">
+            <li>
+              E advogado(a) regularmente inscrito na <strong>OAB</strong>, ou atua sob supervisao direta de
+              advogado(a) inscrito, no exercicio de atividade juridica legitima.
+            </li>
+            <li>
+              As consultas serao utilizadas <strong>exclusivamente para o exercicio regular de direitos</strong>
+              em processos judiciais, administrativos ou arbitrais, nos termos do art. 7º, VI da LGPD.
+            </li>
+            <li>
+              Os dados obtidos nao serao utilizados para finalidades alheias ao exercicio profissional, tais como
+              perseguicao, assedio, marketing, venda de dados ou qualquer outra forma de tratamento indevido.
+            </li>
+            <li>
+              As consultas serao realizadas apenas sobre partes relacionadas aos processos em que atua
+              (executados, devedores, contrapartes, testemunhas, etc.), respeitando o principio da
+              <strong> proporcionalidade</strong> e da <strong>necessidade</strong> (art. 6º, III, LGPD).
+            </li>
+            <li>
+              Os resultados das consultas serao <strong>armazenados exclusivamente dentro do PragmaOS</strong>,
+              vinculados aos processos correspondentes, e nao serao compartilhados com terceiros alheios ao
+              escritorio.
+            </li>
+            <li>
+              Assume <strong>responsabilidade civil e criminal</strong> por qualquer tratamento indevido dos
+              dados obtidos, incluindo vazamento, uso fraudulento ou violacao da LGPD.
+            </li>
+          </ol>
+
+          <div class="border-l-4 border-terracota-500 bg-terracota-50 rounded-r-lg p-4">
+            <p class="font-semibold text-terracota-700 mb-1">Importante</p>
+            <p class="text-gray-600">
+              O PragmaOS atua como <strong>operador de dados</strong> (art. 5º, XI, LGPD), processando as
+              consultas em nome do advogado usuario, que e o <strong>controlador</strong> responsavel pelas
+              consultas realizadas. A BigDataCorp e controladora dos dados coletados de fontes publicas.
+            </p>
+          </div>
+
+          <p class="text-gray-500 text-body-xs">
+            Os dados de pessoas fisicas retornados pelas consultas estao sujeitos a LGPD. Dados de empresas,
+            veiculos e enderecos nao estao no escopo da LGPD, conforme entendimento da BigDataCorp. O titular
+            dos dados pode exercer seus direitos de acesso, correcao ou remocao diretamente junto a BigDataCorp
+            (lgpd@bigdatacorp.com.br).
+          </p>
+        </div>
+
+        <form action="/consultas/termos" method="post" class="bg-white rounded-xl border border-gray-100 p-6">
+          <label class="flex items-start gap-3 cursor-pointer mb-5">
+            <input
+              type="checkbox"
+              name="accept"
+              value="1"
+              required
+              class="mt-1 w-5 h-5 rounded border-gray-300 text-carvao-800 focus:ring-carvao-800"
+            />
+            <span class="text-body-sm text-gray-700">
+              Li e estou de acordo com os termos acima. Declaro que utilizarei as Consultas Legais
+              exclusivamente para o exercicio regular de direitos em processos judiciais, administrativos ou
+              arbitrais, nos termos do art. 7º, VI da LGPD.
+            </span>
+          </label>
+
+          <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary inline-flex items-center gap-2">
+              <i class="ph ph-shield-check" aria-hidden="true"></i>
+              Aceitar e continuar
+            </button>
+            <a href="/dashboard" class="btn btn-secondary inline-flex items-center gap-2">
+              <i class="ph ph-arrow-left" aria-hidden="true"></i>
+              Voltar ao dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+    </>,
+  );
+});
+
+// --- POST /consultas/termos — Accept terms ---
+
+consultasRoutes.post("/termos", async (c) => {
+  const user = c.get("user");
+  const formData = await c.req.formData();
+  const accept = formData.get("accept") as string;
+
+  if (accept !== "1") {
+    setFlash(c, "error", "Voce precisa aceitar os termos para continuar");
+    return c.redirect("/consultas/termos");
+  }
+
+  await acceptConsultaTerms(user.id);
+  setFlash(c, "success", "Termos aceitos. Bem-vindo as Consultas Legais!");
+  return c.redirect("/consultas");
+});
 
 // --- GET /consultas — Dashboard ---
 
