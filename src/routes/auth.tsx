@@ -235,10 +235,10 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   // Extend session if "remember me" is checked (30 days vs default 1 hour).
   const sessionMaxAge = remember ? 30 * 24 * 60 * 60 : (data.session.expires_in ?? 3600);
 
-  // Look up the user's profile to get tenant_id and check 2FA status.
+  // Look up the user's profile to get tenant_id, platform admin flag, and check 2FA status.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, tenant_id, email, role")
+    .select("id, tenant_id, email, role, is_platform_admin")
     .eq("email", email)
     .single();
 
@@ -295,8 +295,11 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
     });
   }
 
-  // Redirect to original page if specified, otherwise dashboard
-  const safeRedirect = redirect && redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard";
+  // Redirect to original page if specified, otherwise dashboard.
+  // Platform admins go to /back-office (they don't have a tenant dashboard).
+  const isPlatformAdmin = (profile as any)?.is_platform_admin ?? false;
+  const defaultRedirect = isPlatformAdmin ? "/back-office" : "/dashboard";
+  const safeRedirect = redirect && redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : defaultRedirect;
   return c.redirect(safeRedirect);
 });
 

@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase";
 import { csrfProtection } from "../lib/csrf";
 import { log, requestLogger } from "../lib/logger";
 import { initSentry, captureException } from "../lib/sentry";
+import { blockPlatformAdmin } from "../lib/session";
 import { authRoutes } from "../routes/auth";
 import { dashboardRoutes } from "../routes/dashboard";
 import { clientsRoutes } from "../routes/clients";
@@ -213,12 +214,19 @@ app.get("/ai-petitions", (c) => c.redirect("/ai-assistant/petitions"));
 // Onboarding + subscription + company-settings must be before dashboardRoutes
 // (they have their own requireAuth + onboarding/subscription enforcement).
 app.route("/onboarding", onboardingRoutes);
-app.route("/assinatura", subscriptionRoutes);
 app.route("/configuracoes-empresa", companySettingsRoutes);
 
 // Back-office (platform admin) — must be before dashboardRoutes to avoid
 // the onboarding/subscription enforcement middleware that dashboard applies.
 app.route("/back-office", backOfficeRoutes);
+
+// Block platform admins from tenant-scoped routes (they only use /back-office).
+// Applied to all routes below this point.
+app.use("*", blockPlatformAdmin);
+
+// Subscription is after blockPlatformAdmin so platform admins can't access it
+// (they have no tenant and no subscription).
+app.route("/assinatura", subscriptionRoutes);
 
 app.route("/", dashboardRoutes);
 app.route("/clients", clientsRoutes);

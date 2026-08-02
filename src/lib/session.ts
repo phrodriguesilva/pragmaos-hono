@@ -8,7 +8,7 @@ import { needsOnboarding } from "./onboarding";
 
 export type SessionUser = {
   id: string;
-  tenantId: string;
+  tenantId: string; // "" (empty) for platform admins — they are tenantless
   email: string;
   fullName: string;
   role: string;
@@ -42,6 +42,7 @@ export async function getSessionUser(c: Context): Promise<SessionUser | null> {
   // Fetch the profile row (tenant_id, role, full_name) from the profiles table.
   // Uses the service role client (bypasses RLS) — safe because we already
   // verified the JWT above and extracted the real user ID.
+  // tenant_id may be NULL for platform admins (they are tenantless).
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, tenant_id, full_name, role, email, is_platform_admin, tenants(name)")
@@ -52,11 +53,11 @@ export async function getSessionUser(c: Context): Promise<SessionUser | null> {
 
   return {
     id: userId,
-    tenantId: profile.tenant_id,
+    tenantId: profile.tenant_id ?? "", // empty string for platform admins (tenantless)
     email: profile.email ?? userEmail,
     fullName: profile.full_name,
     role: profile.role,
-    firmName: (profile.tenants as unknown as { name?: string })?.name,
+    firmName: (profile.tenants as unknown as { name?: string } | null)?.name,
     isPlatformAdmin: (profile as any).is_platform_admin ?? false,
   };
 }
@@ -114,6 +115,21 @@ function isBypassed(path: string): boolean {
   return ENFORCEMENT_BYPASS_PATHS.some((p) => path === p || path.startsWith(p + "/"));
 }
 
+// Middleware: block platform admins from tenant-scoped routes.
+// Platform admins are tenantless and should only access /back-office.
+// Can be applied BEFORE requireAuth (resolves session itself) or after.
+export async function blockPlatformAdmin(c: Context, next: () => Promise<void>) {
+  // Check if user is already resolved by requireAuth
+  let user = c.get("user") as SessionUser | undefined;
+  if (!user) {
+    user = (await getSessionUser(c)) ?? undefined;
+  }
+  if (user?.isPlatformAdmin || (user && !user.tenantId)) {
+    return c.redirect("/back-office");
+  }
+  await next();
+}
+
 // Middleware: enforce onboarding completion + active subscription.
 // Apply AFTER requireAuth (so user is already resolved).
 // - If onboarding not complete and path isn't bypassed -> redirect to /onboarding
@@ -122,6 +138,11 @@ export async function requireActiveTenant(c: Context, next: () => Promise<void>)
   const user = c.get("user") as SessionUser | undefined;
   if (!user) {
     return next();
+  }
+
+  // Platform admins are tenantless — skip onboarding/subscription enforcement.
+  if (user.isPlatformAdmin || !user.tenantId) {
+    return next(); // tenantless user, no onboarding/subscription to enforce
   }
 
   const path = c.req.path;
