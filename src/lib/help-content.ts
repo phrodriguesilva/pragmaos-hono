@@ -397,6 +397,305 @@ export const helpArticles: HelpArticle[] = [
       <p>Use os filtros de area e advogado para segmentar a analise.</p>
     `,
   },
+  {
+    slug: "api-keys",
+    title: "API keys e webhooks",
+    category: "admin",
+    excerpt: "Como criar API keys para integracoes externas e configurar webhooks.",
+    body: `
+      <h3>API Keys</h3>
+      <ol>
+        <li>Acesse <strong>Administracao > API e Webhooks</strong></li>
+        <li>Clique em "Nova API Key"</li>
+        <li>Selecione os escopos necessarios (cases:read, cases:write, clients:read, etc.)</li>
+        <li>Defina uma data de expiracao (recomendado)</li>
+        <li>Copie a chave — ela nao sera mostrada novamente</li>
+      </ol>
+
+      <h3>Webhooks</h3>
+      <p>Webhooks sao chamadas HTTP que o PragmaOS faz para seu endpoint quando eventos acontecem (novo caso, fatura paga, etc.).</p>
+      <ol>
+        <li>Acesse <strong>Administracao > API e Webhooks</strong></li>
+        <li>Clique em "Novo Webhook"</li>
+        <li>Informe a URL do seu endpoint</li>
+        <li>Selecione os eventos que deseja receber</li>
+        <li>O PragmaOS envia um header <code>X-PragmaOS-Signature</code> com HMAC para verificacao</li>
+      </ol>
+    `,
+  },
+  {
+    slug: "intake-forms",
+    title: "Formularios de intake",
+    category: "admin",
+    excerpt: "Como criar formularios publicos para captar novos clientes.",
+    body: `
+      <h3>O que sao</h3>
+      <p>Formularios de intake sao links publicos que clientes potenciais preenchem. Os dados sao salvos como submissoes e podem ser convertidos em clientes/casos automaticamente.</p>
+
+      <h3>Como criar</h3>
+      <ol>
+        <li>Acesse <strong>CRM > Intake Forms</strong></li>
+        <li>Clique em "Novo Formulario"</li>
+        <li>Defina titulo e descricao</li>
+        <li>Adicione campos (texto, CPF, telefone, etc.)</li>
+        <li>Mapeie cada campo para Cliente ou Caso</li>
+        <li>Salve — voce recebera um link publico</li>
+      </ol>
+
+      <h3>Converter submissoes</h3>
+      <p>Quando um cliente preenche o formulario, a submissao aparece na lista. Clique em "Converter" para criar automaticamente o cliente e o caso.</p>
+    `,
+  },
+  {
+    slug: "self-service-signup",
+    title: "Cadastro self-service (novos escritorios)",
+    category: "admin",
+    excerpt: "Como novos escritorios se cadastram automaticamente.",
+    body: `
+      <h3>Como funciona</h3>
+      <p>Novos escritorios podem se cadastrar diretamente na pagina /signup, sem intervencao manual. O sistema cria:</p>
+      <ul>
+        <li>Tenant (escritorio) com plano trial (14 dias)</li>
+        <li>Usuario admin com acesso total</li>
+        <li>Configuracoes padrao (timezone, moeda, locale)</li>
+        <li>Tags iniciais (Prioritario, Complexidade)</li>
+      </ul>
+
+      <h3>Planos</h3>
+      <ul>
+        <li><strong>Trial</strong>: 14 dias gratis, ate 3 usuarios</li>
+        <li><strong>Starter</strong>: R$ 199/mes, ate 10 usuarios</li>
+        <li><strong>Pro</strong>: R$ 499/mes, ate 50 usuarios</li>
+        <li><strong>Enterprise</strong>: sob consulta, usuarios ilimitados</li>
+      </ul>
+    `,
+  },
+
+  // Documentos — artigos adicionais
+  {
+    slug: "modelos-documento",
+    title: "Modelos de documento",
+    category: "documentos",
+    excerpt: "Como criar e usar modelos reutilizaveis de documentos.",
+    body: `
+      <h3>Como criar um modelo</h3>
+      <ol>
+        <li>Acesse <strong>Documentos > Modelos</strong></li>
+        <li>Clique em "Novo Modelo"</li>
+        <li>Defina o nome e tipo (peticao, contrato, procuracao, etc.)</li>
+        <li>Escreva o conteudo usando o editor</li>
+        <li>Use variaveis como <code>{{cliente.nome}}</code>, <code>{{caso.numero}}</code> para preenchimento automatico</li>
+      </ol>
+
+      <h3>Como usar</h3>
+      <p>Ao criar um documento, selecione um modelo como base. As variaveis serao preenchidas com os dados do caso/cliente.</p>
+    `,
+  },
+  {
+    slug: "assinaturas-eletronicas",
+    title: "Assinaturas eletronicas (ClickSign/DocuSign)",
+    category: "documentos",
+    excerpt: "Como enviar documentos para assinatura via ClickSign ou DocuSign.",
+    body: `
+      <h3>1. Configure a integracao</h3>
+      <p>Acesse <strong>Integracoes</strong> e configure ClickSign ou DocuSign com suas credenciais.</p>
+
+      <h3>2. Envie para assinatura</h3>
+      <ol>
+        <li>Abra o documento desejado</li>
+        <li>Clique em "Enviar para Assinatura"</li>
+        <li>Selecione o provedor (ClickSign ou DocuSign)</li>
+        <li>Informe os signatarios (e-mail)</li>
+        <li>Envie — o signatario recebera um link por e-mail</li>
+      </ol>
+
+      <h3>3. Acompanhe o status</h3>
+      <p>O status da assinatura aparece na lista de documentos. Webhooks atualizam o status automaticamente.</p>
+    `,
+  },
+  {
+    slug: "busca-documentos",
+    title: "Busca full-text em documentos",
+    category: "documentos",
+    excerpt: "Como buscar dentro do conteudo de documentos (PDFs, textos).",
+    body: `
+      <h3>Como buscar</h3>
+      <ol>
+        <li>Acesse <strong>Documentos > Busca em Docs</strong></li>
+        <li>Digite o termo de busca (minimo 2 caracteres)</li>
+        <li>O sistema busca no titulo e no texto extraido dos documentos</li>
+        <li>Resultados mostram snippets com o contexto do termo encontrado</li>
+      </ol>
+
+      <h3>Como o texto e extraido</h3>
+      <p>PDFs com texto selecionavel tem o conteudo extraido no upload. PDFs escaneados precisam de OCR (veja o artigo sobre OCR).</p>
+    `,
+  },
+
+  // Processos — artigos adicionais
+  {
+    slug: "audiencias",
+    title: "Cadastro de audiencias",
+    category: "processos",
+    excerpt: "Como registrar audiencias e vinculalas a casos.",
+    body: `
+      <h3>1. Acesse Processos > Audiencias</h3>
+      <p>Clique em "Nova Audiencia".</p>
+
+      <h3>2. Preencha</h3>
+      <ul>
+        <li><strong>Caso</strong>: selecione o caso vinculado</li>
+        <li><strong>Data e hora</strong>: quando ocorrera</li>
+        <li><strong>Tipo</strong>: conciliacao, instrucao, julgamento, etc.</li>
+        <li><strong>Local</strong>: vara, comarca ou link da audiencia online</li>
+      </ul>
+
+      <h3>3. Notificacoes</h3>
+      <p>Audiencias aparecem no calendario e geram notificacoes automaticas.</p>
+    `,
+  },
+  {
+    slug: "prazos-deadlines",
+    title: "Gestao de prazos e deadlines",
+    category: "processos",
+    excerpt: "Como registrar e acompanhar prazos processuais.",
+    body: `
+      <h3>Como registrar</h3>
+      <ol>
+        <li>Acesse <strong>Processos > Prazos</strong> ou abra um caso</li>
+        <li>Clique em "Novo Prazo"</li>
+        <li>Informe titulo, data e caso vinculado</li>
+        <li>Marque a prioridade se necessario</li>
+      </ol>
+
+      <h3>Acompanhamento</h3>
+      <p>Prazos proximos aparecem no dashboard com indicador de urgencia (vermelho = vencido, amarelo = proximo).</p>
+    `,
+  },
+
+  // Financeiro — artigos adicionais
+  {
+    slug: "fluxo-caixa",
+    title: "Fluxo de caixa",
+    category: "financeiro",
+    excerpt: "Como acompanhar entradas e saidas do escritorio.",
+    body: `
+      <h3>Como acessar</h3>
+      <p>Acesse <strong>Financeiro > Fluxo de Caixa</strong>.</p>
+
+      <h3>O que mostra</h3>
+      <ul>
+        <li>Entradas e saidas por mes</li>
+        <li>Saldo projetado</li>
+        <li>Cobrancas a receber (vencidas e a vencer)</li>
+        <li>Despesas registradas</li>
+      </ul>
+    `,
+  },
+  {
+    slug: "timesheet",
+    title: "Timesheet (controle de horas)",
+    category: "financeiro",
+    excerpt: "Como registrar horas trabalhadas por caso.",
+    body: `
+      <h3>Como registrar</h3>
+      <ol>
+        <li>Acesse <strong>Financeiro > Timesheet</strong></li>
+        <li>Clique em "Nova Entrada"</li>
+        <li>Selecione o caso e a atividade</li>
+        <li>Informe as horas (ou use o timer integrado)</li>
+      </ol>
+
+      <h3>Timer integrado</h3>
+      <p>Use o timer para registrar horas em tempo real. Clique em iniciar ao comecar uma tarefa e parar ao terminar.</p>
+
+      <h3>Relatorio de rentabilidade</h3>
+      <p>As horas registradas alimentam o relatorio de rentabilidade por processo (Financeiro > Relatorios > Rentabilidade).</p>
+    `,
+  },
+  {
+    slug: "rentabilidade",
+    title: "Analise de rentabilidade por processo",
+    category: "financeiro",
+    excerpt: "Cruzar horas gastas com honorarios recebidos por caso.",
+    body: `
+      <h3>O que e</h3>
+      <p>O relatorio de rentabilidade cruza o tempo gasto (timesheet) com os honorarios recebidos por cada caso, mostrando lucro ou prejuizo.</p>
+
+      <h3>Como acessar</h3>
+      <ol>
+        <li>Acesse <strong>Financeiro > Relatorios</strong></li>
+        <li>Clique em "Rentabilidade por Processo"</li>
+      </ol>
+
+      <h3>Como interpretar</h3>
+      <ul>
+        <li><strong>Receita</strong>: honorarios recebidos do caso</li>
+        <li><strong>Custo</strong>: horas gastas x custo horario do advogado</li>
+        <li><strong>Margem</strong>: receita - custo</li>
+        <li>Casos com margem negativa indicam baixa eficiencia</li>
+      </ul>
+    `,
+  },
+
+  // Comunicacao — artigos adicionais
+  {
+    slug: "intimacoes-eletronicas",
+    title: "Intimacoes eletronicas",
+    category: "comunicacao",
+    excerpt: "Como configurar captura automatica de intimacoes via intima.ai.",
+    body: `
+      <h3>1. Configure a integracao</h3>
+      <p>Acesse <strong>Integracoes</strong> e adicione uma integracao do tipo "intima.ai" com seu token de API.</p>
+
+      <h3>2. Monitoramento automatico</h3>
+      <p>Processos com numero CNJ sao monitorados automaticamente. Novas intimacoes aparecem em <strong>Comunicacao > Intimacoes</strong>.</p>
+
+      <h3>3. Calcule prazos</h3>
+      <p>A partir de cada intimacao, voce pode calcular o prazo processual diretamente.</p>
+    `,
+  },
+  {
+    slug: "diario-oficial",
+    title: "Diario Oficial",
+    category: "comunicacao",
+    excerpt: "Como monitorar publicacoes no diario oficial.",
+    body: `
+      <h3>1. Configure a busca</h3>
+      <p>Acesse <strong>Documentos > Diario Oficial</strong> e configure os termos de busca (nome do cliente, numero do processo, etc.).</p>
+
+      <h3>2. Monitoramento</h3>
+      <p>O sistema verifica diariamente as publicacoes e alerta quando encontra correspondencias.</p>
+
+      <h3>3. Notificacoes</h3>
+      <p>Publicacoes encontradas geram notificacoes automaticas no sistema.</p>
+    `,
+  },
+
+  // IA — artigo adicional
+  {
+    slug: "configurar-ia",
+    title: "Configurar IA (OpenAI/compativel)",
+    category: "ia",
+    excerpt: "Como configurar o provedor de IA para chat e resumos.",
+    body: `
+      <h3>1. Obtenha uma API key</h3>
+      <p>Use OpenAI, Azure OpenAI, ou qualquer provedor compativel com a API da OpenAI (LM Studio, Ollama, etc.).</p>
+
+      <h3>2. Configure as variaveis de ambiente</h3>
+      <ul>
+        <li><code>AI_API_KEY</code>: sua chave de API</li>
+        <li><code>AI_BASE_URL</code>: URL base (padrao: https://api.openai.com/v1)</li>
+        <li><code>AI_MODEL</code>: modelo (padrao: gpt-4o-mini)</li>
+      </ul>
+
+      <h3>3. Rate limiting</h3>
+      <p>Cada tenant tem um limite de requisicoes de IA por hora, configuravel via <code>AI_RATE_LIMIT_PER_TENANT</code>.</p>
+
+      <h3>Privacidade</h3>
+      <p>Dados sensiveis (PII) sao mascarados antes de enviar para a IA. O mascaramento ocorre antes da construcao do prompt.</p>
+    `,
+  },
 ];
 
 // Get articles by category.
