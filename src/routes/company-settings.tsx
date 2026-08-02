@@ -89,15 +89,15 @@ companySettingsRoutes.get("/", async (c) => {
             <div>
               <label for="primary_color" class="text-body-sm font-semibold text-gray-700 mb-1 block">Cor primaria</label>
               <div class="flex items-center gap-2">
-                <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#c8553d"} class="w-12 h-10 rounded cursor-pointer border border-gray-200" />
-                <span class="text-body-sm text-gray-500">{tenant?.primary_color ?? "#c8553d"}</span>
+                <input id="primary_color" name="primary_color" type="color" value={tenant?.primary_color ?? "#05111e"} class="w-12 h-10 rounded cursor-pointer border border-gray-200" />
+                <span class="text-body-sm text-gray-500">{tenant?.primary_color ?? "#05111e"}</span>
               </div>
             </div>
             <div>
               <label for="secondary_color" class="text-body-sm font-semibold text-gray-700 mb-1 block">Cor secundaria</label>
               <div class="flex items-center gap-2">
-                <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#2b2925"} class="w-12 h-10 rounded cursor-pointer border border-gray-200" />
-                <span class="text-body-sm text-gray-500">{tenant?.secondary_color ?? "#2b2925"}</span>
+                <input id="secondary_color" name="secondary_color" type="color" value={tenant?.secondary_color ?? "#1a2634"} class="w-12 h-10 rounded cursor-pointer border border-gray-200" />
+                <span class="text-body-sm text-gray-500">{tenant?.secondary_color ?? "#1a2634"}</span>
               </div>
             </div>
           </div>
@@ -195,8 +195,8 @@ companySettingsRoutes.post("/", async (c) => {
       founded_year: parsed.data.founded_year ?? null,
       tagline: parsed.data.tagline || null,
       description: parsed.data.description || null,
-      primary_color: parsed.data.primary_color || "#c8553d",
-      secondary_color: parsed.data.secondary_color || "#2b2925",
+      primary_color: parsed.data.primary_color || "#05111e",
+      secondary_color: parsed.data.secondary_color || "#1a2634",
       subdomain,
     })
     .eq("id", user.tenantId);
