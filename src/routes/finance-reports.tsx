@@ -181,6 +181,11 @@ financeReportsRoutes.get("/", async (c) => {
                 <i class="ph ph-clock-countdown" aria-hidden="true"></i>Produtividade
               </a>
             </li>
+            <li>
+              <a href="/finance-reports/profitability" class="text-terracota-600 hover:underline inline-flex items-center gap-1">
+                <i class="ph ph-chart-line-up" aria-hidden="true"></i>Rentabilidade por Processo
+              </a>
+            </li>
           </ul>
         </Panel>
       </div>
@@ -547,6 +552,272 @@ financeReportsRoutes.get("/productivity", async (c) => {
           emptyIcon="ph-clock-countdown"
           ariaLabel="Relatorio de produtividade"
         />
+      </Panel>
+    </>,
+  );
+});
+
+// --- GET /profitability — Analise de rentabilidade por processo ---
+
+financeReportsRoutes.get("/profitability", async (c) => {
+  const user = c.get("user");
+
+  // Fetch honorarios (revenue) linked to cases.
+  const [honorariosRes, timesheetRes, expensesRes] = await Promise.all([
+    supabase
+      .from("honorarios")
+      .select("id, case_id, amount_cents, status, type, description, paid_at")
+      .eq("tenant_id", user.tenantId)
+      .not("case_id", "is", null),
+    supabase
+      .from("time_entries")
+      .select("id, case_id, duration_minutes, billable, invoiced")
+      .eq("tenant_id", user.tenantId)
+      .not("case_id", "is", null),
+    supabase
+      .from("expenses")
+      .select("id, case_id, amount_cents, category, description")
+      .eq("tenant_id", user.tenantId)
+      .not("case_id", "is", null),
+  ]);
+
+  // Fetch case details for the cases that have financial data.
+  const caseIds = new Set<string>();
+  for (const h of honorariosRes.data ?? []) if (h.case_id) caseIds.add(h.case_id);
+  for (const t of timesheetRes.data ?? []) if (t.case_id) caseIds.add(t.case_id);
+  for (const e of expensesRes.data ?? []) if (e.case_id) caseIds.add(e.case_id);
+
+  const caseIdsArr = [...caseIds];
+  const { data: cases } = await supabase
+    .from("cases")
+    .select("id, title, case_number, status, clients(name)")
+    .in("id", caseIdsArr.length > 0 ? caseIdsArr : ["00000000-0000-0000-0000-000000000000"]);
+
+  const caseMap = new Map((cases ?? []).map((c) => [c.id, c]));
+
+  // Cost rate per hour (configurable — default R$ 150/h = 250 cents/min).
+  const costRatePerMinute = 250;
+
+  // Aggregate per case.
+  interface CaseProfitability {
+    caseId: string;
+    caseTitle: string;
+    caseNumber: string;
+    clientName: string;
+    status: string;
+    revenue: number;          // total honorarios paid (cents)
+    revenuePending: number;   // honorarios pending (cents)
+    hoursBillable: number;    // billable hours (minutes)
+    hoursTotal: number;       // total hours (minutes)
+    expenses: number;         // direct expenses (cents)
+    laborCost: number;        // estimated labor cost (cents)
+    totalCost: number;        // expenses + labor cost
+    profit: number;           // revenue - totalCost
+    margin: number;           // profit / revenue * 100
+  }
+
+  const caseStats = new Map<string, CaseProfitability>();
+
+  for (const caseId of caseIdsArr) {
+    const caseData = caseMap.get(caseId);
+    const client = caseData?.clients as unknown as { name: string } | null;
+    caseStats.set(caseId, {
+      caseId,
+      caseTitle: caseData?.title ?? "—",
+      caseNumber: caseData?.case_number ?? "—",
+      clientName: client?.name ?? "—",
+      status: caseData?.status ?? "—",
+      revenue: 0,
+      revenuePending: 0,
+      hoursBillable: 0,
+      hoursTotal: 0,
+      expenses: 0,
+      laborCost: 0,
+      totalCost: 0,
+      profit: 0,
+      margin: 0,
+    });
+  }
+
+  // Add revenue.
+  for (const h of honorariosRes.data ?? []) {
+    const stats = caseStats.get(h.case_id!);
+    if (!stats) continue;
+    if (h.status === "paid") {
+      stats.revenue += h.amount_cents;
+    } else if (h.status === "pending" || h.status === "overdue") {
+      stats.revenuePending += h.amount_cents;
+    }
+  }
+
+  // Add hours.
+  for (const t of timesheetRes.data ?? []) {
+    const stats = caseStats.get(t.case_id!);
+    if (!stats) continue;
+    const minutes = t.duration_minutes ?? 0;
+    stats.hoursTotal += minutes;
+    if (t.billable) {
+      stats.hoursBillable += minutes;
+      stats.laborCost += minutes * costRatePerMinute;
+    }
+  }
+
+  // Add expenses.
+  for (const e of expensesRes.data ?? []) {
+    const stats = caseStats.get(e.case_id!);
+    if (!stats) continue;
+    stats.expenses += e.amount_cents;
+  }
+
+  // Calculate totals.
+  const allStats = [...caseStats.values()];
+  for (const s of allStats) {
+    s.totalCost = s.expenses + s.laborCost;
+    s.profit = s.revenue - s.totalCost;
+    s.margin = s.revenue > 0 ? (s.profit / s.revenue) * 100 : 0;
+  }
+
+  // Sort by profit descending.
+  allStats.sort((a, b) => b.profit - a.profit);
+
+  // Summary totals.
+  const totals = allStats.reduce(
+    (acc, s) => ({
+      revenue: acc.revenue + s.revenue,
+      revenuePending: acc.revenuePending + s.revenuePending,
+      hoursBillable: acc.hoursBillable + s.hoursBillable,
+      hoursTotal: acc.hoursTotal + s.hoursTotal,
+      expenses: acc.expenses + s.expenses,
+      laborCost: acc.laborCost + s.laborCost,
+      totalCost: acc.totalCost + s.totalCost,
+      profit: acc.profit + s.profit,
+    }),
+    { revenue: 0, revenuePending: 0, hoursBillable: 0, hoursTotal: 0, expenses: 0, laborCost: 0, totalCost: 0, profit: 0 },
+  );
+  const totalMargin = totals.revenue > 0 ? (totals.profit / totals.revenue) * 100 : 0;
+
+  // Build table rows.
+  const rows = allStats.map((s) => [
+    s.caseNumber,
+    s.caseTitle.slice(0, 40),
+    s.clientName,
+    formatCurrency(s.revenue),
+    formatCurrency(s.revenuePending),
+    formatDuration(s.hoursBillable),
+    formatCurrency(s.expenses),
+    formatCurrency(s.laborCost),
+    formatCurrency(s.profit),
+    formatPercent(s.margin),
+  ]);
+
+  return renderPage(
+    c,
+    { title: "Rentabilidade por Processo", active: "finance-reports" },
+    <>
+      <PageHeader title="Rentabilidade por Processo" icon="ph-chart-line-up" />
+
+      {/* Summary */}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Panel>
+          <div class="text-body-sm text-gray-500">Receita Recebida</div>
+          <div class="text-h2 font-bold text-status-green">{formatCurrency(totals.revenue)}</div>
+        </Panel>
+        <Panel>
+          <div class="text-body-sm text-gray-500">Custo Total (Despesas + Horas)</div>
+          <div class="text-h2 font-bold text-status-red">{formatCurrency(totals.totalCost)}</div>
+        </Panel>
+        <Panel>
+          <div class="text-body-sm text-gray-500">Lucro Liquido</div>
+          <div class={`text-h2 font-bold ${totals.profit >= 0 ? "text-terracota-700" : "text-status-red"}`}>
+            {formatCurrency(totals.profit)}
+          </div>
+        </Panel>
+        <Panel>
+          <div class="text-body-sm text-gray-500">Margem Media</div>
+          <div class="text-h2 font-bold text-status-blue">{formatPercent(totalMargin)}</div>
+        </Panel>
+      </div>
+
+      {/* Detailed table */}
+      <Panel>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Analise Detalhada</h2>
+          <div class="text-body-sm text-gray-500">
+            Custo de hora: {formatCurrency(costRatePerMinute * 60)}/h
+          </div>
+        </div>
+        <Table
+          columns={[
+            { label: "Processo" },
+            { label: "Caso" },
+            { label: "Cliente" },
+            { label: "Receita", align: "right" },
+            { label: "Pendente", align: "right" },
+            { label: "Horas Fat.", align: "right" },
+            { label: "Despesas", align: "right" },
+            { label: "Custo Horas", align: "right" },
+            { label: "Lucro", align: "right" },
+            { label: "Margem", align: "right" },
+          ]}
+          rows={rows}
+          emptyMsg="Nenhum processo com dados financeiros encontrado."
+          emptyIcon="ph-folder-open"
+          ariaLabel="Rentabilidade por processo"
+        />
+      </Panel>
+
+      {/* Insights */}
+      <Panel>
+        <h2 class="text-lg font-semibold mb-4">Insights</h2>
+        <div class="space-y-3">
+          {allStats.length > 0 && (
+            <>
+              <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                <i class="ph ph-trophy text-h3 text-status-green" aria-hidden="true"></i>
+                <div>
+                  <div class="font-medium">Processo mais rentavel</div>
+                  <div class="text-sm text-gray-600">
+                    {allStats[0]!.caseTitle} — {formatCurrency(allStats[0]!.profit)} ({formatPercent(allStats[0]!.margin)})
+                  </div>
+                </div>
+              </div>
+
+              {allStats.length > 1 && allStats[allStats.length - 1]!.profit < 0 && (
+                <div class="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
+                  <i class="ph ph-warning text-h3 text-status-red" aria-hidden="true"></i>
+                  <div>
+                    <div class="font-medium">Processo em prejuizo</div>
+                    <div class="text-sm text-gray-600">
+                      {allStats[allStats.length - 1]!.caseTitle} — {formatCurrency(allStats[allStats.length - 1]!.profit)}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <i class="ph ph-clock text-h3 text-status-blue" aria-hidden="true"></i>
+                <div>
+                  <div class="font-medium">Total de horas faturaveis</div>
+                  <div class="text-sm text-gray-600">
+                    {formatDuration(totals.hoursBillable)} em {allStats.length} processos
+                  </div>
+                </div>
+              </div>
+
+              {totals.revenuePending > 0 && (
+                <div class="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                  <i class="ph ph-hourglass text-h3 text-yellow-600" aria-hidden="true"></i>
+                  <div>
+                    <div class="font-medium">Receita pendente</div>
+                    <div class="text-sm text-gray-600">
+                      {formatCurrency(totals.revenuePending)} em honorarios a receber
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </Panel>
     </>,
   );
