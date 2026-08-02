@@ -37,10 +37,10 @@ siteAdminRoutes.get("/appearance", async (c) => {
   }
 
   const baseUrl = tenant.subdomain
-    ? `https://${tenant.subdomain}.pragmaos.app`
+    ? `https://${tenant.subdomain}.pragmaos-hono.vercel.app`
     : tenant.custom_domain
     ? `https://${tenant.custom_domain}`
-    : `https://${tenant.slug ?? "seu-escritorio"}.pragmaos.app`;
+    : `https://${tenant.slug ?? "seu-escritorio"}.pragmaos-hono.vercel.app`;
 
   return renderPage(
     c,
@@ -84,7 +84,7 @@ siteAdminRoutes.get("/appearance", async (c) => {
           <div>
             <span class="text-gray-500">Subdominio:</span>{" "}
             <span class="font-mono font-semibold text-gray-800">{tenant.subdomain ?? tenant.slug ?? "(nao definido)"}</span>
-            <span class="text-gray-400">.pragmaos.app</span>
+            <span class="text-gray-400">.pragmaos-hono.vercel.app</span>
           </div>
           {tenant.custom_domain && (
             <div>
@@ -849,9 +849,9 @@ siteAdminRoutes.get("/settings", async (c) => {
                   placeholder="seu-escritorio"
                   class="flex-1 px-4 py-2.5 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-terracota-500 focus:border-terracota-500"
                 />
-                <span class="px-4 py-2.5 bg-gray-100 border border-l-0 border-gray-200 rounded-r-lg text-gray-500 text-body-sm">.pragmaos.app</span>
+                <span class="px-4 py-2.5 bg-gray-100 border border-l-0 border-gray-200 rounded-r-lg text-gray-500 text-body-sm">.pragmaos-hono.vercel.app</span>
               </div>
-              <p class="text-body-xs text-gray-400 mt-1">Seu site sera acessivel em <strong>{tenant.subdomain ?? tenant.slug ?? "seu-escritorio"}.pragmaos.app</strong></p>
+              <p class="text-body-xs text-gray-400 mt-1">Seu site sera acessivel em <strong>{tenant.subdomain ?? tenant.slug ?? "seu-escritorio"}.pragmaos-hono.vercel.app</strong></p>
             </div>
 
             <div>
@@ -864,7 +864,7 @@ siteAdminRoutes.get("/settings", async (c) => {
                 class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-terracota-500 focus:border-terracota-500"
               />
               <p class="text-body-xs text-gray-400 mt-1">
-                Para usar um dominio proprio, aponte o DNS para <code class="bg-gray-100 px-1 rounded">cname.pragmaos.app</code> e informe o dominio acima.
+                Para usar um dominio proprio, aponte o DNS para <code class="bg-gray-100 px-1 rounded">cname.vercel-dns.com</code> e informe o dominio acima.
               </p>
             </div>
           </div>
