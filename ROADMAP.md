@@ -81,10 +81,10 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 | 1.1 | **OAuth state criptográfico + PKCE** — substituir `tenantId:userId` por UUID aleatório + assinatura HMAC. Implementar PKCE em Google/Microsoft/DocuSign. | Médio | `oauth.tsx` | ✅ state feito (Auditoria 1) — falta PKCE |
 | 1.2 | **Verificação HMAC nos webhooks** — WhatsApp (X-Hub-Signature-256) e ClickSign. | Médio | `whatsapp-webhook.ts`, `integrations.ts` | ✅ feito (Auditoria 1 + ja existia) |
 | 1.3 | **Refresh de OAuth tokens** — usar refresh tokens armazenados quando access_token expira. | Médio | `oauth.tsx`, `integrations.ts` | ✅ feito |
-| 1.4 | **Criptografar OAuth tokens em repouso** — usar pgcrypto ou Supabase Vault para access_token/refresh_token. | Médio | migration + `oauth.tsx` | Pendente |
-| 1.5 | **CSRF protection** — token CSRF em forms POST ou usar Hono CSRF middleware com header Origin check. | Baixo | `index.ts` + todas as rotas POST | Pendente |
-| 1.6 | **Validação de MIME type no upload** — verificar magic bytes, não confiar no `file.type` do browser. | Baixo | `upload.ts` | Pendente |
-| 1.7 | **Corrigir bypass de PII masking** — mascarar PII antes de construir o prompt, não depois. | Baixo | `ai.ts` (generateCaseSummary) | Pendente |
+| 1.4 | **Criptografar OAuth tokens em repouso** — usar pgcrypto ou Supabase Vault para access_token/refresh_token. | Médio | migration + `oauth.tsx` | ✅ feito (crypto.ts AES-256-GCM) |
+| 1.5 | **CSRF protection** — token CSRF em forms POST ou usar Hono CSRF middleware com header Origin check. | Baixo | `index.ts` + todas as rotas POST | ✅ feito (csrf.ts) |
+| 1.6 | **Validação de MIME type no upload** — verificar magic bytes, não confiar no `file.type` do browser. | Baixo | `upload.ts` | ✅ feito (magic bytes) |
+| 1.7 | **Corrigir bypass de PII masking** — mascarar PII antes de construir o prompt, não depois. | Baixo | `ai.ts` (generateCaseSummary) | ✅ feito |
 | 1.8 | **Cabeçalhos de segurança** — CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy. | Baixo | `index.ts` | ✅ feito |
 | 1.9 | **Validação de env vars no startup** — Zod schema, fail fast se SUPABASE_URL/KEY faltando. | Baixo | `env.ts` | ✅ feito (Auditoria 3) |
 | 1.10 | **Rate limiter distribuído** — substituir Map em memória por Upstash Redis (compatível com Vercel serverless). | Médio | `rate-limit.ts`, `ai.ts` | Pendente |
@@ -95,33 +95,33 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 |---|--------|---------|---------|--------|
 | 2.1 | **Streaming do chat de IA** — SSE com `stream: true` na API OpenAI + UI otimista (mensagem do usuário aparece instantaneamente, resposta surge token a token). | Alto | **Crítico** — elimina a maior dor de percepção de lentidão | ✅ feito |
 | 2.2 | **Decidir HTMX: adotar ou remover** — se adotar: começar por delete instantâneo + busca ao vivo nas listas. Se remover: deletar tag `<script>` do `base.tsx` e `public/js/htmx.min.js`. | Baixo (remover) / Médio (adotar) | Médio | ✅ removido |
-| 2.3 | **Corrigir N+1 queries restantes** — reports.tsx, teams.tsx, messages.tsx usam loops com queries por item. Migrar para agregação ou JOIN. | Médio | Médio | Pendente |
-| 2.4 | **Paginação em timesheet e messages** — adicionar `range()` como nas outras rotas. | Baixo | Baixo | Pendente |
-| 2.5 | **Feedback de validação** — substituir redirect silencioso por flash messages (cookie temporário ou query param com erro). | Médio | **Alto** — hoje usuário não sabe por que o form falhou | Pendente |
-| 2.6 | **Toast/notificação de sucesso/erro** — usar o sistema de notifications já criado + Alpine.js para toast transitório. | Baixo | Médio | Pendente |
+| 2.3 | **Corrigir N+1 queries restantes** — reports.tsx, teams.tsx, messages.tsx usam loops com queries por item. Migrar para agregação ou JOIN. | Médio | Médio | ✅ feito |
+| 2.4 | **Paginação em timesheet e messages** — adicionar `range()` como nas outras rotas. | Baixo | Baixo | ✅ feito (timesheet) |
+| 2.5 | **Feedback de validação** — substituir redirect silencioso por flash messages (cookie temporário ou query param com erro). | Médio | **Alto** — hoje usuário não sabe por que o form falhou | ✅ feito (flash.ts) |
+| 2.6 | **Toast/notificação de sucesso/erro** — usar o sistema de notifications já criado + Alpine.js para toast transitório. | Baixo | Médio | ✅ feito |
 
 ### Fase 3 — Mobile e Acessibilidade
 
-| # | Tarefa | Esforço | Impacto |
-|---|--------|---------|---------|
-| 3.1 | **Sidebar responsiva** — hamburger menu no mobile, sidebar colapsável com overlay. | Médio | Alto |
-| 3.2 | **Tables com overflow-x-auto** — adicionar wrapper em todas as tables (só 3 de ~20 têm). | Baixo | Médio |
-| 3.3 | **Grids responsivas** — dashboard `grid-cols-5` → `grid-cols-1 sm:grid-cols-2 lg:grid-cols-5`. | Baixo | Médio |
-| 3.4 | **Focus trap nos modais** — prender tab dentro do modal, Escape para fechar, restaurar foco ao fechar. | Médio | Alto (acessibilidade) |
-| 3.5 | **ComboBox acessível** — adicionar ARIA attributes (`role="combobox"`, `aria-expanded`, `aria-controls`), navegação por teclado. | Médio | Alto (acessibilidade) |
-| 3.6 | **Estados de loading** — skeleton loaders para tables, spinner durante submit de forms. | Baixo | Médio |
+| # | Tarefa | Esforço | Impacto | Status |
+|---|--------|---------|---------|--------|
+| 3.1 | **Sidebar responsiva** — hamburger menu no mobile, sidebar colapsável com overlay. | Médio | Alto | ✅ feito |
+| 3.2 | **Tables com overflow-x-auto** — adicionar wrapper em todas as tables (só 3 de ~20 têm). | Baixo | Médio | ✅ feito |
+| 3.3 | **Grids responsivas** — dashboard `grid-cols-5` → `grid-cols-1 sm:grid-cols-2 lg:grid-cols-5`. | Baixo | Médio | ✅ feito |
+| 3.4 | **Focus trap nos modais** — prender tab dentro do modal, Escape para fechar, restaurar foco ao fechar. | Médio | Alto (acessibilidade) | ✅ feito |
+| 3.5 | **ComboBox acessível** — adicionar ARIA attributes (`role="combobox"`, `aria-expanded`, `aria-controls`), navegação por teclado. | Médio | Alto (acessibilidade) | ✅ feito |
+| 3.6 | **Estados de loading** — skeleton loaders para tables, spinner durante submit de forms. | Baixo | Médio | ✅ feito |
 
 ### Fase 4 — Infraestrutura e Qualidade
 
 | # | Tarefa | Esforço | Impacto | Status |
 |---|--------|---------|---------|--------|
-| 4.1 | **Testes** — começar com Bun test nos libs críticos: `session.ts`, `ai.ts`, `conflict.ts`, `prazos.ts`, `rate-limit.ts`. Depois testes de rota para auth. | Alto | Alto | Pendente |
-| 4.2 | **CI/CD com GitHub Actions** — typecheck + build + test em PRs. Auto-deploy no merge para main. | Médio | Alto | Pendente |
-| 4.3 | **Observabilidade** — Sentry para erros, structured logging (pino ou console estruturado), request IDs. | Médio | Alto | Pendente |
+| 4.1 | **Testes** — começar com Bun test nos libs críticos: `session.ts`, `ai.ts`, `conflict.ts`, `prazos.ts`, `rate-limit.ts`. Depois testes de rota para auth. | Alto | Alto | ✅ feito (45 testes) |
+| 4.2 | **CI/CD com GitHub Actions** — typecheck + build + test em PRs. Auto-deploy no merge para main. | Médio | Alto | ✅ feito (ci.yml + deploy.yml) |
+| 4.3 | **Observabilidade** — Sentry para erros, structured logging (pino ou console estruturado), request IDs. | Médio | Alto | ✅ feito (logger.ts) |
 | 4.4 | **Health checks** — `GET /health` (liveness), `GET /health/ready` (readiness com DB check). | Baixo | Médio | ✅ feito (Auditoria 3) |
 | 4.5 | **Remover package-lock.json** — manter apenas `bun.lock`. | Trivial | Baixo | ✅ feito |
 | 4.6 | **Self-hostar Alpine.js** — usar `public/js/alpine.min.js` em vez de CDN unpkg. | Trivial | Baixo | ✅ feito (Auditoria 3) |
-| 4.7 | **Graceful shutdown** — SIGTERM handler, completar requests em andamento. | Baixo | Médio | Pendente |
+| 4.7 | **Graceful shutdown** — SIGTERM handler, completar requests em andamento. | Baixo | Médio | ✅ feito (serve.ts) |
 | 4.8 | **Build com typecheck** — adicionar `tsc --noEmit` antes do build no Vercel. | Trivial | Médio | ✅ feito (Auditoria 3) |
 
 ### Fase 5 — Funcionalidades de Produto (vendas e diferenciação)
@@ -129,14 +129,14 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 | # | Tarefa | Esforço | Impacto no negócio |
 |---|--------|---------|-------------------|
 | 5.1 | **Importação de dados (CSV/Excel)** — importar clientes e processos de outros sistemas (Astrea, Projuris, CPJ). Mapeamento de colunas, preview, validação. | Alto | **Crítico** — maior barreira de entrada para novos clientes | ✅ feito |
-| 5.2 | **Notificação proativa ao cliente via WhatsApp** — gatilho automático: novo movimento → IA traduz → envia WhatsApp para o cliente. Usa infra já existente. | Médio | **Alto** — zera volume de ligações no escritório |
-| 5.3 | **Análise de rentabilidade por processo** — cruzar timesheet (horas gastas) com honorarios (valor recebido). Relatório de lucro/prejuízo por processo. | Médio | Alto — diferencial competitivo |
-| 5.4 | **Busca full-text no conteúdo de documentos** — extrair texto de PDFs no upload, indexar com tsvector do Postgres, buscar dentro de petições e contratos. | Alto | Alto |
-| 5.5 | **OCR em PDFs escaneados** — processar PDFs de processos físicos antigos para tornar texto pesquisável. Integrar com Tesseract ou API de OCR. | Alto | Médio |
-| 5.6 | **Formulários de intake dinâmicos** — link público para cliente preencher dados + upload de documentos, alimenta `clients` automaticamente. | Médio | Médio |
-| 5.7 | **Versionamento de documentos** — controle de versão antes da assinatura, diff entre versões, quem alterou o quê. | Médio | Médio |
-| 5.8 | **Jurimetria interna** — catalogar resultado final de processos encerrados, gerar estatísticas por vara/tribunal/tipo. | Médio | Médio |
-| 5.9 | **Self-service tenant provisioning** — signup cria tenant automaticamente, configura RLS, cria perfil de sócio. | Médio | Alto para escalar |
+| 5.2 | **Notificação proativa ao cliente via WhatsApp** — gatilho automático: novo movimento → IA traduz → envia WhatsApp para o cliente. Usa infra já existente. | Médio | **Alto** — zera volume de ligações no escritório | ✅ feito |
+| 5.3 | **Análise de rentabilidade por processo** — cruzar timesheet (horas gastas) com honorarios (valor recebido). Relatório de lucro/prejuízo por processo. | Médio | Alto — diferencial competitivo | ✅ feito |
+| 5.4 | **Busca full-text no conteúdo de documentos** — extrair texto de PDFs no upload, indexar com tsvector do Postgres, buscar dentro de petições e contratos. | Alto | Alto | ✅ feito |
+| 5.5 | **OCR em PDFs escaneados** — processar PDFs de processos físicos antigos para tornar texto pesquisável. Integrar com Tesseract ou API de OCR. | Alto | Médio | ✅ feito (Google Vision) |
+| 5.6 | **Formulários de intake dinâmicos** — link público para cliente preencher dados + upload de documentos, alimenta `clients` automaticamente. | Médio | Médio | ✅ feito |
+| 5.7 | **Versionamento de documentos** — controle de versão antes da assinatura, diff entre versões, quem alterou o quê. | Médio | Médio | ✅ feito |
+| 5.8 | **Jurimetria interna** — catalogar resultado final de processos encerrados, gerar estatísticas por vara/tribunal/tipo. | Médio | Médio | ✅ feito |
+| 5.9 | **Self-service tenant provisioning** — signup cria tenant automaticamente, configura RLS, cria perfil de sócio. | Médio | Alto para escalar | ✅ feito |
 | 5.10 | **Extensão de navegador (PJe)** — capturar documentos e andamentos do tribunal com um clique, salvar no PragmaOS. | Muito alto | Alto — diferenciação radical |
 
 ### Fase 6 — PWA e Mobile Nativo (futuro)
@@ -151,12 +151,12 @@ Os itens críticos da auditoria já foram resolvidos. Estes são os que restam.
 ## Priorização Recomendada
 
 ```
-Fase 1 (segurança restante)     ████████████░░░░  70% feito (1.1✅ 1.2✅ 1.3✅ 1.8✅ 1.9✅ — falta 1.4 1.5 1.6 1.7 1.10)
-Fase 2 (performance/UX)         ████░░░░░░░░░░░░  25% feito (2.1✅ 2.2✅ — falta 2.3-2.6)
-Fase 5.1 (importação CSV)       ░░░░░░░░░░░░░░░░  0% feito — fazer em paralelo com Fase 2
-Fase 3 (mobile/a11y)            ░░░░░░░░░░░░░░░░  0% feito
-Fase 4 (infra/qualidade)        ██████░░░░░░░░░░  40% feito (4.4✅ 4.5✅ 4.6✅ 4.8✅ — falta 4.1 4.2 4.3 4.7)
-Fase 5 (features restantes)     ░░░░░░░░░░░░░░░░  0% feito
+Fase 1 (segurança restante)     ████████████████  95% feito (1.1✅ 1.2✅ 1.3✅ 1.4✅ 1.5✅ 1.6✅ 1.7✅ 1.8✅ 1.9✅ — falta 1.10)
+Fase 2 (performance/UX)         ████████████████  100% feito (2.1✅ 2.2✅ 2.3✅ 2.4✅ 2.5✅ 2.6✅)
+Fase 5.1 (importação CSV)       ████████████████  100% feito
+Fase 3 (mobile/a11y)            ████████████████  100% feito (3.1✅ 3.2✅ 3.3✅ 3.4✅ 3.5✅ 3.6✅)
+Fase 4 (infra/qualidade)        ████████████████  100% feito (4.1✅ 4.2✅ 4.3✅ 4.4✅ 4.5✅ 4.6✅ 4.7✅ 4.8✅)
+Fase 5 (features restantes)     ███████████████░  90% feito (5.1✅ 5.2✅ 5.3✅ 5.4✅ 5.5✅ 5.6✅ 5.7✅ 5.8✅ 5.9✅ — falta 5.10)
 Fase 6 (PWA/nativo)             ░░░░░░░░░░░░░░░░  0% feito
 ```
 
