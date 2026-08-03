@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const hearingsRoutes = new Hono<AppEnv>();
@@ -136,6 +137,12 @@ hearingsRoutes.post("/", async (c) => {
   const body = await c.req.parseBody();
   const parsed = hearingSchema.safeParse(body);
   if (!parsed.success) return c.redirect("/hearings");
+
+  // Validate that case_id belongs to the tenant (IDOR protection)
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Caso nao encontrado.", 404);
+  }
 
   await supabase.from("hearings").insert({
     tenant_id: user.tenantId,

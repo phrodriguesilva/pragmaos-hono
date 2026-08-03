@@ -9,6 +9,7 @@ import { translateMovement } from "../lib/ai";
 import { queryCNJProcess } from "../lib/integrations";
 import type { IntegrationConfig } from "../lib/integrations";
 import { CNJ_API_KEY, CNJ_BASE_URL } from "../lib/env";
+import { caseBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const proceedingsRoutes = new Hono<AppEnv>();
@@ -161,6 +162,11 @@ proceedingsRoutes.post("/", async (c) => {
   const body = await c.req.parseBody();
   const parsed = proceedingSchema.safeParse(body);
   if (!parsed.success) return c.redirect("/proceedings");
+
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
 
   await supabase.from("proceedings").insert({
     tenant_id: user.tenantId,

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant, clientBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const communicationsRoutes = new Hono<AppEnv>();
@@ -264,6 +265,15 @@ communicationsRoutes.post("/", async (c) => {
   const body = await c.req.parseBody();
   const parsed = commSchema.safeParse(body);
   if (!parsed.success) return c.redirect("/communications");
+
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
 
   await supabase.from("communications_log").insert({
     tenant_id: user.tenantId,

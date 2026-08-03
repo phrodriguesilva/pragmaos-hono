@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { callLLM, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
@@ -11,6 +11,7 @@ import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge,
 export const aiSummariesRoutes = new Hono<AppEnv>();
 
 aiSummariesRoutes.use("*", requireAuth);
+aiSummariesRoutes.use("*", requireRole("socio", "admin", "advogado", "estagiario"));
 
 // --- Helpers ---
 

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { sendGmailEmail, sendOutlookEmail } from "../lib/integrations";
@@ -11,6 +11,7 @@ import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge,
 export const emailRoutes = new Hono<AppEnv>();
 
 emailRoutes.use("*", requireAuth);
+emailRoutes.use("*", requireRole("socio", "admin", "advogado"));
 
 const accountSchema = z.object({
   provider: z.enum(["gmail", "outlook", "imap", "smtp"]),

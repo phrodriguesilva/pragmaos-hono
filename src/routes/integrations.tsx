@@ -3,7 +3,7 @@ import type { AppEnv } from "../lib/types";
 import type { FC } from "hono/jsx";
 
 import { z } from "zod";
-import { requireAuth } from "../lib/session";
+import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
@@ -12,6 +12,7 @@ import { CONFIG_FIELDS, syncIntegration, type ConfigField } from "../lib/integra
 export const integrationsRoutes = new Hono<AppEnv>();
 
 integrationsRoutes.use("*", requireAuth);
+integrationsRoutes.use("*", requireRole("socio", "admin"));
 
 const integrationSchema = z.object({
   type: z.enum([

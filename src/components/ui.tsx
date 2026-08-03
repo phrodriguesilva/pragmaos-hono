@@ -746,8 +746,11 @@ export const EditModal: FC<{
 
 // Helper: generates the Alpine @click handler for opening an edit modal with fetched content.
 // Usage: <button @click={editModalOpen("editClientModal", `/clients/${c.id}/edit-form`)}>
+// Security: the fetched HTML is sanitized before injection to prevent XSS.
+// The content comes from our own server-rendered forms, but we sanitize as
+// defense-in-depth in case user input leaks into the HTML response.
 export function editModalOpen(modalId: string, fetchUrl: string): string {
-  return `const m = document.querySelector('[x-data]').__x.$data; ${modalId} = true; document.body.classList.add('modal-open'); fetch('${fetchUrl}').then(r => r.text()).then(h => { content = h; loading = false; })`;
+  return `const m = document.querySelector('[x-data]').__x.$data; ${modalId} = true; document.body.classList.add('modal-open'); fetch('${fetchUrl}').then(r => r.text()).then(h => { const t = document.createElement('template'); t.innerHTML = h; t.content.querySelectorAll('script').forEach(s => s.remove()); t.content.querySelectorAll('*').forEach(el => { [...el.attributes].forEach(a => { if (a.name.startsWith('on') || (a.name === 'href' && a.value.toLowerCase().trim().startsWith('javascript:'))) el.removeAttribute(a.name); }); }); content = t.innerHTML; loading = false; })`;
 }
 
 // ---------------------------------------------------------------------------

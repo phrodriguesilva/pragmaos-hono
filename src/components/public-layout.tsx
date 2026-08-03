@@ -5,6 +5,15 @@ import type { FC, PropsWithChildren } from "hono/jsx";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
 import { appCss } from "../generated/css";
 
+// Validate that a color is a safe hex value (#RGB or #RRGGBB).
+// Prevents CSS injection via malicious tenant color values.
+function safeColor(value: string | undefined | null, fallback: string): string {
+  if (!value) return fallback;
+  const hex = value.trim();
+  if (/^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(hex)) return hex;
+  return fallback;
+}
+
 export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active?: string; basePath?: string; pageTitle?: string; pageDescription?: string; canonical?: string; ogType?: string; jsonLd?: object }>> = ({
   tenant,
   active,
@@ -16,8 +25,8 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
   jsonLd,
   children,
 }) => {
-  const primary = tenant.primary_color || "#0568ff";
-  const secondary = tenant.secondary_color || "#4d8bff";
+  const primary = safeColor(tenant.primary_color, "#0568ff");
+  const secondary = safeColor(tenant.secondary_color, "#4d8bff");
   const b = basePath;
   const title = pageTitle ?? `${tenant.name} — ${tenant.tagline ?? "Advocacia"}`;
   const description = pageDescription ?? (tenant.description ?? `${tenant.name} — escritório de advocacia`);

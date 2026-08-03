@@ -139,7 +139,11 @@ profileRoutes.get("/", async (c) => {
             </p>
             {twoFAEnabled ? (
               <div class="flex gap-2">
-                <form method="post" action="/profile/2fa/disable" onsubmit="return confirm('Tem certeza que deseja desativar 2FA? Sua conta ficara menos segura.')">
+                <form method="post" action="/profile/2fa/disable" onsubmit="return confirm('Tem certeza que deseja desativar 2FA? Sua conta ficara menos segura.')" class="flex gap-2 items-end">
+                  <div>
+                    <label for="totp_code" class="block text-body-sm font-semibold text-gray-700 mb-1">Codigo 2FA</label>
+                    <input type="text" id="totp_code" name="totp_code" required pattern="[0-9]{6}" maxlength={6} placeholder="000000" class="input w-32" autocomplete="one-time-code" inputmode="numeric" />
+                  </div>
                   <button type="submit" class="btn btn-danger inline-flex items-center gap-1" aria-label="Desativar 2FA">
                     <i class="ph ph-shield-slash" aria-hidden="true" />Desativar 2FA
                   </button>
@@ -272,6 +276,30 @@ profileRoutes.post("/password", async (c) => {
     );
   }
 
+  // Verify current password before allowing change (re-authentication).
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (verifyError) {
+    return renderPage(
+      c,
+      { title: "Meu Perfil", active: "profile" },
+      <>
+        <PageHeader title="Meu Perfil" icon="ph-user" />
+        <Panel>
+          <div class="mb-4 text-status-red flex items-center gap-2">
+            <i class="ph ph-warning text-h2" aria-hidden="true" />
+            Senha atual incorreta.
+          </div>
+          <a href="/profile" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-arrow-left" aria-hidden="true" />Voltar
+          </a>
+        </Panel>
+      </>,
+    );
+  }
+
   // Update password via Supabase Auth.
   const { error } = await supabase.auth.updateUser({ password: newPassword });
 
@@ -313,18 +341,41 @@ profileRoutes.post("/password", async (c) => {
 });
 
 // POST /profile/2fa/disable -- disable 2FA for the current user.
+// Requires the current TOTP code to prevent unauthorized disabling.
 profileRoutes.post("/2fa/disable", async (c) => {
   const user = c.get("user");
+  const body = await c.req.parseBody();
+  const totpCode = String(body.totp_code ?? "").replace(/\s/g, "");
 
   // Verify current 2FA status.
   const { data: totpRow } = await supabase
     .from("user_totp")
-    .select("id, enabled, tenant_id")
+    .select("id, enabled, tenant_id, secret")
     .eq("user_id", user.id)
     .single();
 
   if (!totpRow || !totpRow.enabled) {
     return c.redirect("/profile");
+  }
+
+  // Verify TOTP code before disabling (re-authentication).
+  if (!totpCode || totpCode.length !== 6 || !validateTOTP(totpCode, totpRow.secret)) {
+    return renderPage(
+      c,
+      { title: "Meu Perfil", active: "profile" },
+      <>
+        <PageHeader title="Meu Perfil" icon="ph-user" />
+        <Panel>
+          <div class="mb-4 text-status-red flex items-center gap-2">
+            <i class="ph ph-warning text-h2" aria-hidden="true" />
+            Codigo 2FA incorreto. A desativacao foi cancelada.
+          </div>
+          <a href="/profile" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-arrow-left" aria-hidden="true" />Voltar
+          </a>
+        </Panel>
+      </>,
+    );
   }
 
   // Disable 2FA and clear the secret.

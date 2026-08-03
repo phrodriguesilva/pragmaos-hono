@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const timesheetRoutes = new Hono<AppEnv>();
@@ -212,6 +213,11 @@ timesheetRoutes.post("/", async (c) => {
 
   const rateRaw = parsed.data.hourly_rate_cents ? parseFloat(parsed.data.hourly_rate_cents) : NaN;
   const rateCents = isNaN(rateRaw) ? null : Math.round(rateRaw * 100);
+
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
 
   const { error } = await supabase.from("time_entries").insert({
     tenant_id: user.tenantId,

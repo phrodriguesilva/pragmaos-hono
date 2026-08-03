@@ -6,6 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
+import { caseBelongsToTenant, clientBelongsToTenant } from "../lib/tenant-ownership";
 import { processDocumentOCR, batchProcessDocuments } from "../lib/ocr";
 import { listDocumentVersions, createDocumentVersion, getVersionDownloadUrl, restoreDocumentVersion, formatFileSize, type DocumentVersion } from "../lib/document-versions";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Modal, FileUpload, WizardModal } from "../components/ui";
@@ -431,6 +432,15 @@ documentsRoutes.post("/", async (c) => {
 
   const parsed = docSchema.safeParse({ title, client_id: clientId, case_id: caseId, description: effectiveDescription, file_url: effectiveFileUrl, doc_type: effectiveDocType, template_id: templateId });
   if (!parsed.success) return c.redirect("/documents");
+
+  if (caseId) {
+    const owns = await caseBelongsToTenant(caseId, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (clientId) {
+    const owns = await clientBelongsToTenant(clientId, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
 
   await supabase.from("documents").insert({
     tenant_id: user.tenantId,

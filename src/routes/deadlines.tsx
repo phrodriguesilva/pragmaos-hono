@@ -6,6 +6,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
+import { caseBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Badge, Modal } from "../components/ui";
 
 export const deadlinesRoutes = new Hono<AppEnv>();
@@ -260,6 +261,11 @@ deadlinesRoutes.post("/", async (c) => {
   if (!parsed.success) {
     setFlash(c, "error", "Dados invalidos. Verifique os campos obrigatórios.");
     return c.redirect("/deadlines");
+  }
+
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
   }
 
   await supabase.from("deadlines").insert({
