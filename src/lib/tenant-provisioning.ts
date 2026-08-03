@@ -7,6 +7,7 @@
 import { supabase } from "./supabase";
 import { log } from "./logger";
 import { generateVerificationToken } from "./email-verification";
+import { sendVerificationEmail, isEmailEnabled } from "./email";
 
 export interface SignupRequest {
   firmName: string;
@@ -155,6 +156,11 @@ export async function provisionTenant(req: SignupRequest): Promise<SignupResult>
 
   // Generate email verification token.
   const verificationToken = await generateVerificationToken(userId);
+
+  // Send verification email if SMTP is configured.
+  if (isEmailEnabled()) {
+    await sendVerificationEmail(req.adminEmail, verificationToken);
+  }
 
   return { success: true, tenantId, userId, verificationToken };
 }

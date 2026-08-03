@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { provisionTenant, isSignupEnabled } from "../lib/tenant-provisioning";
 import { verifyEmailToken } from "../lib/email-verification";
+import { isEmailEnabled } from "../lib/email";
 import { rateLimit } from "../lib/rate-limit";
 import { getSessionUser } from "../lib/session";
 import { appCss } from "../generated/css";
@@ -265,8 +266,13 @@ signupRoutes.post("/signup", signupRateLimit, async (c) => {
   });
 
   if (result.success && result.verificationToken) {
-    // Redirect to verification page with token (until SMTP is configured, we show the link).
-    return c.redirect(`/verify?token=${result.verificationToken}&new=1`);
+    if (isEmailEnabled()) {
+      // Email sent — show "check your email" page (without token, for security).
+      return c.redirect("/verify?sent=1");
+    } else {
+      // SMTP not configured — show verification link directly (dev/fallback).
+      return c.redirect(`/verify?token=${result.verificationToken}&new=1`);
+    }
   } else if (result.success) {
     setFlash(c, "success", "Conta criada com sucesso! Faca login para comecar.");
     return c.redirect("/login");
@@ -280,6 +286,23 @@ signupRoutes.post("/signup", signupRateLimit, async (c) => {
 signupRoutes.get("/verify", async (c) => {
   const token = c.req.query("token");
   const isNew = c.req.query("new") === "1";
+  const sent = c.req.query("sent") === "1";
+
+  // Email was sent — show "check your email" page.
+  if (sent) {
+    return c.html(
+      `<html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;">
+      <div style="max-width:500px;text-align:center;padding:2rem;">
+      <div style="width:64px;height:64px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <span style="font-size:32px;">📧</span>
+      </div>
+      <h1 style="color:#0568ff;margin-bottom:0.5rem;">Verifique seu email</h1>
+      <p style="color:#6b7280;margin-bottom:1.5rem;">Enviamos um link de confirmacao para o seu email. Clique no link para ativar sua conta.</p>
+      <p style="color:#9ca3af;font-size:0.875rem;">Nao recebeu? Verifique sua pasta de spam ou lixo eletronico.</p>
+      <a href="/login" style="display:inline-block;margin-top:1.5rem;color:#0568ff;">Voltar para login</a>
+      </div></body></html>`,
+    );
+  }
 
   if (!token) {
     return c.html(

@@ -2,7 +2,7 @@
 -- Used as fallback when Upstash Redis is not configured.
 CREATE TABLE IF NOT EXISTS rate_limits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  key text NOT NULL,
+  key text NOT NULL UNIQUE,
   count integer NOT NULL DEFAULT 1,
   reset_at timestamptz NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
