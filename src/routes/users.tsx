@@ -382,6 +382,11 @@ usersRoutes.post("/:id", async (c) => {
     .eq("tenant_id", user.tenantId)
     .single();
 
+  // Prevent users from changing their own role (self-elevation protection).
+  if (user.id === id && target && target.role !== parsed.data.role) {
+    return c.html("Nao e possivel alterar seu proprio papel.", 400);
+  }
+
   if (parsed.data.role !== "socio" && target?.role === "socio") {
     const { count } = await supabase
       .from("profiles")

@@ -217,37 +217,22 @@ trustRoutes.post("/:id/transaction", async (c) => {
 
   if (!type || !amount || amount <= 0) return c.redirect(`/trust-accounts/${id}?error=Dados invalidos`);
 
-  const { data: account } = await supabase
-    .from("trust_accounts")
-    .select("id, balance_cents")
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId)
-    .single();
-
-  if (!account) return c.redirect("/trust-accounts?error=Conta nao encontrada");
-
-  // Check sufficient balance for withdrawal
-  if (type === "withdrawal" && amount > account.balance_cents) {
-    return c.redirect(`/trust-accounts/${id}?error=Saldo insuficiente`);
-  }
-
-  // Create transaction
-  await supabase.from("trust_transactions").insert({
-    tenant_id: user.tenantId,
-    trust_account_id: id,
-    type,
-    amount_cents: amount,
-    description,
-    created_by: user.id,
+  // Use atomic RPC to prevent race conditions (TOCTOU).
+  const { data: result, error } = await supabase.rpc("process_trust_transaction", {
+    p_tenant_id: user.tenantId,
+    p_account_id: id,
+    p_type: type,
+    p_amount: amount,
+    p_description: description,
+    p_created_by: user.id,
   });
 
-  // Update balance
-  const newBalance = type === "deposit" ? account.balance_cents + amount : account.balance_cents - amount;
-  await supabase
-    .from("trust_accounts")
-    .update({ balance_cents: newBalance, updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("tenant_id", user.tenantId);
+  if (error || !result?.success) {
+    const errMsg = result?.error === "insufficient_balance" ? "Saldo insuficiente"
+      : result?.error === "not_found" ? "Conta nao encontrada"
+      : "Erro ao processar movimentacao";
+    return c.redirect(`/trust-accounts/${id}?error=${encodeURIComponent(errMsg)}`);
+  }
 
   return c.redirect(`/trust-accounts/${id}?success=Movimentacao registrada`);
 });

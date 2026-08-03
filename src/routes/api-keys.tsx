@@ -251,6 +251,30 @@ apiKeysRoutes.post("/webhooks", async (c) => {
 
   if (!url) return c.redirect("/api-keys?tab=webhooks&error=URL obrigatoria");
 
+  // Validate webhook URL to prevent SSRF (block internal/private IPs).
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return c.redirect("/api-keys?tab=webhooks&error=URL deve usar HTTP ou HTTPS");
+    }
+    const host = parsed.hostname.toLowerCase();
+    if (host === "localhost" || host.startsWith("127.") || host.startsWith("10.") ||
+        host.startsWith("192.168.") || host.startsWith("169.254.") ||
+        host.startsWith("172.16.") || host.startsWith("172.17.") ||
+        host.startsWith("172.18.") || host.startsWith("172.19.") ||
+        host.startsWith("172.20.") || host.startsWith("172.21.") ||
+        host.startsWith("172.22.") || host.startsWith("172.23.") ||
+        host.startsWith("172.24.") || host.startsWith("172.25.") ||
+        host.startsWith("172.26.") || host.startsWith("172.27.") ||
+        host.startsWith("172.28.") || host.startsWith("172.29.") ||
+        host.startsWith("172.30.") || host.startsWith("172.31.") ||
+        host === "0.0.0.0" || host.endsWith(".internal") || host.endsWith(".local")) {
+      return c.redirect("/api-keys?tab=webhooks&error=URLs internas nao sao permitidas");
+    }
+  } catch {
+    return c.redirect("/api-keys?tab=webhooks&error=URL invalida");
+  }
+
   const { data: newWebhook } = await supabase.from("webhooks").insert({
     tenant_id: user.tenantId,
     url,

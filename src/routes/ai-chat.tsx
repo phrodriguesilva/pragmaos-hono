@@ -730,7 +730,7 @@ aiChatRoutes.get("/:id", async (c) => {
               // Add user message bubble immediately.
               var userBubble = document.createElement('div');
               userBubble.className = 'flex justify-end';
-              userBubble.innerHTML = '<div class="max-w-[75%] px-4 py-2.5 rounded-xl bg-[#0568ff] text-white" style="white-space: pre-wrap; word-break: break-word;"><div class="text-body-sm font-semibold mb-1">Voce</div>' + content.replace(/</g, '&lt;') + '</div>';
+              userBubble.innerHTML = '<div class="max-w-[75%] px-4 py-2.5 rounded-xl bg-[#0568ff] text-white" style="white-space: pre-wrap; word-break: break-word;"><div class="text-body-sm font-semibold mb-1">Voce</div>' + content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') + '</div>';
               messagesDiv.appendChild(userBubble);
               scrollDiv.scrollTop = scrollDiv.scrollHeight;
 

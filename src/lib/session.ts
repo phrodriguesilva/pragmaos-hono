@@ -45,11 +45,15 @@ export async function getSessionUser(c: Context): Promise<SessionUser | null> {
   // tenant_id may be NULL for platform admins (they are tenantless).
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, tenant_id, full_name, role, email, is_platform_admin, tenants(name)")
+    .select("id, tenant_id, full_name, role, email, is_platform_admin, active, tenants(name)")
     .eq("id", userId)
     .single();
 
   if (!profile) return null;
+
+  // Reject sessions for deactivated users (defense-in-depth even though
+  // role-change/deactivation already calls signOut).
+  if (!(profile as any).active) return null;
 
   return {
     id: userId,

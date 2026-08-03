@@ -90,7 +90,7 @@ apiRoutes.post("/v1/clients", requireScope("clients:write"), async (c) => {
 
   const parsed = createClientSchema.safeParse(raw);
   if (!parsed.success) {
-    return c.json({ error: "Validation failed", details: parsed.error.issues }, 400);
+    return c.json({ error: "Validation failed" }, 400);
   }
 
   const { data, error } = await supabase
@@ -145,7 +145,7 @@ apiRoutes.post("/v1/deadlines", requireScope("deadlines:write"), async (c) => {
 
   const parsed = createDeadlineSchema.safeParse(raw);
   if (!parsed.success) {
-    return c.json({ error: "Validation failed", details: parsed.error.issues }, 400);
+    return c.json({ error: "Validation failed" }, 400);
   }
 
   const { data, error } = await supabase
@@ -205,13 +205,25 @@ apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), async (c) =>
         timestamp: new Date().toISOString(),
         data: { message: "Test webhook from PragmaOS API" },
       };
+      const bodyStr = JSON.stringify(payload);
+      // Generate HMAC-SHA256 signature instead of sending raw secret.
+      let signature = "";
+      if (w.secret) {
+        const encoder = new TextEncoder();
+        const key = await crypto.subtle.importKey(
+          "raw", encoder.encode(w.secret),
+          { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+        );
+        const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(bodyStr));
+        signature = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
+      }
       const response = await fetch(w.url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-PragmaOS-Signature": w.secret ?? "",
+          "X-PragmaOS-Signature": `sha256=${signature}`,
         },
-        body: JSON.stringify(payload),
+        body: bodyStr,
       });
       results.push({ url: w.url, status: response.status, success: response.ok });
     } catch (err) {

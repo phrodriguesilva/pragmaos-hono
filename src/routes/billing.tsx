@@ -551,6 +551,17 @@ billingRoutes.post("/:id", async (c) => {
     return c.redirect(`/billing/${id}`);
   }
 
+  // Prevent modification of paid or cancelled invoices.
+  const { data: existing } = await supabase
+    .from("invoices")
+    .select("status")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+  if (existing?.status === "paid" || existing?.status === "cancelled") {
+    return c.redirect(`/billing/${id}?error=Nao e possivel modificar faturas pagas ou canceladas`);
+  }
+
   const rawAmount = (body.amount as string) ?? "0";
   const amountCents = Math.round(Number(rawAmount) * 100);
 

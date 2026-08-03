@@ -173,24 +173,19 @@ async function ensureCreditRow(tenantId: string, plan: string): Promise<void> {
     );
 }
 
-// Deduct credits after a successful consultation.
-async function deductCredits(tenantId: string, plan: string, amount: number): Promise<void> {
+// Deduct credits after a successful consultation (atomic via RPC).
+async function deductCredits(tenantId: string, plan: string, amount: number): Promise<boolean> {
   await ensureCreditRow(tenantId, plan);
   const month = getCurrentMonth();
-  // Atomic increment of used_credits.
-  const { data } = await supabase
-    .from("consulta_credits")
-    .select("used_credits")
-    .eq("tenant_id", tenantId)
-    .eq("month", month)
-    .single();
-  if (data) {
-    await supabase
-      .from("consulta_credits")
-      .update({ used_credits: data.used_credits + amount })
-      .eq("tenant_id", tenantId)
-      .eq("month", month);
+  const { data, error } = await supabase.rpc("deduct_consulta_credits", {
+    p_tenant_id: tenantId,
+    p_month: month,
+    p_amount: amount,
+  });
+  if (error || data === false) {
+    return false;
   }
+  return true;
 }
 
 // Validate input based on consultation type.
@@ -758,6 +753,13 @@ consultasRoutes.post("/lote", async (c) => {
   }
 
   const t = type as ConsultaType;
+
+  // File size limit to prevent DoS (1MB max).
+  const MAX_CSV_SIZE = 1024 * 1024;
+  if (file.size > MAX_CSV_SIZE) {
+    setFlash(c, "error", "Arquivo muito grande (max 1MB)");
+    return c.redirect("/consultas/lote");
+  }
 
   // Read and parse the CSV file.
   const text = await file.text();

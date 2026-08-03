@@ -7,6 +7,9 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { sendGmailEmail, sendOutlookEmail } from "../lib/integrations";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
+import { rateLimit } from "../lib/rate-limit";
+
+const emailSendRateLimit = rateLimit(10, 60_000); // 10 emails per minute per IP
 
 export const emailRoutes = new Hono<AppEnv>();
 
@@ -236,7 +239,7 @@ emailRoutes.post("/accounts/:id/delete", async (c) => {
 });
 
 // POST /send -- send email via configured integration (Gmail or Outlook).
-emailRoutes.post("/send", async (c) => {
+emailRoutes.post("/send", emailSendRateLimit, async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = composeSchema.safeParse(body);

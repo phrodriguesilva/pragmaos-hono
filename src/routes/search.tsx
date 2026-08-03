@@ -14,7 +14,7 @@ searchRoutes.get("/api", async (c) => {
   const user = c.get("user");
   const q = c.req.query("q")?.trim() ?? "";
 
-  if (q.length < 2) {
+  if (q.length < 2 || q.length > 100) {
     return c.json({ results: [] });
   }
 

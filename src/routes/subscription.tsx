@@ -302,7 +302,7 @@ subscriptionRoutes.post("/assinar/:plan", async (c) => {
     const seq = Number(lastInv?.[0]?.number?.replace(`SaaS-${year}-`, "") ?? "0") + 1;
     const number = `SaaS-${year}-${String(seq).padStart(4, "0")}`;
 
-    await supabase.from("saas_invoices").insert({
+    const { error: invError } = await supabase.from("saas_invoices").insert({
       tenant_id: user.tenantId,
       plan_id: planId,
       number,
@@ -311,6 +311,10 @@ subscriptionRoutes.post("/assinar/:plan", async (c) => {
       billing_cycle: billingCycle,
       paid_at: new Date().toISOString(),
     });
+    if (invError) {
+      log.error("SaaS invoice insert failed", { error: invError.message });
+      return c.redirect("/assinatura?error=Erro ao registrar fatura");
+    }
 
     return c.redirect("/assinatura?success=1");
   }
