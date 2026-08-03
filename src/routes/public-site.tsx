@@ -173,7 +173,7 @@ publicSiteRoutes.get("/", async (c) => {
       .eq("tenant_id", tenant.id)
       .eq("is_published", true)
       .order("sort_order", { ascending: true }),
-    supabase.from("team_members")
+    supabase.from("public_team_members")
       .select("public_name, public_title, public_photo_url, slug")
       .eq("tenant_id", tenant.id)
       .eq("is_published", true)
@@ -1251,7 +1251,7 @@ publicSiteRoutes.get("/equipe", async (c) => {
   const b = getBasePath(c);
 
   const { data: members }: any = await supabase
-    .from("team_members")
+    .from("public_team_members")
     .select("id, public_name, public_title, public_bio, public_photo_url, slug, sort_order")
     .eq("tenant_id", tenant.id)
     .eq("is_published", true)
@@ -1301,7 +1301,7 @@ publicSiteRoutes.get("/equipe/:slug", async (c) => {
   const slug = c.req.param("slug");
 
   const { data: member }: any = await supabase
-    .from("team_members")
+    .from("public_team_members")
     .select("*")
     .eq("tenant_id", tenant.id)
     .eq("slug", slug)
@@ -1495,7 +1495,7 @@ publicSiteRoutes.get("/sitemap.xml", async (c) => {
   const [areasRes, articlesRes, teamRes] = await Promise.all([
     supabase.from("tenant_law_areas").select("law_areas(slug)").eq("tenant_id", tenant.id),
     supabase.from("articles").select("slug, published_at").eq("tenant_id", tenant.id).eq("status", "published"),
-    supabase.from("team_members").select("slug").eq("tenant_id", tenant.id).eq("is_published", true),
+    supabase.from("public_team_members").select("slug").eq("tenant_id", tenant.id).eq("is_published", true),
   ]);
 
   const areaUrls = (areasRes.data ?? []).map((a: any) => ({ loc: `${baseUrl}/areas/${a.law_areas.slug}`, priority: "0.7", changefreq: "monthly" }));

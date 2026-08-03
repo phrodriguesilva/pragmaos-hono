@@ -40,6 +40,9 @@ const envSchema = z.object({
   // BigDataCorp (optional — Consultas Legais module).
   BIGDATA_ACCESS_TOKEN: z.string().or(z.literal("")).default(""),
   BIGDATA_TOKEN_ID: z.string().or(z.literal("")).default(""),
+  // Encryption key for OAuth tokens / integration secrets (AES-256-GCM).
+  // Required in production — crypto.ts will throw if missing.
+  ENCRYPTION_KEY: z.string().or(z.literal("")).default(""),
 });
 
 const parsed = envSchema.safeParse(env);
@@ -86,6 +89,7 @@ type EnvValues = {
   ASAAS_WEBHOOK_TOKEN: string;
   BIGDATA_ACCESS_TOKEN: string;
   BIGDATA_TOKEN_ID: string;
+  ENCRYPTION_KEY: string;
 };
 
 const e: EnvValues = parsed.success ? parsed.data : {
@@ -119,6 +123,7 @@ const e: EnvValues = parsed.success ? parsed.data : {
   ASAAS_WEBHOOK_TOKEN: env.ASAAS_WEBHOOK_TOKEN ?? "",
   BIGDATA_ACCESS_TOKEN: env.BIGDATA_ACCESS_TOKEN ?? "",
   BIGDATA_TOKEN_ID: env.BIGDATA_TOKEN_ID ?? "",
+  ENCRYPTION_KEY: env.ENCRYPTION_KEY ?? "",
 };
 
 export const SUPABASE_URL = e.SUPABASE_URL;
@@ -170,3 +175,7 @@ export const ASAAS_WEBHOOK_TOKEN = e.ASAAS_WEBHOOK_TOKEN;
 // BigDataCorp (optional — Consultas Legais module)
 export const BIGDATA_ACCESS_TOKEN = e.BIGDATA_ACCESS_TOKEN;
 export const BIGDATA_TOKEN_ID = e.BIGDATA_TOKEN_ID;
+
+// Encryption key for OAuth tokens / integration secrets (AES-256-GCM).
+// Required in production — crypto.ts throws if missing.
+export const ENCRYPTION_KEY = e.ENCRYPTION_KEY;

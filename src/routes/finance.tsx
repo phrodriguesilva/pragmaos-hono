@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant, clientBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const financeRoutes = new Hono<AppEnv>();
@@ -190,6 +191,16 @@ financeRoutes.post("/", async (c) => {
   const parsed = invoiceSchema.safeParse({ ...body, amount_cents: amountCents });
   if (!parsed.success) return c.redirect("/finance");
 
+  // Validate IDOR-relevant foreign keys.
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+
   await supabase.from("invoices").insert({
     tenant_id: user.tenantId,
     client_id: parsed.data.client_id,
@@ -305,6 +316,16 @@ financeRoutes.post("/:id", async (c) => {
   const amountCents = Math.round(Number(rawAmount) * 100);
   const parsed = invoiceSchema.safeParse({ ...body, amount_cents: amountCents });
   if (!parsed.success) return c.redirect(`/finance/${id}`);
+
+  // Validate IDOR-relevant foreign keys.
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
 
   await supabase
     .from("invoices")

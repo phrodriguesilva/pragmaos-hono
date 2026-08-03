@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { profileBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, Panel, Badge, Modal } from "../components/ui";
 
 export const messagesRoutes = new Hono<AppEnv>();
@@ -391,6 +392,15 @@ messagesRoutes.post("/:id/messages", async (c) => {
     return c.redirect(`/messages/${id}`);
   }
 
+  // Validate channel belongs to tenant.
+  const { data: channel } = await supabase
+    .from("chat_channels")
+    .select("id")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .maybeSingle();
+  if (!channel) return c.html("Não encontrado.", 404);
+
   await supabase.from("chat_messages").insert({
     tenant_id: user.tenantId,
     channel_id: id,
@@ -411,6 +421,19 @@ messagesRoutes.post("/:id/members", async (c) => {
   if (!parsed.success) {
     return c.redirect(`/messages/${id}`);
   }
+
+  // Validate channel belongs to tenant.
+  const { data: channel } = await supabase
+    .from("chat_channels")
+    .select("id")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .maybeSingle();
+  if (!channel) return c.html("Não encontrado.", 404);
+
+  // Validate user belongs to tenant.
+  const userOwns = await profileBelongsToTenant(parsed.data.user_id, user.tenantId);
+  if (!userOwns) return c.html("Não encontrado.", 404);
 
   // Check if already a member.
   const { data: existing } = await supabase
@@ -436,6 +459,15 @@ messagesRoutes.post("/:id/members/:memberId/remove", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const memberId = c.req.param("memberId");
+
+  // Validate channel belongs to tenant.
+  const { data: channel } = await supabase
+    .from("chat_channels")
+    .select("id")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .maybeSingle();
+  if (!channel) return c.html("Não encontrado.", 404);
 
   await supabase
     .from("chat_channel_members")

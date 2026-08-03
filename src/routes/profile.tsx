@@ -1,9 +1,11 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
+import { createClient } from "@supabase/supabase-js";
 
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../lib/env";
 import { PageHeader, Panel, TextField, Badge } from "../components/ui";
 import { generateTOTPSecret, validateTOTP, generateQRCodeDataURL, generateBackupCodes, buildTOTPUri } from "../lib/totp";
 
@@ -277,7 +279,12 @@ profileRoutes.post("/password", async (c) => {
   }
 
   // Verify current password before allowing change (re-authentication).
-  const { error: verifyError } = await supabase.auth.signInWithPassword({
+  // Use an anon-key client (not service role) because GoTrue's /auth/v1/token
+  // endpoint expects the anon key as apikey. The service role key may be rejected.
+  const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error: verifyError } = await authClient.auth.signInWithPassword({
     email: user.email,
     password: currentPassword,
   });

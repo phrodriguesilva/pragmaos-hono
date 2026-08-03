@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant, clientBelongsToTenant, honorarioBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const billingRoutes = new Hono<AppEnv>();
@@ -303,6 +304,20 @@ billingRoutes.post("/", async (c) => {
 
   if (!parsed.success) {
     return c.redirect("/billing");
+  }
+
+  // Validate IDOR-relevant foreign keys.
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.honorario_id) {
+    const owns = await honorarioBelongsToTenant(parsed.data.honorario_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
   }
 
   const rawAmount = (body.amount as string) ?? "0";

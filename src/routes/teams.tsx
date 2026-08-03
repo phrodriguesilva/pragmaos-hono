@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { profileBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const teamsRoutes = new Hono<AppEnv>();
@@ -347,6 +348,10 @@ teamsRoutes.post("/:id/members", async (c) => {
   if (!userId) {
     return c.redirect(`/teams/${id}`);
   }
+
+  // Validate user belongs to tenant.
+  const owns = await profileBelongsToTenant(userId, user.tenantId);
+  if (!owns) return c.html("Não encontrado.", 404);
 
   await supabase.from("team_members").insert({
     tenant_id: user.tenantId,

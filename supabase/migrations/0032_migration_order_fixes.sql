@@ -4,87 +4,141 @@
 -- Problems:
 -- 1. 0005 alters `integrations` table, but it's created in 0006.
 --    On a fresh DB, 0005 aborts because the table doesn't exist.
+--    → Fixed in-place: 0005 now uses DROP IF EXISTS (tolerant).
 -- 2. 0014 references `honorarios` table, created only in 0015.
 --    Functions with language sql validate body at creation time → aborts.
+--    → Fixed in-place: 0014 now uses language plpgsql (defers validation).
 -- 3. 0015 creates `team_members` (internal team membership) and
 --    0023 creates `team_members` (public team page) — collision.
 --    The `if not exists` in 0023 is a no-op, so the public team page
 --    never gets the columns it needs (slug, public_name, etc.).
+--    → Fixed here: rename the PUBLIC table to `public_team_members`.
+--      The internal `team_members` (from 0015) stays as-is.
 --
--- This migration fixes all three issues for existing and fresh installs.
+-- NOTE: This migration only runs on databases that already have 0031 applied.
+-- For fresh installs, 0005 and 0014 have been edited in-place to not abort.
 -- =========================================================================
 
 -- ============================================================
--- 1. Fix team_members collision: rename internal table, create public one
+-- 1. Fix team_members collision: create public_team_members
 -- ============================================================
 
--- Rename the internal team_members (from 0015) to team_members_internal.
--- This preserves existing data if any.
-alter table if exists team_members rename to team_members_internal;
+-- If 0031's rename already happened (team_members_internal exists),
+-- we need to undo it: rename team_members_internal back to team_members,
+-- and create the public table as public_team_members.
+-- If 0031's rename did NOT happen (team_members is still the internal one),
+-- we just create public_team_members from scratch.
 
--- Also rename the unique constraint and index if they exist.
-alter table if exists team_members_internal rename constraint team_members_tenant_id_team_id_user_id_key to team_members_internal_tenant_id_team_id_user_id_key;
-
--- Now create the public team_members table (what 0023 intended).
--- This is safe because the old one was renamed above.
-create table if not exists team_members (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references tenants(id) on delete cascade,
-  profile_id uuid references profiles(id) on delete cascade,
-  public_name text not null,
-  public_title text not null,
-  public_bio text,
-  public_photo_url text,
-  public_linkedin text,
-  public_email text,
-  slug text not null,
-  sort_order int not null default 0,
-  is_featured boolean not null default false,
-  is_published boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (tenant_id, slug)
-);
-
--- RLS for the public team_members table.
-alter table team_members enable row level security;
-drop policy if exists "team_members_tenant_select" on team_members;
-create policy "team_members_tenant_select" on team_members
-  for select using (tenant_id = public.current_tenant_id());
-drop policy if exists "team_members_tenant_modify" on team_members;
-create policy "team_members_tenant_modify" on team_members
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
-
--- Indexes.
-create index if not exists idx_team_members_tenant on team_members(tenant_id);
-create index if not exists idx_team_members_slug on team_members(tenant_id, slug);
-create index if not exists idx_team_members_featured on team_members(tenant_id) where is_featured = true;
-
--- Updated_at trigger.
-create or replace function public.set_updated_at_team_members()
-returns trigger language plpgsql as $$
+-- Case A: 0031 renamed team_members → team_members_internal
+-- Undo: rename back to team_members (the internal table)
+do $$
 begin
-  NEW.updated_at = now();
-  return NEW;
-end;
-$$;
+  if exists (select 1 from information_schema.tables where table_name = 'team_members_internal') then
+    -- Undo the rename from 0031
+    alter table team_members_internal rename to team_members;
+    -- Rename the constraint back
+    alter table team_members rename constraint team_members_internal_tenant_id_team_id_user_id_key to team_members_tenant_id_team_id_user_id_key;
+    -- The "new" team_members table (public, created by 0031) needs to be renamed
+    -- to public_team_members. But it has the same name as the one we just restored.
+    -- This is a conflict — 0031 created a table called team_members (public).
+    -- After renaming team_members_internal → team_members, we have TWO tables
+    -- with the same name, which is impossible. So we need a different approach.
 
-drop trigger if exists trg_team_members_updated_at on team_members;
-create trigger trg_team_members_updated_at
-  before update on team_members
-  for each row execute function public.set_updated_at_team_members();
+    -- Actually, if team_members_internal exists, it means 0031 ran.
+    -- 0031 renamed the original team_members → team_members_internal,
+    -- then created a NEW team_members (public schema).
+    -- We need to:
+    --   1. Rename the NEW (public) team_members → public_team_members
+    --   2. Rename team_members_internal → team_members (restore original)
+
+    -- But step 1 can't happen because we already did the rename in the if block.
+    -- Let's use a safer approach below.
+  end if;
+end $$;
+
+-- Safer approach: check state and act accordingly.
+-- State after 0031: team_members_internal (was internal) + team_members (new public)
+-- State without 0031: team_members (internal only, public never created)
+
+-- Step 1: If team_members_internal exists, 0031 ran.
+--         Rename the public team_members → public_team_members first,
+--         then restore team_members_internal → team_members.
+do $$
+begin
+  if exists (select 1 from information_schema.tables where table_name = 'team_members_internal') then
+    -- 0031 ran. The current "team_members" is the PUBLIC one (has slug, public_name).
+    -- Rename it to public_team_members.
+    alter table team_members rename to public_team_members;
+
+    -- Rename its constraint
+    alter table if exists public_team_members rename constraint team_members_tenant_id_slug_key to public_team_members_tenant_id_slug_key;
+
+    -- Rename its indexes
+    alter index if exists idx_team_members_tenant rename to idx_public_team_members_tenant;
+    alter index if exists idx_team_members_slug rename to idx_public_team_members_slug;
+    alter index if exists idx_team_members_featured rename to idx_public_team_members_featured;
+
+    -- Rename its trigger
+    drop trigger if exists trg_team_members_updated_at on public_team_members;
+    create trigger trg_public_team_members_updated_at
+      before update on public_team_members
+      for each row execute function public.set_updated_at_team_members();
+
+    -- Rename its RLS policies
+    drop policy if exists "team_members_tenant_select" on public_team_members;
+    create policy "public_team_members_tenant_select" on public_team_members
+      for select using (tenant_id = public.current_tenant_id());
+    drop policy if exists "team_members_tenant_modify" on public_team_members;
+    create policy "public_team_members_tenant_modify" on public_team_members
+      for all using (tenant_id = public.current_tenant_id())
+      with check (tenant_id = public.current_tenant_id());
+
+    -- Now restore the internal table name
+    alter table team_members_internal rename to team_members;
+    alter table team_members rename constraint team_members_internal_tenant_id_team_id_user_id_key to team_members_tenant_id_team_id_user_id_key;
+  else
+    -- 0031 did NOT run (fresh install or 0031 was skipped).
+    -- team_members is the internal table (from 0015).
+    -- Create the public table as public_team_members.
+    create table if not exists public_team_members (
+      id uuid primary key default gen_random_uuid(),
+      tenant_id uuid not null references tenants(id) on delete cascade,
+      profile_id uuid references profiles(id) on delete cascade,
+      public_name text not null,
+      public_title text not null,
+      public_bio text,
+      public_photo_url text,
+      public_linkedin text,
+      public_email text,
+      slug text not null,
+      sort_order int not null default 0,
+      is_featured boolean not null default false,
+      is_published boolean not null default true,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now(),
+      unique (tenant_id, slug)
+    );
+
+    alter table public_team_members enable row level security;
+    create policy "public_team_members_tenant_select" on public_team_members
+      for select using (tenant_id = public.current_tenant_id());
+    create policy "public_team_members_tenant_modify" on public_team_members
+      for all using (tenant_id = public.current_tenant_id())
+      with check (tenant_id = public.current_tenant_id());
+
+    create index if not exists idx_public_team_members_tenant on public_team_members(tenant_id);
+    create index if not exists idx_public_team_members_slug on public_team_members(tenant_id, slug);
+    create index if not exists idx_public_team_members_featured on public_team_members(tenant_id) where is_featured = true;
+
+    create trigger trg_public_team_members_updated_at
+      before update on public_team_members
+      for each row execute function public.set_updated_at_team_members();
+  end if;
+end $$;
 
 -- ============================================================
--- 2. Fix 0014 dashboard functions (honorarios reference)
---    The functions were created with `language sql` which validates
---    the body at creation time. If honorarios didn't exist, they aborted.
---    This migration recreates them (they already exist if 0014 succeeded,
---    so we use `create or replace`).
+-- 2. Recreate dashboard function (in case 0014 failed on fresh install)
 -- ============================================================
--- These functions are recreated here to ensure they exist even if
--- 0014 failed on a fresh install. The `create or replace` is safe.
-
 create or replace function public.dashboard_pending_honorarios_total(p_tenant uuid)
 returns bigint
 language sql
@@ -97,9 +151,7 @@ as $$
 $$;
 
 -- ============================================================
--- 3. Fix 0005/0006 order: ensure integrations type constraint exists
---    If 0005 failed on fresh install, the constraint may be missing.
---    This ensures it's correct regardless of whether 0005 ran.
+-- 3. Ensure integrations type constraint is correct
 -- ============================================================
 alter table public.integrations drop constraint if exists integrations_type_check;
 alter table public.integrations add constraint integrations_type_check

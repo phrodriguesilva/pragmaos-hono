@@ -3,15 +3,20 @@
 -- Avoids fetching all rows to the app server just to count/sum in JS.
 
 -- Sum of pending honorarios for a tenant.
+-- Uses language plpgsql (not sql) because honorarios table is created in 0015.
+-- language sql validates the body at creation time and would abort on fresh install.
+-- language plpgsql defers validation to runtime.
 create or replace function public.dashboard_pending_honorarios_total(p_tenant uuid)
 returns bigint
-language sql
+language plpgsql
 stable
 security definer
 set search_path = public
 as $$
-  select coalesce(sum(amount_cents), 0)::bigint from honorarios
-  where tenant_id = p_tenant and status = 'pending' and deleted_at is null;
+begin
+  return (select coalesce(sum(amount_cents), 0)::bigint from honorarios
+    where tenant_id = p_tenant and status = 'pending' and deleted_at is null);
+end;
 $$;
 
 -- Revenue by month (last 6 months) for a tenant.

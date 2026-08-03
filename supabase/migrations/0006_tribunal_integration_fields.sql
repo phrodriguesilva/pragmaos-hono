@@ -31,3 +31,16 @@ create table if not exists integrations (
 create index if not exists idx_integrations_tenant_id on integrations(tenant_id);
 create index if not exists idx_integrations_tenant_type on integrations(tenant_id, type);
 create index if not exists idx_proceedings_sync_status on proceedings(sync_status);
+
+-- Add type check constraint (also defined in 0005, but that migration may
+-- run before this table exists on fresh installs).
+alter table public.integrations drop constraint if exists integrations_type_check;
+alter table public.integrations add constraint integrations_type_check
+  check (type = ANY (ARRAY[
+    'cnj'::text, 'pje'::text, 'esaj'::text,
+    'google'::text, 'microsoft'::text,
+    'clicksign'::text, 'docusign'::text,
+    'whatsapp'::text, 'govbr'::text,
+    'diario_oficial'::text,
+    'llm'::text, 'digesto'::text, 'querido_diario'::text
+  ]));

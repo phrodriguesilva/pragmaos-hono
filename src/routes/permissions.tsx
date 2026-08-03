@@ -7,6 +7,18 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Textarea, Panel, Badge, Modal } from "../components/ui";
 
+// Verifies that a role belongs to the given tenant.
+async function roleBelongsToTenant(roleId: string, tenantId: string): Promise<boolean> {
+  if (!roleId || !tenantId) return false;
+  const { data } = await supabase
+    .from("roles")
+    .select("id")
+    .eq("id", roleId)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  return !!data;
+}
+
 export const permissionsRoutes = new Hono<AppEnv>();
 
 permissionsRoutes.use("*", requireAuth);
@@ -291,6 +303,10 @@ permissionsRoutes.post("/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
+
+  // Validate role belongs to tenant.
+  const owns = await roleBelongsToTenant(id, user.tenantId);
+  if (!owns) return c.html("Não encontrado.", 404);
 
   // Build upsert rows for each module from checkbox form fields.
   const rows = MODULES.map((mod) => ({

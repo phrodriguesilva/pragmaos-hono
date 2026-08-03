@@ -3,8 +3,8 @@
 // The key is never stored in the database — only ciphertext + IV + auth tag.
 
 import { createCipheriv, createDecipheriv, pbkdf2Sync, randomBytes } from "node:crypto";
+import { ENCRYPTION_KEY } from "./env";
 
-const ENCRYPTION_KEY = (typeof Bun !== "undefined" ? Bun.env : process.env).ENCRYPTION_KEY ?? "";
 const SALT = "pragmaos-salt-v1"; // Static salt — key derivation is deterministic by design.
 const KEY_LENGTH = 32; // 256 bits for AES-256
 const IV_LENGTH = 12; // 96 bits for GCM (recommended)

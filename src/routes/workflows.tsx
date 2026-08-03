@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant, clientBelongsToTenant, profileBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 
 export const workflowsRoutes = new Hono<AppEnv>();
@@ -660,15 +661,32 @@ workflowsRoutes.post("/:id/execute", async (c) => {
   for (const step of stepList) {
     const cfg = parseConfig(typeof step.action_config === "string" ? step.action_config : JSON.stringify(step.action_config ?? {}));
     try {
+      // Validate IDOR-relevant foreign keys from action_config before any insert.
+      const cfgCaseId = str(cfg, "case_id");
+      const cfgClientId = str(cfg, "client_id");
+      const cfgAssignedTo = str(cfg, "assigned_to");
+      if (cfgCaseId) {
+        const owns = await caseBelongsToTenant(cfgCaseId, user.tenantId);
+        if (!owns) { lastError = "Processo nao encontrado."; break; }
+      }
+      if (cfgClientId) {
+        const owns = await clientBelongsToTenant(cfgClientId, user.tenantId);
+        if (!owns) { lastError = "Cliente nao encontrado."; break; }
+      }
+      if (cfgAssignedTo) {
+        const owns = await profileBelongsToTenant(cfgAssignedTo, user.tenantId);
+        if (!owns) { lastError = "Usuario nao encontrado."; break; }
+      }
+
       switch (step.action_type) {
         case "create_task": {
           await supabase.from("tasks").insert({
             tenant_id: user.tenantId,
             title: str(cfg, "title") ?? step.name,
             description: str(cfg, "description") ?? null,
-            case_id: str(cfg, "case_id") ?? null,
-            client_id: str(cfg, "client_id") ?? null,
-            assigned_to: str(cfg, "assigned_to") ?? null,
+            case_id: cfgCaseId ?? null,
+            client_id: cfgClientId ?? null,
+            assigned_to: cfgAssignedTo ?? null,
             status: "todo",
             priority: num(cfg, "priority") ?? 3,
             due_date: str(cfg, "due_date") ? new Date(str(cfg, "due_date")!).toISOString() : null,
@@ -681,7 +699,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
           const due = str(cfg, "due_date");
           await supabase.from("deadlines").insert({
             tenant_id: user.tenantId,
-            case_id: str(cfg, "case_id") ?? null,
+            case_id: cfgCaseId ?? null,
             title: str(cfg, "title") ?? step.name,
             due_date: due ? new Date(due).toISOString() : new Date(Date.now() + 7 * 86400000).toISOString(),
             priority: num(cfg, "priority") ?? 2,
@@ -691,7 +709,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
         case "create_event": {
           await supabase.from("case_events").insert({
             tenant_id: user.tenantId,
-            case_id: str(cfg, "case_id") ?? null,
+            case_id: cfgCaseId ?? null,
             event_type: str(cfg, "event_type") ?? "workflow_event",
             description: str(cfg, "description") ?? step.name,
             created_by: user.id,
@@ -702,8 +720,8 @@ workflowsRoutes.post("/:id/execute", async (c) => {
           const amount = num(cfg, "amount_cents") ?? num(cfg, "amount") ?? 0;
           await supabase.from("honorarios").insert({
             tenant_id: user.tenantId,
-            client_id: str(cfg, "client_id") ?? null,
-            case_id: str(cfg, "case_id") ?? null,
+            client_id: cfgClientId ?? null,
+            case_id: cfgCaseId ?? null,
             description: str(cfg, "description") ?? step.name,
             type: str(cfg, "type") ?? "fee",
             amount_cents: amount,
@@ -717,8 +735,8 @@ workflowsRoutes.post("/:id/execute", async (c) => {
         case "send_message": {
           await supabase.from("communications_log").insert({
             tenant_id: user.tenantId,
-            case_id: str(cfg, "case_id") ?? null,
-            client_id: str(cfg, "client_id") ?? null,
+            case_id: cfgCaseId ?? null,
+            client_id: cfgClientId ?? null,
             channel: str(cfg, "channel") ?? "internal",
             direction: str(cfg, "direction") ?? "outbound",
             message_body: str(cfg, "message_body") ?? step.name,

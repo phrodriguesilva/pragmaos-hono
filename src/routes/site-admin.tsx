@@ -1002,7 +1002,7 @@ siteAdminRoutes.get("/team", async (c) => {
   const user = c.get("user");
 
   const { data: members }: any = await supabase
-    .from("team_members")
+    .from("public_team_members")
     .select("*")
     .eq("tenant_id", user.tenantId)
     .order("sort_order", { ascending: true });
@@ -1111,7 +1111,7 @@ siteAdminRoutes.post("/team", async (c) => {
 
   // Check slug uniqueness within tenant
   const { data: existing } = await supabase
-    .from("team_members")
+    .from("public_team_members")
     .select("id")
     .eq("tenant_id", user.tenantId)
     .eq("slug", slug)
@@ -1120,7 +1120,7 @@ siteAdminRoutes.post("/team", async (c) => {
     return c.redirect("/site/team?error=slug-duplicate");
   }
 
-  const { data: newMember } = await supabase.from("team_members").insert({
+  const { data: newMember } = await supabase.from("public_team_members").insert({
     tenant_id: user.tenantId,
     profile_id: profileId,
     public_name: publicName,
@@ -1152,7 +1152,7 @@ siteAdminRoutes.get("/team/:id", async (c) => {
   const id = c.req.param("id");
 
   const { data: member }: any = await supabase
-    .from("team_members")
+    .from("public_team_members")
     .select("*")
     .eq("id", id)
     .eq("tenant_id", user.tenantId)
@@ -1249,7 +1249,7 @@ siteAdminRoutes.post("/team/:id", async (c) => {
   // Check slug uniqueness (excluding current member)
   if (newSlug) {
     const { data: existing } = await supabase
-      .from("team_members")
+      .from("public_team_members")
       .select("id")
       .eq("tenant_id", user.tenantId)
       .eq("slug", newSlug)
@@ -1261,7 +1261,7 @@ siteAdminRoutes.post("/team/:id", async (c) => {
   }
 
   await supabase
-    .from("team_members")
+    .from("public_team_members")
     .update({
       public_name: body.public_name as string,
       public_title: body.public_title as string,
@@ -1296,7 +1296,7 @@ siteAdminRoutes.post("/team/:id/delete", async (c) => {
   const id = c.req.param("id");
 
   await supabase
-    .from("team_members")
+    .from("public_team_members")
     .delete()
     .eq("id", id)
     .eq("tenant_id", user.tenantId);

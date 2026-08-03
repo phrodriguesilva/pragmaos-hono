@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { caseBelongsToTenant, clientBelongsToTenant, documentBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 import {
   createClicksignEnvelope,
@@ -197,6 +198,20 @@ signatureRoutes.post("/", async (c) => {
   if (!parsed.success) {
     const firstError = parsed.error.issues[0]?.message ?? "Dados invalidos";
     return c.redirect(`/signatures?error=${encodeURIComponent(firstError)}`);
+  }
+
+  // Validate IDOR-relevant foreign keys.
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.document_id) {
+    const owns = await documentBelongsToTenant(parsed.data.document_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
   }
 
   await supabase.from("signature_requests").insert({
@@ -451,7 +466,7 @@ signatureRoutes.post("/:id/send-to-clicksign", async (c) => {
       const { data: doc } = await supabase
         .from("documents")
         .select("title, file_url, storage_path")
-        .eq("id", sig.document_id).single();
+        .eq("id", sig.document_id).eq("tenant_id", user.tenantId).single();
       if (doc?.file_url) {
         try {
           const docResp = await fetch(doc.file_url);
@@ -556,7 +571,7 @@ signatureRoutes.post("/:id/send-to-docusign", async (c) => {
       const { data: doc } = await supabase
         .from("documents")
         .select("title, file_url, storage_path")
-        .eq("id", sig.document_id).single();
+        .eq("id", sig.document_id).eq("tenant_id", user.tenantId).single();
       if (doc?.file_url) {
         try {
           const docResp = await fetch(doc.file_url);

@@ -7,6 +7,18 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
+// Verifies that a company belongs to the given tenant.
+async function companyBelongsToTenant(companyId: string, tenantId: string): Promise<boolean> {
+  if (!companyId || !tenantId) return false;
+  const { data } = await supabase
+    .from("companies")
+    .select("id")
+    .eq("id", companyId)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  return !!data;
+}
+
 export const companiesRoutes = new Hono<AppEnv>();
 
 companiesRoutes.use("*", requireAuth);
@@ -341,6 +353,10 @@ companiesRoutes.post("/:id/representatives", async (c) => {
   if (!parsed.success) {
     return c.redirect(`/companies/${id}`);
   }
+
+  // Validate company belongs to tenant.
+  const owns = await companyBelongsToTenant(id, user.tenantId);
+  if (!owns) return c.html("Não encontrado.", 404);
 
   await supabase.from("company_representatives").insert({
     tenant_id: user.tenantId,

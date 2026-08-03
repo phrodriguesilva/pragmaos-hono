@@ -1,7 +1,9 @@
 -- 0023_team_and_stats.sql
 -- Professional profiles + public team members + site stats.
 -- Extends profiles with OAB, bio, photo, etc.
--- Adds: team_members (public site), site_stats (numbers on home).
+-- Adds: public_team_members (public site), site_stats (numbers on home).
+-- NOTE: Renamed from team_members to public_team_members to avoid collision
+-- with the internal team_members table created in 0015.
 
 -- =========================================================================
 -- 1. Extend profiles with professional fields
@@ -19,12 +21,12 @@ alter table profiles
   add column if not exists supervisor_id uuid references profiles(id) on delete set null;
 
 -- =========================================================================
--- 2. team_members — public-facing team pages
+-- 2. public_team_members — public-facing team pages
 --    References profiles so we don't duplicate data.
 --    The admin chooses which profiles to publish and can override
 --    the public bio/title independently of internal data.
 -- =========================================================================
-create table if not exists team_members (
+create table if not exists public_team_members (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references tenants(id) on delete cascade,
   profile_id uuid references profiles(id) on delete cascade,
@@ -43,8 +45,8 @@ create table if not exists team_members (
   unique (tenant_id, slug)
 );
 
-create index if not exists idx_team_members_tenant on team_members(tenant_id);
-create index if not exists idx_team_members_published on team_members(tenant_id, is_published, sort_order);
+create index if not exists idx_public_team_members_tenant on public_team_members(tenant_id);
+create index if not exists idx_public_team_members_published on public_team_members(tenant_id, is_published, sort_order);
 
 -- =========================================================================
 -- 3. site_stats — numbers displayed on the public home page
@@ -69,12 +71,12 @@ create index if not exists idx_site_stats_tenant on site_stats(tenant_id);
 -- 4. RLS policies
 -- =========================================================================
 
--- team_members: tenant-scoped (admin manages, public reads via service role)
-alter table team_members enable row level security;
-create policy "team_members_select_own" on team_members
+-- public_team_members: tenant-scoped (admin manages, public reads via service role)
+alter table public_team_members enable row level security;
+create policy "public_team_members_select_own" on public_team_members
   for select to authenticated
   using (tenant_id in (select tenant_id from profiles where id = auth.uid()));
-create policy "team_members_modify_own" on team_members
+create policy "public_team_members_modify_own" on public_team_members
   for all to authenticated
   using (tenant_id in (select tenant_id from profiles where id = auth.uid() and role in ('socio','admin')))
   with check (tenant_id in (select tenant_id from profiles where id = auth.uid() and role in ('socio','admin')));
@@ -90,9 +92,9 @@ create policy "site_stats_modify_own" on site_stats
   with check (tenant_id in (select tenant_id from profiles where id = auth.uid() and role in ('socio','admin')));
 
 -- =========================================================================
--- 5. Updated_at trigger for team_members
+-- 5. Updated_at trigger for public_team_members
 -- =========================================================================
-drop trigger if exists trg_team_members_updated on team_members;
-create trigger trg_team_members_updated
-  before update on team_members
+drop trigger if exists trg_public_team_members_updated on public_team_members;
+create trigger trg_public_team_members_updated
+  before update on public_team_members
   for each row execute function update_updated_at();

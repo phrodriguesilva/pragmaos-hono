@@ -143,6 +143,19 @@ whatsappWebhookRoutes.post("/", async (c) => {
             // Check for opt-out keywords.
             const optedOut = detectOptOut(text);
 
+            // Idempotency: check if this message was already processed.
+            const { data: existing } = await supabase
+              .from("whatsapp_messages")
+              .select("id")
+              .eq("tenant_id", tenantId)
+              .eq("external_message_id", msgId)
+              .maybeSingle();
+
+            if (existing) {
+              // Already processed — skip insert (webhook retry dedup).
+              continue;
+            }
+
             // Insert inbound message.
             await supabase.from("whatsapp_messages").insert({
               tenant_id: tenantId,
