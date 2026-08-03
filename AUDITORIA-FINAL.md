@@ -1,8 +1,8 @@
-# Auditoria Final — PragmaOS 2 (Rodada 5 / Final)
+# Auditoria Final — PragmaOS 2 (Rodada 6 / Final)
 
 **Data:** 2026-08-02
-**Contexto:** Após 4 rodadas de auditoria e correção, esta é a auditoria final geral do sistema.
-**Commit base:** `16a885f` em `main`
+**Contexto:** Após 5 rodadas de auditoria e correção, esta é a auditoria final geral do sistema.
+**Commit base:** `c43615d` em `main`
 
 ---
 
@@ -124,9 +124,40 @@
 | `a879e01` | 0032 fix, 0031 idempotente, PII masking, error.message, soft-delete, planos |
 | `4d376bf` | error.message restante, deleted_at consultas, testes, crypto integrations, transações |
 | `16a885f` | back-office error.message, reset token log, 0028 in-place |
+| `c43615d` | IDOR UPDATE endpoints, OAuth logs redacted, timing-safe webhook, error.message workflows/signatures |
 
-**Total: 5 commits, ~200 issues corrigidas, 32 testes de segurança adicionados.**
+**Total: 6 commits, ~220 issues corrigidas, 32 testes de segurança adicionados.**
 
 ---
 
-*Auditoria final sobre repositório (git `main`, `16a885f`). Nenhum arquivo foi modificado além das correções listadas.*
+## 7. Correções da Rodada 6 (commit `c43615d`)
+
+### P1 — IDOR em 8 UPDATE/CREATE endpoints sem validação de ownership
+- `deadlines.tsx`: UPDATE valida case_id
+- `hearings.tsx`: UPDATE valida case_id
+- `communications.tsx`: UPDATE valida case_id + client_id
+- `documents.tsx`: UPDATE valida case_id + client_id
+- `tasks.tsx`: UPDATE valida case_id + client_id + assigned_to
+- `proceedings.tsx`: import-cnj valida case_id
+- `cases.tsx`: CREATE e UPDATE validam client_id
+- `ai-chat.tsx`: CREATE conversation valida case_id
+
+### P1 — OAuth error logs redacted (oauth.tsx, 6 pontos)
+- Token exchange failures: response body não mais logado (pode conter access_token)
+- OAuth error objects: apenas `err.message` logado, não objeto completo
+
+### P1 — Timing-safe comparison no WhatsApp webhook verify
+- `whatsapp-webhook.ts:57` usava `===` (vulnerável a timing attack)
+- Trocado por `Buffer` + `timingSafeEqual`
+
+### P1 — error.message restante (9 pontos)
+- `workflows.tsx`: 5 insert errors + 1 catch (lastError exibido ao usuário)
+- `signatures.tsx`: 3 catch blocks (Clicksign/DocuSign/status refresh)
+- `ai-chat.tsx`: 1 client-side catch
+
+### P2 — Defesa em profundidade users.tsx
+- Compensating action delete profile agora filtra `.eq("tenant_id")`
+
+---
+
+*Auditoria final sobre repositório (git `main`, `c43615d`). Nenhum arquivo foi modificado além das correções listadas.*
