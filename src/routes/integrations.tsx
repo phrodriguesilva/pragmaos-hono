@@ -136,6 +136,7 @@ const RenderConfigField: FC<{ field: ConfigField; existingValue?: unknown }> = (
           required={field.required}
           placeholder={field.placeholder}
           icon="ph-key"
+          autocomplete="new-password"
         />
       );
     default:

@@ -310,7 +310,7 @@ portalRoutes.get("/login", (c) => {
               <label for="password" class="text-body-sm font-semibold text-gray-700">Senha<span class="text-status-red"> *</span></label>
               <div class="relative">
                 <i class="ph ph-lock absolute left-2 top-1/2 -translate-y-1/2 text-body text-gray-400" aria-hidden="true" />
-                <input id="password" name="password" type="password" required placeholder="********" class="input pl-7 pr-7" {...{ ":type": "show ? 'text' : 'password'" }} />
+                <input id="password" name="password" type="password" required placeholder="********" autocomplete="current-password" class="input pl-7 pr-7" {...{ ":type": "show ? 'text' : 'password'" }} />
                 <button type="button" {...{ "@click": "show = !show" }} aria-label="Mostrar senha" class="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 px-1">
                   <i {...{ ":class": "show ? 'ph ph-eye-slash' : 'ph ph-eye'" }} class="ph ph-eye text-body" aria-hidden="true" />
                 </button>

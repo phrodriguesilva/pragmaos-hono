@@ -300,7 +300,7 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   // Platform admins go to /back-office (they don't have a tenant dashboard).
   const isPlatformAdmin = (profile as any)?.is_platform_admin ?? false;
   const defaultRedirect = isPlatformAdmin ? "/back-office" : "/dashboard";
-  const safeRedirect = redirect && redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : defaultRedirect;
+  const safeRedirect = redirect && redirect.startsWith("/") && !redirect.startsWith("//") && !redirect.startsWith("/\\") ? redirect : defaultRedirect;
   return c.redirect(safeRedirect);
 });
 
@@ -316,7 +316,7 @@ function twoFAVerifyForm(errorMsg?: string) {
         <h1 class="text-h2 font-bold text-gray-900">Verificação 2FA</h1>
       </div>
       <p class="text-body-sm text-gray-500 mb-6">
-        Digite o código de 6 dígitos do seu app autenticador.
+        Digite o código de 6 dígitos do seu app autenticador ou um código de backup.
       </p>
       {errorMsg ? ErrorAlert(errorMsg) : null}
       <form method="post" action="/2fa/verify" class="flex flex-col gap-4">
@@ -328,13 +328,10 @@ function twoFAVerifyForm(errorMsg?: string) {
             id="code"
             name="code"
             type="text"
-            inputMode="numeric"
             required
-            pattern="[0-9]{6}"
-            maxlength={6}
             autofocus
-            placeholder="000000"
-            class="input w-full text-center text-h3 tracking-[0.3em] font-mono"
+            placeholder="000000 ou código de backup"
+            class="input w-full text-center text-h3 tracking-[0.2em] font-mono"
             autocomplete="one-time-code"
           />
         </div>
@@ -362,16 +359,16 @@ authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
   if (!userId) return c.redirect("/login");
 
   const body = await c.req.parseBody();
-  const code = String(body.code ?? "").trim();
+  const code = String(body.code ?? "").trim().toUpperCase();
 
-  if (!code || code.length !== 6) {
-    return c.html(twoFAVerifyForm("O código deve ter 6 dígitos."));
+  if (!code) {
+    return c.html(twoFAVerifyForm("Código obrigatório."));
   }
 
-  // Fetch the user's TOTP secret.
+  // Fetch the user's TOTP secret and backup codes.
   const { data: totpRow } = await supabase
     .from("user_totp")
-    .select("secret, tenant_id")
+    .select("secret, tenant_id, backup_codes")
     .eq("user_id", userId)
     .eq("enabled", true)
     .single();
@@ -380,8 +377,29 @@ authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
     return c.redirect("/login");
   }
 
-  // Validate the TOTP code.
-  if (!validateTOTP(code, totpRow.secret)) {
+  let verified = false;
+  let usedBackupCode = false;
+
+  // Check if it's a TOTP code (6 digits) or a backup code (8 chars alphanumeric).
+  if (/^\d{6}$/.test(code)) {
+    verified = validateTOTP(code, totpRow.secret);
+  } else if (/^[A-Z0-9]{8}$/.test(code)) {
+    // Check backup codes
+    const backupCodes: string[] = Array.isArray(totpRow.backup_codes) ? totpRow.backup_codes : [];
+    const idx = backupCodes.indexOf(code);
+    if (idx >= 0) {
+      verified = true;
+      usedBackupCode = true;
+      // Remove the used backup code (single-use).
+      backupCodes.splice(idx, 1);
+      await supabase
+        .from("user_totp")
+        .update({ backup_codes: backupCodes })
+        .eq("user_id", userId);
+    }
+  }
+
+  if (!verified) {
     // Log failed 2FA attempt.
     await supabase.from("auth_logs").insert({
       tenant_id: totpRow.tenant_id,
@@ -751,11 +769,11 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
               name="password"
               type="password"
               required
-              minlength={6}
-              placeholder="Minimo 6 caracteres"
+              minlength={8}
+              placeholder="Minimo 8 caracteres"
               autocomplete="new-password"
               class="input w-full pl-7 pr-8"
-              {...{ ":type": "show ? 'text' : 'password'", "x-model": "pw", "@input": "s = pw.length >= 6 ? (pw.length >= 10 && /[^a-zA-Z0-9]/.test(pw) ? 3 : pw.length >= 8 ? 2 : 1) : 0" }}
+              {...{ ":type": "show ? 'text' : 'password'", "x-model": "pw", "@input": "s = pw.length >= 8 ? (pw.length >= 10 && /[^a-zA-Z0-9]/.test(pw) ? 3 : pw.length >= 8 ? 2 : 1) : 0" }}
             />
             <button
               type="button"
@@ -789,7 +807,7 @@ function resetPasswordForm(token: string, errorMsg?: string, success?: boolean) 
               name="confirm_password"
               type="password"
               required
-              minlength={6}
+              minlength={8}
               placeholder="Repita a nova senha"
               autocomplete="new-password"
               class="input w-full pl-7 pr-8"
@@ -870,8 +888,8 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
     return c.html(resetPasswordForm("", "Token inválido."));
   }
 
-  if (!password || password.length < 6) {
-    return c.html(resetPasswordForm(token, "A senha deve ter no minimo 6 caracteres."));
+  if (!password || password.length < 8) {
+    return c.html(resetPasswordForm(token, "A senha deve ter no minimo 8 caracteres."));
   }
 
   if (password !== confirmPassword) {

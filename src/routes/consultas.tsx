@@ -1254,7 +1254,7 @@ consultasRoutes.get("/resultado/:id", async (c) => {
       <PageHeader title={`Resultado: ${t.label}`} icon={t.icon}>
         <div class="flex gap-2">
           {r.status === "completed" && (
-            <a href={`/consultas/resultado/${r.id}/pdf`} target="_blank" class="btn btn-secondary inline-flex items-center gap-1">
+            <a href={`/consultas/resultado/${r.id}/pdf`} target="_blank" rel="noopener noreferrer" class="btn btn-secondary inline-flex items-center gap-1">
               <i class="ph ph-file-pdf" aria-hidden="true"></i>
               Baixar PDF
             </a>

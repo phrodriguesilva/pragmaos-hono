@@ -199,7 +199,7 @@ signupRoutes.get("/signup", async (c) => {
           {/* Terms checkbox */}
           <label class="flex items-start gap-2 text-body-sm text-gray-600 cursor-pointer">
             <input type="checkbox" name="accept_terms" required class="mt-0.5" />
-            <span>Aceito os <a href="/termos" class="text-[#0568ff] hover:underline" target="_blank">Termos de Uso</a> e a <a href="/privacidade" class="text-[#0568ff] hover:underline" target="_blank">Política de Privacidade</a> (LGPD). <span class="text-status-red">*</span></span>
+            <span>Aceito os <a href="/termos" class="text-[#0568ff] hover:underline" target="_blank" rel="noopener noreferrer">Termos de Uso</a> e a <a href="/privacidade" class="text-[#0568ff] hover:underline" target="_blank" rel="noopener noreferrer">Política de Privacidade</a> (LGPD). <span class="text-status-red">*</span></span>
           </label>
 
           {/* Submit with loading state */}

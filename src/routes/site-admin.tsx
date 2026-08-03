@@ -2,6 +2,7 @@
 // Routes: /site/appearance, /site/areas, /site/articles, /site/contacts, /site/settings
 
 import { Hono } from "hono";
+import { z } from "zod";
 import type { AppEnv } from "../lib/types";
 import { requireAuth, requireRole } from "../lib/session";
 import { supabase } from "../lib/supabase";
@@ -49,7 +50,7 @@ siteAdminRoutes.get("/appearance", async (c) => {
     <>
       <PageHeader title="Aparencia do Site" icon="ph-palette" actions={() => (
         <div class="flex gap-2">
-          <a href={baseUrl} target="_blank" class="btn btn-secondary inline-flex items-center gap-1">
+          <a href={baseUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-square-out" aria-hidden="true"></i>Ver Site
           </a>
         </div>
@@ -1677,15 +1678,25 @@ siteAdminRoutes.get("/clients/:id", async (c) => {
   </>);
 });
 
+const clientLogoSchema = z.object({
+  name: z.string().min(1).max(255),
+  logo_url: z.string().url().or(z.literal("")).optional(),
+  website_url: z.string().url().or(z.literal("")).optional(),
+  sort_order: z.coerce.number().int().min(0).max(9999).default(0),
+  is_published: z.string().optional(),
+});
+
 siteAdminRoutes.post("/clients/:id", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
+  const parsed = clientLogoSchema.safeParse(body);
+  if (!parsed.success) return c.redirect(`/site/clients/${c.req.param("id")}`);
   await supabase.from("client_logos").update({
-    name: body.name as string,
-    logo_url: (body.logo_url as string) || null,
-    website_url: (body.website_url as string) || null,
-    sort_order: parseInt(body.sort_order as string) || 0,
-    is_published: body.is_published === "true",
+    name: parsed.data.name,
+    logo_url: parsed.data.logo_url || null,
+    website_url: parsed.data.website_url || null,
+    sort_order: parsed.data.sort_order,
+    is_published: parsed.data.is_published === "true",
   }).eq("id", c.req.param("id")).eq("tenant_id", user.tenantId);
   return c.redirect(`/site/clients/${c.req.param("id")}`);
 });

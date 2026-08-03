@@ -111,9 +111,9 @@ profileRoutes.get("/", async (c) => {
 
         <Panel title="Alterar senha" icon="ph-key">
           <form method="post" action="/profile/password" class="flex flex-col gap-3">
-            <TextField label="Senha atual" id="current_password" name="current_password" type="password" required icon="ph-lock" />
-            <TextField label="Nova senha" id="new_password" name="new_password" type="password" required icon="ph-lock" placeholder="Minimo 6 caracteres" />
-            <TextField label="Confirmar nova senha" id="confirm_password" name="confirm_password" type="password" required icon="ph-lock" />
+            <TextField label="Senha atual" id="current_password" name="current_password" type="password" required icon="ph-lock" autocomplete="current-password" />
+            <TextField label="Nova senha" id="new_password" name="new_password" type="password" required icon="ph-lock" placeholder="Minimo 8 caracteres" autocomplete="new-password" />
+            <TextField label="Confirmar nova senha" id="confirm_password" name="confirm_password" type="password" required icon="ph-lock" autocomplete="new-password" />
             <button type="submit" class="btn btn-primary inline-flex items-center gap-1 self-start">
               <i class="ph ph-floppy-disk" aria-hidden="true" />Alterar senha
             </button>
@@ -259,7 +259,7 @@ profileRoutes.post("/password", async (c) => {
     );
   }
 
-  if (newPassword.length < 6) {
+  if (newPassword.length < 8) {
     return renderPage(
       c,
       { title: "Meu Perfil", active: "profile" },
@@ -268,7 +268,7 @@ profileRoutes.post("/password", async (c) => {
         <Panel>
           <div class="mb-4 text-status-red flex items-center gap-2">
             <i class="ph ph-warning text-h2" aria-hidden="true" />
-            A nova senha deve ter no minimo 6 caracteres.
+            A nova senha deve ter no minimo 8 caracteres.
           </div>
           <a href="/profile" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-left" aria-hidden="true" />Voltar

@@ -82,7 +82,12 @@ whatsappWebhookRoutes.post("/", async (c) => {
     const signatureHeader = c.req.header("X-Hub-Signature-256");
 
     // Parse body for processing.
-    const body = JSON.parse(rawBody);
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return c.json({ error: "Invalid JSON" }, 400);
+    }
 
     if (body?.object !== "whatsapp_business_account") {
       return c.json({ status: "ignored" }, 200);

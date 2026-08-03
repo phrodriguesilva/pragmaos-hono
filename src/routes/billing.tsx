@@ -374,7 +374,7 @@ billingRoutes.get("/:id", async (c) => {
         icon="ph-receipt"
         actions={() => (
           <div class="flex gap-2">
-            <a href={`/billing/${id}/pdf`} target="_blank" class="btn btn-secondary inline-flex items-center gap-1">
+            <a href={`/billing/${id}/pdf`} target="_blank" rel="noopener noreferrer" class="btn btn-secondary inline-flex items-center gap-1">
               <i class="ph ph-file-pdf" aria-hidden="true"></i>Baixar PDF
             </a>
             {!isCancelled && !isPaid ? (

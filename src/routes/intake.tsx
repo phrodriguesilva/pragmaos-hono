@@ -111,7 +111,7 @@ intakeAdminRoutes.get("/", async (c) => {
                   </div>
                   <div class="flex items-center gap-3">
                     <Badge color={f.isActive ? "green" : "gray"}>{f.isActive ? "Ativo" : "Inativo"}</Badge>
-                    <a href={`/intake/f/${f.slug}`} target="_blank" class="text-sm text-[#0568ff] hover:underline">
+                    <a href={`/intake/f/${f.slug}`} target="_blank" rel="noopener noreferrer" class="text-sm text-[#0568ff] hover:underline">
                       Abrir
                     </a>
                   </div>

@@ -38,13 +38,12 @@ function detectMimeType(bytes: Uint8Array, fileName: string): { mime: string; va
 
   for (const type of ALLOWED_TYPES) {
     if (type.check(bytes)) {
-      // Verify extension matches for ZIP-based formats (DOCX/XLSX share signature).
+      // Magic bytes matched — extension MUST also match for validation.
       if (type.exts.includes(ext)) {
         return { mime: type.mime, valid: true };
       }
-      // If magic bytes match but extension doesn't, still return the detected type
-      // but mark as valid only if it's in the allowed list.
-      return { mime: type.mime, valid: true };
+      // Magic bytes match but extension doesn't — reject.
+      return { mime: type.mime, valid: false };
     }
   }
 
@@ -92,7 +91,12 @@ uploadRoutes.post("/", async (c) => {
   if (!uuidRegex.test(user.tenantId)) {
     return c.json({ error: "Tenant invalido." }, 400);
   }
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  // Sanitize filename: remove special chars, collapse to single extension.
+  const lastDot = file.name.lastIndexOf(".");
+  const rawExt = lastDot >= 0 ? file.name.slice(lastDot).toLowerCase() : "";
+  const rawBase = lastDot >= 0 ? file.name.slice(0, lastDot) : file.name;
+  const safeBase = rawBase.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const safeName = `${safeBase}${rawExt}`;
   const filePath = `${user.tenantId}/${Date.now()}-${safeName}`;
 
   try {

@@ -33,7 +33,7 @@ export async function provisionTenant(req: SignupRequest): Promise<SignupResult>
     .maybeSingle();
 
   if (existingUser) {
-    return { success: false, error: "E-mail ja cadastrado. Faca login ou use outro e-mail." };
+    return { success: false, error: "Nao foi possivel criar a conta. Tente novamente ou entre em contato com o suporte." };
   }
 
   // 2. Create the auth user via Supabase Auth.

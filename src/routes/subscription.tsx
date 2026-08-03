@@ -17,7 +17,13 @@ import { PLAN_INFO, PLAN_FEATURES, PRO_FOOTNOTE } from "../lib/plans";
 
 export const subscriptionRoutes = new Hono<AppEnv>();
 
-subscriptionRoutes.use("*", requireAuth);
+// Apply auth to all routes EXCEPT the public Asaas webhook endpoint.
+subscriptionRoutes.use("*", (c, next) => {
+  if (c.req.path === "/assinatura/webhook" || c.req.path === "/webhook") {
+    return next();
+  }
+  return requireAuth(c, next);
+});
 
 function formatCurrency(cents: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);

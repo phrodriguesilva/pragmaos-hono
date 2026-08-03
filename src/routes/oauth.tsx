@@ -5,7 +5,7 @@ import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { Panel } from "../components/ui";
-import { SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
+import { SUPABASE_SERVICE_ROLE_KEY, APP_URL } from "../lib/env";
 import { encrypt, decrypt, decryptConfigSecrets } from "../lib/crypto";
 
 export const oauthRoutes = new Hono<AppEnv>();
@@ -86,6 +86,18 @@ async function verifyOAuthState(state: string): Promise<{ tenantId: string; user
   }
 }
 
+// Validate that redirect_uri starts with the app's own URL (same-origin)
+// to prevent open redirect via compromised admin config.
+function isValidRedirectUri(uri: string): boolean {
+  try {
+    const parsed = new URL(uri);
+    const appUrl = new URL(APP_URL);
+    return parsed.origin === appUrl.origin;
+  } catch {
+    return false;
+  }
+}
+
 // Default OAuth scopes for Google Workspace.
 const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
@@ -135,7 +147,7 @@ oauthRoutes.get("/google", requireAuth, async (c) => {
     scopes?: string;
   };
 
-  if (!config.client_id || !config.redirect_uri) {
+  if (!config.client_id || !config.redirect_uri || !isValidRedirectUri(config.redirect_uri)) {
     return renderPage(
       c,
       { title: "Integracao Google", active: "integrations" },
@@ -300,7 +312,7 @@ oauthRoutes.get("/microsoft", requireAuth, async (c) => {
     tenant_id?: string;
   };
 
-  if (!config.client_id || !config.redirect_uri || !config.tenant_id) {
+  if (!config.client_id || !config.redirect_uri || !config.tenant_id || !isValidRedirectUri(config.redirect_uri)) {
     return renderPage(
       c,
       { title: "Integracao Microsoft", active: "integrations" },
@@ -469,7 +481,7 @@ oauthRoutes.get("/docusign", requireAuth, async (c) => {
     environment?: string;
   };
 
-  if (!config.client_id || !config.redirect_uri) {
+  if (!config.client_id || !config.redirect_uri || !isValidRedirectUri(config.redirect_uri)) {
     return renderPage(
       c,
       { title: "Integracao DocuSign", active: "integrations" },

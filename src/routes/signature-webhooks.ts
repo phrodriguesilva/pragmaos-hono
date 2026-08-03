@@ -50,10 +50,15 @@ signatureWebhookRoutes.post("/clicksign", async (c) => {
       return c.json({ ok: false, error: "invalid signature" }, 401);
     }
 
-    const event = JSON.parse(rawBody) as {
-      event?: { name?: string };
-      envelope?: { id?: string; status?: string };
-    };
+    let event;
+    try {
+      event = JSON.parse(rawBody) as {
+        event?: { name?: string };
+        envelope?: { id?: string; status?: string };
+      };
+    } catch {
+      return c.json({ ok: false, error: "Invalid JSON" }, 400);
+    }
 
     const envelopeId = event.envelope?.id ?? "";
     const eventType = event.event?.name ?? "unknown";
@@ -150,14 +155,19 @@ signatureWebhookRoutes.post("/docusign", async (c) => {
       return c.json({ ok: false, error: "invalid signature" }, 401);
     }
 
-    const event = JSON.parse(rawBody) as {
-      event?: string;
-      data?: {
-        envelopeId?: string;
-        status?: string;
-        envelopeSummary?: { status?: string };
+    let event;
+    try {
+      event = JSON.parse(rawBody) as {
+        event?: string;
+        data?: {
+          envelopeId?: string;
+          status?: string;
+          envelopeSummary?: { status?: string };
+        };
       };
-    };
+    } catch {
+      return c.json({ ok: false, error: "Invalid JSON" }, 400);
+    }
 
     const envelopeId = event.data?.envelopeId ?? "";
     const eventType = event.event ?? "unknown";
