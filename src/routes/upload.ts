@@ -104,8 +104,8 @@ uploadRoutes.post("/", async (c) => {
       });
 
     if (error) {
-      console.error("Storage upload error:", error);
-      return c.json({ error: `Erro no upload: ${error.message}` }, 500);
+      console.error("[upload] storage upload failed", { error: error.message });
+      return c.json({ error: "Ocorreu um erro no upload. Tente novamente." }, 500);
     }
 
     // Get a signed URL valid for 1 hour (bucket is private).

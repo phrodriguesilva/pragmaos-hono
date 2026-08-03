@@ -118,6 +118,7 @@ searchRoutes.get("/api", async (c) => {
     .from("documents")
     .select("id, title, doc_type, case_id, cases(title), clients(name)")
     .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
     .or(`title.ilike.%${q}%,extracted_text.ilike.%${q}%`)
     .limit(10);
   for (const doc of documents ?? []) {
@@ -157,6 +158,7 @@ searchRoutes.get("/documents", async (c) => {
       .from("documents")
       .select("id, title, doc_type, storage_path, created_at, extracted_text, cases(title), clients(name)", { count: "exact" })
       .eq("tenant_id", user.tenantId)
+      .is("deleted_at", null)
       .or(`title.ilike.%${q}%,extracted_text.ilike.%${q}%`)
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);

@@ -657,6 +657,9 @@ workflowsRoutes.post("/:id/execute", async (c) => {
   let completed = 0;
   let lastError: string | null = null;
 
+  // Track created resources for compensating rollback on failure.
+  const createdResources: { table: string; id: string }[] = [];
+
   // Iterate through steps and perform each action.
   for (const step of stepList) {
     const cfg = parseConfig(typeof step.action_config === "string" ? step.action_config : JSON.stringify(step.action_config ?? {}));
@@ -678,9 +681,10 @@ workflowsRoutes.post("/:id/execute", async (c) => {
         if (!owns) { lastError = "Usuario nao encontrado."; break; }
       }
 
+      let stepFailed = false;
       switch (step.action_type) {
         case "create_task": {
-          await supabase.from("tasks").insert({
+          const { data: inserted, error: insertError } = await supabase.from("tasks").insert({
             tenant_id: user.tenantId,
             title: str(cfg, "title") ?? step.name,
             description: str(cfg, "description") ?? null,
@@ -692,33 +696,39 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             due_date: str(cfg, "due_date") ? new Date(str(cfg, "due_date")!).toISOString() : null,
             billable: false,
             created_by: user.id,
-          });
+          }).select("id").single();
+          if (insertError) { lastError = `Erro ao criar tarefa: ${insertError.message}`; stepFailed = true; break; }
+          if (inserted?.id) createdResources.push({ table: "tasks", id: inserted.id });
           break;
         }
         case "create_deadline": {
           const due = str(cfg, "due_date");
-          await supabase.from("deadlines").insert({
+          const { data: inserted, error: insertError } = await supabase.from("deadlines").insert({
             tenant_id: user.tenantId,
             case_id: cfgCaseId ?? null,
             title: str(cfg, "title") ?? step.name,
             due_date: due ? new Date(due).toISOString() : new Date(Date.now() + 7 * 86400000).toISOString(),
             priority: num(cfg, "priority") ?? 2,
-          });
+          }).select("id").single();
+          if (insertError) { lastError = `Erro ao criar prazo: ${insertError.message}`; stepFailed = true; break; }
+          if (inserted?.id) createdResources.push({ table: "deadlines", id: inserted.id });
           break;
         }
         case "create_event": {
-          await supabase.from("case_events").insert({
+          const { data: inserted, error: insertError } = await supabase.from("case_events").insert({
             tenant_id: user.tenantId,
             case_id: cfgCaseId ?? null,
             event_type: str(cfg, "event_type") ?? "workflow_event",
             description: str(cfg, "description") ?? step.name,
             created_by: user.id,
-          });
+          }).select("id").single();
+          if (insertError) { lastError = `Erro ao criar evento: ${insertError.message}`; stepFailed = true; break; }
+          if (inserted?.id) createdResources.push({ table: "case_events", id: inserted.id });
           break;
         }
         case "create_invoice": {
           const amount = num(cfg, "amount_cents") ?? num(cfg, "amount") ?? 0;
-          await supabase.from("honorarios").insert({
+          const { data: inserted, error: insertError } = await supabase.from("honorarios").insert({
             tenant_id: user.tenantId,
             client_id: cfgClientId ?? null,
             case_id: cfgCaseId ?? null,
@@ -729,11 +739,13 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             due_date: str(cfg, "due_date") ?? null,
             installments: num(cfg, "installments") ?? 1,
             notes: str(cfg, "notes") ?? null,
-          });
+          }).select("id").single();
+          if (insertError) { lastError = `Erro ao criar fatura: ${insertError.message}`; stepFailed = true; break; }
+          if (inserted?.id) createdResources.push({ table: "honorarios", id: inserted.id });
           break;
         }
         case "send_message": {
-          await supabase.from("communications_log").insert({
+          const { data: inserted, error: insertError } = await supabase.from("communications_log").insert({
             tenant_id: user.tenantId,
             case_id: cfgCaseId ?? null,
             client_id: cfgClientId ?? null,
@@ -741,7 +753,9 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             direction: str(cfg, "direction") ?? "outbound",
             message_body: str(cfg, "message_body") ?? step.name,
             status: "sent",
-          });
+          }).select("id").single();
+          if (insertError) { lastError = `Erro ao enviar mensagem: ${insertError.message}`; stepFailed = true; break; }
+          if (inserted?.id) createdResources.push({ table: "communications_log", id: inserted.id });
           break;
         }
         // Actions not yet implemented — record as skipped with a note.
@@ -753,6 +767,12 @@ workflowsRoutes.post("/:id/execute", async (c) => {
           lastError = `Acao '${step.action_type}' ainda nao implementada — passo pulado.`;
           break;
       }
+
+      // If an insert error occurred during this step, break out and roll back.
+      if (stepFailed) {
+        break;
+      }
+
       completed += 1;
       if (execId) {
         await supabase
@@ -764,6 +784,23 @@ workflowsRoutes.post("/:id/execute", async (c) => {
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);
       break;
+    }
+  }
+
+  // Compensating action: if the workflow failed, roll back created resources.
+  if (lastError && createdResources.length > 0) {
+    console.error(`[WORKFLOWS] Execution failed (${lastError}), rolling back ${createdResources.length} created resource(s):`);
+    for (const res of createdResources.reverse()) {
+      const { error: deleteError } = await supabase
+        .from(res.table)
+        .delete()
+        .eq("id", res.id)
+        .eq("tenant_id", user.tenantId);
+      if (deleteError) {
+        console.error(`[WORKFLOWS] CRITICAL: Failed to delete orphaned ${res.table} ${res.id} — manual cleanup required:`, deleteError.message);
+      } else {
+        console.error(`[WORKFLOWS] Rolled back ${res.table} ${res.id}`);
+      }
     }
   }
 

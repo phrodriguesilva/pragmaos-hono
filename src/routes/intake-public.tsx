@@ -3,6 +3,7 @@ import type { AppEnv } from "../lib/types";
 
 import { getIntakeFormBySlug, submitIntakeForm, type IntakeField } from "../lib/intake";
 import { setFlash } from "../lib/flash";
+import { intakePublicRateLimit } from "../lib/rate-limit";
 
 // Public routes (no auth required).
 export const intakePublicRoutes = new Hono<AppEnv>();
@@ -123,7 +124,7 @@ intakePublicRoutes.get("/f/:slug", async (c) => {
 });
 
 // POST /f/:slug — submit form.
-intakePublicRoutes.post("/f/:slug", async (c) => {
+intakePublicRoutes.post("/f/:slug", intakePublicRateLimit, async (c) => {
   const slug = c.req.param("slug");
   const form = await getIntakeFormBySlug(slug);
 

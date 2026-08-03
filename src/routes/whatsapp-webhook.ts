@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 import { supabase } from "../lib/supabase";
 import { detectOptOut } from "../lib/integrations";
+import { decryptConfigSecrets } from "../lib/crypto";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const whatsappWebhookRoutes = new Hono<AppEnv>();
@@ -101,7 +102,7 @@ whatsappWebhookRoutes.post("/", async (c) => {
     }
 
     // Verify HMAC signature with the App Secret from the integration config.
-    const config = (integration.config ?? {}) as { app_secret?: string };
+    const config = decryptConfigSecrets((integration.config ?? {}) as Record<string, unknown>) as { app_secret?: string };
     if (!config.app_secret) {
       console.error("WhatsApp webhook: app_secret not configured for integration", integration.id);
       return c.json({ status: "error", message: "App secret not configured" }, 500);

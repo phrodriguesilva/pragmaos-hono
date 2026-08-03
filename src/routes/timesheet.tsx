@@ -234,13 +234,14 @@ timesheetRoutes.post("/", async (c) => {
   });
 
   if (error) {
+    console.error("[timesheet] create failed", { error: error.message });
     return renderPage(
       c,
       { title: "Novo Registro", active: "timesheet" },
       <>
         <PageHeader title="Novo Registro" icon="ph-plus-circle" />
         <Panel>
-          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
+          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Ocorreu um erro ao salvar o registro. Tente novamente.</div>
           <a href="/timesheet" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,

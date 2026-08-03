@@ -6,7 +6,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { Panel } from "../components/ui";
 import { SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
-import { encrypt, decrypt } from "../lib/crypto";
+import { encrypt, decrypt, decryptConfigSecrets } from "../lib/crypto";
 
 export const oauthRoutes = new Hono<AppEnv>();
 
@@ -194,7 +194,7 @@ oauthRoutes.get("/google/callback", async (c) => {
     return c.redirect("/integrations?error=google_no_integration");
   }
 
-  const config = (integration.config ?? {}) as {
+  const config = decryptConfigSecrets((integration.config ?? {}) as Record<string, unknown>) as {
     client_id?: string;
     client_secret?: string;
     redirect_uri?: string;
@@ -360,7 +360,7 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
     return c.redirect("/integrations?error=microsoft_no_integration");
   }
 
-  const config = (integration.config ?? {}) as {
+  const config = decryptConfigSecrets((integration.config ?? {}) as Record<string, unknown>) as {
     client_id?: string;
     client_secret?: string;
     redirect_uri?: string;
@@ -527,7 +527,7 @@ oauthRoutes.get("/docusign/callback", async (c) => {
     return c.redirect("/integrations?error=docusign_no_integration");
   }
 
-  const config = (integration.config ?? {}) as {
+  const config = decryptConfigSecrets((integration.config ?? {}) as Record<string, unknown>) as {
     client_id?: string;
     client_secret?: string;
     redirect_uri?: string;

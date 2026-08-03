@@ -8,6 +8,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 import { CONFIG_FIELDS, syncIntegration, type ConfigField } from "../lib/integrations";
+import { encryptConfigSecrets, decryptConfigSecrets } from "../lib/crypto";
 
 export const integrationsRoutes = new Hono<AppEnv>();
 
@@ -407,7 +408,7 @@ integrationsRoutes.post("/", async (c) => {
     tenant_id: user.tenantId,
     type: parsed.data.type,
     name: parsed.data.name,
-    config,
+    config: encryptConfigSecrets(config),
     active: parsed.data.active === "true",
   });
 
@@ -436,7 +437,7 @@ integrationsRoutes.get("/:id", async (c) => {
   const syncStatus = c.req.query("sync");
   const syncMsg = c.req.query("msg");
 
-  const config = (int.config ?? {}) as Record<string, unknown>;
+  const config = decryptConfigSecrets((int.config ?? {}) as Record<string, unknown>);
   const configDisplay = JSON.stringify(config, null, 2);
   const fields = CONFIG_FIELDS[int.type] ?? [];
 
@@ -574,7 +575,7 @@ integrationsRoutes.post("/:id/sync", async (c) => {
 
   if (!int) return c.html("Integracao nao encontrada.", 404);
 
-  const result = await syncIntegration(int.type, (int.config ?? {}) as Record<string, unknown>);
+  const result = await syncIntegration(int.type, decryptConfigSecrets((int.config ?? {}) as Record<string, unknown>));
 
   // Update last_sync_at regardless of success/failure.
   await supabase
@@ -638,7 +639,7 @@ integrationsRoutes.post("/:id", async (c) => {
     if (val !== undefined && val !== "") {
       config[field.key] = val;
     } else if (field.type === "password" && existingConfig[field.key]) {
-      // Keep existing password if not re-entered.
+      // Keep existing password if not re-entered (already encrypted in DB).
       config[field.key] = existingConfig[field.key];
     }
   }
@@ -648,7 +649,7 @@ integrationsRoutes.post("/:id", async (c) => {
     .update({
       type: parsed.data.type,
       name: parsed.data.name,
-      config,
+      config: encryptConfigSecrets(config),
       active: parsed.data.active === "true",
       updated_at: new Date().toISOString(),
     })

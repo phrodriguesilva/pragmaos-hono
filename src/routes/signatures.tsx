@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { decryptConfigSecrets } from "../lib/crypto";
 import { caseBelongsToTenant, clientBelongsToTenant, documentBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 import {
@@ -62,7 +63,7 @@ signatureRoutes.get("/", async (c) => {
     reqQuery,
     supabase.from("cases").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
     supabase.from("clients").select("id, name").eq("tenant_id", user.tenantId).is("deleted_at", null).order("name"),
-    supabase.from("documents").select("id, title").eq("tenant_id", user.tenantId).order("title"),
+    supabase.from("documents").select("id, title").eq("tenant_id", user.tenantId).is("deleted_at", null).order("title"),
     supabase.from("integrations").select("id").eq("tenant_id", user.tenantId).eq("type", "clicksign").eq("active", true).limit(1).maybeSingle(),
     supabase.from("integrations").select("id").eq("tenant_id", user.tenantId).eq("type", "docusign").eq("active", true).limit(1).maybeSingle(),
   ]);
@@ -450,7 +451,7 @@ signatureRoutes.post("/:id/send-to-clicksign", async (c) => {
     return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Integracao ClickSign nao encontrada ou inativa")}`);
   }
 
-  const config = integration.config as ClicksignConfig;
+  const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as ClicksignConfig;
 
   try {
     // 1. Create envelope
@@ -561,7 +562,7 @@ signatureRoutes.post("/:id/send-to-docusign", async (c) => {
     return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Integracao DocuSign nao encontrada ou inativa")}`);
   }
 
-  const config = integration.config as DocusignConfig;
+  const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as DocusignConfig;
 
   try {
     // Fetch document content if available
@@ -660,7 +661,7 @@ signatureRoutes.post("/:id/check-status", async (c) => {
       if (!integration) {
         return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Integracao ClickSign nao encontrada")}`);
       }
-      const config = integration.config as ClicksignConfig;
+      const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as ClicksignConfig;
       const statusRes = await getClicksignEnvelopeStatus(config, sig.external_envelope_id);
       if (!statusRes.success) {
         return c.redirect(`/signatures/${id}?error=${encodeURIComponent(statusRes.message)}`);
@@ -684,7 +685,7 @@ signatureRoutes.post("/:id/check-status", async (c) => {
       if (!integration) {
         return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Integracao DocuSign nao encontrada")}`);
       }
-      const config = integration.config as DocusignConfig;
+      const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as DocusignConfig;
       const statusRes = await getDocusignEnvelopeStatus(config, sig.external_envelope_id);
       if (!statusRes.success) {
         return c.redirect(`/signatures/${id}?error=${encodeURIComponent(statusRes.message)}`);

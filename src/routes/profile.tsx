@@ -311,6 +311,7 @@ profileRoutes.post("/password", async (c) => {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
 
   if (error) {
+    console.error("[profile] password update failed", { error: error.message });
     return renderPage(
       c,
       { title: "Meu Perfil", active: "profile" },
@@ -319,7 +320,7 @@ profileRoutes.post("/password", async (c) => {
         <Panel>
           <div class="mb-4 text-status-red flex items-center gap-2">
             <i class="ph ph-warning text-h2" aria-hidden="true" />
-            Erro ao alterar senha: {error.message}
+            Ocorreu um erro ao alterar a senha. Tente novamente.
           </div>
           <a href="/profile" class="btn btn-secondary inline-flex items-center gap-1">
             <i class="ph ph-arrow-left" aria-hidden="true" />Voltar

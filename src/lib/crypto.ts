@@ -70,3 +70,52 @@ export function decrypt(ciphertext: string): string | null {
 export function isEncrypted(value: string): boolean {
   return value.startsWith("enc:v1:");
 }
+
+// Config keys that contain secrets and should be encrypted at rest.
+export const SECRET_CONFIG_KEYS = [
+  "api_key",
+  "client_secret",
+  "app_secret",
+  "access_token",
+  "refresh_token",
+  "token",
+  "secret",
+  "password",
+  "api_token",
+  "webhook_secret",
+  "certificate_password",
+  "private_key",
+] as const;
+
+// Encrypt sensitive fields in an integration config object before storing to the DB.
+// Skips fields that are already encrypted (prevents double-encryption on updates).
+export function encryptConfigSecrets(config: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...config };
+  for (const key of SECRET_CONFIG_KEYS) {
+    const val = result[key];
+    if (typeof val === "string" && val && !isEncrypted(val)) {
+      result[key] = encrypt(val);
+    }
+  }
+  return result;
+}
+
+// Decrypt sensitive fields in an integration config object after reading from the DB.
+// Skips fields that are not encrypted (backward compatibility with plaintext data).
+export function decryptConfigSecrets(config: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...config };
+  for (const key of SECRET_CONFIG_KEYS) {
+    const val = result[key];
+    if (typeof val === "string" && val && isEncrypted(val)) {
+      try {
+        const decrypted = decrypt(val);
+        if (decrypted !== null) {
+          result[key] = decrypted;
+        }
+      } catch {
+        // Leave as-is if decryption fails (wrong key, corrupted data).
+      }
+    }
+  }
+  return result;
+}

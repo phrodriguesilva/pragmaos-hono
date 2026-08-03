@@ -175,7 +175,7 @@ usersRoutes.post("/", async (c) => {
   }
 
   // Create the profile row with the tenant_id and role.
-  await supabase.from("profiles").insert({
+  const { error: profileError } = await supabase.from("profiles").insert({
     id: data.user.id,
     tenant_id: user.tenantId,
     email: parsed.data.email,
@@ -183,7 +183,17 @@ usersRoutes.post("/", async (c) => {
     role: parsed.data.role,
   });
 
-  await supabase.from("audit_log").insert({
+  if (profileError) {
+    // Compensating action: delete the created auth user to avoid an orphan.
+    console.error("[USERS] Profile insert failed, rolling back auth user:", profileError.message);
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(data.user.id);
+    if (deleteError) {
+      console.error(`[USERS] CRITICAL: Failed to delete orphaned auth user ${data.user.id} — manual cleanup required:`, deleteError.message);
+    }
+    return c.redirect("/users");
+  }
+
+  const { error: auditError } = await supabase.from("audit_log").insert({
     tenant_id: user.tenantId,
     user_id: user.id,
     action: "create",
@@ -191,6 +201,20 @@ usersRoutes.post("/", async (c) => {
     entity_id: data.user.id,
     details: { email: parsed.data.email, full_name: parsed.data.full_name, role: parsed.data.role },
   });
+
+  if (auditError) {
+    // Compensating action: delete the profile and auth user to avoid orphans.
+    console.error("[USERS] Audit log insert failed, rolling back profile and auth user:", auditError.message);
+    const { error: profileDeleteError } = await supabase.from("profiles").delete().eq("id", data.user.id);
+    if (profileDeleteError) {
+      console.error(`[USERS] CRITICAL: Failed to delete profile for orphaned auth user ${data.user.id} — manual cleanup required:`, profileDeleteError.message);
+    }
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(data.user.id);
+    if (deleteError) {
+      console.error(`[USERS] CRITICAL: Failed to delete orphaned auth user ${data.user.id} — manual cleanup required:`, deleteError.message);
+    }
+    return c.redirect("/users");
+  }
 
   return c.redirect("/users");
 });

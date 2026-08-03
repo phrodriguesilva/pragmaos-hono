@@ -7,6 +7,7 @@
 // PragmaOS 2.
 
 import { supabase } from "./supabase";
+import { decryptConfigSecrets } from "./crypto";
 import { log } from "./logger";
 import { callLLM, getTenantLLMConfig, maskPII, unmaskPII, type ClientPII } from "./ai";
 import { sendWhatsAppMessage, isOptedOut, normalizePhone, validateE164, type IntegrationConfig } from "./integrations";
@@ -126,7 +127,7 @@ export async function sendProactiveNotification(
     return { sent: false, skipped: true, skipReason: "WhatsApp nao configurado" };
   }
 
-  const whatsappConfig = integration.config as IntegrationConfig;
+  const whatsappConfig = decryptConfigSecrets(integration.config as Record<string, unknown>) as IntegrationConfig;
 
   // 5. Generate AI summary.
   const aiSummary = await generateMovementSummary(tenantId, movement);

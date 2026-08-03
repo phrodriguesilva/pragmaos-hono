@@ -3,6 +3,7 @@
 // PragmaOS 2.
 
 import { supabase } from "./supabase";
+import { decryptConfigSecrets } from "./crypto";
 
 export interface Intimacao {
   id: string;
@@ -36,7 +37,7 @@ export async function fetchIntimacoes(
   }
 
   const apiKey = (integration.access_token as string) ??
-    ((integration.config as Record<string, unknown>)?.api_key as string) ?? "";
+    (decryptConfigSecrets((integration.config as Record<string, unknown>) ?? {})?.api_key as string) ?? "";
 
   if (!apiKey) {
     return { success: false, error: "API key do intima.ai nao configurada." };

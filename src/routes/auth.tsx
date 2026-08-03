@@ -896,7 +896,8 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
   );
 
   if (error) {
-    return c.html(resetPasswordForm(token, `Erro ao redefinir senha: ${error.message}`));
+    console.error("[auth] password reset failed", { error: error.message });
+    return c.html(resetPasswordForm(token, "Ocorreu um erro ao redefinir a senha. Tente novamente."));
   }
 
   // Mark token as used (scoped to tenant).

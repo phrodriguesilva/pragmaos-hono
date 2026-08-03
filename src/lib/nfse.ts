@@ -3,6 +3,7 @@
 // PragmaOS 2.
 
 import { supabase } from "./supabase";
+import { decryptConfigSecrets } from "./crypto";
 
 export interface NfseDados {
   tomadorCpfCnpj: string;
@@ -45,7 +46,7 @@ export async function emitirNfse(
     return { success: false, error: "Integracao NFS-e nao configurada. Configure em Integracoes." };
   }
 
-  const config = (integration.config as Record<string, unknown>) ?? {};
+  const config = decryptConfigSecrets((integration.config as Record<string, unknown>) ?? {});
   const apiKey = (integration.access_token as string) ?? (config.api_key as string) ?? "";
   const cnpjPrestador = config.cnpj as string ?? "";
   const inscricaoMunicipal = config.inscricao_municipal as string ?? "";

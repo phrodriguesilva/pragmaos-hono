@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 import { supabase } from "../lib/supabase";
 import { verifyClicksignWebhook } from "../lib/integrations";
+import { decryptConfigSecrets } from "../lib/crypto";
 import { log } from "../lib/logger";
 import { timingSafeEqual } from "node:crypto";
 import { createHmac } from "node:crypto";
@@ -36,8 +37,8 @@ signatureWebhookRoutes.post("/clicksign", async (c) => {
     // Try each integration's secret to find the matching one
     let matchedTenantId: string | null = null;
     for (const integ of integrations) {
-      const config = integ.config as any;
-      const secret = config?.webhook_secret ?? config?.access_token ?? "";
+      const config = decryptConfigSecrets((integ.config ?? {}) as Record<string, unknown>);
+      const secret = (config?.webhook_secret as string) ?? (config?.access_token as string) ?? "";
       if (await verifyClicksignWebhook(rawBody, signature, secret)) {
         matchedTenantId = integ.tenant_id;
         break;
@@ -127,8 +128,8 @@ signatureWebhookRoutes.post("/docusign", async (c) => {
     // DocuSign uses HMAC-SHA256 with the webhook secret
     let matchedTenantId: string | null = null;
     for (const integ of integrations) {
-      const config = integ.config as any;
-      const secret = config?.webhook_secret ?? "";
+      const config = decryptConfigSecrets((integ.config ?? {}) as Record<string, unknown>);
+      const secret = (config?.webhook_secret as string) ?? "";
       if (!secret) continue;
 
       const hmac = createHmac("sha256", secret).update(rawBody).digest("base64");

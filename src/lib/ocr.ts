@@ -5,6 +5,7 @@
 // PragmaOS 2.
 
 import { supabase } from "./supabase";
+import { decryptConfigSecrets } from "./crypto";
 import { log } from "./logger";
 
 export interface OCRResult {
@@ -34,7 +35,7 @@ export async function getOCRConfig(tenantId: string): Promise<OCRConfig> {
     .maybeSingle();
 
   if (integration?.config) {
-    const config = integration.config as Record<string, unknown>;
+    const config = decryptConfigSecrets(integration.config as Record<string, unknown>);
     return {
       provider: (config.provider as "tesseract" | "google_vision" | "aws_textract" | "none") ?? "tesseract",
       apiKey: config.api_key as string | undefined,

@@ -3,6 +3,7 @@
 // PragmaOS 2.
 
 import { supabase } from "./supabase";
+import { decryptConfigSecrets } from "./crypto";
 
 export interface MNIProcesso {
   numero: string;
@@ -49,7 +50,7 @@ export async function consultarProcessoMNI(
     return { success: false, error: "Integracao PJe/MNI nao configurada. Configure em Integracoes." };
   }
 
-  const config = (integration.config as Record<string, unknown>) ?? {};
+  const config = decryptConfigSecrets((integration.config as Record<string, unknown>) ?? {});
   const username = config.username as string ?? "";
   const password = config.password as string ?? "";
   const endpoint = MNI_ENDPOINTS[tribunal] ?? "";

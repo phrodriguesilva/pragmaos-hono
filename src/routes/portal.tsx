@@ -510,6 +510,7 @@ portalRoutes.get("/documents", async (c) => {
     .from("documents")
     .select("id, title, doc_type, created_at")
     .eq("client_id", client.id)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   return c.html(clientLayout("Documentos", client.name,

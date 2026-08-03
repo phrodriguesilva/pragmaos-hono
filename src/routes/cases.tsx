@@ -271,13 +271,28 @@ casesRoutes.post("/", async (c) => {
 
   if (newCase) {
     // Log a case_event.
-    await supabase.from("case_events").insert({
+    const { error: eventError } = await supabase.from("case_events").insert({
       tenant_id: user.tenantId,
       case_id: newCase.id,
       event_type: "case_created",
       description: "Processo criado",
       created_by: user.id,
     });
+
+    if (eventError) {
+      // Compensating action: delete the case to avoid an orphan without an event.
+      console.error("[CASES] case_events insert failed, rolling back case:", eventError.message);
+      const { error: caseDeleteError } = await supabase
+        .from("cases")
+        .delete()
+        .eq("id", newCase.id)
+        .eq("tenant_id", user.tenantId);
+      if (caseDeleteError) {
+        console.error(`[CASES] CRITICAL: Failed to delete orphaned case ${newCase.id} — manual cleanup required:`, caseDeleteError.message);
+      }
+      setFlash(c, "error", "Erro ao criar evento do processo. Tente novamente.");
+      return c.redirect("/cases");
+    }
   }
 
   setFlash(c, "success", "Processo criado com sucesso!");

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { decryptConfigSecrets } from "../lib/crypto";
 import {
   sendWhatsAppMessage,
   sendWhatsAppTemplate,
@@ -257,7 +258,7 @@ whatsappRoutes.post("/send", async (c) => {
     return c.redirect(`/whatsapp?error=${encodeURIComponent("Configure a integracao WhatsApp em Integracoes antes de enviar.")}`);
   }
 
-  const config = integration.config as IntegrationConfig;
+  const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as IntegrationConfig;
 
   // Check 24-hour window
   const { within, lastMessageAt } = await isWithin24HourWindow(user.tenantId, phone);
@@ -307,7 +308,7 @@ whatsappRoutes.post("/sync-templates", async (c) => {
     return c.redirect("/whatsapp?error=" + encodeURIComponent("Integracao WhatsApp nao configurada."));
   }
 
-  const config = integration.config as IntegrationConfig;
+  const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as IntegrationConfig;
   const result = await fetchWhatsAppTemplates(config);
 
   if (!result.success) {
@@ -438,7 +439,7 @@ whatsappRoutes.post("/bulk", async (c) => {
     return c.redirect(`/whatsapp?error=${encodeURIComponent("Configure a integracao WhatsApp em Integracoes.")}`);
   }
 
-  const config = integration.config as IntegrationConfig;
+  const config = decryptConfigSecrets(integration.config as Record<string, unknown>) as IntegrationConfig;
 
   const { data: clients } = await supabase
     .from("clients")

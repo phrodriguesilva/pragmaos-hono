@@ -469,8 +469,9 @@ importRoutes.post("/confirm", async (c) => {
       const batch = records.slice(i, i + BATCH_SIZE);
       const { error } = await supabase.from("clients").insert(batch);
       if (error) {
+        console.error("[import] clients batch failed", { batch: Math.floor(i / BATCH_SIZE) + 1, error: error.message });
         errors += batch.length;
-        errorDetails.push(`Lote ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`);
+        errorDetails.push(`Lote ${Math.floor(i / BATCH_SIZE) + 1}: falha ao inserir`);
       } else {
         imported += batch.length;
       }
@@ -557,8 +558,9 @@ importRoutes.post("/confirm", async (c) => {
       const batch = records.slice(i, i + BATCH_SIZE);
       const { error } = await supabase.from("cases").insert(batch);
       if (error) {
+        console.error("[import] cases batch failed", { batch: Math.floor(i / BATCH_SIZE) + 1, error: error.message });
         errors += batch.length;
-        errorDetails.push(`Lote ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`);
+        errorDetails.push(`Lote ${Math.floor(i / BATCH_SIZE) + 1}: falha ao inserir`);
       } else {
         imported += batch.length;
       }

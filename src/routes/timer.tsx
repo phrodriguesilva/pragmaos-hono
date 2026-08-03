@@ -83,7 +83,8 @@ timerRoutes.post("/api/start", async (c) => {
     .single();
 
   if (error) {
-    return c.json({ error: error.message }, 400);
+    console.error("[timer] start failed", { error: error.message });
+    return c.json({ error: "Ocorreu um erro ao iniciar o timer. Tente novamente." }, 400);
   }
 
   return c.json({ running: true, entry });
