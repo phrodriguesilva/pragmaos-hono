@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { callLLM, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiSummariesRoutes = new Hono<AppEnv>();
@@ -53,7 +54,7 @@ aiSummariesRoutes.get("/", async (c) => {
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (search) summariesQuery = summariesQuery.ilike("summary_text", `%${search}%`);
+  if (search) summariesQuery = summariesQuery.ilike("summary_text", `%${sanitizeILike(search)}%`);
 
   const [summariesRes, casesRes] = await Promise.all([
     summariesQuery,

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { setFlash } from "../lib/flash";
 import { caseBelongsToTenant, clientBelongsToTenant } from "../lib/tenant-ownership";
 import { processDocumentOCR, batchProcessDocuments } from "../lib/ocr";
@@ -60,7 +61,7 @@ documentsRoutes.get("/", async (c) => {
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
-  if (search) docsQuery = docsQuery.ilike("title", `%${search}%`);
+  if (search) docsQuery = docsQuery.ilike("title", `%${sanitizeILike(search)}%`);
 
   docsQuery = docsQuery.range(offset, offset + limit - 1);
 

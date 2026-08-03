@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { caseBelongsToTenant, clientBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
@@ -78,7 +79,7 @@ honorariosRoutes.get("/", async (c) => {
     .eq("tenant_id", user.tenantId)
     .order("created_at", { ascending: false });
 
-  if (search) honorariosQuery = honorariosQuery.ilike("description", `%${search}%`);
+  if (search) honorariosQuery = honorariosQuery.ilike("description", `%${sanitizeILike(search)}%`);
 
   honorariosQuery = honorariosQuery.range(offset, offset + limit - 1);
 

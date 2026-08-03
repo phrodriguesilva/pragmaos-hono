@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { setFlash } from "../lib/flash";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
 import { maskPII, maskCPF, maskCNPJ, maskEmail, maskPhone } from "../lib/pii-mask";
@@ -78,7 +79,7 @@ casesRoutes.get("/", async (c) => {
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
-  if (search) query = query.ilike("title", `%${search}%`);
+  if (search) query = query.ilike("title", `%${sanitizeILike(search)}%`);
   if (status) query = query.eq("status", status);
   if (type) query = query.eq("case_type", type);
 

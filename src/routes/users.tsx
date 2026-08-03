@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { PageHeader, Table, TextField, Select, Panel, Badge, Modal, Textarea } from "../components/ui";
 import { inviteRateLimit } from "../lib/rate-limit";
 
@@ -72,7 +73,7 @@ usersRoutes.get("/", async (c) => {
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
+    query = query.or(`full_name.ilike.%${sanitizeILike(search)}%,email.ilike.%${sanitizeILike(search)}%`);
   }
   if (roleFilter) {
     query = query.eq("role", roleFilter);

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { createClient } from "@supabase/supabase-js";
 import type { AppEnv } from "../lib/types";
+import { z } from "zod";
 
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import { AuthLayout } from "../layouts/base";
@@ -216,15 +217,47 @@ authRoutes.get("/login", async (c) => {
 });
 
 // POST /login -- authenticate, check 2FA, redirect accordingly.
+const loginSchema = z.object({
+  email: z.string().max(255).email("Email inválido."),
+  password: z.string().max(1024),
+  remember: z.string().optional(),
+  redirect: z.string().max(500).optional(),
+});
+
 authRoutes.post("/login", loginRateLimit, async (c) => {
   const body = await c.req.parseBody();
-  const email = String(body.email ?? "").trim().toLowerCase();
-  const password = String(body.password ?? "");
-  const remember = String(body.remember ?? "") === "on";
-  const redirect = String(body.redirect ?? "");
+  const parsed = loginSchema.safeParse({
+    ...body,
+    email: String(body.email ?? "").trim().toLowerCase(),
+  });
+  if (!parsed.success) {
+    return c.html(loginForm("Dados inválidos."));
+  }
+  const email = parsed.data.email;
+  const password = parsed.data.password;
+  const remember = parsed.data.remember === "on";
+  const redirect = parsed.data.redirect ?? "";
 
   if (!email || !password) {
     return c.html(loginForm("Email e senha são obrigatórios."));
+  }
+
+  // Session fixation protection: invalidate any existing session before login.
+  const existingToken = getCookie(c, "sb-access-token");
+  if (existingToken) {
+    try {
+      const tempClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { data: existingUser } = await tempClient.auth.getUser(existingToken);
+      if (existingUser?.user) {
+        await tempClient.auth.admin.signOut(existingUser.user.id);
+      }
+    } catch {
+      // Best-effort cleanup — don't block login if signout fails.
+    }
+    deleteCookie(c, "sb-access-token", { path: "/" });
+    deleteCookie(c, "auth-user-id", { path: "/" });
   }
 
   // Authenticate via Supabase Auth.
@@ -354,12 +387,20 @@ authRoutes.get("/2fa/verify", (c) => {
 });
 
 // POST /2fa/verify
+const twoFAVerifySchema = z.object({
+  code: z.string().max(10).optional(),
+});
+
 authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
   const userId = getCookie(c, "auth-user-id");
   if (!userId) return c.redirect("/login");
 
   const body = await c.req.parseBody();
-  const code = String(body.code ?? "").trim().toUpperCase();
+  const parsed = twoFAVerifySchema.safeParse(body);
+  if (!parsed.success) {
+    return c.html(twoFAVerifyForm("Código inválido."));
+  }
+  const code = (parsed.data.code ?? "").trim().toUpperCase();
 
   if (!code) {
     return c.html(twoFAVerifyForm("Código obrigatório."));
@@ -690,9 +731,20 @@ function forgotPasswordForm(errorMsg?: string, success?: boolean) {
 authRoutes.get("/forgot-password", (c) => c.html(forgotPasswordForm()));
 
 // POST /forgot-password -- generate reset token and "send" email.
+const forgotPasswordSchema = z.object({
+  email: z.string().max(255).email("Email inválido."),
+});
+
 authRoutes.post("/forgot-password", passwordResetRateLimit, async (c) => {
   const body = await c.req.parseBody();
-  const email = String(body.email ?? "").trim().toLowerCase();
+  const parsed = forgotPasswordSchema.safeParse({
+    ...body,
+    email: String(body.email ?? "").trim().toLowerCase(),
+  });
+  if (!parsed.success) {
+    return c.html(forgotPasswordForm("Email inválido."));
+  }
+  const email = parsed.data.email;
 
   if (!email) {
     return c.html(forgotPasswordForm("Email é obrigatório."));
@@ -878,11 +930,20 @@ authRoutes.get("/reset-password", async (c) => {
 });
 
 // POST /reset-password -- update password with valid token.
+const resetPasswordSchema = z.object({
+  password: z.string().max(1024),
+  confirm_password: z.string().max(1024),
+});
+
 authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
   const token = c.req.query("token") ?? "";
   const body = await c.req.parseBody();
-  const password = String(body.password ?? "");
-  const confirmPassword = String(body.confirm_password ?? "");
+  const parsed = resetPasswordSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.html(resetPasswordForm(token ?? "", "Dados inválidos."));
+  }
+  const password = parsed.data.password;
+  const confirmPassword = parsed.data.confirm_password;
 
   if (!token) {
     return c.html(resetPasswordForm("", "Token inválido."));
@@ -908,6 +969,9 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
     return c.html(resetPasswordForm(token, "Link expirado ou inválido."));
   }
 
+  // Mark token as used BEFORE updating password (prevents race condition replay).
+  await supabase.from("password_resets").update({ used: true }).eq("token", tokenHash).eq("tenant_id", resetRow.tenant_id);
+
   // Update password via Supabase Admin API.
   const { error } = await supabase.auth.admin.updateUserById(
     resetRow.user_id,
@@ -918,9 +982,6 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
     console.error("[auth] password reset failed", { error: error.message });
     return c.html(resetPasswordForm(token, "Ocorreu um erro ao redefinir a senha. Tente novamente."));
   }
-
-  // Mark token as used (scoped to tenant).
-  await supabase.from("password_resets").update({ used: true }).eq("token", tokenHash).eq("tenant_id", resetRow.tenant_id);
 
   // Log the reset.
   await supabase.from("auth_logs").insert({

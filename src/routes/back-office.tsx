@@ -22,6 +22,7 @@ import { requireAuth, requirePlatformAdmin } from "../lib/session";
 import { getFlash, setFlash } from "../lib/flash";
 import { appCss } from "../generated/css";
 import { Panel, Table, Badge } from "../components/ui";
+import { sanitizeILike } from "../lib/search-sanitize";
 import type { FC, PropsWithChildren } from "hono/jsx";
 
 export const backOfficeRoutes = new Hono<AppEnv>();
@@ -373,7 +374,7 @@ backOfficeRoutes.get("/tenants", async (c) => {
 
   if (statusFilter) query = query.eq("subscription_status", statusFilter);
   if (planFilter) query = query.eq("subscription_plan", planFilter);
-  if (search) query = query.or(`name.ilike.%${search}%,cnpj.ilike.%${search}%`);
+  if (search) query = query.or(`name.ilike.%${sanitizeILike(search)}%,cnpj.ilike.%${sanitizeILike(search)}%`);
 
   const { data: tenants, count } = await query.range(offset, offset + limit - 1);
   const totalPages = Math.ceil((count ?? 0) / limit);
@@ -712,7 +713,7 @@ backOfficeRoutes.get("/users", async (c) => {
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
-  if (search) query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
+  if (search) query = query.or(`email.ilike.%${sanitizeILike(search)}%,full_name.ilike.%${sanitizeILike(search)}%`);
 
   const { data: users, count } = await query.range(offset, offset + limit - 1);
   const totalPages = Math.ceil((count ?? 0) / limit);

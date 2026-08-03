@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { decryptConfigSecrets } from "../lib/crypto";
 import { caseBelongsToTenant, clientBelongsToTenant, documentBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
@@ -55,7 +56,7 @@ signatureRoutes.get("/", async (c) => {
     .eq("tenant_id", user.tenantId)
     .order("created_at", { ascending: false });
 
-  if (search) reqQuery = reqQuery.or(`title.ilike.%${search}%,signer_name.ilike.%${search}%`);
+  if (search) reqQuery = reqQuery.or(`title.ilike.%${sanitizeILike(search)}%,signer_name.ilike.%${sanitizeILike(search)}%`);
 
   reqQuery = reqQuery.range(offset, offset + limit - 1);
 

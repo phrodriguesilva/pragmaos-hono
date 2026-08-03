@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { callLLM, callLLMStream, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
 import { maskPII, maskCPF, maskCNPJ } from "../lib/pii-mask";
 import { caseBelongsToTenant } from "../lib/tenant-ownership";
@@ -48,7 +49,7 @@ aiChatRoutes.get("/", async (c) => {
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (search) query = query.ilike("title", `%${search}%`);
+  if (search) query = query.ilike("title", `%${sanitizeILike(search)}%`);
 
   const { data: conversations, count } = await query;
 

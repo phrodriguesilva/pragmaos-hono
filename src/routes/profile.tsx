@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
@@ -195,9 +196,22 @@ profileRoutes.get("/", async (c) => {
 profileRoutes.post("/pix", requireRole("socio", "financeiro"), async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
-  const pixKey = String(body.pix_key ?? "").trim();
-  const pixMerchantName = String(body.pix_merchant_name ?? "").trim();
-  const pixMerchantCity = String(body.pix_merchant_city ?? "").trim();
+  const pixKey = String(body.pix_key ?? "").trim().slice(0, 77); // PIX key max 77 chars
+  const pixMerchantName = String(body.pix_merchant_name ?? "").trim().slice(0, 25);
+  const pixMerchantCity = String(body.pix_merchant_city ?? "").trim().slice(0, 15);
+
+  // Basic PIX key format validation: CPF (11 digits), CNPJ (14 digits), phone (+55...),
+  // email, or random key (UUID-like). Empty is allowed (clears the key).
+  if (pixKey) {
+    const isCpf = /^\d{11}$/.test(pixKey);
+    const isCnpj = /^\d{14}$/.test(pixKey);
+    const isPhone = /^\+\d{10,15}$/.test(pixKey);
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pixKey);
+    const isRandom = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pixKey);
+    if (!isCpf && !isCnpj && !isPhone && !isEmail && !isRandom) {
+      return c.redirect("/profile?pix=invalid");
+    }
+  }
 
   await supabase
     .from("tenants")
@@ -213,11 +227,36 @@ profileRoutes.post("/pix", requireRole("socio", "financeiro"), async (c) => {
 });
 
 // POST /profile/password -- change password via Supabase Auth.
+const passwordChangeSchema = z.object({
+  current_password: z.string().max(1024),
+  new_password: z.string().min(8).max(1024),
+  confirm_password: z.string().max(1024),
+});
+
 profileRoutes.post("/password", async (c) => {
   const body = await c.req.parseBody();
-  const currentPassword = String(body.current_password ?? "");
-  const newPassword = String(body.new_password ?? "");
-  const confirmPassword = String(body.confirm_password ?? "");
+  const parsed = passwordChangeSchema.safeParse(body);
+  if (!parsed.success) {
+    return renderPage(
+      c,
+      { title: "Meu Perfil", active: "profile" },
+      <>
+        <PageHeader title="Meu Perfil" icon="ph-user" />
+        <Panel>
+          <div class="mb-4 text-status-red flex items-center gap-2">
+            <i class="ph ph-warning text-h2" aria-hidden="true" />
+            Dados invalidos. A senha deve ter no minimo 8 caracteres.
+          </div>
+          <a href="/profile" class="btn btn-secondary inline-flex items-center gap-1">
+            <i class="ph ph-arrow-left" aria-hidden="true" />Voltar
+          </a>
+        </Panel>
+      </>,
+    );
+  }
+  const currentPassword = parsed.data.current_password;
+  const newPassword = parsed.data.new_password;
+  const confirmPassword = parsed.data.confirm_password;
 
   const user = c.get("user");
 

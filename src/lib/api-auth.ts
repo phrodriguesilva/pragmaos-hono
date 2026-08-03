@@ -18,9 +18,12 @@ async function hashApiKey(key: string): Promise<string> {
 }
 
 // Generate a new API key with prefix (e.g., "pk_live_abc123...")
+// Uses crypto.randomBytes for 256 bits of entropy (more secure than UUID).
 export async function generateApiKey(name: string): Promise<{ key: string; keyHash: string; keyPrefix: string }> {
   const prefix = "pk_live_";
-  const random = crypto.randomUUID().replace(/-/g, "");
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  const random = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
   const key = `${prefix}${random}`;
   const keyHash = await hashApiKey(key);
   const keyPrefix = `${prefix}${random.slice(0, 8)}...`;

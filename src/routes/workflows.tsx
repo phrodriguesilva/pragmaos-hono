@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { caseBelongsToTenant, clientBelongsToTenant, profileBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
 import { workflowExecRateLimit } from "../lib/rate-limit";
@@ -104,7 +105,7 @@ workflowsRoutes.get("/", async (c) => {
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
-  if (search) query = query.ilike("name", `%${search}%`);
+  if (search) query = query.ilike("name", `%${sanitizeILike(search)}%`);
 
   query = query.range(offset, offset + limit - 1);
 

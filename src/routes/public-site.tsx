@@ -9,6 +9,7 @@ import type { ResolvedTenant } from "../lib/tenant-resolver";
 import { resolveTenantByHost, resolveTenantBySlug } from "../lib/tenant-resolver";
 import { PublicLayout } from "../components/public-layout";
 import DOMPurify from "../lib/sanitize";
+import { sanitizeILike } from "../lib/search-sanitize";
 
 export const publicSiteRoutes = new Hono<AppEnv>();
 
@@ -715,7 +716,7 @@ publicSiteRoutes.get("/artigos", async (c) => {
     if (areaObj) query = query.eq("law_area_id", areaObj.law_areas.id);
   }
   if (search) {
-    query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+    query = query.or(`title.ilike.%${sanitizeILike(search)}%,excerpt.ilike.%${sanitizeILike(search)}%`);
   }
 
   const { data: articles, count } = await query

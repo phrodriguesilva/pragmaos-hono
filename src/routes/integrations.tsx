@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 import { CONFIG_FIELDS, syncIntegration, type ConfigField } from "../lib/integrations";
 import { encryptConfigSecrets, decryptConfigSecrets } from "../lib/crypto";
@@ -193,7 +194,7 @@ integrationsRoutes.get("/", async (c) => {
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (search) query = query.ilike("name", `%${search}%`);
+  if (search) query = query.ilike("name", `%${sanitizeILike(search)}%`);
 
   const { data: integrations, count } = await query;
 

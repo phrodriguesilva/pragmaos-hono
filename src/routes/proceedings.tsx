@@ -7,6 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { translateMovement } from "../lib/ai";
 import { queryCNJProcess } from "../lib/integrations";
+import { sanitizeILike } from "../lib/search-sanitize";
 import type { IntegrationConfig } from "../lib/integrations";
 import { CNJ_API_KEY, CNJ_BASE_URL } from "../lib/env";
 import { caseBelongsToTenant } from "../lib/tenant-ownership";
@@ -79,7 +80,7 @@ proceedingsRoutes.get("/", async (c) => {
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
-  if (search) proceedingsQuery = proceedingsQuery.ilike("cnj_number", `%${search}%`);
+  if (search) proceedingsQuery = proceedingsQuery.ilike("cnj_number", `%${sanitizeILike(search)}%`);
 
   proceedingsQuery = proceedingsQuery.range(offset, offset + limit - 1);
 

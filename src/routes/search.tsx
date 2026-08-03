@@ -3,6 +3,7 @@ import type { AppEnv } from "../lib/types";
 
 import { requireAuth } from "../lib/session";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { renderPage } from "../lib/render";
 
 export const searchRoutes = new Hono<AppEnv>();
@@ -26,7 +27,7 @@ searchRoutes.get("/api", async (c) => {
     .select("id, title, case_number, status")
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .or(`title.ilike.%${q}%,case_number.ilike.%${q}%`)
+    .or(`title.ilike.%${sanitizeILike(q)}%,case_number.ilike.%${sanitizeILike(q)}%`)
     .limit(5);
   for (const cs of cases ?? []) {
     results.push({
@@ -45,7 +46,7 @@ searchRoutes.get("/api", async (c) => {
     .select("id, name, email, cpf, cnpj")
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .or(`name.ilike.%${q}%,email.ilike.%${q}%,cpf.ilike.%${q}%,cnpj.ilike.%${q}%`)
+    .or(`name.ilike.%${sanitizeILike(q)}%,email.ilike.%${sanitizeILike(q)}%,cpf.ilike.%${sanitizeILike(q)}%,cnpj.ilike.%${sanitizeILike(q)}%`)
     .limit(5);
   for (const cl of clients ?? []) {
     results.push({
@@ -63,7 +64,7 @@ searchRoutes.get("/api", async (c) => {
     .from("deadlines")
     .select("id, title, due_date")
     .eq("tenant_id", user.tenantId)
-    .ilike("title", `%${q}%`)
+    .ilike("title", `%${sanitizeILike(q)}%`)
     .limit(5);
   for (const d of deadlines ?? []) {
     results.push({
@@ -81,7 +82,7 @@ searchRoutes.get("/api", async (c) => {
     .from("invoices")
     .select("id, number, amount_cents, status")
     .eq("tenant_id", user.tenantId)
-    .ilike("number", `%${q}%`)
+    .ilike("number", `%${sanitizeILike(q)}%`)
     .limit(5);
   for (const inv of invoices ?? []) {
     results.push({
@@ -99,7 +100,7 @@ searchRoutes.get("/api", async (c) => {
     .from("proceedings")
     .select("id, cnj_number, cases(title)")
     .eq("tenant_id", user.tenantId)
-    .ilike("cnj_number", `%${q}%`)
+    .ilike("cnj_number", `%${sanitizeILike(q)}%`)
     .limit(5);
   for (const p of proceedings ?? []) {
     const caseTitle = (p.cases as unknown as { title: string } | null)?.title;
@@ -119,7 +120,7 @@ searchRoutes.get("/api", async (c) => {
     .select("id, title, doc_type, case_id, cases(title), clients(name)")
     .eq("tenant_id", user.tenantId)
     .is("deleted_at", null)
-    .or(`title.ilike.%${q}%,extracted_text.ilike.%${q}%`)
+    .or(`title.ilike.%${sanitizeILike(q)}%,extracted_text.ilike.%${sanitizeILike(q)}%`)
     .limit(10);
   for (const doc of documents ?? []) {
     const caseTitle = (doc.cases as unknown as { title: string } | null)?.title;
@@ -159,7 +160,7 @@ searchRoutes.get("/documents", async (c) => {
       .select("id, title, doc_type, storage_path, created_at, extracted_text, cases(title), clients(name)", { count: "exact" })
       .eq("tenant_id", user.tenantId)
       .is("deleted_at", null)
-      .or(`title.ilike.%${q}%,extracted_text.ilike.%${q}%`)
+      .or(`title.ilike.%${sanitizeILike(q)}%,extracted_text.ilike.%${sanitizeILike(q)}%`)
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
     documents = data ?? [];

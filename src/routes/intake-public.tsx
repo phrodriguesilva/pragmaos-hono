@@ -138,7 +138,8 @@ intakePublicRoutes.post("/f/:slug", intakePublicRateLimit, async (c) => {
   for (const field of form.fields) {
     const value = body.get(field.id);
     if (value !== null) {
-      data[field.id] = value as string;
+      // Limit each field value to 10000 chars to prevent DoS / DB bloat.
+      data[field.id] = String(value).slice(0, 10000);
     }
   }
 

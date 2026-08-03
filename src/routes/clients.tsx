@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { setFlash } from "../lib/flash";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, BtnLink, Modal } from "../components/ui";
 import { checkConflict } from "../lib/conflict";
@@ -45,7 +46,7 @@ clientsRoutes.get("/", async (c) => {
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.ilike("name", `%${search}%`);
+    query = query.ilike("name", `%${sanitizeILike(search)}%`);
   }
 
   const { data: clients, count } = await query;

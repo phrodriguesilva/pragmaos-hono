@@ -116,7 +116,8 @@ notificationsRoutes.post("/:id/read", async (c) => {
     .from("notifications")
     .update({ read: true })
     .eq("id", id)
-    .eq("tenant_id", user.tenantId);
+    .eq("tenant_id", user.tenantId)
+    .or(`user_id.eq.${user.id},user_id.is.null`);
   return c.redirect("/notifications");
 });
 

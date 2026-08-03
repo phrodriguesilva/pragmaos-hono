@@ -9,6 +9,7 @@ import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge 
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import { APP_URL } from "../lib/env";
 import { appCss } from "../generated/css";
+import { portalLoginRateLimit } from "../lib/rate-limit";
 import type { Context } from "hono";
 
 export const portalRoutes = new Hono<AppEnv>();
@@ -327,7 +328,7 @@ portalRoutes.get("/login", (c) => {
 });
 
 // POST /portal/login -- authenticate client.
-portalRoutes.post("/login", async (c) => {
+portalRoutes.post("/login", portalLoginRateLimit, async (c) => {
   const body = await c.req.parseBody();
   const email = String(body.email ?? "").trim();
   const password = String(body.password ?? "");
@@ -347,8 +348,10 @@ portalRoutes.post("/login", async (c) => {
 
   if (!access) return c.redirect("/portal/login");
 
-  // Create session token.
-  const token = crypto.randomUUID();
+  // Create session token (256 bits of entropy).
+  const tokenBytes = new Uint8Array(32);
+  crypto.getRandomValues(tokenBytes);
+  const token = Array.from(tokenBytes).map(b => b.toString(16).padStart(2, "0")).join("");
   await supabase.from("client_sessions").insert({
     tenant_id: access.tenant_id,
     client_id: access.client_id,

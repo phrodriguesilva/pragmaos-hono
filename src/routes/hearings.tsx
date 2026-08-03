@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { caseBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
@@ -43,7 +44,7 @@ hearingsRoutes.get("/", async (c) => {
   }
 
   if (search) {
-    query = query.or(`location.ilike.%${search}%,notes.ilike.%${search}%`);
+    query = query.or(`location.ilike.%${sanitizeILike(search)}%,notes.ilike.%${sanitizeILike(search)}%`);
   }
 
   query = query.range(offset, offset + limit - 1);

@@ -63,6 +63,13 @@ export async function provisionTenant(req: SignupRequest): Promise<SignupResult>
     .replace(/^-+|-+$/g, "")
     .slice(0, 50);
 
+  // Block reserved/malicious subdomains.
+  const RESERVED_SLUGS = ["www", "admin", "api", "app", "mail", "smtp", "ftp", "localhost", "portal", "blog", "shop", "store", "demo", "test", "staging", "dev", "internal", "platform", "system", "support", "help", "docs", "status"];
+  if (RESERVED_SLUGS.includes(slug)) {
+    await supabase.auth.admin.deleteUser(userId);
+    return { success: false, error: "Nome do escritorio nao permitido. Escolha outro nome." };
+  }
+
   // Ensure slug is unique.
   const { data: existingTenant } = await supabase
     .from("tenants")

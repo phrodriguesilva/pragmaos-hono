@@ -78,6 +78,40 @@ export async function captureMessage(
 // Send event to Sentry via the envelope endpoint.
 // This is a minimal implementation — for full features (breadcrumbs,
 // release tracking, etc.), use @sentry/node.
+
+// Scrub sensitive data from strings before sending to Sentry.
+const SENSITIVE_PATTERNS = [
+  /(?:password|passwd|pwd|secret|api_key|apikey|token|authorization|cookie|session)["\s:=]+[^\s,}]+/gi,
+  /Bearer\s+[A-Za-z0-9\-._~+\/]+=*/g,
+  /sb-[a-z]+-token=[^\s;]+/gi,
+];
+
+function scrubSensitiveData(value: unknown): unknown {
+  if (typeof value === "string") {
+    let scrubbed = value;
+    for (const pattern of SENSITIVE_PATTERNS) {
+      scrubbed = scrubbed.replace(pattern, "[REDACTED]");
+    }
+    return scrubbed;
+  }
+  if (Array.isArray(value)) {
+    return value.map(scrubSensitiveData);
+  }
+  if (value && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value)) {
+      const lowerKey = k.toLowerCase();
+      if (["password", "secret", "token", "api_key", "apikey", "authorization", "cookie", "session", "pix_key", "cpf", "cnpj"].includes(lowerKey)) {
+        result[k] = "[REDACTED]";
+      } else {
+        result[k] = scrubSensitiveData(v);
+      }
+    }
+    return result;
+  }
+  return value;
+}
+
 async function sendToSentry(event: SentryEvent): Promise<void> {
   try {
     // Parse DSN: https://<key>@<host>/<project_id>
@@ -92,15 +126,22 @@ async function sendToSentry(event: SentryEvent): Promise<void> {
       dsn: SENTRY_DSN,
     };
 
+    // Scrub sensitive data before sending.
+    const scrubbedExtra = scrubSensitiveData(event.extra ?? {}) as Record<string, unknown>;
+    const scrubbedUser = event.user ? {
+      ...event.user,
+      email: event.user.email ? "[REDACTED]" : undefined,
+    } : undefined;
+
     const payload = {
-      message: event.message,
+      message: scrubSensitiveData(event.message) as string,
       level: event.level ?? "error",
       platform: "node",
       environment: process.env.NODE_ENV ?? "development",
       server_name: APP_URL || "unknown",
       tags: event.tags ?? {},
-      extra: event.extra ?? {},
-      user: event.user,
+      extra: scrubbedExtra,
+      user: scrubbedUser,
       timestamp: new Date().toISOString(),
     };
 

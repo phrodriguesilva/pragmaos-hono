@@ -8,6 +8,7 @@ import { z } from "zod";
 
 import { apiKeyAuth, requireScope } from "../lib/api-auth";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { getSubscriptionState, shouldBlockAccess } from "../lib/subscription";
 
 export const apiRoutes = new Hono<AppEnv>();
@@ -359,7 +360,7 @@ apiRoutes.get("/v1/extension/cases", requireScope("cases:read"), async (c) => {
     .select("id, title, case_number, status")
     .eq("tenant_id", tenantId)
     .is("deleted_at", null)
-    .or(`title.ilike.%${q}%,case_number.ilike.%${q}%`)
+    .or(`title.ilike.%${sanitizeILike(q)}%,case_number.ilike.%${sanitizeILike(q)}%`)
     .limit(10);
 
   return c.json({ cases: cases ?? [] });

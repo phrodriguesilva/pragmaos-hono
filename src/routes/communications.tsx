@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { sanitizeILike } from "../lib/search-sanitize";
 import { caseBelongsToTenant, clientBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
@@ -40,7 +41,7 @@ communicationsRoutes.get("/", async (c) => {
     .is("deleted_at", null)
     .order("sent_at", { ascending: false });
 
-  if (search) logsQuery = logsQuery.ilike("message_body", `%${search}%`);
+  if (search) logsQuery = logsQuery.ilike("message_body", `%${sanitizeILike(search)}%`);
 
   logsQuery = logsQuery.range(offset, offset + limit - 1);
 

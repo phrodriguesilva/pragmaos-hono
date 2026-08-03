@@ -109,6 +109,7 @@ export const loginRateLimit = rateLimit(10, 60_000); // 10 attempts per minute p
 export const passwordResetRateLimit = rateLimit(3, 60_000); // 3 requests per minute per IP
 export const twoFactorRateLimit = rateLimit(5, 60_000); // 5 attempts per minute per IP
 export const intakePublicRateLimit = rateLimit(5, 600_000); // 5 submissions per 10 minutes per IP
+export const portalLoginRateLimit = rateLimit(10, 60_000); // 10 portal login attempts per minute per IP
 
 // Pre-configured limiters for sensitive operations
 export const apiKeyRateLimit = rateLimit(10, 60_000); // 10 API key ops per minute per IP
