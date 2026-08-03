@@ -1015,6 +1015,7 @@ authRoutes.post("/logout", async (c) => {
   }
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
+  deleteCookie(c, "flash-msg", { path: "/" });
   c.header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
   c.header("Pragma", "no-cache");
   c.header("Expires", "0");
@@ -1034,6 +1035,7 @@ authRoutes.get("/logout", async (c) => {
   }
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
+  deleteCookie(c, "flash-msg", { path: "/" });
   c.header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
   c.header("Pragma", "no-cache");
   c.header("Expires", "0");

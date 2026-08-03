@@ -23,8 +23,8 @@ const integrationSchema = z.object({
     "clicksign", "docusign", "whatsapp", "govbr",
     "digesto",
   ]),
-  name: z.string().min(1, "Nome e obrigatorio"),
-  active: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
+  active: z.string().max(20).optional(),
 });
 
 const TYPE_LABELS: Record<string, string> = {

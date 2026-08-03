@@ -172,8 +172,8 @@ aiSummariesRoutes.get("/", async (c) => {
 
 const summarySchema = z.object({
   summary_type: z.enum(["case", "petition", "decision", "hearing", "proceeding"]),
-  case_id: z.string().uuid("Processo invalido"),
-  additional_context: z.string().optional(),
+  case_id: z.string().uuid("Processo invalido").max(36),
+  additional_context: z.string().max(10000).optional(),
 });
 
 aiSummariesRoutes.post("/", async (c) => {

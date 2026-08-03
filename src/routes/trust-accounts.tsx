@@ -211,9 +211,12 @@ trustRoutes.post("/:id/transaction", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
-  const type = body.type as string;
+  const type = String(body.type ?? "").trim();
+  if (!["deposit", "withdrawal"].includes(type)) {
+    return c.redirect(`/trust-accounts/${id}?error=Tipo invalido`);
+  }
   const amount = Math.round(Number(body.amount) * 100);
-  const description = (body.description as string) || null;
+  const description = String(body.description ?? "").slice(0, 500) || null;
 
   if (!type || !amount || amount <= 0) return c.redirect(`/trust-accounts/${id}?error=Dados invalidos`);
 

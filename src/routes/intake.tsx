@@ -308,12 +308,12 @@ intakeAdminRoutes.post("/new", async (c) => {
   const user = c.get("user");
   const body = await c.req.formData();
 
-  const title = body.get("title") as string;
-  const description = body.get("description") as string ?? "";
+  const title = String(body.get("title") ?? "").slice(0, 255);
+  const description = String(body.get("description") ?? "").slice(0, 2000);
 
-  const labels = body.getAll("field_label[]") as string[];
+  const labels = (body.getAll("field_label[]") as string[]).map((l) => l.slice(0, 255));
   const types = body.getAll("field_type[]") as string[];
-  const placeholders = body.getAll("field_placeholder[]") as string[];
+  const placeholders = (body.getAll("field_placeholder[]") as string[]).map((p) => p.slice(0, 500));
   const mapsTo = body.getAll("field_maps_to[]") as string[];
   const required = body.getAll("field_required[]") as string[];
 

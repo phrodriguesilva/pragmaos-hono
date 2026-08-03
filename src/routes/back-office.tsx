@@ -16,6 +16,7 @@
 //   GET  /back-office/audit        — Platform audit log
 
 import { Hono } from "hono";
+import { z } from "zod";
 import type { AppEnv } from "../lib/types";
 import { supabase } from "../lib/supabase";
 import { requireAuth, requirePlatformAdmin } from "../lib/session";
@@ -584,15 +585,19 @@ backOfficeRoutes.get("/tenants/:id", async (c) => {
 // ============================================================
 // POST /back-office/tenants/:id/plan — Change tenant plan
 // ============================================================
+const planSchema = z.object({
+  plan: z.enum(["trial", "starter", "pro", "enterprise"]),
+});
+
 backOfficeRoutes.post("/tenants/:id/plan", async (c) => {
   const id = c.req.param("id");
   const body = await c.req.parseBody();
-  const newPlan = String(body.plan ?? "");
-
-  if (!["trial", "starter", "pro", "enterprise"].includes(newPlan)) {
+  const parsed = planSchema.safeParse(body);
+  if (!parsed.success) {
     setFlash(c, "error", "Plano inválido.");
     return c.redirect(`/back-office/tenants/${id}`);
   }
+  const newPlan = parsed.data.plan;
 
   const planMaxUsers: Record<string, number> = { trial: 3, starter: 10, pro: 50, enterprise: 999 };
   const newStatus = newPlan === "trial" ? "trialing" : "active";

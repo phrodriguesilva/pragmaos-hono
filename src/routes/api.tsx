@@ -90,12 +90,12 @@ apiRoutes.get("/v1/clients", requireScope("clients:read"), async (c) => {
 
 // POST /api/v1/clients — create client
 const createClientSchema = z.object({
-  name: z.string().min(1, "name is required"),
+  name: z.string().min(1, "name is required").max(255),
   client_type: z.enum(["individual", "company"]).optional().default("individual"),
-  cpf: z.string().optional().nullable(),
-  cnpj: z.string().optional().nullable(),
-  email: z.string().email("invalid email").optional().nullable(),
-  phone: z.string().optional().nullable(),
+  cpf: z.string().max(20).optional().nullable(),
+  cnpj: z.string().max(20).optional().nullable(),
+  email: z.string().email("invalid email").max(255).optional().nullable(),
+  phone: z.string().max(20).optional().nullable(),
 });
 
 apiRoutes.post("/v1/clients", requireScope("clients:write"), async (c) => {
@@ -147,10 +147,10 @@ apiRoutes.get("/v1/deadlines", requireScope("deadlines:read"), async (c) => {
 
 // POST /api/v1/deadlines — create deadline
 const createDeadlineSchema = z.object({
-  title: z.string().min(1, "title is required"),
-  due_date: z.string().min(1, "due_date is required"),
+  title: z.string().min(1, "title is required").max(255),
+  due_date: z.string().min(1, "due_date is required").max(20),
   priority: z.number().min(1).max(5).optional().default(3),
-  case_id: z.string().uuid().optional().nullable(),
+  case_id: z.string().uuid().max(36).optional().nullable(),
 });
 
 apiRoutes.post("/v1/deadlines", requireScope("deadlines:write"), async (c) => {
@@ -275,12 +275,18 @@ apiRoutes.post("/v1/extension/capture", requireScope("cases:write"), async (c) =
     return c.json({ error: "case_number is required" }, 400);
   }
 
+  // Sanitize case_number for use in .or() filter (prevent filter injection).
+  const safeCaseNumber = case_number.replace(/[%_\\,()]/g, "").slice(0, 50);
+  if (!safeCaseNumber) {
+    return c.json({ error: "Invalid case_number format" }, 400);
+  }
+
   // Find the case by CNJ number.
   const { data: caseRecord } = await supabase
     .from("cases")
     .select("id")
     .eq("tenant_id", tenantId)
-    .or(`case_number.eq.${case_number},cnj_number.eq.${case_number}`)
+    .or(`case_number.eq.${safeCaseNumber},cnj_number.eq.${safeCaseNumber}`)
     .maybeSingle();
 
   if (!caseRecord) {

@@ -211,15 +211,20 @@ portalRoutes.get("/staff/enable", async (c) => {
   );
 });
 
+const portalStaffSchema = z.object({
+  client_id: z.string().uuid().max(36),
+  email: z.string().email().max(255),
+  password: z.string().min(8).max(1024),
+  name: z.string().max(255).optional(),
+});
+
 // POST /portal/staff/enable -- create portal access.
 portalRoutes.post("/staff/enable", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
-  const clientId = String(body.client_id ?? "");
-  const email = String(body.email ?? "").trim();
-  const password = String(body.password ?? "");
-
-  if (!clientId || !email || password.length < 6) return c.redirect("/portal/staff/enable");
+  const parsed = portalStaffSchema.safeParse(body);
+  if (!parsed.success) return c.redirect("/portal/staff/enable");
+  const { client_id: clientId, email, password } = parsed.data;
 
   // Create auth user via Supabase Admin.
   const { data: authData, error } = await supabase.auth.admin.createUser({
@@ -586,15 +591,21 @@ portalRoutes.get("/messages", async (c) => {
   ));
 });
 
+const portalMessageSchema = z.object({
+  subject: z.string().max(200),
+  body: z.string().max(10000),
+});
+
 // POST /portal/messages -- client sends a message.
 portalRoutes.post("/messages", async (c) => {
   const client = await getClientFromCookie(c);
   if (!client) return c.redirect("/portal/login");
 
   const body = await c.req.parseBody();
-  const subject = String(body.subject ?? "").trim();
-  const msgBody = String(body.body ?? "").trim();
-
+  const parsed = portalMessageSchema.safeParse(body);
+  if (!parsed.success) return c.redirect("/portal/messages");
+  const subject = parsed.data.subject.trim();
+  const msgBody = parsed.data.body.trim();
   if (!subject || !msgBody) return c.redirect("/portal/messages");
 
   await supabase.from("client_messages").insert({

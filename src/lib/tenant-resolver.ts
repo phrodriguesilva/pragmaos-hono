@@ -115,7 +115,11 @@ export async function resolveTenantByHost(host: string): Promise<ResolvedTenant 
   if (subdomain) {
     query = query.eq("subdomain", subdomain);
   } else if (isCustom) {
-    const hostname = host.split(":")[0];
+    const hostname = host.split(":")[0] ?? "";
+    // Validate hostname format to prevent filter injection.
+    if (!/^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/i.test(hostname)) {
+      return null;
+    }
     query = query.eq("custom_domain", hostname);
   } else {
     return null;

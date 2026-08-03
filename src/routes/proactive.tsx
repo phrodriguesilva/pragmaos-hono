@@ -192,11 +192,11 @@ proactiveRoutes.post("/", async (c) => {
   const body = await c.req.formData();
 
   const movement: MovementInfo = {
-    caseId: body.get("case_id") as string,
-    caseTitle: body.get("case_title") as string,
-    caseNumber: body.get("case_number") as string,
-    movementText: body.get("movement_text") as string,
-    movementDate: body.get("movement_date") as string,
+    caseId: String(body.get("case_id") ?? "").slice(0, 36),
+    caseTitle: String(body.get("case_title") ?? "").slice(0, 255),
+    caseNumber: String(body.get("case_number") ?? "").slice(0, 50),
+    movementText: String(body.get("movement_text") ?? "").slice(0, 500),
+    movementDate: String(body.get("movement_date") ?? "").slice(0, 30),
     clientName: body.get("client_name") as string,
     clientPhone: (body.get("client_phone") as string) || undefined,
     clientCpf: (body.get("client_cpf") as string) || undefined,

@@ -675,14 +675,14 @@ marketingRoutes.get("/sobre", (c) => {
 // GET /contato — Commercial lead capture form (B2B)
 // ============================================================
 const leadSchema = z.object({
-  name: z.string().min(2, "Nome é obrigatório"),
-  email: z.string().email("E-mail inválido"),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  role: z.string().optional(),
-  team_size: z.string().optional(),
-  message: z.string().optional(),
-  interested_plan: z.string().optional(),
+  name: z.string().min(2, "Nome é obrigatório").max(255),
+  email: z.string().email("E-mail inválido").max(255),
+  phone: z.string().max(20).optional(),
+  company: z.string().max(255).optional(),
+  role: z.string().max(100).optional(),
+  team_size: z.string().max(20).optional(),
+  message: z.string().max(5000).optional(),
+  interested_plan: z.string().max(50).optional(),
 });
 
 marketingRoutes.get("/contato", (c) => {

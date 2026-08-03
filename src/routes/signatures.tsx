@@ -27,7 +27,7 @@ export const signatureRoutes = new Hono<AppEnv>();
 signatureRoutes.use("*", requireAuth);
 
 const signatureSchema = z.object({
-  title: z.string().min(1, "Titulo e obrigatorio"),
+  title: z.string().min(1, "Titulo e obrigatorio").max(255),
   signer_email: z.string().email("E-mail do signatario invalido").max(255),
   signer_name: z.string().max(200).optional(),
   provider: z.enum(["internal", "clicksign", "docusign", "govbr", "icp_brasil"]),

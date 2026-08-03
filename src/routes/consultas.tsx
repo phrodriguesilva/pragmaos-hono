@@ -1346,11 +1346,15 @@ consultasRoutes.post("/:id/vincular", async (c) => {
   const user = c.get("user");
 
   const formData = await c.req.formData();
-  const caseId = (formData.get("case_id") as string ?? "").trim() || null;
+  const caseId = String(formData.get("case_id") ?? "").trim();
+  if (caseId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(caseId)) {
+    return c.redirect(`/consultas/${id}?error=ID invalido`);
+  }
+  const caseIdValue = caseId || null;
 
   const { error } = await supabase
     .from("consultas")
-    .update({ case_id: caseId })
+    .update({ case_id: caseIdValue })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 
