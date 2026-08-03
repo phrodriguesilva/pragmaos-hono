@@ -22,11 +22,11 @@ const accountSchema = z.object({
 });
 
 const composeSchema = z.object({
-  to_email: z.string().email("Destinatario invalido"),
-  subject: z.string().optional(),
-  body: z.string().optional(),
-  case_id: z.string().optional(),
-  client_id: z.string().optional(),
+  to_email: z.string().email("Destinatario invalido").max(255),
+  subject: z.string().max(500).optional(),
+  body: z.string().max(10000).optional(),
+  case_id: z.string().max(36).optional(),
+  client_id: z.string().max(36).optional(),
 });
 
 // GET / -- email dashboard.

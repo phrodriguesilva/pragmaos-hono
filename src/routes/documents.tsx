@@ -16,13 +16,13 @@ export const documentsRoutes = new Hono<AppEnv>();
 documentsRoutes.use("*", requireAuth);
 
 const docSchema = z.object({
-  case_id: z.string().optional(),
-  client_id: z.string().optional(),
-  title: z.string().min(1, "Titulo e obrigatorio"),
-  description: z.string().optional(),
-  file_url: z.string().optional(),
+  case_id: z.string().max(36).optional(),
+  client_id: z.string().max(36).optional(),
+  title: z.string().min(1, "Titulo e obrigatorio").max(255),
+  description: z.string().max(5000).optional(),
+  file_url: z.string().max(500).optional(),
   doc_type: z.enum(["peticao", "procuracao", "contrato", "sentenca", "acordao", "declaracao", "recibo", "outro"]).optional(),
-  template_id: z.string().optional(),
+  template_id: z.string().max(36).optional(),
 });
 
 const docTypeOptions = [

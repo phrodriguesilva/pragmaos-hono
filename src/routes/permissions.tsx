@@ -25,8 +25,8 @@ permissionsRoutes.use("*", requireAuth);
 permissionsRoutes.use("*", requireRole("socio"));
 
 const roleSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
-  description: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(100),
+  description: z.string().max(1000).optional(),
 });
 
 const MODULES = [

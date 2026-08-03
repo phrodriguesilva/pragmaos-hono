@@ -18,29 +18,29 @@ casesRoutes.use("*", requireAuth);
 const caseSchema = z.object({
   client_id: z.string().uuid("Cliente invalido"),
   title: z.string().min(1, "Titulo e obrigatorio"),
-  case_number: z.string().optional(),
-  case_type: z.string().min(1),
-  tribunal: z.string().optional(),
+  case_number: z.string().max(50).optional(),
+  case_type: z.string().min(1).max(50),
+  tribunal: z.string().max(100).optional(),
   status: z.enum(["active", "suspended", "archived"]),
-  description: z.string().optional(),
+  description: z.string().max(10000).optional(),
   cause_value_cents: z.coerce.number().optional(),
-  judge: z.string().optional(),
-  district: z.string().optional(),
-  court_branch: z.string().optional(),
-  instance: z.string().optional(),
-  phase: z.string().optional(),
-  opposing_party: z.string().optional(),
-  opposing_lawyer: z.string().optional(),
-  case_class: z.string().optional(),
-  subject: z.string().optional(),
+  judge: z.string().max(100).optional(),
+  district: z.string().max(100).optional(),
+  court_branch: z.string().max(50).optional(),
+  instance: z.string().max(20).optional(),
+  phase: z.string().max(100).optional(),
+  opposing_party: z.string().max(200).optional(),
+  opposing_lawyer: z.string().max(200).optional(),
+  case_class: z.string().max(100).optional(),
+  subject: z.string().max(200).optional(),
 });
 
 const partySchema = z.object({
   party_type: z.enum(["autor", "reu", "advogado", "perito", "testemunha", "terceiro"]),
   name: z.string().min(1, "Nome e obrigatorio"),
-  document: z.string().optional(),
-  role: z.string().optional(),
-  notes: z.string().optional(),
+  document: z.string().max(50).optional(),
+  role: z.string().max(100).optional(),
+  notes: z.string().max(2000).optional(),
 });
 
 const riskSchema = z.object({
@@ -48,7 +48,7 @@ const riskSchema = z.object({
   loss_probability: z.coerce.number().int().min(0).max(100).optional(),
   probable_value_cents: z.coerce.number().optional(),
   provision_cents: z.coerce.number().optional(),
-  risk_notes: z.string().optional(),
+  risk_notes: z.string().max(5000).optional(),
 });
 
 const CASE_TYPES = [

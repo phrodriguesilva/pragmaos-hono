@@ -14,15 +14,15 @@ honorariosRoutes.use("*", requireAuth);
 honorariosRoutes.use("*", requireRole("socio", "financeiro"));
 
 const honorarioSchema = z.object({
-  client_id: z.string().uuid("Cliente invalido"),
-  case_id: z.string().optional(),
-  description: z.string().min(1, "Descricao e obrigatoria"),
+  client_id: z.string().uuid("Cliente invalido").max(36),
+  case_id: z.string().max(36).optional(),
+  description: z.string().min(1, "Descricao e obrigatoria").max(500),
   type: z.enum(["contratual", "sucumbencial", "exito", "mensalidade", "parcelamento"]),
   amount_cents: z.coerce.number().int().positive("Valor deve ser positivo").max(1e12, "Valor excede o limite maximo"),
   status: z.enum(["pending", "paid", "overdue", "cancelled"]),
-  due_date: z.string().optional(),
+  due_date: z.string().max(20).optional(),
   installments: z.coerce.number().int().min(1).optional(),
-  notes: z.string().optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 const TYPE_LABELS: Record<string, string> = {

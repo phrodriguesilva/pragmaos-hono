@@ -13,13 +13,13 @@ export const messagesRoutes = new Hono<AppEnv>();
 messagesRoutes.use("*", requireAuth);
 
 const channelSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
-  case_id: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
+  case_id: z.string().max(36).optional(),
   type: z.enum(["channel", "direct"]),
 });
 
 const messageSchema = z.object({
-  content: z.string().min(1, "Mensagem e obrigatoria"),
+  content: z.string().min(1, "Mensagem e obrigatoria").max(10000),
 });
 
 const memberSchema = z.object({

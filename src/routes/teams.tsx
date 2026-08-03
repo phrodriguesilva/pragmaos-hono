@@ -14,9 +14,9 @@ teamsRoutes.use("*", requireAuth);
 teamsRoutes.use("*", requireRole("socio"));
 
 const teamSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
-  description: z.string().optional(),
-  leader_id: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
+  description: z.string().max(1000).optional(),
+  leader_id: z.string().max(36).optional(),
 });
 
 // GET /teams -- list teams.

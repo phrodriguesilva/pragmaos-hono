@@ -77,6 +77,16 @@ import { renderNotFound, renderServerError } from "../lib/error-pages";
 
 const app = new Hono<AppEnv>();
 
+// Body size limit — reject oversized request bodies to prevent DoS (10MB max).
+const MAX_BODY_SIZE = 10 * 1024 * 1024;
+app.use("*", async (c, next) => {
+  const contentLength = c.req.header("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_SIZE) {
+    return c.text("Request body too large", 413);
+  }
+  await next();
+});
+
 // Structured request logging (replaces basic hono/logger with JSON logs in prod).
 app.use("*", requestLogger());
 app.use("*", logger());
@@ -180,12 +190,12 @@ app.get("/health/ready", async (c) => {
     const { error } = await supabase.from("tenants").select("id").limit(1).maybeSingle();
     if (error) {
       log.warn("Health check failed — database error", { error: error.message });
-      return c.json({ status: "not_ready", error: error.message }, 503);
+      return c.json({ status: "not_ready", error: "Database connection failed" }, 503);
     }
     return c.json({ status: "ready", timestamp: new Date().toISOString() });
   } catch (err) {
     log.error("Health check failed — exception", { error: String(err) });
-    return c.json({ status: "not_ready", error: String(err) }, 503);
+    return c.json({ status: "not_ready", error: "Internal error" }, 503);
   }
 });
 

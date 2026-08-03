@@ -14,14 +14,14 @@ export const clientsRoutes = new Hono<AppEnv>();
 clientsRoutes.use("*", requireAuth);
 
 const clientSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
   client_type: z.enum(["PF", "PJ"]),
-  cpf: z.string().optional(),
-  cnpj: z.string().optional(),
-  email: z.string().email("Email invalido").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  notes: z.string().optional(),
+  cpf: z.string().max(20).optional(),
+  cnpj: z.string().max(20).optional(),
+  email: z.string().max(255).email("Email invalido").optional().or(z.literal("")),
+  phone: z.string().max(20).optional(),
+  address: z.string().max(500).optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 // GET /clients -- list with search + server-side pagination.

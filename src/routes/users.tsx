@@ -21,18 +21,18 @@ const userSchema = z.object({
 });
 
 const userUpdateSchema = z.object({
-  full_name: z.string().min(1, "Nome e obrigatorio"),
+  full_name: z.string().min(1, "Nome e obrigatorio").max(255),
   role: z.enum(["socio", "advogado", "estagiario", "financeiro", "recepcao"]),
   active: z.enum(["true", "false"]).optional(),
-  phone: z.string().optional(),
-  oab_number: z.string().optional(),
-  oab_state: z.string().optional(),
-  bio: z.string().optional(),
-  linkedin_url: z.string().optional(),
-  photo_url: z.string().optional(),
-  admission_date: z.string().optional(),
-  bar_admission_date: z.string().optional(),
-  specialties: z.string().optional(),
+  phone: z.string().max(20).optional(),
+  oab_number: z.string().max(20).optional(),
+  oab_state: z.string().max(2).optional(),
+  bio: z.string().max(2000).optional(),
+  linkedin_url: z.string().max(500).optional(),
+  photo_url: z.string().max(500).optional(),
+  admission_date: z.string().max(20).optional(),
+  bar_admission_date: z.string().max(20).optional(),
+  specialties: z.string().max(500).optional(),
 });
 
 const roleLabels: Record<string, string> = {
@@ -377,7 +377,7 @@ usersRoutes.post("/:id", async (c) => {
   // Also fetch current role to detect changes for session invalidation.
   const { data: target } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, active")
     .eq("id", id)
     .eq("tenant_id", user.tenantId)
     .single();
@@ -385,6 +385,11 @@ usersRoutes.post("/:id", async (c) => {
   // Prevent users from changing their own role (self-elevation protection).
   if (user.id === id && target && target.role !== parsed.data.role) {
     return c.html("Nao e possivel alterar seu proprio papel.", 400);
+  }
+
+  // Prevent users from deactivating their own account (self-lockout protection).
+  if (user.id === id && target && target.active !== (parsed.data.active === "true") && parsed.data.active === "false") {
+    return c.html("Nao e possivel desativar sua propria conta.", 400);
   }
 
   if (parsed.data.role !== "socio" && target?.role === "socio") {

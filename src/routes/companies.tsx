@@ -24,20 +24,20 @@ export const companiesRoutes = new Hono<AppEnv>();
 companiesRoutes.use("*", requireAuth);
 
 const companySchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
-  cnpj: z.string().optional(),
-  email: z.string().email("Email invalido").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  notes: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
+  cnpj: z.string().max(20).optional(),
+  email: z.string().max(255).email("Email invalido").optional().or(z.literal("")),
+  phone: z.string().max(20).optional(),
+  address: z.string().max(500).optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 const representativeSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
-  cpf: z.string().optional(),
-  email: z.string().email("Email invalido").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  role: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
+  cpf: z.string().max(20).optional(),
+  email: z.string().max(255).email("Email invalido").optional().or(z.literal("")),
+  phone: z.string().max(20).optional(),
+  role: z.string().max(100).optional(),
 });
 
 // GET /companies -- list companies.

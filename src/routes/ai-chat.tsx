@@ -143,8 +143,8 @@ aiChatRoutes.get("/", async (c) => {
 // --- POST / -- create conversation ---
 
 const conversationSchema = z.object({
-  title: z.string().min(1, "Titulo e obrigatorio"),
-  case_id: z.string().optional(),
+  title: z.string().min(1, "Titulo e obrigatorio").max(500),
+  case_id: z.string().max(36).optional(),
 });
 
 aiChatRoutes.post("/", async (c) => {

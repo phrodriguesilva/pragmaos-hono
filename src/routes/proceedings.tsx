@@ -50,10 +50,10 @@ interface DataJudProcess {
 }
 
 const proceedingSchema = z.object({
-  case_id: z.string().uuid("Processo invalido"),
-  cnj_number: z.string().min(1, "Numero CNJ e obrigatorio"),
-  tribunal: z.string().optional(),
-  district: z.string().optional(),
+  case_id: z.string().max(36).uuid("Processo invalido"),
+  cnj_number: z.string().min(1, "Numero CNJ e obrigatorio").max(50),
+  tribunal: z.string().max(100).optional(),
+  district: z.string().max(100).optional(),
 });
 
 const movementSchema = z.object({

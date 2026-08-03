@@ -14,14 +14,14 @@ export const tasksRoutes = new Hono<AppEnv>();
 tasksRoutes.use("*", requireAuth);
 
 const taskSchema = z.object({
-  title: z.string().min(1, "Titulo e obrigatorio"),
-  description: z.string().optional(),
-  case_id: z.string().uuid().optional().or(z.literal("")),
-  client_id: z.string().uuid().optional().or(z.literal("")),
-  assigned_to: z.string().uuid().optional().or(z.literal("")),
+  title: z.string().min(1, "Titulo e obrigatorio").max(255),
+  description: z.string().max(5000).optional(),
+  case_id: z.string().max(36).uuid().optional().or(z.literal("")),
+  client_id: z.string().max(36).uuid().optional().or(z.literal("")),
+  assigned_to: z.string().max(36).uuid().optional().or(z.literal("")),
   status: z.enum(["todo", "in_progress", "review", "done"]),
   priority: z.coerce.number().int().min(1).max(5),
-  due_date: z.string().optional(),
+  due_date: z.string().max(20).optional(),
   billable: z.string().optional(),
 });
 

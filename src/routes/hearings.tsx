@@ -13,10 +13,10 @@ export const hearingsRoutes = new Hono<AppEnv>();
 hearingsRoutes.use("*", requireAuth);
 
 const hearingSchema = z.object({
-  case_id: z.string().uuid("Processo invalido"),
-  date: z.string().min(1, "Data e obrigatoria"),
-  location: z.string().optional(),
-  notes: z.string().optional(),
+  case_id: z.string().max(36).uuid("Processo invalido"),
+  date: z.string().min(1, "Data e obrigatoria").max(30),
+  location: z.string().max(200).optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 hearingsRoutes.get("/", async (c) => {

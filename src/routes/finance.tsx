@@ -14,13 +14,13 @@ financeRoutes.use("*", requireAuth);
 financeRoutes.use("*", requireRole("socio", "financeiro"));
 
 const invoiceSchema = z.object({
-  client_id: z.string().uuid("Cliente invalido"),
-  case_id: z.string().optional(),
-  number: z.string().min(1, "Numero e obrigatorio"),
+  client_id: z.string().uuid("Cliente invalido").max(36),
+  case_id: z.string().max(36).optional(),
+  number: z.string().min(1, "Numero e obrigatorio").max(50),
   amount_cents: z.coerce.number().int().positive("Valor deve ser positivo").max(1e12, "Valor excede o limite maximo"),
   status: z.enum(["pending", "paid", "overdue", "cancelled"]),
-  due_date: z.string().optional(),
-  notes: z.string().optional(),
+  due_date: z.string().max(20).optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 const STATUS_LABELS: Record<string, string> = {

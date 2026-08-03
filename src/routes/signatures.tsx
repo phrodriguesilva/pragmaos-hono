@@ -27,15 +27,15 @@ signatureRoutes.use("*", requireAuth);
 
 const signatureSchema = z.object({
   title: z.string().min(1, "Titulo e obrigatorio"),
-  signer_email: z.string().email("E-mail do signatario invalido"),
-  signer_name: z.string().optional(),
+  signer_email: z.string().email("E-mail do signatario invalido").max(255),
+  signer_name: z.string().max(200).optional(),
   provider: z.enum(["internal", "clicksign", "docusign", "govbr", "icp_brasil"]),
-  case_id: z.string().optional(),
-  client_id: z.string().optional(),
-  document_id: z.string().optional(),
-  document_name: z.string().optional(),
-  message: z.string().optional(),
-  expires_at: z.string().optional(),
+  case_id: z.string().max(36).optional(),
+  client_id: z.string().max(36).optional(),
+  document_id: z.string().max(36).optional(),
+  document_name: z.string().max(200).optional(),
+  message: z.string().max(5000).optional(),
+  expires_at: z.string().max(20).optional(),
 });
 
 // GET / -- list signature requests with create modal.

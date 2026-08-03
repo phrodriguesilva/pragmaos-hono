@@ -16,20 +16,20 @@ cashflowRoutes.use("*", requireRole("socio", "admin", "financeiro"));
 // --- Schemas ---
 
 const expenseSchema = z.object({
-  description: z.string().min(1, "Descricao e obrigatoria"),
+  description: z.string().min(1, "Descricao e obrigatoria").max(500),
   amount_cents: z.coerce.number().int().positive("Valor deve ser positivo").max(1e12, "Valor excede o limite maximo"),
   category: z.enum(["aluguel", "salario", "impostos", "software", "material", "viagem", "outros"]),
   status: z.enum(["pending", "paid", "cancelled"]),
-  due_date: z.string().optional(),
-  case_id: z.string().optional(),
-  notes: z.string().optional(),
+  due_date: z.string().max(20).optional(),
+  case_id: z.string().max(36).optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 const accountSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
-  bank: z.string().min(1, "Banco e obrigatorio"),
-  agency: z.string().optional(),
-  account: z.string().optional(),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
+  bank: z.string().min(1, "Banco e obrigatorio").max(100),
+  agency: z.string().max(20).optional(),
+  account: z.string().max(30).optional(),
   balance_cents: z.coerce.number(),
 });
 

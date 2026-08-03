@@ -8,11 +8,25 @@ import { z } from "zod";
 
 import { apiKeyAuth, requireScope } from "../lib/api-auth";
 import { supabase } from "../lib/supabase";
+import { getSubscriptionState, shouldBlockAccess } from "../lib/subscription";
 
 export const apiRoutes = new Hono<AppEnv>();
 
 // All API routes require API key auth
 apiRoutes.use("*", apiKeyAuth);
+
+// Enforce subscription status — block API access for expired/suspended tenants.
+apiRoutes.use("*", async (c, next) => {
+  const tenantId = c.get("apiTenantId") as string;
+  if (tenantId) {
+    const state = await getSubscriptionState(tenantId);
+    const blocked = shouldBlockAccess(state);
+    if (blocked) {
+      return c.json({ error: "Subscription expired or suspended" }, 402);
+    }
+  }
+  await next();
+});
 
 // ============================================================
 // Cases

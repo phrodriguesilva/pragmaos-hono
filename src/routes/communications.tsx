@@ -13,13 +13,13 @@ export const communicationsRoutes = new Hono<AppEnv>();
 communicationsRoutes.use("*", requireAuth);
 
 const commSchema = z.object({
-  case_id: z.string().optional(),
-  client_id: z.string().optional(),
-  channel: z.string().min(1, "Canal e obrigatorio"),
+  case_id: z.string().max(36).optional(),
+  client_id: z.string().max(36).optional(),
+  channel: z.string().min(1, "Canal e obrigatorio").max(50),
   direction: z.enum(["inbound", "outbound"]),
-  message_body: z.string().min(1, "Mensagem e obrigatoria"),
-  subject: z.string().optional(),
-  sent_at: z.string().optional(),
+  message_body: z.string().min(1, "Mensagem e obrigatoria").max(10000),
+  subject: z.string().max(500).optional(),
+  sent_at: z.string().max(30).optional(),
 });
 
 // GET / -- list communications with create modal.

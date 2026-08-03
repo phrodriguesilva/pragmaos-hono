@@ -419,7 +419,13 @@ subscriptionRoutes.post("/webhook", async (c) => {
       return c.json({ ok: false, error: "unauthorized" }, 401);
     }
 
-    const rawEvent = await c.req.json();
+    let rawEvent;
+    try {
+      rawEvent = await c.req.json();
+    } catch {
+      log.warn("Asaas webhook: invalid JSON");
+      return c.json({ ok: false, error: "invalid json" }, 400);
+    }
     // Basic payload validation
     if (!rawEvent || typeof rawEvent.event !== "string") {
       log.warn("Asaas webhook: invalid payload structure");

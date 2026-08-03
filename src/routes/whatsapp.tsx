@@ -24,15 +24,15 @@ whatsappRoutes.use("*", requireAuth);
 whatsappRoutes.use("*", requireRole("socio", "admin", "advogado"));
 
 const sendSchema = z.object({
-  client_id: z.string().optional(),
-  phone: z.string().min(1, "Telefone e obrigatorio"),
-  message: z.string().min(1, "Mensagem e obrigatoria"),
-  template_name: z.string().optional(),
+  client_id: z.string().max(36).optional(),
+  phone: z.string().min(1, "Telefone e obrigatorio").max(20),
+  message: z.string().min(1, "Mensagem e obrigatoria").max(4096),
+  template_name: z.string().max(100).optional(),
 });
 
 const bulkSchema = z.object({
-  message: z.string().min(1, "Mensagem e obrigatoria"),
-  client_id: z.string().optional(),
+  message: z.string().min(1, "Mensagem e obrigatoria").max(4096),
+  client_id: z.string().max(36).optional(),
 });
 
 // GET / -- dashboard.

@@ -74,14 +74,14 @@ function generatePixBRCode(opts: {
 }
 
 const invoiceSchema = z.object({
-  client_id: z.string().uuid("Cliente inválido"),
-  case_id: z.string().optional(),
-  honorario_id: z.string().optional(),
-  number: z.string().min(1, "Número é obrigatório"),
+  client_id: z.string().uuid("Cliente inválido").max(36),
+  case_id: z.string().max(36).optional(),
+  honorario_id: z.string().max(36).optional(),
+  number: z.string().min(1, "Número é obrigatório").max(50),
   amount: z.coerce.number().positive("Valor deve ser positivo").max(1e10, "Valor excede o limite maximo"),
-  due_date: z.string().optional(),
+  due_date: z.string().max(20).optional(),
   payment_method: z.enum(["pix", "boleto", "card", "transfer", "cash"]),
-  notes: z.string().optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 const STATUS_LABELS: Record<string, string> = {

@@ -13,10 +13,10 @@ export const templatesRoutes = new Hono<AppEnv>();
 templatesRoutes.use("*", requireAuth);
 
 const templateSchema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
   doc_type: z.enum(["peticao", "procuracao", "contrato", "sentenca", "acordao", "declaracao", "recibo", "outro"]),
-  content: z.string().min(1, "Conteudo e obrigatorio"),
-  variables: z.string().optional(),
+  content: z.string().min(1, "Conteudo e obrigatorio").max(100000),
+  variables: z.string().max(1000).optional(),
 });
 
 const docTypeOptions = [

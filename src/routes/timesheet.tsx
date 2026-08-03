@@ -13,11 +13,11 @@ export const timesheetRoutes = new Hono<AppEnv>();
 timesheetRoutes.use("*", requireAuth);
 
 const entrySchema = z.object({
-  description: z.string().min(1, "Descricao e obrigatorio"),
-  case_id: z.string().uuid().optional().or(z.literal("")),
-  task_id: z.string().uuid().optional().or(z.literal("")),
-  start_time: z.string().optional(),
-  end_time: z.string().optional(),
+  description: z.string().min(1, "Descricao e obrigatorio").max(5000),
+  case_id: z.string().uuid().max(36).optional().or(z.literal("")),
+  task_id: z.string().uuid().max(36).optional().or(z.literal("")),
+  start_time: z.string().max(30).optional(),
+  end_time: z.string().max(30).optional(),
   billable: z.string().optional(),
   hourly_rate_cents: z.string().optional(),
 });

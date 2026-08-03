@@ -14,9 +14,9 @@ export const deadlinesRoutes = new Hono<AppEnv>();
 deadlinesRoutes.use("*", requireAuth);
 
 const deadlineSchema = z.object({
-  case_id: z.string().uuid("Processo invalido"),
-  title: z.string().min(1, "Titulo e obrigatorio"),
-  due_date: z.string().min(1, "Data e obrigatoria"),
+  case_id: z.string().max(36).uuid("Processo invalido"),
+  title: z.string().min(1, "Titulo e obrigatorio").max(255),
+  due_date: z.string().min(1, "Data e obrigatoria").max(20),
   priority: z.coerce.number().int().min(1).max(5),
 });
 
