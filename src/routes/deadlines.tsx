@@ -242,6 +242,11 @@ deadlinesRoutes.post("/:id", async (c) => {
   const parsed = deadlineSchema.safeParse(body);
   if (!parsed.success) return c.redirect(`/deadlines/${id}`);
 
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) { setFlash(c, "error", "Processo nao encontrado."); return c.redirect("/deadlines"); }
+  }
+
   await supabase.from("deadlines").update({
     case_id: parsed.data.case_id,
     title: parsed.data.title,

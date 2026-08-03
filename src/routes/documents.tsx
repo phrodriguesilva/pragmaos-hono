@@ -475,6 +475,15 @@ documentsRoutes.post("/:id", async (c) => {
   const parsed = docSchema.safeParse({ title, client_id: clientId, case_id: caseId, description, file_url: fileUrl, doc_type: docType });
   if (!parsed.success) return c.redirect(`/documents/${id}`);
 
+  if (caseId) {
+    const owns = await caseBelongsToTenant(caseId, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (clientId) {
+    const owns = await clientBelongsToTenant(clientId, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+
   await supabase
     .from("documents")
     .update({

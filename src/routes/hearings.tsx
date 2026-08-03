@@ -336,6 +336,11 @@ hearingsRoutes.post("/:id", async (c) => {
     return c.redirect(`/hearings/${id}`);
   }
 
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Caso nao encontrado.", 404);
+  }
+
   await supabase
     .from("hearings")
     .update({

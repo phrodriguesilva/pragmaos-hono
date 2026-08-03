@@ -205,7 +205,7 @@ usersRoutes.post("/", async (c) => {
   if (auditError) {
     // Compensating action: delete the profile and auth user to avoid orphans.
     console.error("[USERS] Audit log insert failed, rolling back profile and auth user:", auditError.message);
-    const { error: profileDeleteError } = await supabase.from("profiles").delete().eq("id", data.user.id);
+    const { error: profileDeleteError } = await supabase.from("profiles").delete().eq("id", data.user.id).eq("tenant_id", user.tenantId);
     if (profileDeleteError) {
       console.error(`[USERS] CRITICAL: Failed to delete profile for orphaned auth user ${data.user.id} — manual cleanup required:`, profileDeleteError.message);
     }

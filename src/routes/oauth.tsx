@@ -223,7 +223,7 @@ oauthRoutes.get("/google/callback", async (c) => {
 
     if (!tokenResp.ok) {
       const errBody = await tokenResp.text();
-      console.error("Google token exchange failed:", errBody);
+      console.error("[oauth] Google token exchange failed (response redacted)");
       return c.redirect("/integrations?error=google_token_exchange");
     }
 
@@ -254,7 +254,7 @@ oauthRoutes.get("/google/callback", async (c) => {
 
     return c.redirect("/integrations?success=google_connected");
   } catch (err) {
-    console.error("Google OAuth callback error:", err);
+    console.error("[oauth] Google OAuth error:", err instanceof Error ? err.message : "unknown error");
     return c.redirect("/integrations?error=google_exception");
   }
 });
@@ -394,7 +394,7 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
 
     if (!tokenResp.ok) {
       const errBody = await tokenResp.text();
-      console.error("Microsoft token exchange failed:", errBody);
+      console.error("[oauth] Microsoft token exchange failed (response redacted)");
       return c.redirect("/integrations?error=microsoft_token_exchange");
     }
 
@@ -424,7 +424,7 @@ oauthRoutes.get("/microsoft/callback", async (c) => {
 
     return c.redirect("/integrations?success=microsoft_connected");
   } catch (err) {
-    console.error("Microsoft OAuth callback error:", err);
+    console.error("[oauth] Microsoft OAuth error:", err instanceof Error ? err.message : "unknown error");
     return c.redirect("/integrations?error=microsoft_exception");
   }
 });
@@ -558,7 +558,7 @@ oauthRoutes.get("/docusign/callback", async (c) => {
 
     if (!tokenResp.ok) {
       const errBody = await tokenResp.text();
-      console.error("DocuSign token exchange failed:", errBody);
+      console.error("[oauth] DocuSign token exchange failed (response redacted)");
       return c.redirect("/integrations?error=docusign_token_exchange");
     }
 
@@ -582,7 +582,7 @@ oauthRoutes.get("/docusign/callback", async (c) => {
 
     return c.redirect("/integrations?success=docusign_connected");
   } catch (err) {
-    console.error("DocuSign OAuth callback error:", err);
+    console.error("[oauth] DocuSign OAuth error:", err instanceof Error ? err.message : "unknown error");
     return c.redirect("/integrations?error=docusign_exception");
   }
 });

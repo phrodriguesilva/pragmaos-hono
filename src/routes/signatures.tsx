@@ -534,7 +534,8 @@ signatureRoutes.post("/:id/send-to-clicksign", async (c) => {
 
     return c.redirect(`/signatures/${id}?success=${encodeURIComponent("Enviado para ClickSign com sucesso")}`);
   } catch (err) {
-    return c.redirect(`/signatures/${id}?error=${encodeURIComponent(`Erro: ${(err as Error).message}`)}`);
+    console.error("[signatures] clicksign send failed", { error: (err as Error).message });
+    return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Ocorreu um erro ao enviar para ClickSign. Tente novamente.")}`);
   }
 });
 
@@ -622,7 +623,8 @@ signatureRoutes.post("/:id/send-to-docusign", async (c) => {
 
     return c.redirect(`/signatures/${id}?success=${encodeURIComponent("Enviado para DocuSign com sucesso")}`);
   } catch (err) {
-    return c.redirect(`/signatures/${id}?error=${encodeURIComponent(`Erro: ${(err as Error).message}`)}`);
+    console.error("[signatures] docusign send failed", { error: (err as Error).message });
+    return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Ocorreu um erro ao enviar para DocuSign. Tente novamente.")}`);
   }
 });
 
@@ -726,6 +728,7 @@ signatureRoutes.post("/:id/check-status", async (c) => {
 
     return c.redirect(`/signatures/${id}?success=${encodeURIComponent(`Status atualizado: ${mappedStatus}`)}`);
   } catch (err) {
-    return c.redirect(`/signatures/${id}?error=${encodeURIComponent(`Erro: ${(err as Error).message}`)}`);
+    console.error("[signatures] status refresh failed", { error: (err as Error).message });
+    return c.redirect(`/signatures/${id}?error=${encodeURIComponent("Ocorreu um erro ao atualizar o status. Tente novamente.")}`);
   }
 });

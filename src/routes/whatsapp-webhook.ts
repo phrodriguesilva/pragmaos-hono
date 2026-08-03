@@ -51,10 +51,18 @@ whatsappWebhookRoutes.get("/", async (c) => {
     return c.text("No WhatsApp integration found", 403);
   }
 
-  // Find the one with matching verify token.
+  // Find the one with matching verify token (timing-safe comparison).
   const match = integration.find((int) => {
     const config = (int.config ?? {}) as { webhook_verify_token?: string };
-    return config.webhook_verify_token === token;
+    const expected = config.webhook_verify_token;
+    if (!expected) return false;
+    try {
+      const a = Buffer.from(expected);
+      const b = Buffer.from(String(token));
+      return a.length === b.length && timingSafeEqual(a, b);
+    } catch {
+      return false;
+    }
   });
 
   if (!match) {

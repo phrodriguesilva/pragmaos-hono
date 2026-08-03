@@ -298,6 +298,15 @@ communicationsRoutes.post("/:id", async (c) => {
   const parsed = commSchema.safeParse(body);
   if (!parsed.success) return c.redirect(`/communications/${id}`);
 
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) return c.html("Não encontrado.", 404);
+  }
+
   await supabase
     .from("communications_log")
     .update({

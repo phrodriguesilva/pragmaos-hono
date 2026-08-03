@@ -697,7 +697,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             billable: false,
             created_by: user.id,
           }).select("id").single();
-          if (insertError) { lastError = `Erro ao criar tarefa: ${insertError.message}`; stepFailed = true; break; }
+          if (insertError) { console.error("[workflows] task insert failed", { error: insertError.message }); lastError = "Erro ao criar tarefa"; stepFailed = true; break; }
           if (inserted?.id) createdResources.push({ table: "tasks", id: inserted.id });
           break;
         }
@@ -710,7 +710,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             due_date: due ? new Date(due).toISOString() : new Date(Date.now() + 7 * 86400000).toISOString(),
             priority: num(cfg, "priority") ?? 2,
           }).select("id").single();
-          if (insertError) { lastError = `Erro ao criar prazo: ${insertError.message}`; stepFailed = true; break; }
+          if (insertError) { console.error("[workflows] deadline insert failed", { error: insertError.message }); lastError = "Erro ao criar prazo"; stepFailed = true; break; }
           if (inserted?.id) createdResources.push({ table: "deadlines", id: inserted.id });
           break;
         }
@@ -722,7 +722,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             description: str(cfg, "description") ?? step.name,
             created_by: user.id,
           }).select("id").single();
-          if (insertError) { lastError = `Erro ao criar evento: ${insertError.message}`; stepFailed = true; break; }
+          if (insertError) { console.error("[workflows] event insert failed", { error: insertError.message }); lastError = "Erro ao criar evento"; stepFailed = true; break; }
           if (inserted?.id) createdResources.push({ table: "case_events", id: inserted.id });
           break;
         }
@@ -740,7 +740,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             installments: num(cfg, "installments") ?? 1,
             notes: str(cfg, "notes") ?? null,
           }).select("id").single();
-          if (insertError) { lastError = `Erro ao criar fatura: ${insertError.message}`; stepFailed = true; break; }
+          if (insertError) { console.error("[workflows] invoice insert failed", { error: insertError.message }); lastError = "Erro ao criar fatura"; stepFailed = true; break; }
           if (inserted?.id) createdResources.push({ table: "honorarios", id: inserted.id });
           break;
         }
@@ -754,7 +754,7 @@ workflowsRoutes.post("/:id/execute", async (c) => {
             message_body: str(cfg, "message_body") ?? step.name,
             status: "sent",
           }).select("id").single();
-          if (insertError) { lastError = `Erro ao enviar mensagem: ${insertError.message}`; stepFailed = true; break; }
+          if (insertError) { console.error("[workflows] message insert failed", { error: insertError.message }); lastError = "Erro ao enviar mensagem"; stepFailed = true; break; }
           if (inserted?.id) createdResources.push({ table: "communications_log", id: inserted.id });
           break;
         }
@@ -782,7 +782,8 @@ workflowsRoutes.post("/:id/execute", async (c) => {
           .eq("tenant_id", user.tenantId);
       }
     } catch (err) {
-      lastError = err instanceof Error ? err.message : String(err);
+      console.error("[workflows] execution error", { error: err instanceof Error ? err.message : String(err) });
+      lastError = "Erro inesperado na execução";
       break;
     }
   }

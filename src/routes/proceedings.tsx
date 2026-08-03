@@ -334,6 +334,9 @@ proceedingsRoutes.post("/import-cnj", async (c) => {
     return c.redirect("/proceedings/search-cnj");
   }
 
+  const ownsCase = await caseBelongsToTenant(case_id, user.tenantId);
+  if (!ownsCase) return c.html("Não encontrado.", 404);
+
   const { data, error } = await supabase.from("proceedings").insert({
     tenant_id: user.tenantId,
     case_id: case_id,

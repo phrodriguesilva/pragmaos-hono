@@ -8,6 +8,7 @@ import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
 import { maskPII, maskCPF, maskCNPJ, maskEmail, maskPhone } from "../lib/pii-mask";
+import { clientBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal, EmptyState } from "../components/ui";
 
 export const casesRoutes = new Hono<AppEnv>();
@@ -246,6 +247,11 @@ casesRoutes.post("/", async (c) => {
   if (!parsed.success) {
     const firstError = parsed.error.issues[0]?.message ?? "Dados invalidos";
     return c.redirect(`/cases?error=${encodeURIComponent(firstError)}`);
+  }
+
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) { setFlash(c, "error", "Cliente nao encontrado."); return c.redirect("/cases"); }
   }
 
   const { data: newCase } = await supabase.from("cases").insert({
@@ -771,6 +777,11 @@ casesRoutes.post("/:id", async (c) => {
   const body = await c.req.parseBody();
   const parsed = caseSchema.safeParse(body);
   if (!parsed.success) return c.redirect(`/cases/${id}`);
+
+  if (parsed.data.client_id) {
+    const owns = await clientBelongsToTenant(parsed.data.client_id, user.tenantId);
+    if (!owns) { setFlash(c, "error", "Cliente nao encontrado."); return c.redirect(`/cases/${id}`); }
+  }
 
   await supabase.from("cases").update({
     client_id: parsed.data.client_id,

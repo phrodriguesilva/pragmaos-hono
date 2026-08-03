@@ -7,6 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { callLLM, callLLMStream, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
 import { maskPII, maskCPF, maskCNPJ } from "../lib/pii-mask";
+import { caseBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiChatRoutes = new Hono<AppEnv>();
@@ -151,6 +152,11 @@ aiChatRoutes.post("/", async (c) => {
   const body = await c.req.parseBody();
   const parsed = conversationSchema.safeParse(body);
   if (!parsed.success) return c.redirect("/ai-assistant");
+
+  if (parsed.data.case_id) {
+    const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
+    if (!owns) return c.redirect("/ai-assistant");
+  }
 
   const config = await getTenantLLMConfig(user.tenantId);
 
@@ -779,7 +785,8 @@ aiChatRoutes.get("/:id", async (c) => {
                 // Reload page after a short delay to show the saved message.
                 setTimeout(function() { window.location.reload(); }, 500);
               } catch(err) {
-                aiContent.textContent = 'Erro de conexao: ' + err.message;
+                console.error('[ai-chat] stream failed', err);
+                aiContent.textContent = 'Ocorreu um erro de conexao. Tente novamente.';
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="ph ph-paper-plane-tilt"></i>Enviar';
               }
