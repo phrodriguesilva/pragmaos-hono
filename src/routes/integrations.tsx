@@ -4,7 +4,7 @@ import type { FC } from "hono/jsx";
 
 import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
-import { renderPage } from "../lib/render";
+import { renderPage, getNonce } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { sanitizeILike } from "../lib/search-sanitize";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
@@ -243,7 +243,7 @@ integrationsRoutes.get("/", async (c) => {
               <input type="checkbox" id="active" name="active" value="true" checked />
               <label for="active" class="text-body-sm font-semibold text-gray-700">Ativar integracao</label>
             </div>
-            <script dangerouslySetInnerHTML={{ __html: `
+            <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
               (function() {
                 var sel = document.getElementById('type');
                 var holder = document.getElementById('config-fields-placeholder');

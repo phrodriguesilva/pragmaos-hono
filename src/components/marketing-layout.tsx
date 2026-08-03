@@ -4,6 +4,7 @@
 
 import type { FC, PropsWithChildren } from "hono/jsx";
 import { appCss } from "../generated/css";
+import { getNonce } from "../lib/render";
 
 type NavItem = { href: string; label: string };
 
@@ -85,8 +86,8 @@ export const MarketingLayout: FC<PropsWithChildren<{
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="/static/js/alpine.min.js" defer />
-        <script src="/static/js/aurora.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
+        <script src="/static/js/aurora.js" defer nonce={getNonce()} />
         <style dangerouslySetInnerHTML={{ __html: `
           /* === Lexis Modern marketing styles === */
           .mkt-body {
@@ -195,7 +196,7 @@ export const MarketingLayout: FC<PropsWithChildren<{
             outline-offset: 2px;
           }
         ` }} />
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
           (function() {
             // IntersectionObserver for reveal animations
             const revealObs = new IntersectionObserver((entries) => {

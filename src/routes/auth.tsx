@@ -12,6 +12,7 @@ import { generateTOTPSecret, validateTOTP, generateQRCodeDataURL, generateBackup
 import { getGovBrAuthUrl, getGovBrConfig, exchangeGovBrCode, getGovBrUserInfo } from "../lib/govbr";
 import { appCss } from "../generated/css";
 import { loginRateLimit, passwordResetRateLimit, twoFactorRateLimit } from "../lib/rate-limit";
+import { getNonce } from "../lib/render";
 
 export const authRoutes = new Hono<AppEnv>();
 
@@ -40,7 +41,7 @@ function authShell(title: string, children: unknown, opts?: { wide?: boolean }) 
         <title>{title} - PragmaOS</title>
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #0568ff 0%, #4d8bff 50%, #0568ff 100%);">
@@ -263,7 +264,10 @@ authRoutes.post("/login", loginRateLimit, async (c) => {
   // Authenticate via Supabase Auth.
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error || !data.session) {
-    return c.html(loginForm("Credenciais inválidas.", email));
+    if (error?.message?.toLowerCase().includes("email not confirmed")) {
+      return c.html(loginForm("Email nao confirmado. Verifique sua caixa de entrada ou acesse o link de confirmacao.", email));
+    }
+    return c.html(loginForm("Credenciais invalidas.", email));
   }
 
   // Extend session if "remember me" is checked (30 days vs default 1 hour).

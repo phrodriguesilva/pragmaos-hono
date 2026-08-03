@@ -1,12 +1,15 @@
-// Rate limiter with Upstash Redis support.
-// Uses Upstash Redis REST API when UPSTASH_REDIS_REST_URL is configured
-// (required for Vercel serverless — in-memory Map doesn't work across instances).
-// Falls back to in-memory Map for local development.
+// Rate limiter with Upstash Redis + Supabase DB fallback support.
+// Backend selection order:
+//   1. Upstash Redis REST API (when UPSTASH_REDIS_REST_URL is configured)
+//   2. Supabase DB (when SUPABASE_URL is configured — always in production)
+//   3. In-memory Map (last resort, local dev / single instance)
+// Fail-open strategy: if the active backend errors, the request is allowed.
 //
 // PragmaOS 2.
 
 import type { MiddlewareHandler } from "hono";
-import { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } from "./env";
+import { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, SUPABASE_URL } from "./env";
+import { supabase } from "./supabase";
 
 interface RateLimitEntry {
   count: number;
@@ -27,6 +30,11 @@ setInterval(() => {
 // Check if Upstash Redis is configured.
 function isUpstashEnabled(): boolean {
   return UPSTASH_REDIS_REST_URL !== "" && UPSTASH_REDIS_REST_TOKEN !== "";
+}
+
+// Check if Supabase is configured (always true in production — env requires it).
+function isSupabaseEnabled(): boolean {
+  return SUPABASE_URL !== "";
 }
 
 // Upstash Redis REST API: INCR + EXPIRE for sliding window rate limiting.
@@ -61,6 +69,28 @@ async function upstashIncrement(key: string, windowMs: number): Promise<{ count:
   return { count, resetAt };
 }
 
+// Supabase DB fallback: atomic increment via RPC (increment_rate_limit).
+// Uses the same fixed-window approach as the Upstash backend.
+async function supabaseIncrement(key: string, windowMs: number): Promise<{ count: number; resetAt: number }> {
+  const now = Date.now();
+  const windowKey = Math.floor(now / windowMs);
+  const fullKey = `rl:${key}:${windowKey}`;
+  const resetAt = (windowKey + 1) * windowMs;
+  const resetAtIso = new Date(resetAt).toISOString();
+
+  const { data, error } = await supabase.rpc("increment_rate_limit", {
+    p_key: fullKey,
+    p_reset_at: resetAtIso,
+  });
+
+  if (error) {
+    // Fail open — allow the request if the DB call fails.
+    return { count: 1, resetAt };
+  }
+
+  return { count: data ?? 1, resetAt };
+}
+
 // Rate limiter: maxRequests per windowMs per IP.
 export function rateLimit(maxRequests: number, windowMs: number): MiddlewareHandler {
   return async (c, next) => {
@@ -71,12 +101,17 @@ export function rateLimit(maxRequests: number, windowMs: number): MiddlewareHand
     let resetAt: number;
 
     if (isUpstashEnabled()) {
-      // Distributed mode via Upstash Redis.
+      // Primary: distributed mode via Upstash Redis.
       const result = await upstashIncrement(key, windowMs);
       count = result.count;
       resetAt = result.resetAt;
+    } else if (isSupabaseEnabled()) {
+      // Fallback: Supabase DB-backed rate limiting (serverless without Upstash).
+      const result = await supabaseIncrement(key, windowMs);
+      count = result.count;
+      resetAt = result.resetAt;
     } else {
-      // In-memory mode (local dev or single instance).
+      // Last resort: in-memory mode (local dev or single instance).
       const now = Date.now();
       const entry = memStore.get(key);
 

@@ -74,6 +74,7 @@ import { backOfficeRoutes } from "../routes/back-office";
 import { consultasRoutes } from "../routes/consultas";
 import { resolveTenantByHost, resolveTenantBySlug, isPublicSiteRequest } from "../lib/tenant-resolver";
 import { renderNotFound, renderServerError } from "../lib/error-pages";
+import { setNonce } from "../lib/render";
 
 const app = new Hono<AppEnv>();
 
@@ -97,6 +98,11 @@ app.use("*", csrfProtection);
 
 // Security headers — applied to all responses.
 app.use("*", async (c, next) => {
+  // Generate a per-request CSP nonce and store it for use in JSX layouts.
+  const nonce = crypto.randomUUID().replace(/-/g, "");
+  c.set("cspNonce", nonce);
+  setNonce(nonce);
+
   await next();
   c.header("X-Content-Type-Options", "nosniff");
   c.header("X-Frame-Options", "DENY");
@@ -105,11 +111,12 @@ app.use("*", async (c, next) => {
   c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   // HSTS — only meaningful over HTTPS, tells browser to always use HTTPS.
   c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
-  // CSP — allow self and inline scripts/styles (needed for Hono JSX + Alpine).
-  // Alpine.js is self-hosted at /static/js/alpine.min.js (no external CDN).
+  // CSP — nonce-based for scripts (no unsafe-inline/unsafe-eval).
+  // Alpine.js CSP build is self-hosted at /static/js/alpine.min.js.
+  // style-src keeps 'unsafe-inline' (inline styles are a separate concern).
   c.header("Content-Security-Policy", [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",

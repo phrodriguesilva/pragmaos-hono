@@ -25,6 +25,7 @@ import { appCss } from "../generated/css";
 import { Panel, Table, Badge } from "../components/ui";
 import { sanitizeILike } from "../lib/search-sanitize";
 import type { FC, PropsWithChildren } from "hono/jsx";
+import { getNonce } from "../lib/render";
 
 export const backOfficeRoutes = new Hono<AppEnv>();
 
@@ -62,7 +63,7 @@ function BackOfficeLayout({ title, active, children }: { title: string; active: 
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
       </head>
       <body class="bg-gray-50 text-body font-sans antialiased" {...{ "x-data": "{ sidebarOpen: false }" }}>
         {/* Mobile overlay */}

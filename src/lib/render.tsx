@@ -4,48 +4,83 @@ import { Layout, type BaseData } from "../layouts/base";
 import { getSessionUser, type SessionUser } from "./session";
 import { getFlash, type FlashType } from "./flash";
 
+// CSP nonce — module-level variable set per-request by the security headers
+// middleware in app.ts. Works for single-threaded Node.js request handling.
+let currentNonce = "";
+export function setNonce(nonce: string) { currentNonce = nonce; }
+export function getNonce() { return currentNonce; }
+
 // Flash message component — reads from both cookie-based flash (setFlash)
 // and URL query params (?success=... or ?error=...).
 // Renders a toast notification that auto-dismisses after 4 seconds.
+//
+// CSP note: The init logic (URLSearchParams, setTimeout, Object.assign) cannot
+// be used in x-init with the CSP build (no global function calls or arrow
+// functions in directives). Instead, we register an Alpine.data component via
+// a nonce'd script and reference it by name in x-data.
 const FlashMessages: FC<{ flash: { type: FlashType; message: string } | null }> = ({ flash }) => {
-  // Build initial state from cookie flash + URL params.
-  const initCode = `
-    (() => {
-      const params = new URLSearchParams(window.location.search);
-      const success = params.get('success');
-      const error = params.get('error');
-      const warning = params.get('warning');
-      const info = params.get('info');
-      ${flash ? `return { show: true, type: '${flash.type}', msg: ${JSON.stringify(flash.message)} };` : ""}
-      if (success) return { show: true, type: 'success', msg: decodeURIComponent(success) };
-      if (error) return { show: true, type: 'error', msg: decodeURIComponent(error) };
-      if (warning) return { show: true, type: 'warning', msg: decodeURIComponent(warning) };
-      if (info) return { show: true, type: 'info', msg: decodeURIComponent(info) };
-      return { show: false, type: '', msg: '' };
-    })()
-  `;
+  // Serialize flash data for the data attribute (read client-side by the component).
+  const flashData = flash ? JSON.stringify({ show: true, type: flash.type, msg: flash.message }) : "";
 
   return (
-    <div
-      id="flashContainer"
-      class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
-      {...{ "x-data": `{ show: false, type: '', msg: '' }` }}
-      {...{ "x-init": `Object.assign($data, ${initCode}); if (show) { setTimeout(() => show = false, 4000); }` }}
-    >
+    <>
+      <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('flashMessages', () => ({
+            show: false,
+            type: '',
+            msg: '',
+            init() {
+              var el = this.$el;
+              var initial = el.getAttribute('data-flash');
+              if (initial) {
+                try {
+                  var d = JSON.parse(initial);
+                  this.show = d.show || false;
+                  this.type = d.type || '';
+                  this.msg = d.msg || '';
+                } catch(e) {}
+              } else {
+                var params = new URLSearchParams(window.location.search);
+                var success = params.get('success');
+                var error = params.get('error');
+                var warning = params.get('warning');
+                var info = params.get('info');
+                if (success) { this.show = true; this.type = 'success'; this.msg = decodeURIComponent(success); }
+                else if (error) { this.show = true; this.type = 'error'; this.msg = decodeURIComponent(error); }
+                else if (warning) { this.show = true; this.type = 'warning'; this.msg = decodeURIComponent(warning); }
+                else if (info) { this.show = true; this.type = 'info'; this.msg = decodeURIComponent(info); }
+              }
+              if (this.show) {
+                var self = this;
+                setTimeout(function() { self.show = false; }, 4000);
+              }
+            },
+            dismiss() { this.show = false; }
+          }));
+        }, { once: true });
+      `}} />
       <div
-        {...{ "x-show": "show" }}
-        {...{ "x-transition:opacity": "" }}
-        x-cloak
-        class="rounded-xl shadow-lg p-4 flex items-center gap-3 border"
-        {...{ ":class": "type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : type === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 'bg-blue-50 border-blue-200 text-blue-800'" }}
+        id="flashContainer"
+        class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
+        {...{ "x-data": "flashMessages" }}
+        {...(flashData ? { "data-flash": flashData } : {})}
       >
-        <i class="ph text-h4" aria-hidden="true" {...{ ":class": "type === 'success' ? 'ph-check-circle' : type === 'error' ? 'ph-warning-circle' : type === 'warning' ? 'ph-warning' : 'ph-info'" }}></i>
-        <span class="text-body-sm font-medium" {...{ "x-text": "msg" }}></span>
-        <button type="button" class="ml-auto text-gray-400 hover:text-gray-600" onclick="this.parentElement.style.display='none'">
-          <i class="ph ph-x" aria-hidden="true"></i>
-        </button>
+        <div
+          {...{ "x-show": "show" }}
+          {...{ "x-transition:opacity": "" }}
+          x-cloak
+          class="rounded-xl shadow-lg p-4 flex items-center gap-3 border"
+          {...{ ":class": "type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : type === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 'bg-blue-50 border-blue-200 text-blue-800'" }}
+        >
+          <i class="ph text-h4" aria-hidden="true" {...{ ":class": "type === 'success' ? 'ph-check-circle' : type === 'error' ? 'ph-warning-circle' : type === 'warning' ? 'ph-warning' : 'ph-info'" }}></i>
+          <span class="text-body-sm font-medium" {...{ "x-text": "msg" }}></span>
+          <button type="button" class="ml-auto text-gray-400 hover:text-gray-600" {...{ "@click": "dismiss" }}>
+            <i class="ph ph-x" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

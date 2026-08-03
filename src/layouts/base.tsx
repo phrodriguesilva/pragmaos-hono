@@ -1,6 +1,7 @@
 import type { FC, PropsWithChildren } from "hono/jsx";
 import { Sidebar, Topbar, type ModuleKey } from "../components/icons";
 import { appCss } from "../generated/css";
+import { getNonce } from "../lib/render";
 
 export type BaseData = {
   title: string;
@@ -38,8 +39,8 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-      <script src="/static/js/alpine.min.js" defer />
-      <script dangerouslySetInnerHTML={{ __html: `document.addEventListener('submit',function(e){var f=e.target;if(f.dataset.submitted)return;f.dataset.submitted='1';var btns=f.querySelectorAll('button[type="submit"]');btns.forEach(function(b){b.disabled=true;b.dataset.origText=b.innerHTML;b.innerHTML='<i class="ph ph-spinner animate-spin"></i> Aguarde...';});setTimeout(function(){f.removeAttribute('data-submitted');btns.forEach(function(b){b.disabled=false;b.innerHTML=b.dataset.origText||b.innerHTML;});},10000);},true);` }} />
+      <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
+      <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `document.addEventListener('submit',function(e){var f=e.target;if(f.dataset.submitted)return;f.dataset.submitted='1';var btns=f.querySelectorAll('button[type="submit"]');btns.forEach(function(b){b.disabled=true;b.dataset.origText=b.innerHTML;b.innerHTML='<i class="ph ph-spinner animate-spin"></i> Aguarde...';});setTimeout(function(){f.removeAttribute('data-submitted');btns.forEach(function(b){b.disabled=false;b.innerHTML=b.dataset.origText||b.innerHTML;});},10000);},true);` }} />
     </head>
     <body class="bg-gray-50 text-body font-sans antialiased" {...{ "x-data": "{ sidebarOpen: false }" }}>
       <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-[#0568ff] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold">Pular para o conteúdo</a>
@@ -68,7 +69,7 @@ export const Layout: FC<PropsWithChildren<BaseData>> = ({
         <Topbar firmName={firmName} userName={userName} userRole={userRole} />
         <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
-      <script {...{ type: "application/javascript" }} dangerouslySetInnerHTML={{
+      <script {...{ type: "application/javascript", nonce: getNonce() }} dangerouslySetInnerHTML={{
         __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)})}`,
       }} />
     </body>
@@ -95,7 +96,7 @@ export const AuthLayout: FC<PropsWithChildren<{ title: string }>> = ({ title, ch
       <style dangerouslySetInnerHTML={{ __html: appCss }} />
       <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
       <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-      <script src="/static/js/alpine.min.js" defer />
+      <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
     </head>
     <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #0568ff 0%, #4d8bff 50%, #0568ff 100%);">
       <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-2xl">

@@ -3,7 +3,7 @@ import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
 import { requireAuth, requireRole } from "../lib/session";
-import { renderPage } from "../lib/render";
+import { renderPage, getNonce } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { sanitizeILike } from "../lib/search-sanitize";
 import { callLLM, callLLMStream, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
@@ -710,7 +710,7 @@ aiChatRoutes.get("/:id", async (c) => {
             </a>
           </div>
         </form>
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
           (function() {
             var form = document.getElementById('chatForm');
             var input = document.getElementById('content');

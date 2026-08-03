@@ -10,6 +10,7 @@ export type AppEnv = {
     apiTenantId?: string;
     apiScopes?: string[];
     publicTenant?: ResolvedTenant;
+    cspNonce?: string;
   };
 };
 

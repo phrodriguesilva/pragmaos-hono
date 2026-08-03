@@ -10,6 +10,7 @@ import { supabase } from "../lib/supabase";
 import { appCss } from "../generated/css";
 import { getOnboardingState, completeStep, ONBOARDING_STEPS, type OnboardingStep } from "../lib/onboarding";
 import { log } from "../lib/logger";
+import { getNonce } from "../lib/render";
 
 export const onboardingRoutes = new Hono<AppEnv>();
 
@@ -36,7 +37,7 @@ function onboardingShell(title: string, stepIdx: number, children: unknown, skip
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
       </head>
       <body class="bg-gray-50 text-gray-800 font-sans min-h-screen antialiased">
         <div class="min-h-screen flex flex-col">

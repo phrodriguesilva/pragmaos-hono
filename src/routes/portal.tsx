@@ -3,7 +3,7 @@ import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
 import { requireAuth } from "../lib/session";
-import { renderPage } from "../lib/render";
+import { renderPage, getNonce } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge } from "../components/ui";
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
@@ -56,7 +56,7 @@ function clientLayout(title: string, clientName: string, children: unknown) {
         <title>{title} - Portal do Cliente - PragmaOS</title>
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-gray-50 text-body font-sans min-h-screen antialiased">
@@ -295,7 +295,7 @@ portalRoutes.get("/login", (c) => {
         <title>Portal do Cliente - PragmaOS</title>
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="bg-[#232856] text-body font-sans min-h-screen flex items-center justify-center">

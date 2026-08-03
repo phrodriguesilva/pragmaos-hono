@@ -6,6 +6,7 @@
 
 import { supabase } from "./supabase";
 import { log } from "./logger";
+import { generateVerificationToken } from "./email-verification";
 
 export interface SignupRequest {
   firmName: string;
@@ -20,6 +21,7 @@ export interface SignupResult {
   success: boolean;
   tenantId?: string;
   userId?: string;
+  verificationToken?: string;
   error?: string;
 }
 
@@ -40,7 +42,7 @@ export async function provisionTenant(req: SignupRequest): Promise<SignupResult>
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
     email: req.adminEmail,
     password: req.adminPassword,
-    email_confirm: true, // auto-confirm for self-service
+    email_confirm: false, // require email verification
     user_metadata: {
       full_name: req.adminName,
       firm_name: req.firmName,
@@ -151,7 +153,10 @@ export async function provisionTenant(req: SignupRequest): Promise<SignupResult>
     plan: req.plan,
   });
 
-  return { success: true, tenantId, userId };
+  // Generate email verification token.
+  const verificationToken = await generateVerificationToken(userId);
+
+  return { success: true, tenantId, userId, verificationToken };
 }
 
 // Check if self-service signup is enabled.

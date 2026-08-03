@@ -5,9 +5,12 @@ import { z } from "zod";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { provisionTenant, isSignupEnabled } from "../lib/tenant-provisioning";
+import { verifyEmailToken } from "../lib/email-verification";
 import { rateLimit } from "../lib/rate-limit";
 import { getSessionUser } from "../lib/session";
 import { appCss } from "../generated/css";
+import { getNonce } from "../lib/render";
+import { APP_URL } from "../lib/env";
 
 export const signupRoutes = new Hono<AppEnv>();
 
@@ -43,7 +46,7 @@ function signupShell(title: string, children: unknown) {
         <title>{title} — PragmaOS</title>
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
       </head>
       <body class="text-body font-sans min-h-screen flex items-center justify-center p-4 antialiased" style="background: linear-gradient(135deg, #0568ff 0%, #4d8bff 50%, #0568ff 100%);">
@@ -261,13 +264,77 @@ signupRoutes.post("/signup", signupRateLimit, async (c) => {
     phone: parsed.data.phone,
   });
 
-  if (result.success) {
-    setFlash(c, "success", "Conta criada com sucesso! Faça login para começar.");
+  if (result.success && result.verificationToken) {
+    // Redirect to verification page with token (until SMTP is configured, we show the link).
+    return c.redirect(`/verify?token=${result.verificationToken}&new=1`);
+  } else if (result.success) {
+    setFlash(c, "success", "Conta criada com sucesso! Faca login para comecar.");
     return c.redirect("/login");
   } else {
     setFlash(c, "error", result.error ?? "Erro ao criar conta");
     return c.redirect("/signup");
   }
+});
+
+// GET /verify — email verification page
+signupRoutes.get("/verify", async (c) => {
+  const token = c.req.query("token");
+  const isNew = c.req.query("new") === "1";
+
+  if (!token) {
+    return c.html(
+      `<html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;">
+      <div style="text-align:center;padding:2rem;">
+      <h1 style="color:#dc2626;">Token nao fornecido</h1>
+      <p>O link de verificacao esta incompleto.</p>
+      <a href="/login" style="color:#0568ff;">Voltar para login</a>
+      </div></body></html>`,
+      400,
+    );
+  }
+
+  // If this is a new signup, show the verification link page (until SMTP is configured).
+  if (isNew) {
+    const verifyUrl = `${APP_URL}/verify?token=${token}`;
+    return c.html(
+      `<html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;">
+      <div style="max-width:500px;text-align:center;padding:2rem;">
+      <div style="width:64px;height:64px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <span style="font-size:32px;">📧</span>
+      </div>
+      <h1 style="color:#0568ff;margin-bottom:0.5rem;">Conta criada!</h1>
+      <p style="color:#6b7280;margin-bottom:1.5rem;">Sua conta foi criada com sucesso. Para comecar a usar o PragmaOS, confirme seu email clicando no botao abaixo.</p>
+      <a href="${verifyUrl}" style="display:inline-block;background:#0568ff;color:white;padding:0.75rem 2rem;border-radius:0.5rem;text-decoration:none;font-weight:600;margin-bottom:1rem;">Confirmar Email</a>
+      <p style="color:#9ca3af;font-size:0.875rem;">Em breve, este link sera enviado automaticamente por email.</p>
+      </div></body></html>`,
+    );
+  }
+
+  // Verify the token.
+  const result = await verifyEmailToken(token);
+  if (!result.success) {
+    return c.html(
+      `<html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;">
+      <div style="text-align:center;padding:2rem;">
+      <h1 style="color:#dc2626;">Erro na verificacao</h1>
+      <p>${result.error ?? "Token invalido."}</p>
+      <a href="/login" style="color:#0568ff;">Voltar para login</a>
+      </div></body></html>`,
+      400,
+    );
+  }
+
+  return c.html(
+    `<html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;">
+    <div style="max-width:500px;text-align:center;padding:2rem;">
+    <div style="width:64px;height:64px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+    <span style="font-size:32px;">✓</span>
+    </div>
+    <h1 style="color:#059669;margin-bottom:0.5rem;">Email confirmado!</h1>
+    <p style="color:#6b7280;margin-bottom:1.5rem;">Seu email foi verificado com sucesso. Agora voce pode fazer login e comecar a usar o PragmaOS.</p>
+    <a href="/login" style="display:inline-block;background:#0568ff;color:white;padding:0.75rem 2rem;border-radius:0.5rem;text-decoration:none;font-weight:600;">Fazer Login</a>
+    </div></body></html>`,
+  );
 });
 
 // Helper: parse flash from cookie.

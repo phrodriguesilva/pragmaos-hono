@@ -3,7 +3,7 @@ import type { AppEnv } from "../lib/types";
 
 import { z } from "zod";
 import { requireAuth } from "../lib/session";
-import { renderPage } from "../lib/render";
+import { renderPage, getNonce } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { sanitizeILike } from "../lib/search-sanitize";
 import { setFlash } from "../lib/flash";
@@ -160,7 +160,7 @@ documentsRoutes.get("/", async (c) => {
                         <div id="templatePreviewContent" class="text-body text-gray-700 font-serif whitespace-pre-wrap max-h-40 overflow-y-auto leading-relaxed"></div>
                       </div>
                       <input type="hidden" id="template_content" name="template_content" value="" />
-                      <script dangerouslySetInnerHTML={{ __html: `
+                      <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
                         (function() {
                           var templates = ${JSON.stringify(templates.map((t) => ({ id: t.id, name: t.name, doc_type: t.doc_type, content: t.content }))).replace(/</g, "\\u003c")};
                           var sel = document.getElementById('template_id');
@@ -181,7 +181,7 @@ documentsRoutes.get("/", async (c) => {
                         })();
                       `}} />
                     </div>
-                    <script dangerouslySetInnerHTML={{ __html: `
+                    <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
                       (function() {
                         var modeInput = document.getElementById('mode');
                         var uploadSection = document.getElementById('uploadSection');

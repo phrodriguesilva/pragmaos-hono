@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../lib/types";
 
 import { requireAuth } from "../lib/session";
-import { renderPage } from "../lib/render";
+import { renderPage, getNonce } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { setFlash, getFlash } from "../lib/flash";
 import { log } from "../lib/logger";
@@ -290,7 +290,7 @@ intakeAdminRoutes.get("/new", async (c) => {
             + Adicionar campo
           </button>
 
-          <script {...{ type: "application/javascript" }} dangerouslySetInnerHTML={{ __html: addFieldScript }} />
+          <script {...{ type: "application/javascript", nonce: getNonce() }} dangerouslySetInnerHTML={{ __html: addFieldScript }} />
         </Panel>
 
         <div class="flex justify-end">

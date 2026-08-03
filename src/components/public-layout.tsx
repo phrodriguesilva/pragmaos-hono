@@ -4,6 +4,7 @@
 import type { FC, PropsWithChildren } from "hono/jsx";
 import type { ResolvedTenant } from "../lib/tenant-resolver";
 import { appCss } from "../generated/css";
+import { getNonce } from "../lib/render";
 
 // Validate that a color is a safe hex value (#RGB or #RRGGBB).
 // Prevents CSS injection via malicious tenant color values.
@@ -81,7 +82,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
         <style dangerouslySetInnerHTML={{ __html: appCss }} />
         <link rel="stylesheet" href="/static/css/phosphor-regular.css" />
         <link rel="stylesheet" href="/static/css/phosphor-bold.css" />
-        <script src="/static/js/alpine.min.js" defer />
+        <script src="/static/js/alpine.min.js" defer nonce={getNonce()} />
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
             --color-primary: ${primary};
@@ -109,7 +110,7 @@ export const PublicLayout: FC<PropsWithChildren<{ tenant: ResolvedTenant; active
           }
         ` }} />
         {/* Scroll reveal + back-to-top + stat counter script */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script nonce={getNonce()} dangerouslySetInnerHTML={{ __html: `
           (function() {
             // Scroll reveal with IntersectionObserver
             const obs = new IntersectionObserver((entries) => {
