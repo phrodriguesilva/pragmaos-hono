@@ -17,7 +17,7 @@ cashflowRoutes.use("*", requireRole("socio", "admin", "financeiro"));
 
 const expenseSchema = z.object({
   description: z.string().min(1, "Descricao e obrigatoria"),
-  amount_cents: z.coerce.number().positive("Valor deve ser positivo"),
+  amount_cents: z.coerce.number().int().positive("Valor deve ser positivo").max(1e12, "Valor excede o limite maximo"),
   category: z.enum(["aluguel", "salario", "impostos", "software", "material", "viagem", "outros"]),
   status: z.enum(["pending", "paid", "cancelled"]),
   due_date: z.string().optional(),

@@ -7,6 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { caseBelongsToTenant, clientBelongsToTenant, profileBelongsToTenant } from "../lib/tenant-ownership";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, WizardModal } from "../components/ui";
+import { workflowExecRateLimit } from "../lib/rate-limit";
 
 export const workflowsRoutes = new Hono<AppEnv>();
 
@@ -612,7 +613,7 @@ workflowsRoutes.post("/:id/steps/:sid/delete", async (c) => {
 });
 
 // POST /workflows/:id/execute -- manually execute the workflow.
-workflowsRoutes.post("/:id/execute", async (c) => {
+workflowsRoutes.post("/:id/execute", workflowExecRateLimit, async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
 

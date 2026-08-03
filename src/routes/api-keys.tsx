@@ -7,6 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Panel, Badge, Modal } from "../components/ui";
 import { generateApiKey } from "../lib/api-auth";
+import { apiKeyRateLimit } from "../lib/rate-limit";
 
 export const apiKeysRoutes = new Hono<AppEnv>();
 
@@ -173,7 +174,7 @@ apiKeysRoutes.get("/", async (c) => {
 });
 
 // POST /api-keys — create new API key
-apiKeysRoutes.post("/", async (c) => {
+apiKeysRoutes.post("/", apiKeyRateLimit, async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const name = body.name as string;

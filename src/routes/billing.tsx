@@ -78,7 +78,7 @@ const invoiceSchema = z.object({
   case_id: z.string().optional(),
   honorario_id: z.string().optional(),
   number: z.string().min(1, "Número é obrigatório"),
-  amount: z.coerce.number().positive("Valor deve ser positivo"),
+  amount: z.coerce.number().positive("Valor deve ser positivo").max(1e10, "Valor excede o limite maximo"),
   due_date: z.string().optional(),
   payment_method: z.enum(["pix", "boleto", "card", "transfer", "cash"]),
   notes: z.string().optional(),

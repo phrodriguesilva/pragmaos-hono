@@ -17,7 +17,7 @@ const invoiceSchema = z.object({
   client_id: z.string().uuid("Cliente invalido"),
   case_id: z.string().optional(),
   number: z.string().min(1, "Numero e obrigatorio"),
-  amount_cents: z.coerce.number().int().positive("Valor deve ser positivo"),
+  amount_cents: z.coerce.number().int().positive("Valor deve ser positivo").max(1e12, "Valor excede o limite maximo"),
   status: z.enum(["pending", "paid", "overdue", "cancelled"]),
   due_date: z.string().optional(),
   notes: z.string().optional(),

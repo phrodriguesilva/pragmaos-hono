@@ -213,6 +213,9 @@ timesheetRoutes.post("/", async (c) => {
 
   const rateRaw = parsed.data.hourly_rate_cents ? parseFloat(parsed.data.hourly_rate_cents) : NaN;
   const rateCents = isNaN(rateRaw) ? null : Math.round(rateRaw * 100);
+  if (rateCents !== null && (rateCents < 0 || rateCents > 1e9)) {
+    return c.html("Valor de hora inválido.", 400);
+  }
 
   if (parsed.data.case_id) {
     const owns = await caseBelongsToTenant(parsed.data.case_id, user.tenantId);
@@ -444,6 +447,9 @@ timesheetRoutes.post("/:id", async (c) => {
 
   const rateRaw = parsed.data.hourly_rate_cents ? parseFloat(parsed.data.hourly_rate_cents) : NaN;
   const rateCents = isNaN(rateRaw) ? null : Math.round(rateRaw * 100);
+  if (rateCents !== null && (rateCents < 0 || rateCents > 1e9)) {
+    return c.html("Valor de hora inválido.", 400);
+  }
 
   await supabase.from("time_entries").update({
     description: parsed.data.description,

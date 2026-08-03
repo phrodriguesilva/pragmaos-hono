@@ -121,7 +121,7 @@ uploadRoutes.post("/", async (c) => {
       mimeType: detectedMime,
     }, 200);
   } catch (err) {
-    console.error("Upload exception:", err);
-    return c.json({ error: `Erro interno: ${(err as Error).message}` }, 500);
+    console.error("[upload] exception:", err instanceof Error ? err.message : String(err));
+    return c.json({ error: "Ocorreu um erro interno. Tente novamente." }, 500);
   }
 });

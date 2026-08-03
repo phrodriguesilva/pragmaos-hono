@@ -1,10 +1,11 @@
 import { Hono } from "hono";
+import { createClient } from "@supabase/supabase-js";
 import type { AppEnv } from "../lib/types";
 
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import { AuthLayout } from "../layouts/base";
 import { supabase } from "../lib/supabase";
-import { APP_URL } from "../lib/env";
+import { APP_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
 import { getSessionUser } from "../lib/session";
 import { generateTOTPSecret, validateTOTP, generateQRCodeDataURL, generateBackupCodes, buildTOTPUri } from "../lib/totp";
 import { getGovBrAuthUrl, getGovBrConfig, exchangeGovBrCode, getGovBrUserInfo } from "../lib/govbr";
@@ -923,6 +924,16 @@ authRoutes.post("/reset-password", passwordResetRateLimit, async (c) => {
 
 // POST /logout
 authRoutes.post("/logout", async (c) => {
+  // Invalidate the session server-side so the JWT can't be reused.
+  const token = getCookie(c, "sb-access-token");
+  if (token) {
+    try {
+      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      await supabaseAdmin.auth.admin.signOut(token, "global");
+    } catch {
+      // Non-critical: cookie is being deleted anyway.
+    }
+  }
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
   c.header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
@@ -932,7 +943,16 @@ authRoutes.post("/logout", async (c) => {
 });
 
 // GET /logout
-authRoutes.get("/logout", (c) => {
+authRoutes.get("/logout", async (c) => {
+  const token = getCookie(c, "sb-access-token");
+  if (token) {
+    try {
+      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      await supabaseAdmin.auth.admin.signOut(token, "global");
+    } catch {
+      // Non-critical: cookie is being deleted anyway.
+    }
+  }
   deleteCookie(c, "sb-access-token", { path: "/" });
   deleteCookie(c, "auth-user-id", { path: "/" });
   c.header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");

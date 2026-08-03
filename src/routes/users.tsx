@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Panel, Badge, Modal, Textarea } from "../components/ui";
+import { inviteRateLimit } from "../lib/rate-limit";
 
 export const usersRoutes = new Hono<AppEnv>();
 
@@ -160,7 +161,7 @@ usersRoutes.get("/", async (c) => {
   );
 });
 
-usersRoutes.post("/", async (c) => {
+usersRoutes.post("/", inviteRateLimit, async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = userSchema.safeParse(body);
@@ -373,25 +374,24 @@ usersRoutes.post("/:id", async (c) => {
   }
 
   // Prevent removing role from the last socio (would lock admin access)
-  if (parsed.data.role !== "socio") {
-    const { data: target } = await supabase
+  // Also fetch current role to detect changes for session invalidation.
+  const { data: target } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", id)
+    .eq("tenant_id", user.tenantId)
+    .single();
+
+  if (parsed.data.role !== "socio" && target?.role === "socio") {
+    const { count } = await supabase
       .from("profiles")
-      .select("role")
-      .eq("id", id)
+      .select("id", { count: "exact", head: true })
       .eq("tenant_id", user.tenantId)
-      .single();
+      .eq("role", "socio")
+      .is("deleted_at", null);
 
-    if (target?.role === "socio") {
-      const { count } = await supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("tenant_id", user.tenantId)
-        .eq("role", "socio")
-        .is("deleted_at", null);
-
-      if ((count ?? 0) <= 1) {
-        return c.html("Nao e possivel alterar o papel do unico socio do escritorio.", 400);
-      }
+    if ((count ?? 0) <= 1) {
+      return c.html("Nao e possivel alterar o papel do unico socio do escritorio.", 400);
     }
   }
 
@@ -428,8 +428,9 @@ usersRoutes.post("/:id", async (c) => {
     details: { full_name: parsed.data.full_name, role: parsed.data.role, active: parsed.data.active === "true" },
   });
 
-  // If user was deactivated, invalidate their sessions
-  if (parsed.data.active === "false") {
+  // If user was deactivated or their role changed, invalidate their sessions
+  // so they can't use stale privileges.
+  if (parsed.data.active === "false" || (target && target.role !== parsed.data.role)) {
     await supabase.auth.admin.signOut(id, "global").catch(() => {});
   }
 

@@ -9,6 +9,7 @@ import { supabase } from "../lib/supabase";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 import { CONFIG_FIELDS, syncIntegration, type ConfigField } from "../lib/integrations";
 import { encryptConfigSecrets, decryptConfigSecrets } from "../lib/crypto";
+import { integrationRateLimit } from "../lib/rate-limit";
 
 export const integrationsRoutes = new Hono<AppEnv>();
 
@@ -385,7 +386,7 @@ integrationsRoutes.get("/", async (c) => {
 });
 
 // POST /integrations -- create.
-integrationsRoutes.post("/", async (c) => {
+integrationsRoutes.post("/", integrationRateLimit, async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = integrationSchema.safeParse(body);
