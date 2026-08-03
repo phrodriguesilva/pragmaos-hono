@@ -104,37 +104,44 @@ create policy "consulta_batches_update_own" on consulta_batches
 
 -- ============================================================
 -- 3. notify_tenant/notify_user — restringir execução
+--    Wrapped in DO IF EXISTS because these functions may not exist
+--    if migration 0017 was not applied. This makes 0031 idempotent.
 -- ============================================================
 
--- Revogar execute public (agora só pode ser chamada pelo service role
--- ou por funções/trigger explicitamente autorizadas).
-revoke execute on function public.notify_tenant(uuid, text, text, text, text) from public;
-revoke execute on function public.notify_user(uuid, uuid, text, text, text, text) from public;
+DO $$
+BEGIN
+  -- notify_tenant
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'notify_tenant' AND pronamespace = 'public'::regnamespace) THEN
+    REVOKE EXECUTE ON FUNCTION public.notify_tenant(uuid, text, text, text, text) FROM public;
+    CREATE OR REPLACE FUNCTION public.notify_tenant(
+      p_tenant_id uuid,
+      p_type text,
+      p_title text,
+      p_body text default null,
+      p_link text default null
+    ) returns void as $$
+    begin
+      insert into notifications (tenant_id, type, title, body, link)
+      values (p_tenant_id, p_type, p_title, p_body, p_link);
+    end;
+    $$ language plpgsql security definer set search_path = public;
+  END IF;
 
--- Recriar com set search_path (defesa contra search path hijacking)
-create or replace function public.notify_tenant(
-  p_tenant_id uuid,
-  p_type text,
-  p_title text,
-  p_body text default null,
-  p_link text default null
-) returns void as $$
-begin
-  insert into notifications (tenant_id, type, title, body, link)
-  values (p_tenant_id, p_type, p_title, p_body, p_link);
-end;
-$$ language plpgsql security definer set search_path = public;
-
-create or replace function public.notify_user(
-  p_tenant_id uuid,
-  p_user_id uuid,
-  p_type text,
-  p_title text,
-  p_body text default null,
-  p_link text default null
-) returns void as $$
-begin
-  insert into notifications (tenant_id, user_id, type, title, body, link)
-  values (p_tenant_id, p_user_id, p_type, p_title, p_body, p_link);
-end;
-$$ language plpgsql security definer set search_path = public;
+  -- notify_user
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'notify_user' AND pronamespace = 'public'::regnamespace) THEN
+    REVOKE EXECUTE ON FUNCTION public.notify_user(uuid, uuid, text, text, text, text) FROM public;
+    CREATE OR REPLACE FUNCTION public.notify_user(
+      p_tenant_id uuid,
+      p_user_id uuid,
+      p_type text,
+      p_title text,
+      p_body text default null,
+      p_link text default null
+    ) returns void as $$
+    begin
+      insert into notifications (tenant_id, user_id, type, title, body, link)
+      values (p_tenant_id, p_user_id, p_type, p_title, p_body, p_link);
+    end;
+    $$ language plpgsql security definer set search_path = public;
+  END IF;
+END $$;

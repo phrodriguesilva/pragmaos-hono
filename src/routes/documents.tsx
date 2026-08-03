@@ -57,6 +57,7 @@ documentsRoutes.get("/", async (c) => {
     .from("documents")
     .select("id, title, doc_type, storage_path, created_at, cases(title), clients(name)", { count: "exact" })
     .eq("tenant_id", user.tenantId)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   if (search) docsQuery = docsQuery.ilike("title", `%${search}%`);
@@ -499,7 +500,7 @@ documentsRoutes.post("/:id/delete", async (c) => {
 
   await supabase
     .from("documents")
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .eq("id", id)
     .eq("tenant_id", user.tenantId);
 

@@ -13,44 +13,11 @@ import { createCustomer, createSubscription, cancelSubscription, isConfigured as
 import { ASAAS_WEBHOOK_TOKEN } from "../lib/env";
 import { timingSafeEqual } from "node:crypto";
 import { PageHeader, Panel, Badge, Select } from "../components/ui";
+import { PLAN_INFO, PLAN_FEATURES, PRO_FOOTNOTE } from "../lib/plans";
 
 export const subscriptionRoutes = new Hono<AppEnv>();
 
 subscriptionRoutes.use("*", requireAuth);
-
-// ============================================================
-// Plan catalog — features mirror the marketing page (marketing.tsx PLANS)
-// ============================================================
-const PLAN_INFO: Record<string, { name: string; price: number; tagline: string }> = {
-  trial: { name: "Trial", price: 0, tagline: "14 dias grátis" },
-  starter: { name: "Starter", price: 19900, tagline: "Para advogados solo e pequenos escritórios" },
-  pro: { name: "Pro", price: 49900, tagline: "Para escritórios em crescimento" },
-  enterprise: { name: "Enterprise", price: 0, tagline: "Sob consulta — fale com o comercial" },
-};
-
-// Feature list per plan — must match marketing.tsx PLANS[].features
-const PLAN_FEATURES: Record<string, string[]> = {
-  starter: [
-    "Até 3 usuários",
-    "Até 500 processos",
-    "50 interações de IA/mês",
-    "Site público da advocacia",
-    "Suporte prioritário",
-    "Relatórios financeiros",
-  ],
-  pro: [
-    "Até 10 usuários",
-    "Processos ilimitados",
-    "300 interações de IA/mês",
-    "WhatsApp Business integrado*",
-    "Site público + API",
-    "Integrações (DataJud, assinaturas)",
-    "Gestão de equipe e permissões",
-    "Suporte dedicado",
-  ],
-};
-
-const PRO_FOOTNOTE = "*Custos de conversas da Meta (WhatsApp) são repassados ao cliente.";
 
 function formatCurrency(cents: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);

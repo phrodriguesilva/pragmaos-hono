@@ -153,13 +153,14 @@ templatesRoutes.post("/", async (c) => {
   });
 
   if (error) {
+    console.error("[templates] create failed", { error: error.message });
     return renderPage(
       c,
       { title: "Modelos de Documentos", active: "templates" },
       <>
         <PageHeader title="Modelos de Documentos" icon="ph-files" />
         <Panel>
-          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Erro ao salvar: {error.message}</div>
+          <div class="mb-4 text-status-red"><i class="ph ph-warning text-h2 block mb-2 text-status-red" aria-hidden="true"></i>Ocorreu um erro ao salvar o modelo. Tente novamente.</div>
           <a href="/templates" class="btn btn-secondary">Voltar</a>
         </Panel>
       </>,

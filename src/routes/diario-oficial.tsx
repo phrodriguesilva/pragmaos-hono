@@ -54,7 +54,8 @@ diarioRoutes.get("/", async (c) => {
           results = res.data as DiarioResult[];
           totalFound = results.length;
         } else {
-          searchError = res.message;
+          console.error("[diario-oficial] Digesto query failed", { error: res.message });
+          searchError = "Ocorreu um erro ao consultar o Diario Oficial. Tente novamente.";
         }
       }
     } else {
@@ -64,7 +65,8 @@ diarioRoutes.get("/", async (c) => {
         results = res.data as DiarioResult[];
         totalFound = results.length;
       } else {
-        searchError = res.message;
+        console.error("[diario-oficial] Querido Diario query failed", { error: res.message });
+        searchError = "Ocorreu um erro ao consultar o Diario Oficial. Tente novamente.";
       }
     }
 

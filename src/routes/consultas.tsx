@@ -1184,7 +1184,8 @@ consultasRoutes.post("/:type", async (c) => {
       .from("consultas")
       .update({ status: "error", error_message: result.error ?? "Erro desconhecido", completed_at: new Date().toISOString() })
       .eq("id", consulta.id);
-    setFlash(c, "error", `Erro na consulta: ${result.error}`);
+    console.error("[consultas] BigDataCorp query failed", { error: result.error });
+    setFlash(c, "error", "Ocorreu um erro ao processar a consulta. Tente novamente.");
     return c.redirect(`/consultas/resultado/${consulta.id}`);
   }
 
@@ -1291,7 +1292,7 @@ consultasRoutes.get("/resultado/:id", async (c) => {
         </div>
         {r.error_message && (
           <div class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 text-body-sm text-red-800">
-            <i class="ph ph-warning-circle" aria-hidden="true"></i> {r.error_message}
+            <i class="ph ph-warning-circle" aria-hidden="true"></i> Ocorreu um erro ao processar esta consulta.
           </div>
         )}
       </div>

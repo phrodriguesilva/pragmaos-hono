@@ -210,10 +210,12 @@ proceedingsRoutes.get("/search-cnj", async (c) => {
         if (res.success) {
           results = (res.data as DataJudProcess[]) ?? [];
         } else {
-          searchError = res.message;
+          console.error("[proceedings] DataJud query failed", { error: res.message });
+          searchError = "Ocorreu um erro ao consultar o DataJud. Tente novamente.";
         }
       } catch (err) {
-        searchError = `Erro ao consultar DataJud: ${(err as Error).message}`;
+        console.error("[proceedings] DataJud query exception", { error: (err as Error).message });
+        searchError = "Ocorreu um erro ao consultar o DataJud. Tente novamente.";
       }
     }
   }

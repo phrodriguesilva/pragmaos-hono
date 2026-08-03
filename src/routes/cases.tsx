@@ -7,6 +7,7 @@ import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { setFlash } from "../lib/flash";
 import { generateCaseSummary, suggestNextSteps } from "../lib/ai";
+import { maskPII, maskCPF, maskCNPJ, maskEmail, maskPhone } from "../lib/pii-mask";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, WizardModal, EmptyState } from "../components/ui";
 
 export const casesRoutes = new Hono<AppEnv>();
@@ -676,13 +677,13 @@ casesRoutes.post("/:id/summary", async (c) => {
         status: caseRow.status,
         description: caseRow.description ?? undefined,
       },
-      events ?? [],
+      (events ?? []).map((e) => ({ ...e, description: maskPII(e.description) })),
       {
         name: client?.name ?? "",
-        cpf: client?.cpf,
-        cnpj: client?.cnpj,
-        email: client?.email,
-        phone: client?.phone,
+        cpf: client?.cpf ? maskCPF(client.cpf) : undefined,
+        cnpj: client?.cnpj ? maskCNPJ(client.cnpj) : undefined,
+        email: client?.email ? maskEmail(client.email) : undefined,
+        phone: client?.phone ? maskPhone(client.phone) : undefined,
         address: client?.address,
       },
     );
@@ -733,7 +734,7 @@ casesRoutes.post("/:id/nextsteps", async (c) => {
     .limit(20);
 
   try {
-    const steps = await suggestNextSteps(user.tenantId, caseRow, events ?? []);
+    const steps = await suggestNextSteps(user.tenantId, caseRow, (events ?? []).map((e) => ({ ...e, description: maskPII(e.description) })));
     await supabase.from("case_events").insert({
       tenant_id: user.tenantId,
       case_id: id,

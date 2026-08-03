@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
 import { callLLM, callLLMStream, getTenantLLMConfig, checkRateLimit } from "../lib/ai";
+import { maskPII, maskCPF, maskCNPJ } from "../lib/pii-mask";
 import { PageHeader, Table, TextField, Select, ComboBox, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const aiChatRoutes = new Hono<AppEnv>();
@@ -288,7 +289,7 @@ aiChatRoutes.post("/jurisprudence", async (c) => {
     return c.redirect("/ai-assistant/jurisprudence");
   }
 
-  const { reply, tokens } = await callLLM(systemPrompt, userPrompt, config);
+  const { reply, tokens } = await callLLM(systemPrompt, maskPII(userPrompt), config);
 
   // Save to jurisprudence_searches.
   const { data } = await supabase
@@ -310,7 +311,7 @@ aiChatRoutes.post("/jurisprudence", async (c) => {
     tenant_id: user.tenantId,
     user_id: user.id,
     interaction_type: "jurisprudence_search",
-    input_text: query,
+    input_text: maskPII(query),
     output_text: reply,
     model: config.model,
     tokens_used: tokens,
@@ -480,8 +481,8 @@ aiChatRoutes.post("/petitions", async (c) => {
   if (caseData.opposing_party) userPrompt += `Parte contraria: ${caseData.opposing_party}\n`;
   if (client) {
     userPrompt += `\nCliente:\nNome: ${client.name}\n`;
-    if (client.cpf) userPrompt += `CPF: ${client.cpf}\n`;
-    if (client.cnpj) userPrompt += `CNPJ: ${client.cnpj}\n`;
+    if (client.cpf) userPrompt += `CPF: ${maskCPF(client.cpf)}\n`;
+    if (client.cnpj) userPrompt += `CNPJ: ${maskCNPJ(client.cnpj)}\n`;
   }
   if (instructions) userPrompt += `\nInstrucoes adicionais: ${instructions}\n`;
   userPrompt += `\nGere a peticao em formato juridico formal, com enderecamento, fatos, fundamentos e pedidos.`;
@@ -527,7 +528,7 @@ aiChatRoutes.post("/petitions", async (c) => {
     return c.redirect("/ai-assistant/petitions");
   }
 
-  const { reply, tokens } = await callLLM(systemPrompt, userPrompt, config);
+  const { reply, tokens } = await callLLM(systemPrompt, maskPII(userPrompt), config);
 
   // Save to ai_petitions.
   const { data } = await supabase
@@ -550,7 +551,7 @@ aiChatRoutes.post("/petitions", async (c) => {
     user_id: user.id,
     case_id: caseId,
     interaction_type: "petition_generation",
-    input_text: `${typeLabels[petitionType] ?? petitionType} - ${caseData.title}`,
+    input_text: maskPII(`${typeLabels[petitionType] ?? petitionType} - ${caseData.title}`),
     output_text: reply,
     model: config.model,
     tokens_used: tokens,
@@ -875,7 +876,7 @@ aiChatRoutes.post("/:id/stream", async (c) => {
   }
 
   // Start streaming from LLM.
-  const { stream, getFullReply, getTokens } = await callLLMStream(systemPrompt, userPrompt, config);
+  const { stream, getFullReply, getTokens } = await callLLMStream(systemPrompt, maskPII(userPrompt), config);
 
   // Wrap the stream so that when it finishes, we save the assistant reply to the DB.
   const encoder = new TextEncoder();
@@ -905,7 +906,7 @@ aiChatRoutes.post("/:id/stream", async (c) => {
             user_id: user.id,
             case_id: conv.case_id || null,
             interaction_type: "chat",
-            input_text: content,
+            input_text: maskPII(content),
             output_text: fullReply,
             model: config.model,
             tokens_used: tokens,
@@ -1008,7 +1009,7 @@ aiChatRoutes.post("/:id", async (c) => {
     return c.redirect(`/ai-assistant/${id}`);
   }
 
-  const { reply, tokens } = await callLLM(systemPrompt, userPrompt, config);
+  const { reply, tokens } = await callLLM(systemPrompt, maskPII(userPrompt), config);
 
   // Insert assistant response.
   await supabase.from("ai_messages").insert({
@@ -1025,7 +1026,7 @@ aiChatRoutes.post("/:id", async (c) => {
     user_id: user.id,
     case_id: conv.case_id || null,
     interaction_type: "chat",
-    input_text: content,
+    input_text: maskPII(content),
     output_text: reply,
     model: config.model,
     tokens_used: tokens,

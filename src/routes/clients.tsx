@@ -185,7 +185,8 @@ clientsRoutes.post("/", async (c) => {
   });
 
   if (error) {
-    return c.redirect(`/clients?error=${encodeURIComponent("Erro ao salvar: " + error.message)}`);
+    console.error("[clients] create failed", { error: error.message });
+    return c.redirect(`/clients?error=${encodeURIComponent("Ocorreu um erro ao salvar o cliente. Tente novamente.")}`);
   }
 
   return c.redirect("/clients?success=Cliente cadastrado com sucesso");

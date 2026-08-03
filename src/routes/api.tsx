@@ -281,7 +281,8 @@ apiRoutes.post("/v1/extension/capture", requireScope("cases:write"), async (c) =
         });
 
       if (error) {
-        results.errors.push(`Movement ${m.date}: ${error.message}`);
+        console.error("[api] movement insert failed", { date: m.date, error: error.message });
+        results.errors.push(`Movement ${m.date}: failed to insert`);
       } else {
         results.movements++;
       }
@@ -303,7 +304,8 @@ apiRoutes.post("/v1/extension/capture", requireScope("cases:write"), async (c) =
         });
 
       if (error) {
-        results.errors.push(`Document ${doc.title}: ${error.message}`);
+        console.error("[api] document insert failed", { title: doc.title, error: error.message });
+        results.errors.push(`Document ${doc.title}: failed to insert`);
       } else {
         results.documents++;
       }
