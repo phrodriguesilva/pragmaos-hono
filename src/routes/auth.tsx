@@ -716,9 +716,9 @@ authRoutes.post("/forgot-password", passwordResetRateLimit, async (c) => {
       success: true,
     });
 
-    // In production, send email with reset link. For now, we log it.
-    // The reset URL is: /reset-password?token=XXX
-    console.log(`[Password Reset] Link para ${email}: ${APP_URL}/reset-password?token=${token}`);
+    // In production, send email with reset link. For now, we log only
+    // a redacted message (the token must never appear in logs).
+    console.log(`[Password Reset] Reset link generated for ${email} (token redacted)`);
   }
 
   return c.html(forgotPasswordForm(undefined, true));

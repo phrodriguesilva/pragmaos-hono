@@ -84,34 +84,39 @@ alter table consulta_credits enable row level security;
 alter table consulta_batches enable row level security;
 
 -- consultas: tenant-scoped CRUD.
+-- Uses current_tenant_id() (security definer) instead of current_setting('app.tenant_id')
+-- because the GUC is client-controllable and enables cross-tenant data access.
 drop policy if exists "consultas_select_own" on consultas;
-create policy "consultas_select_own" on consultas for select using (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consultas_select_own" on consultas for select using (tenant_id = public.current_tenant_id());
 
 drop policy if exists "consultas_insert_own" on consultas;
-create policy "consultas_insert_own" on consultas for insert with check (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consultas_insert_own" on consultas for insert with check (tenant_id = public.current_tenant_id());
 
 drop policy if exists "consultas_update_own" on consultas;
-create policy "consultas_update_own" on consultas for update using (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consultas_update_own" on consultas for update using (tenant_id = public.current_tenant_id())
+  with check (tenant_id = public.current_tenant_id());
 
 -- consulta_credits: tenant-scoped.
 drop policy if exists "consulta_credits_select_own" on consulta_credits;
-create policy "consulta_credits_select_own" on consulta_credits for select using (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consulta_credits_select_own" on consulta_credits for select using (tenant_id = public.current_tenant_id());
 
 drop policy if exists "consulta_credits_upsert_own" on consulta_credits;
-create policy "consulta_credits_upsert_own" on consulta_credits for insert with check (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consulta_credits_upsert_own" on consulta_credits for insert with check (tenant_id = public.current_tenant_id());
 
 drop policy if exists "consulta_credits_update_own" on consulta_credits;
-create policy "consulta_credits_update_own" on consulta_credits for update using (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consulta_credits_update_own" on consulta_credits for update using (tenant_id = public.current_tenant_id())
+  with check (tenant_id = public.current_tenant_id());
 
 -- consulta_batches: tenant-scoped.
 drop policy if exists "consulta_batches_select_own" on consulta_batches;
-create policy "consulta_batches_select_own" on consulta_batches for select using (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consulta_batches_select_own" on consulta_batches for select using (tenant_id = public.current_tenant_id());
 
 drop policy if exists "consulta_batches_insert_own" on consulta_batches;
-create policy "consulta_batches_insert_own" on consulta_batches for insert with check (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consulta_batches_insert_own" on consulta_batches for insert with check (tenant_id = public.current_tenant_id());
 
 drop policy if exists "consulta_batches_update_own" on consulta_batches;
-create policy "consulta_batches_update_own" on consulta_batches for update using (tenant_id = current_setting('app.tenant_id', true)::uuid);
+create policy "consulta_batches_update_own" on consulta_batches for update using (tenant_id = public.current_tenant_id())
+  with check (tenant_id = public.current_tenant_id());
 
 -- consulta_types: public read (catalog, no RLS needed — no tenant column).
 -- No RLS on consulta_types since it's a shared catalog.

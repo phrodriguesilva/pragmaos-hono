@@ -609,7 +609,8 @@ backOfficeRoutes.post("/tenants/:id/plan", async (c) => {
     .eq("id", id);
 
   if (error) {
-    setFlash(c, "error", `Erro ao alterar plano: ${error.message}`);
+    console.error("[back-office] change plan failed", { tenantId: id, error: error.message });
+    setFlash(c, "error", "Ocorreu um erro ao alterar o plano. Tente novamente.");
   } else {
     // Log to platform audit
     const user = c.get("user");
@@ -638,7 +639,8 @@ backOfficeRoutes.post("/tenants/:id/suspend", async (c) => {
     .eq("id", id);
 
   if (error) {
-    setFlash(c, "error", `Erro ao suspender: ${error.message}`);
+    console.error("[back-office] suspend failed", { tenantId: id, error: error.message });
+    setFlash(c, "error", "Ocorreu um erro ao suspender o tenant. Tente novamente.");
   } else {
     const user = c.get("user");
     await supabase.from("platform_audit_logs").insert({
@@ -679,7 +681,8 @@ backOfficeRoutes.post("/tenants/:id/reactivate", async (c) => {
     .eq("id", id);
 
   if (error) {
-    setFlash(c, "error", `Erro ao reativar: ${error.message}`);
+    console.error("[back-office] reactivate failed", { tenantId: id, error: error.message });
+    setFlash(c, "error", "Ocorreu um erro ao reativar o tenant. Tente novamente.");
   } else {
     const user = c.get("user");
     await supabase.from("platform_audit_logs").insert({
