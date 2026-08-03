@@ -770,6 +770,11 @@ consultasRoutes.post("/lote", async (c) => {
     return c.redirect("/consultas/lote");
   }
 
+  if (lines.length > 50) {
+    setFlash(c, "error", "Arquivo muito grande (max 50 linhas)");
+    return c.redirect("/consultas/lote");
+  }
+
   // Extract document values from each line. Handle CSV with potential commas/quotes.
   const inputs: string[] = [];
   for (const line of lines) {

@@ -17,19 +17,19 @@ companySettingsRoutes.use("*", requireAuth);
 companySettingsRoutes.use("*", requireRole("socio", "admin"));
 
 const settingsSchema = z.object({
-  name: z.string().min(2, "Nome obrigatorio"),
-  cnpj: z.string().optional(),
-  oab_number: z.string().optional(),
-  address: z.string().optional(),
-  phone: z.string().optional(),
-  whatsapp: z.string().optional(),
-  email_public: z.string().optional(),
+  name: z.string().min(2, "Nome obrigatorio").max(255),
+  cnpj: z.string().max(20).optional(),
+  oab_number: z.string().max(50).optional(),
+  address: z.string().max(500).optional(),
+  phone: z.string().max(20).optional(),
+  whatsapp: z.string().max(20).optional(),
+  email_public: z.string().max(255).optional(),
   founded_year: z.coerce.number().int().min(1900).max(2099).optional(),
-  tagline: z.string().optional(),
-  description: z.string().optional(),
-  primary_color: z.string().optional(),
-  secondary_color: z.string().optional(),
-  subdomain: z.string().optional(),
+  tagline: z.string().max(500).optional(),
+  description: z.string().max(5000).optional(),
+  primary_color: z.string().max(20).optional(),
+  secondary_color: z.string().max(20).optional(),
+  subdomain: z.string().max(50).optional(),
 });
 
 // ============================================================

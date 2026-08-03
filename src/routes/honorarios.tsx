@@ -22,7 +22,7 @@ const honorarioSchema = z.object({
   amount_cents: z.coerce.number().int().positive("Valor deve ser positivo").max(1e12, "Valor excede o limite maximo"),
   status: z.enum(["pending", "paid", "overdue", "cancelled"]),
   due_date: z.string().max(20).optional(),
-  installments: z.coerce.number().int().min(1).optional(),
+  installments: z.coerce.number().int().min(1).max(120).optional(),
   notes: z.string().max(5000).optional(),
 });
 

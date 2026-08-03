@@ -22,7 +22,7 @@ const taskSchema = z.object({
   status: z.enum(["todo", "in_progress", "review", "done"]),
   priority: z.coerce.number().int().min(1).max(5),
   due_date: z.string().max(20).optional(),
-  billable: z.string().optional(),
+  billable: z.string().max(10).optional(),
 });
 
 const COLUMNS = [

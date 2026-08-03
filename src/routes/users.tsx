@@ -16,8 +16,8 @@ usersRoutes.use("*", requireAuth);
 usersRoutes.use("*", requireRole("socio"));
 
 const userSchema = z.object({
-  email: z.string().email("Email invalido"),
-  full_name: z.string().min(1, "Nome e obrigatorio"),
+  email: z.string().email("Email invalido").max(255),
+  full_name: z.string().min(1, "Nome e obrigatorio").max(255),
   role: z.enum(["socio", "advogado", "estagiario", "financeiro", "recepcao"]),
 });
 

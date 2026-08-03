@@ -62,7 +62,9 @@ export function generateBackupCodes(count = 10): string[] {
   for (let i = 0; i < count; i++) {
     let code = "";
     for (let j = 0; j < 8; j++) {
-      code += chars[Math.floor(Math.random() * chars.length)];
+      const randomValues = new Uint8Array(1);
+      crypto.getRandomValues(randomValues);
+      code += chars[(randomValues[0] ?? 0) % chars.length];
     }
     codes.push(code);
   }

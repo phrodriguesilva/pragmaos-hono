@@ -23,7 +23,7 @@ const messageSchema = z.object({
 });
 
 const memberSchema = z.object({
-  user_id: z.string().uuid("Usuario invalido"),
+  user_id: z.string().uuid("Usuario invalido").max(36),
 });
 
 const TYPE_LABELS: Record<string, string> = {

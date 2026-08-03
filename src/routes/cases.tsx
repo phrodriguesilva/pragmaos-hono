@@ -17,14 +17,14 @@ export const casesRoutes = new Hono<AppEnv>();
 casesRoutes.use("*", requireAuth);
 
 const caseSchema = z.object({
-  client_id: z.string().uuid("Cliente invalido"),
-  title: z.string().min(1, "Titulo e obrigatorio"),
+  client_id: z.string().uuid("Cliente invalido").max(36),
+  title: z.string().min(1, "Titulo e obrigatorio").max(500),
   case_number: z.string().max(50).optional(),
   case_type: z.string().min(1).max(50),
   tribunal: z.string().max(100).optional(),
   status: z.enum(["active", "suspended", "archived"]),
   description: z.string().max(10000).optional(),
-  cause_value_cents: z.coerce.number().optional(),
+  cause_value_cents: z.coerce.number().max(1e15).optional(),
   judge: z.string().max(100).optional(),
   district: z.string().max(100).optional(),
   court_branch: z.string().max(50).optional(),
@@ -38,7 +38,7 @@ const caseSchema = z.object({
 
 const partySchema = z.object({
   party_type: z.enum(["autor", "reu", "advogado", "perito", "testemunha", "terceiro"]),
-  name: z.string().min(1, "Nome e obrigatorio"),
+  name: z.string().min(1, "Nome e obrigatorio").max(255),
   document: z.string().max(50).optional(),
   role: z.string().max(100).optional(),
   notes: z.string().max(2000).optional(),
@@ -47,8 +47,8 @@ const partySchema = z.object({
 const riskSchema = z.object({
   win_probability: z.coerce.number().int().min(0).max(100).optional(),
   loss_probability: z.coerce.number().int().min(0).max(100).optional(),
-  probable_value_cents: z.coerce.number().optional(),
-  provision_cents: z.coerce.number().optional(),
+  probable_value_cents: z.coerce.number().max(1e15).optional(),
+  provision_cents: z.coerce.number().max(1e15).optional(),
   risk_notes: z.string().max(5000).optional(),
 });
 

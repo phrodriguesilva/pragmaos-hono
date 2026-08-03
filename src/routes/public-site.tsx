@@ -1175,7 +1175,7 @@ publicSiteRoutes.post("/newsletter", async (c) => {
 
   // Honeypot: silently succeed for bots
   if (String(body.website ?? "").trim()) return c.redirect(`${b}/`);
-  if (!email) return c.redirect(`${b}/`);
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) return c.redirect(`${b}/`);
 
   // Insert (ignore duplicates via upsert)
   await supabase

@@ -58,8 +58,8 @@ const proceedingSchema = z.object({
 });
 
 const movementSchema = z.object({
-  movement_text: z.string().min(1, "Texto do movimento e obrigatorio"),
-  movement_date: z.string().min(1, "Data do movimento e obrigatoria"),
+  movement_text: z.string().min(1, "Texto do movimento e obrigatorio").max(10000),
+  movement_date: z.string().min(1, "Data do movimento e obrigatoria").max(30),
 });
 
 // GET /proceedings -- list all proceedings for the tenant (with case title).

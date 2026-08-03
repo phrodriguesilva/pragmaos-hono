@@ -220,7 +220,7 @@ authRoutes.get("/login", async (c) => {
 const loginSchema = z.object({
   email: z.string().max(255).email("Email inválido."),
   password: z.string().max(1024),
-  remember: z.string().optional(),
+  remember: z.string().max(10).optional(),
   redirect: z.string().max(500).optional(),
 });
 
@@ -381,7 +381,7 @@ function twoFAVerifyForm(errorMsg?: string) {
 
 // GET /2fa/verify
 authRoutes.get("/2fa/verify", (c) => {
-  const userId = getCookie(c, "auth-user-id");
+  const userId = getCookie(c, "auth-user-id") ?? getCookie(c, "govbr-pending-user");
   if (!userId) return c.redirect("/login");
   return c.html(twoFAVerifyForm());
 });
@@ -392,7 +392,7 @@ const twoFAVerifySchema = z.object({
 });
 
 authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
-  const userId = getCookie(c, "auth-user-id");
+  const userId = getCookie(c, "auth-user-id") ?? getCookie(c, "govbr-pending-user");
   if (!userId) return c.redirect("/login");
 
   const body = await c.req.parseBody();
@@ -465,6 +465,16 @@ authRoutes.post("/2fa/verify", twoFactorRateLimit, async (c) => {
 
   // Clear the pending 2FA cookie.
   deleteCookie(c, "auth-user-id", { path: "/" });
+
+  // If this was a Gov.br login, set the session from the pending token.
+  const govbrToken = getCookie(c, "govbr-pending-token");
+  const govbrUser = getCookie(c, "govbr-pending-user");
+  if (govbrToken && govbrUser) {
+    deleteCookie(c, "govbr-pending-token", { path: "/" });
+    deleteCookie(c, "govbr-pending-user", { path: "/" });
+    setCookie(c, "sb-access-token", govbrToken, { path: "/", httpOnly: true, maxAge: 86400, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
+    setCookie(c, "auth-user-id", govbrUser, { path: "/", httpOnly: true, maxAge: 86400, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
+  }
 
   return c.redirect("/dashboard");
 });
@@ -1083,12 +1093,20 @@ authRoutes.get("/govbr/callback", async (c) => {
   // Look up user by CPF in profiles
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, tenant_id, full_name, role")
+    .select("id, tenant_id, full_name, role, totp_enabled")
     .eq("cpf", govUser.cpf.replace(/\D/g, ""))
     .maybeSingle();
 
   if (!profile) {
     return c.html(loginForm(`Usuário com CPF ${govUser.cpf} não encontrado no PragmaOS. Contate o administrador.`));
+  }
+
+  // If 2FA is enabled, require verification before setting session.
+  if (profile.totp_enabled) {
+    // Store Gov.br token temporarily for 2FA completion.
+    setCookie(c, "govbr-pending-token", tokenResult.token.access_token, { path: "/", httpOnly: true, maxAge: 300, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
+    setCookie(c, "govbr-pending-user", profile.id, { path: "/", httpOnly: true, maxAge: 300, secure: APP_URL.startsWith("https"), sameSite: "Strict" });
+    return c.redirect("/2fa/verify?govbr=1");
   }
 
   // Set session cookies (same as regular login)

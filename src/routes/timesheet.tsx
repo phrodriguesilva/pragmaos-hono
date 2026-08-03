@@ -18,8 +18,8 @@ const entrySchema = z.object({
   task_id: z.string().uuid().max(36).optional().or(z.literal("")),
   start_time: z.string().max(30).optional(),
   end_time: z.string().max(30).optional(),
-  billable: z.string().optional(),
-  hourly_rate_cents: z.string().optional(),
+  billable: z.string().max(10).optional(),
+  hourly_rate_cents: z.string().max(20).optional(),
 });
 
 // Format minutes as "Xh Ymin".

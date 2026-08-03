@@ -364,9 +364,9 @@ onboardingRoutes.get("/team", async (c) => {
 });
 
 const teamSchema = z.object({
-  invite_name: z.string().optional(),
-  invite_email: z.string().email().optional().or(z.literal("")),
-  invite_role: z.string().optional(),
+  invite_name: z.string().max(255).optional(),
+  invite_email: z.string().email().max(255).optional().or(z.literal("")),
+  invite_role: z.string().max(50).optional(),
 });
 
 onboardingRoutes.post("/team", async (c) => {
@@ -476,11 +476,11 @@ onboardingRoutes.get("/branding", async (c) => {
 });
 
 const brandingSchema = z.object({
-  tagline: z.string().optional(),
-  description: z.string().optional(),
-  primary_color: z.string().optional(),
-  secondary_color: z.string().optional(),
-  subdomain: z.string().optional(),
+  tagline: z.string().max(500).optional(),
+  description: z.string().max(5000).optional(),
+  primary_color: z.string().max(20).optional(),
+  secondary_color: z.string().max(20).optional(),
+  subdomain: z.string().max(50).optional(),
   logo_url: z.string().url().or(z.literal("")).optional(),
 });
 

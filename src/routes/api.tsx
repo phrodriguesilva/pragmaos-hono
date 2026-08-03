@@ -9,6 +9,7 @@ import { z } from "zod";
 import { apiKeyAuth, requireScope } from "../lib/api-auth";
 import { supabase } from "../lib/supabase";
 import { sanitizeILike } from "../lib/search-sanitize";
+import { rateLimit } from "../lib/rate-limit";
 import { getSubscriptionState, shouldBlockAccess } from "../lib/subscription";
 
 export const apiRoutes = new Hono<AppEnv>();
@@ -203,13 +204,14 @@ apiRoutes.get("/v1/invoices", requireScope("invoices:read"), async (c) => {
 // ============================================================
 
 // POST /api/v1/webhooks/test — trigger a test webhook
-apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), async (c) => {
+apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), rateLimit(5, 60_000), async (c) => {
   const tenantId = c.get("apiTenantId") as string;
   const { data: webhooks } = await supabase
     .from("webhooks")
     .select("id, url, secret")
     .eq("tenant_id", tenantId)
-    .eq("active", true);
+    .eq("active", true)
+    .limit(10);
 
   const results: { url: string; status: number; success: boolean }[] = [];
 
@@ -221,7 +223,6 @@ apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), async (c) =>
         data: { message: "Test webhook from PragmaOS API" },
       };
       const bodyStr = JSON.stringify(payload);
-      // Generate HMAC-SHA256 signature instead of sending raw secret.
       let signature = "";
       if (w.secret) {
         const encoder = new TextEncoder();
@@ -232,6 +233,8 @@ apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), async (c) =>
         const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(bodyStr));
         signature = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
       }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       const response = await fetch(w.url, {
         method: "POST",
         headers: {
@@ -239,7 +242,9 @@ apiRoutes.post("/v1/webhooks/test", requireScope("webhooks:write"), async (c) =>
           "X-PragmaOS-Signature": `sha256=${signature}`,
         },
         body: bodyStr,
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       results.push({ url: w.url, status: response.status, success: response.ok });
     } catch (err) {
       results.push({ url: w.url, status: 0, success: false });

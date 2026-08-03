@@ -418,10 +418,11 @@ export async function sendOutlookEmail(
 // --- Helper: build raw RFC 2822 email ---
 
 function buildRawEmail(to: string, subject: string, body: string, cc?: string): string {
+  const sanitize = (s: string) => s.replace(/[\r\n]/g, " ");
   const lines = [
-    `To: ${to}`,
-    cc ? `Cc: ${cc}` : "",
-    `Subject: ${subject}`,
+    `To: ${sanitize(to)}`,
+    cc ? `Cc: ${sanitize(cc)}` : "",
+    `Subject: ${sanitize(subject)}`,
     "MIME-Version: 1.0",
     "Content-Type: text/html; charset=UTF-8",
     "",

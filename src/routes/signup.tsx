@@ -15,12 +15,12 @@ export const signupRoutes = new Hono<AppEnv>();
 const signupRateLimit = rateLimit(5, 60_000);
 
 const signupSchema = z.object({
-  firm_name: z.string().min(2, "Nome do escritório é obrigatório"),
-  admin_name: z.string().min(2, "Nome é obrigatório"),
-  admin_email: z.string().email("E-mail inválido"),
-  admin_password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
-  admin_password_confirm: z.string().min(8, "Confirme sua senha"),
-  phone: z.string().optional(),
+  firm_name: z.string().min(2, "Nome do escritório é obrigatório").max(255),
+  admin_name: z.string().min(2, "Nome é obrigatório").max(255),
+  admin_email: z.string().email("E-mail inválido").max(255),
+  admin_password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres").max(1024),
+  admin_password_confirm: z.string().min(8, "Confirme sua senha").max(1024),
+  phone: z.string().max(20).optional(),
   accept_terms: z.string().refine((v) => v === "on", "Você deve aceitar os Termos de Uso e a Política de Privacidade"),
   // Honeypot — should be empty
   website: z.string().max(0, "spam detected").optional(),

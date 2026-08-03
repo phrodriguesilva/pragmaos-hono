@@ -30,7 +30,7 @@ const accountSchema = z.object({
   bank: z.string().min(1, "Banco e obrigatorio").max(100),
   agency: z.string().max(20).optional(),
   account: z.string().max(30).optional(),
-  balance_cents: z.coerce.number(),
+  balance_cents: z.coerce.number().min(-1e15).max(1e15),
 });
 
 // --- Helpers ---

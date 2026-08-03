@@ -49,7 +49,7 @@ const workflowSchema = z.object({
   name: z.string().min(1, "Nome e obrigatorio").max(255),
   description: z.string().max(2000).optional(),
   trigger_type: z.enum(["new_client", "new_case", "new_lead", "deadline_due", "hearing_scheduled", "manual"]),
-  active: z.string().optional(),
+  active: z.string().max(10).optional(),
 });
 
 const stepSchema = z.object({

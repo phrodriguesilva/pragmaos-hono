@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAuth } from "../lib/session";
 import { renderPage } from "../lib/render";
 import { supabase } from "../lib/supabase";
+import { rateLimit } from "../lib/rate-limit";
 import { PageHeader, Table, TextField, Select, Textarea, Panel, Badge, Modal } from "../components/ui";
 
 export const leadsRoutes = new Hono<AppEnv>();
@@ -13,13 +14,13 @@ leadsRoutes.use("*", requireAuth);
 
 const leadSchema = z.object({
   name: z.string().min(1, "Nome e obrigatorio"),
-  phone: z.string().optional(),
-  whatsapp: z.string().optional(),
+  phone: z.string().max(20).optional(),
+  whatsapp: z.string().max(20).optional(),
   email: z.string().email("Email invalido").optional().or(z.literal("")),
   origin: z.string().min(1),
   status: z.enum(["novo", "contato", "reuniao", "proposta", "negociacao", "cliente", "perdido"]),
-  area_of_interest: z.string().optional(),
-  notes: z.string().optional(),
+  area_of_interest: z.string().max(200).optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 const PIPELINE_STAGES = [
@@ -228,7 +229,7 @@ leadsRoutes.get("/", async (c) => {
 });
 
 // POST /leads -- create.
-leadsRoutes.post("/", async (c) => {
+leadsRoutes.post("/", rateLimit(20, 60_000), async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
   const parsed = leadSchema.safeParse(body);

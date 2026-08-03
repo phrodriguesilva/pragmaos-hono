@@ -9,6 +9,7 @@ import { supabase } from "../lib/supabase";
 import { renderPage } from "../lib/render"; // render.tsx
 import { PageHeader, Panel, TextField, Textarea, Select, Modal, Table, Badge } from "../components/ui";
 import { log } from "../lib/logger";
+import { setFlash } from "../lib/flash";
 
 export const siteAdminRoutes = new Hono<AppEnv>();
 
@@ -1084,15 +1085,28 @@ siteAdminRoutes.get("/team", async (c) => {
   );
 });
 
+const teamMemberSchema = z.object({
+  profile_id: z.string().max(36).nullable().optional(),
+  public_photo_url: z.string().max(500).nullable().optional(),
+  public_name: z.string().max(255).optional(),
+  public_linkedin: z.string().max(500).nullable().optional(),
+  slug: z.string().max(100).optional(),
+  public_title: z.string().max(200).optional(),
+  public_bio: z.string().max(2000).nullable().optional(),
+  public_email: z.string().max(255).nullable().optional(),
+});
+
 // POST /site/team — create
 siteAdminRoutes.post("/team", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
+  const parsed = teamMemberSchema.safeParse(body);
+  if (!parsed.success) { setFlash(c, "error", "Dados invalidos."); return c.redirect("/site/team"); }
 
-  const profileId = (body.profile_id as string) || null;
-  let photoUrl = (body.public_photo_url as string) || null;
-  let publicName = (body.public_name as string) || "";
-  let linkedin = (body.public_linkedin as string) || null;
+  const profileId = parsed.data.profile_id || null;
+  let photoUrl = parsed.data.public_photo_url || null;
+  let publicName = parsed.data.public_name || "";
+  let linkedin = parsed.data.public_linkedin || null;
 
   // If a profile was selected, prefill from it
   if (profileId) {
@@ -1108,7 +1122,7 @@ siteAdminRoutes.post("/team", async (c) => {
     }
   }
 
-  const slug = (body.slug as string) || publicName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const slug = parsed.data.slug || publicName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   // Check slug uniqueness within tenant
   const { data: existing } = await supabase
@@ -1125,11 +1139,11 @@ siteAdminRoutes.post("/team", async (c) => {
     tenant_id: user.tenantId,
     profile_id: profileId,
     public_name: publicName,
-    public_title: body.public_title as string,
-    public_bio: (body.public_bio as string) || null,
+    public_title: parsed.data.public_title ?? "",
+    public_bio: parsed.data.public_bio || null,
     public_photo_url: photoUrl,
     public_linkedin: linkedin,
-    public_email: (body.public_email as string) || null,
+    public_email: parsed.data.public_email || null,
     slug,
     is_featured: body.is_featured === "true",
     is_published: true,
@@ -1141,7 +1155,7 @@ siteAdminRoutes.post("/team", async (c) => {
     action: "create",
     entity_type: "team_member",
     entity_id: newMember?.id,
-    details: { public_name: publicName, public_title: body.public_title as string },
+    details: { public_name: publicName, public_title: parsed.data.public_title ?? "" },
   });
 
   return c.redirect("/site/team");
@@ -1240,12 +1254,24 @@ siteAdminRoutes.get("/team/:id", async (c) => {
   );
 });
 
+const teamMemberUpdateSchema = z.object({
+  slug: z.string().max(100).optional(),
+  public_name: z.string().max(255).optional(),
+  public_title: z.string().max(200).optional(),
+  public_photo_url: z.string().max(500).nullable().optional(),
+  public_linkedin: z.string().max(500).nullable().optional(),
+  public_email: z.string().max(255).nullable().optional(),
+  public_bio: z.string().max(2000).nullable().optional(),
+});
+
 // POST /site/team/:id — update
 siteAdminRoutes.post("/team/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
-  const newSlug = body.slug as string;
+  const parsed = teamMemberUpdateSchema.safeParse(body);
+  if (!parsed.success) { setFlash(c, "error", "Dados invalidos."); return c.redirect(`/site/team/${id}`); }
+  const newSlug = parsed.data.slug;
 
   // Check slug uniqueness (excluding current member)
   if (newSlug) {
@@ -1264,13 +1290,13 @@ siteAdminRoutes.post("/team/:id", async (c) => {
   await supabase
     .from("public_team_members")
     .update({
-      public_name: body.public_name as string,
-      public_title: body.public_title as string,
+      public_name: parsed.data.public_name ?? "",
+      public_title: parsed.data.public_title ?? "",
       slug: newSlug,
-      public_photo_url: (body.public_photo_url as string) || null,
-      public_linkedin: (body.public_linkedin as string) || null,
-      public_email: (body.public_email as string) || null,
-      public_bio: (body.public_bio as string) || null,
+      public_photo_url: parsed.data.public_photo_url || null,
+      public_linkedin: parsed.data.public_linkedin || null,
+      public_email: parsed.data.public_email || null,
+      public_bio: parsed.data.public_bio || null,
       sort_order: parseInt(body.sort_order as string) || 0,
       is_featured: body.is_featured === "true",
       is_published: body.is_published === "true",
@@ -1285,7 +1311,7 @@ siteAdminRoutes.post("/team/:id", async (c) => {
     action: "update",
     entity_type: "team_member",
     entity_id: id,
-    details: { public_name: body.public_name as string, public_title: body.public_title as string },
+    details: { public_name: parsed.data.public_name ?? "", public_title: parsed.data.public_title ?? "" },
   });
 
   return c.redirect(`/site/team/${id}`);
@@ -1378,18 +1404,28 @@ siteAdminRoutes.get("/stats", async (c) => {
   );
 });
 
+const statsSchema = z.object({
+  label: z.string().max(100),
+  value: z.string().max(100),
+  prefix: z.string().max(10).optional(),
+  suffix: z.string().max(10).optional(),
+  icon: z.string().max(100).nullable().optional(),
+});
+
 // POST /site/stats — create
 siteAdminRoutes.post("/stats", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
+  const parsed = statsSchema.safeParse(body);
+  if (!parsed.success) { setFlash(c, "error", "Dados invalidos."); return c.redirect("/site/stats"); }
 
   await supabase.from("site_stats").insert({
     tenant_id: user.tenantId,
-    label: body.label as string,
-    value: body.value as string,
-    prefix: (body.prefix as string) || "",
-    suffix: (body.suffix as string) || "",
-    icon: (body.icon as string) || null,
+    label: parsed.data.label,
+    value: parsed.data.value,
+    prefix: parsed.data.prefix || "",
+    suffix: parsed.data.suffix || "",
+    icon: parsed.data.icon || null,
     sort_order: parseInt(body.sort_order as string) || 0,
     is_published: true,
   });
@@ -1463,15 +1499,17 @@ siteAdminRoutes.post("/stats/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
+  const parsed = statsSchema.safeParse(body);
+  if (!parsed.success) { setFlash(c, "error", "Dados invalidos."); return c.redirect(`/site/stats/${id}`); }
 
   await supabase
     .from("site_stats")
     .update({
-      label: body.label as string,
-      value: body.value as string,
-      prefix: (body.prefix as string) || "",
-      suffix: (body.suffix as string) || "",
-      icon: (body.icon as string) || null,
+      label: parsed.data.label,
+      value: parsed.data.value,
+      prefix: parsed.data.prefix || "",
+      suffix: parsed.data.suffix || "",
+      icon: parsed.data.icon || null,
       sort_order: parseInt(body.sort_order as string) || 0,
       is_published: body.is_published === "true",
     })
@@ -1533,16 +1571,25 @@ siteAdminRoutes.get("/testimonials", async (c) => {
   </>);
 });
 
+const testimonialSchema = z.object({
+  author_name: z.string().max(255),
+  author_role: z.string().max(255).nullable().optional(),
+  content: z.string().max(5000),
+  source: z.string().max(100).optional(),
+});
+
 siteAdminRoutes.post("/testimonials", async (c) => {
   const user = c.get("user");
   const body = await c.req.parseBody();
+  const parsed = testimonialSchema.safeParse(body);
+  if (!parsed.success) { setFlash(c, "error", "Dados invalidos."); return c.redirect("/site/testimonials"); }
   await supabase.from("testimonials").insert({
     tenant_id: user.tenantId,
-    author_name: body.author_name as string,
-    author_role: (body.author_role as string) || null,
-    content: body.content as string,
+    author_name: parsed.data.author_name,
+    author_role: parsed.data.author_role || null,
+    content: parsed.data.content,
     rating: parseInt(body.rating as string) || 5,
-    source: (body.source as string) || "website",
+    source: parsed.data.source || "website",
     sort_order: body.sort_order ? parseInt(body.sort_order as string) : 0,
     is_published: true,
   });
@@ -1586,12 +1633,14 @@ siteAdminRoutes.post("/testimonials/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.parseBody();
+  const parsed = testimonialSchema.safeParse(body);
+  if (!parsed.success) { setFlash(c, "error", "Dados invalidos."); return c.redirect(`/site/testimonials/${id}`); }
   await supabase.from("testimonials").update({
-    author_name: body.author_name as string,
-    author_role: (body.author_role as string) || null,
-    content: body.content as string,
+    author_name: parsed.data.author_name,
+    author_role: parsed.data.author_role || null,
+    content: parsed.data.content,
     rating: parseInt(body.rating as string) || 5,
-    source: (body.source as string) || "website",
+    source: parsed.data.source || "website",
     is_published: body.is_published === "true",
   }).eq("id", id).eq("tenant_id", user.tenantId);
   return c.redirect(`/site/testimonials/${id}`);
@@ -1683,7 +1732,7 @@ const clientLogoSchema = z.object({
   logo_url: z.string().url().or(z.literal("")).optional(),
   website_url: z.string().url().or(z.literal("")).optional(),
   sort_order: z.coerce.number().int().min(0).max(9999).default(0),
-  is_published: z.string().optional(),
+  is_published: z.string().max(10).optional(),
 });
 
 siteAdminRoutes.post("/clients/:id", async (c) => {
